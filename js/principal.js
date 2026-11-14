@@ -104,9 +104,19 @@ function construireArmes() {
   choisir(0);
 }
 
+function construireCredits() {
+  const dl = document.getElementById('about-credits');
+  t('about.credits').forEach((c) => {
+    const ligne = element('div', 'about-credit');
+    ligne.append(element('dt', 'about-credit-titre', c.titre), element('dd', 'about-credit-noms', c.noms.join(', ')));
+    dl.append(ligne);
+  });
+}
+
 construireNews();
 construirePersonnages();
 construireArmes();
+construireCredits();
 
 // ---------- Section affichée : navigation + apparition ----------
 

@@ -14,6 +14,15 @@ lecture seule. Le site reprend la DA du jeu : thème « sang noir ».
 - Icônes : `img/icone-48.png` et `img/icone-180.png`, extraites de l'`index.html` du jeu
   (Z incliné, `scripts/icone.mjs` du jeu).
 
+## Logo du studio (No Way Studio)
+- `img/no-way-studio.svg` : copie du **logo fixe** du jeu (`assets/studio/no-way-studio-logo-fixe.svg`,
+  branche dev ; animations coupées, aucun script ni ressource externe). Le jeu signe « Un jeu de No Way Studio ».
+- Emplacements, sur le modèle des sites de jeux (signature de l'éditeur en haut à gauche et en pied de page) :
+  - en-tête de `main.html`, à gauche du logo du jeu, séparé par un trait (à partir de 600 px de large) ;
+  - coin haut gauche de l'accueil, dans le cadre rouge ;
+  - section **About us** : grand logo, signature, crédits ; pied de page (petit logo, © et licences).
+- Non repris : le logo animé et son son (introduction du jeu), le logo de Noven Studio (écran Crédits du jeu).
+
 ## Couleurs (`css/base.css`, mêmes noms que `css/tokens.css` du jeu)
 | Jeton | Valeur | Rôle |
 |---|---|---|

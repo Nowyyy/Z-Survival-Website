@@ -25,7 +25,7 @@ publié sur https://nowyyy.github.io/Z-Survival/).
 - **Téléphone d'abord** : le rendu en portrait (375 px de large) est la référence, puis l'ordinateur.
 - **`prefers-reduced-motion`** respecté partout : animations réduites ou coupées.
 - Textes regroupés dans `js/textes.js` (français aujourd'hui, prévu pour l'anglais),
-  jamais éparpillés dans le HTML. Les intitulés de section restent « News », « Characters », « Weapons ».
+  jamais éparpillés dans le HTML. Les intitulés de section restent en anglais : « News », « Characters », « Weapons », « About us ».
 - Le site est servi sous un sous-dossier GitHub Pages : **aucun chemin ne commence par « / »**
   (chemins relatifs uniquement).
 - Les contenus provisoires sont clairement marqués comme tels à l'écran.
@@ -36,8 +36,9 @@ publié sur https://nowyyy.github.io/Z-Survival/).
 
 ## Organisation
 - `index.html` : accueil plein écran (image animée à venir) + bouton « Entrer ».
-- `main.html` : page principale, sections plein écran News / Characters / Weapons.
+- `main.html` : page principale, sections plein écran News / Characters / Weapons / About us
+  (About us se termine par le pied de page).
 - `css/`, `js/` : styles et scripts ; `js/textes.js` : tous les textes ; `js/logo.js` : logo.
-- `fonts/` : polices du jeu (+ licences) ; `img/` : icônes.
+- `fonts/` : polices du jeu (+ licences) ; `img/` : icônes et logo du studio (`no-way-studio.svg`).
 - `Docs/ref/` : documents de référence ; `Docs/lots/` : bilans de lot.
 - `.github/workflows/pages.yml` : déploiement GitHub Pages à chaque push sur `main`.
