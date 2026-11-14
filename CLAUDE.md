@@ -9,8 +9,9 @@ publié sur https://nowyyy.github.io/Z-Survival/).
 - **Un commit par partie** du lot (`lot-N A: …`, `lot-N B: …`, …).
 - En fin de lot : un bilan dans `Docs/lots/lot-N.md`, puis le tag `lot-N` et le push de
   la branche et du tag.
-- **L'agent n'ouvre pas de Pull Request et ne fusionne rien dans `main`.** Le propriétaire
-  teste, ouvre la PR et fusionne lui-même.
+- **L'agent ouvre la Pull Request vers `main` et la fusionne lui-même, sans demander**
+  (décision du propriétaire), une fois les vérifications passées. Il vérifie ensuite le
+  déploiement GitHub Pages.
 
 ## Interdits
 - **Aucun contenu de HoYoverse** (Zenless Zone Zero ou autre) : ni image, ni logo, ni police,

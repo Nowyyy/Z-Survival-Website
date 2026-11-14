@@ -11,8 +11,7 @@ export const TEXTES = {
     },
     commun: {
       provisoire: 'Provisoire',
-      jouer: 'Jouer',
-      jouerAria: 'Jouer à Z-Survival (ouvre le jeu dans un nouvel onglet)',
+      bientot: 'Bientôt disponible',
       accueil: 'Accueil',
       accueilAria: 'Z-Survival — retour à l’accueil',
       navigation: 'Sections de la page',

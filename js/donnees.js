@@ -6,4 +6,5 @@ export const ARMES = [
   { id: 'carabine', stats: { degats: 65, cadence: 45, portee: 90, chargeur: 30 } },
 ];
 
+// Lien du jeu, pour quand le bouton « Jouer » reviendra (remplacé par « Bientôt disponible »).
 export const LIEN_JEU = 'https://nowyyy.github.io/Z-Survival/';
