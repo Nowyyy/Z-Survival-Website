@@ -1,7 +1,9 @@
 # Pile technique de Z-Survival — relevé pour le lot de la scène d'accueil
 
 Relevé fait en **lecture seule** sur un clone temporaire de `Nowyyy/Z-Survival`
-(hors de ce dépôt), branche par défaut, commit `4be0796` du 2026-11-09.
+(hors de ce dépôt). **Branche de référence : `dev`** (la plus à jour ; `main` est en retard).
+Relevé initial sur `main` (`4be0796`, 2026-11-09), **revérifié sur `dev` (`3c25e3a`, 2026-11-14)** :
+même version de Three.js, tous les fichiers cités existent et gardent leur rôle.
 Rien n'a été modifié dans ce dépôt de référence.
 
 ## Three.js
@@ -20,6 +22,8 @@ Rien n'a été modifié dans ce dépôt de référence.
 - `js/game/` : rendu Three.js et jeu (`game.js`, `world.js`, `character-v2.js`…).
 - `data/game/` : paramètres en JSON (personnages, poses, ennemis, carte, lumières…).
 - `css/tokens.css` : couleurs de la scène (variables `--game-*`), lues par `js/game/palette.js`.
+- `js/logo.js` (dev) : logo au Z incliné, repris par le site (voir `direction-artistique.md`) ;
+  `js/menu/` (dev) : menu principal et écran de chargement (chute du Z).
 - `jeu.html` : le jeu ; `index.html` : son accueil ; `atelier-personnages.html` : atelier
   de visualisation des personnages (utile pour cadrer des poses hors du jeu).
 

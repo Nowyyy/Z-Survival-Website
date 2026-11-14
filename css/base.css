@@ -1,39 +1,95 @@
-/* Base commune : couleurs, typographie, boutons, marques « provisoire », mouvement réduit.
-   Polices système uniquement au lot 0 (aucune police de HoYoverse). */
+/* Base commune : direction artistique du jeu Z-Survival (thème « sang noir », branche dev du jeu, css/tokens.css et css/base.css),
+   polices du jeu (licence SIL OFL 1.1, fonts/LICENSE-*.txt), boutons, logo, marques « provisoire », mouvement réduit.
+   Aucune police, image ni code de HoYoverse. */
+
+@font-face {
+  font-family: "Barlow";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("../fonts/barlow-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Barlow";
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url("../fonts/barlow-latin-700-normal.woff2") format("woff2");
+}
+
+/* Titre qui dégouline (logo, titres de section). */
+@font-face {
+  font-family: "Rubik Wet Paint";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("../fonts/rubik-wet-paint-latin-400-normal.woff2") format("woff2");
+}
+
+/* Libellés grunge : sous-ensemble réduit aux majuscules, chiffres et ponctuation → toujours en text-transform: uppercase. */
+@font-face {
+  font-family: "Rubik Dirt";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("../fonts/rubik-dirt-latin-400-normal.woff2") format("woff2");
+}
 
 :root {
-  --fond: #0b0c0e;
-  --fond-2: #14161a;
-  --fond-3: #1d2026;
-  --texte: #eceae4;
-  --texte-doux: #a3a29c;
-  --accent: #f2a33a;          /* ambre : lumière de lampe dans la nuit */
-  --accent-fonce: #b86d12;
-  --sang: #b3261e;
-  --trait: rgba(236, 234, 228, 0.14);
-  --provisoire: #ffd34d;
+  color-scheme: dark;
 
-  --police: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --police-titre: "Arial Black", "Helvetica Neue", Impact, system-ui, sans-serif;
+  /* Couleurs du jeu (mêmes noms et valeurs que css/tokens.css de Z-Survival, branche dev) */
+  --color-bg: #050505;              /* fond de page, noir profond */
+  --color-surface: #131313;         /* cartes, panneaux */
+  --color-surface-raised: #222224;  /* éléments surélevés */
+  --color-border: #6a6a6e;          /* contours, séparateurs */
+  --color-text: #f4f1ec;            /* texte principal (os) */
+  --color-text-muted: #b8b4ae;      /* texte secondaire */
+  --color-action: #d81414;          /* rouge sang : boutons, cadre, grands titres */
+  --color-on-action: #f4f1ec;       /* texte posé sur le rouge sang */
+  --color-action-text: #ff4a3d;     /* rouge lisible en petit texte sur fond sombre */
+  --color-action-deep: #7a0a0a;     /* rouge profond */
+  --color-action-hover: #ef2a2a;
+  --color-action-active: #a80f0f;
+  --color-action-glow: rgb(216 20 20 / 55%);
+  --color-warning: #f2c94c;         /* avertissement : marques « provisoire » */
+  --color-focus: #9fd3ff;           /* anneau de focus */
+  --color-ground: #1c1c1e;          /* fond autour de l'écran */
+  --color-ground-light: #3d3d40;
 
+  /* Logo (Z incliné et ses coulures) */
+  --menu-rouge: #a50f0d;            /* coulures */
+  --menu-coulure-sombre: #4a0505;   /* coulures : bord dans l'ombre */
+  --menu-coulure-reflet: #c42a22;   /* coulures : reflet humide */
+  --menu-z-contour: #1a0303;        /* contour sombre du Z */
+
+  /* Polices du jeu */
+  --font-sans: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Rubik Wet Paint", Impact, "Arial Black", sans-serif;
+  --font-label: "Rubik Dirt", Impact, "Arial Black", sans-serif;
+
+  /* Mise en page du site */
   --marge: 16px;
-  --entete-h: 56px;
-  --nav-h: 60px;               /* barre de navigation en bas sur téléphone */
-  --rayon: 4px;
+  --entete-h: 60px;
+  --nav-h: 60px;                    /* barre de navigation en bas sur téléphone */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --touch-target: 44px;
   --duree: 600ms;
   --courbe: cubic-bezier(0.2, 0.7, 0.2, 1);
-
-  color-scheme: dark;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 html, body { margin: 0; height: 100%; }
 
 body {
-  background: var(--fond);
-  color: var(--texte);
-  font-family: var(--police);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -45,42 +101,93 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 a { color: inherit; }
 button { font: inherit; color: inherit; }
 
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
 
-/* ---------- Boutons ---------- */
+/* Filtres SVG (déclarés dans le HTML) : conteneur invisible. */
+.defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* ---------- Boutons (bouton rouge plein du jeu) ---------- */
 .bouton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5em;
-  min-height: 44px;
-  padding: 0 1.4em;
-  border: 1px solid transparent;
-  border-radius: var(--rayon);
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  padding: 0.5rem 1.5rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 200ms, color 200ms, transform 200ms var(--courbe);
+  transition: background-color 150ms, transform 150ms var(--courbe);
 }
-.bouton-principal {
-  background: var(--accent);
-  color: #121212;
-  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+.bouton-principal { background: var(--color-action); color: var(--color-on-action); }
+.bouton-principal:hover { background: var(--color-action-hover); }
+.bouton-principal:active { background: var(--color-action-active); transform: scale(0.97); }
+
+/* ---------- Logo « Z-Survival » (logo du jeu, js/logo.js) ----------
+   Z rouge incliné (13°) à contour sombre, coulures de sang sous la lettre, « -Survival » couleur os. */
+.logo {
+  display: inline-flex;
+  align-items: flex-end;
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 0.95;
+  color: var(--color-text);
+  white-space: nowrap;
+  text-decoration: none;
 }
-.bouton-principal:hover { background: #ffbd5c; }
-.bouton-principal:active { transform: scale(0.97); }
+.logo-z {
+  position: relative;
+  display: inline-block;
+  color: var(--color-action);
+  -webkit-text-stroke: 0.035em var(--menu-z-contour);
+  paint-order: stroke fill;
+  transform: translate(0.1em, 0) rotate(13deg);
+  transform-origin: 88% 96%;
+}
+.logo-coulures {
+  position: absolute;
+  z-index: -1;
+  left: 0.04em;
+  top: 70%;
+  width: 0.72em;
+  height: 0.84em;
+  transform: rotate(-13deg);
+  transform-origin: 50% 0;
+}
+.logo-coulures-svg { display: block; width: 100%; height: 100%; overflow: hidden; }
+.logo-coulure-corps, .logo-goutte { fill: var(--menu-rouge); }
+.logo-coulure-ombre { fill: none; stroke: var(--menu-coulure-sombre); stroke-width: 1.1; stroke-linecap: round; }
+.logo-coulure-reflet { fill: none; stroke: var(--menu-coulure-reflet); stroke-width: 0.7; stroke-linecap: round; opacity: 0.8; }
+.logo-coulure-brillant { fill: var(--menu-coulure-reflet); }
+.logo-goutte { opacity: 0; }
+
+/* ---------- Coup de pinceau (entrée choisie, comme les menus du jeu) ---------- */
+.brush {
+  position: absolute;
+  inset: 2px -6px;
+  z-index: -1;
+  background: var(--color-text);
+  filter: url("#brush");
+  opacity: 0;
+  transform: rotate(-1.2deg);
+  transition: opacity 200ms;
+}
 
 /* ---------- Contenus provisoires : toujours visibles comme tels ---------- */
 .marque-provisoire {
   display: inline-block;
   padding: 0.2em 0.6em;
-  border: 1px dashed var(--provisoire);
-  border-radius: var(--rayon);
-  color: var(--provisoire);
+  border: 1px dashed var(--color-warning);
+  border-radius: var(--radius-sm);
+  color: var(--color-warning);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1.4;
 }
@@ -92,16 +199,16 @@ button { font: inherit; color: inherit; }
   align-items: center;
   justify-content: center;
   gap: 0.25em;
-  border: 1px dashed var(--trait);
-  border-radius: var(--rayon);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
   background:
-    repeating-linear-gradient(135deg, transparent 0 14px, rgba(255, 211, 77, 0.04) 14px 28px),
-    var(--fond-2);
+    repeating-linear-gradient(135deg, transparent 0 14px, rgb(216 20 20 / 5%) 14px 28px),
+    var(--color-surface);
   text-align: center;
   padding: var(--marge);
 }
-.emplacement-etiquette { color: var(--provisoire); font-weight: 700; }
-.emplacement-detail { color: var(--texte-doux); font-size: 0.875rem; }
+.emplacement-etiquette { color: var(--color-warning); font-weight: 700; }
+.emplacement-detail { color: var(--color-text-muted); font-size: 0.875rem; }
 
 /* ---------- Mouvement réduit : animations coupées ---------- */
 @media (prefers-reduced-motion: reduce) {

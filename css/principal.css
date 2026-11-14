@@ -1,4 +1,5 @@
-/* Page principale : en-tête, navigation des sections, sections plein écran avec défilement par section. */
+/* Page principale : en-tête, navigation des sections, sections plein écran avec défilement par section.
+   Direction artistique du jeu : noir, rouge sang, titres qui dégoulinent (Rubik Wet Paint), libellés grunge (Rubik Dirt). */
 
 .page-principale { overflow: hidden; }
 
@@ -13,25 +14,23 @@
   gap: var(--marge);
   height: calc(var(--entete-h) + env(safe-area-inset-top));
   padding: env(safe-area-inset-top) max(var(--marge), env(safe-area-inset-right)) 0 max(var(--marge), env(safe-area-inset-left));
-  background: linear-gradient(180deg, rgba(11, 12, 14, 0.92), rgba(11, 12, 14, 0));
+  background: linear-gradient(180deg, rgb(5 5 5 / 94%), rgb(5 5 5 / 0%));
   pointer-events: none;
 }
 .entete > * { pointer-events: auto; }
-.entete-logo {
-  font-family: var(--police-titre);
-  font-size: 1.1rem;
-  text-transform: uppercase;
-  text-decoration: none;
-  letter-spacing: 0.02em;
-}
+.entete-logo { font-size: 1.6rem; padding-bottom: 0.2em; }
+
 /* « Bientôt disponible » : pas cliquable, aspect atténué. */
 .bouton-bientot {
   min-height: 40px;
-  padding: 0 1em;
-  border: 1px dashed rgba(242, 163, 58, 0.6);
-  background: rgba(242, 163, 58, 0.08);
-  color: var(--accent);
-  font-size: 0.75rem;
+  padding: 0 0.9em;
+  border: 1px dashed var(--color-action);
+  background: rgb(216 20 20 / 10%);
+  color: var(--color-action-text);
+  font-family: var(--font-label);
+  font-weight: 400;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
   cursor: default;
   user-select: none;
 }
@@ -44,28 +43,29 @@
   z-index: 20;
   height: calc(var(--nav-h) + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
-  background: rgba(11, 12, 14, 0.94);
-  border-top: 1px solid var(--trait);
+  background: rgb(5 5 5 / 95%);
+  border-top: 1px solid rgb(216 20 20 / 45%);
   backdrop-filter: blur(8px);
 }
 .nav-sections ol { display: grid; grid-template-columns: repeat(3, 1fr); height: 100%; }
 .nav-sections a {
   position: relative;
+  z-index: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
   gap: 2px;
-  color: var(--texte-doux);
+  color: var(--color-text-muted);
   text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-family: var(--font-label);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  transition: color 250ms;
+  transition: color 200ms;
 }
-.nav-num { font-size: 0.65rem; opacity: 0.7; }
+.nav-num { font-family: var(--font-sans); font-weight: 700; font-size: 0.65rem; opacity: 0.7; }
 .nav-sections a::before {
   content: "";
   position: absolute;
@@ -73,12 +73,14 @@
   left: 20%;
   right: 20%;
   height: 3px;
-  background: var(--accent);
+  background: var(--color-action);
+  box-shadow: 0 0 10px var(--color-action-glow);
   transform: scaleX(0);
   transition: transform 300ms var(--courbe);
 }
-.nav-sections a[aria-current="true"] { color: var(--texte); }
+.nav-sections a[aria-current="true"] { color: var(--color-text); }
 .nav-sections a[aria-current="true"]::before { transform: scaleX(1); }
+.nav-sections .brush { display: none; }
 
 /* ---------- Conteneur des sections : défilement qui s'arrête sur chaque section ---------- */
 .sections {
@@ -113,16 +115,16 @@
   position: absolute;
   z-index: -1;
   right: -0.05em;
-  bottom: -0.2em;
-  font-family: var(--police-titre);
+  bottom: -0.15em;
+  font-family: var(--font-display);
   font-size: clamp(10rem, 55vw, 28rem);
   line-height: 1;
-  color: rgba(255, 255, 255, 0.025);
+  color: rgb(216 20 20 / 6%);
   pointer-events: none;
 }
-.section-news { background: radial-gradient(90% 60% at 0% 0%, rgba(242, 163, 58, 0.08), transparent 60%), var(--fond); }
-.section-characters { background: radial-gradient(90% 60% at 100% 30%, rgba(179, 38, 30, 0.10), transparent 60%), #0e0f12; }
-.section-weapons { background: radial-gradient(90% 60% at 0% 100%, rgba(242, 163, 58, 0.07), transparent 60%), var(--fond); }
+.section-news { background: radial-gradient(90% 60% at 0% 0%, rgb(216 20 20 / 10%), transparent 60%), var(--color-bg); }
+.section-characters { background: radial-gradient(90% 60% at 100% 30%, rgb(216 20 20 / 12%), transparent 60%), #0a0a0b; }
+.section-weapons { background: radial-gradient(90% 60% at 0% 100%, rgb(216 20 20 / 10%), transparent 60%), var(--color-bg); }
 
 .section-interieur {
   display: flex;
@@ -136,13 +138,14 @@
 }
 
 .section-entete { display: flex; align-items: baseline; gap: 0.6rem; }
-.section-num { color: var(--accent); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.1em; }
+.section-num { color: var(--color-action-text); font-family: var(--font-label); font-size: 1rem; letter-spacing: 0.06em; }
 .section-titre {
-  font-family: var(--police-titre);
-  font-size: clamp(2.25rem, 11vw, 5.5rem);
-  line-height: 1;
-  text-transform: uppercase;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 12vw, 5.5rem);
+  line-height: 1.05;
+  color: var(--color-action);
+  text-shadow: 0 0 18px var(--color-action-glow);
 }
 .section-intro { align-self: flex-start; }
 
@@ -177,17 +180,17 @@
   display: flex;
   flex-direction: column;
   scroll-snap-align: start;
-  background: var(--fond-2);
-  border: 1px solid var(--trait);
-  border-radius: var(--rayon);
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-raised);
+  border-radius: var(--radius-md);
   overflow: hidden;
 }
-.news-visuel { aspect-ratio: 16 / 9; border: 0; border-bottom: 1px dashed var(--trait); border-radius: 0; }
+.news-visuel { aspect-ratio: 16 / 9; border: 0; border-bottom: 1px dashed var(--color-border); border-radius: 0; }
 .news-corps { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 16px; }
-.news-meta { display: flex; gap: 10px; font-size: 0.75rem; color: var(--texte-doux); text-transform: uppercase; letter-spacing: 0.06em; }
-.news-categorie { color: var(--accent); font-weight: 700; }
-.news-titre { font-size: 1.1rem; line-height: 1.25; }
-.news-resume { color: var(--texte-doux); font-size: 0.9rem; }
+.news-meta { display: flex; align-items: baseline; gap: 10px; font-size: 0.8rem; color: var(--color-text-muted); }
+.news-categorie { color: var(--color-action-text); font-family: var(--font-label); text-transform: uppercase; letter-spacing: 0.04em; }
+.news-titre { font-size: 1.15rem; line-height: 1.25; }
+.news-resume { color: var(--color-text-muted); font-size: 0.9rem; }
 
 /* ---------- Characters ---------- */
 .perso-scene { flex: 1; min-height: 200px; }
@@ -200,60 +203,63 @@
   aspect-ratio: 1;
   max-height: 96px;
   padding: 6px;
-  border: 1px solid var(--trait);
-  border-radius: var(--rayon);
-  background: var(--fond-2);
+  border: 1px solid var(--color-surface-raised);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
   text-align: left;
   cursor: pointer;
-  transition: border-color 200ms, background-color 200ms;
+  transition: border-color 200ms, background-color 200ms, box-shadow 200ms;
 }
-.perso-miniature-num { font-size: 0.7rem; color: var(--accent); font-weight: 700; }
-.perso-miniature-nom { font-size: 0.7rem; line-height: 1.2; color: var(--texte-doux); }
-.perso-miniature[aria-pressed="true"] { border-color: var(--accent); background: var(--fond-3); }
-.perso-miniature[aria-pressed="true"] .perso-miniature-nom { color: var(--texte); }
+.perso-miniature-num { font-family: var(--font-label); font-size: 0.75rem; color: var(--color-action-text); }
+.perso-miniature-nom { font-size: 0.72rem; font-weight: 700; line-height: 1.2; color: var(--color-text-muted); }
+.perso-miniature[aria-pressed="true"] { border-color: var(--color-action); background: #1d0b0b; box-shadow: 0 0 12px var(--color-action-glow); }
+.perso-miniature[aria-pressed="true"] .perso-miniature-nom { color: var(--color-text); }
 
 /* ---------- Weapons ---------- */
 .arme-choix { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
 .arme-bouton {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   min-height: 40px;
-  padding: 0 14px;
-  border: 1px solid var(--trait);
-  border-radius: var(--rayon);
-  background: var(--fond-2);
+  padding: 0 8px;
+  white-space: nowrap;
+  border: 1px solid var(--color-surface-raised);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-family: var(--font-label);
   font-size: 0.85rem;
-  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: border-color 200ms, background-color 200ms;
+  transition: border-color 200ms, background-color 200ms, color 200ms;
 }
-.arme-bouton[aria-pressed="true"] { border-color: var(--accent); background: var(--fond-3); color: var(--accent); }
+.arme-bouton[aria-pressed="true"] { border-color: var(--color-action); background: var(--color-action); color: var(--color-on-action); }
 
 .arme-corps { display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0; }
 .arme-scene { flex: 1; min-height: 140px; }
 .arme-stats { display: grid; gap: 8px; margin: 0; }
 .arme-stat { display: grid; grid-template-columns: 6.5rem 1fr; align-items: center; gap: 10px; }
-.arme-stat-nom { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--texte-doux); }
+.arme-stat-nom { font-family: var(--font-label); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); }
 .arme-stat dd { display: flex; align-items: center; gap: 10px; margin: 0; }
-.arme-stat-barre { position: relative; flex: 1; height: 6px; background: var(--fond-3); overflow: hidden; }
+.arme-stat-barre { position: relative; flex: 1; height: 6px; border-radius: 3px; background: var(--color-surface-raised); overflow: hidden; }
 .arme-stat-remplissage {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, var(--accent-fonce), var(--accent));
+  background: linear-gradient(90deg, var(--color-action-deep), var(--color-action));
   transform-origin: left;
   transform: scaleX(var(--valeur, 0));
   transition: transform 700ms var(--courbe) 200ms;
 }
 .js .section:not(.est-visible) .arme-stat-remplissage { transform: scaleX(0); }
-.arme-stat-valeur { width: 2.2em; text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 0.85rem; }
+.arme-stat-valeur { width: 2.2em; text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 0.9rem; }
 
 /* ---------- Ordinateur ---------- */
 @media (min-width: 900px) {
-  :root { --marge: 32px; --entete-h: 72px; --nav-h: 0px; }
+  :root { --marge: 32px; --entete-h: 76px; --nav-h: 0px; }
 
-  .entete-logo { font-size: 1.4rem; }
-  .bouton-bientot { min-height: 44px; font-size: 0.85rem; }
+  .entete-logo { font-size: 2.1rem; }
+  .bouton-bientot { min-height: 44px; font-size: 0.9rem; }
 
-  /* Navigation verticale à droite. */
+  /* Navigation verticale à droite, coup de pinceau sur l'entrée affichée (comme les menus du jeu). */
   .nav-sections {
     inset: 50% max(var(--marge), env(safe-area-inset-right)) auto auto;
     height: auto;
@@ -263,24 +269,28 @@
     backdrop-filter: none;
     transform: translateY(-50%);
   }
-  .nav-sections ol { display: flex; flex-direction: column; gap: 6px; }
+  .nav-sections ol { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
   .nav-sections a {
     flex-direction: row;
     justify-content: flex-end;
     gap: 10px;
-    height: 36px;
-    padding-right: 18px;
-    font-size: 0.8rem;
+    height: 40px;
+    padding: 0 12px 0 16px;
+    font-size: 1rem;
   }
-  .nav-sections a::before { top: 8px; bottom: 8px; left: auto; right: 0; width: 3px; height: auto; transform: scaleY(0.3); background: var(--texte-doux); }
-  .nav-sections a[aria-current="true"]::before { transform: scaleY(1); background: var(--accent); }
-  .nav-sections a:hover { color: var(--texte); }
-  .nav-sections a[aria-current="true"] .nav-nom { color: var(--accent); }
+  .nav-sections a::before { display: none; }
+  .nav-sections .brush { display: block; }
+  .nav-sections a[aria-current="true"],
+  .nav-sections a:hover,
+  .nav-sections a:focus-visible { color: var(--color-action); }
+  .nav-sections a[aria-current="true"] .brush,
+  .nav-sections a:hover .brush,
+  .nav-sections a:focus-visible .brush { opacity: 1; }
 
-  .section { padding-right: calc(var(--marge) + 150px); padding-bottom: var(--marge); }
+  .section { padding-right: calc(var(--marge) + 170px); padding-bottom: var(--marge); }
   .section-interieur { gap: 20px; }
   .section-news .section-interieur { justify-content: center; }
-  .section-num { font-size: 1rem; }
+  .section-num { font-size: 1.25rem; }
 
   .news-liste {
     grid-auto-flow: row;
@@ -289,11 +299,13 @@
     padding: 0;
     overflow: visible;
   }
-  .news-carte { transition: transform 300ms var(--courbe), border-color 300ms; }
-  .news-carte:hover { transform: translateY(-4px); border-color: var(--accent); }
+  .news-carte { transition: transform 300ms var(--courbe), border-color 300ms, box-shadow 300ms; }
+  .news-carte:hover { transform: translateY(-4px); border-color: var(--color-action); box-shadow: 0 0 18px var(--color-action-glow); }
 
   .perso-miniatures { grid-template-columns: repeat(4, 120px); }
 
+  .arme-choix { overflow: visible; }
+  .arme-bouton { flex: 0 0 auto; padding: 0 16px; }
   .arme-corps { flex-direction: row; align-items: stretch; }
   .arme-scene { flex: 1.4; }
   .arme-stats { flex: 1; align-content: center; gap: 18px; }
@@ -301,8 +313,9 @@
 
 /* Écrans bas (téléphone en paysage) : on resserre. */
 @media (max-height: 520px) and (max-width: 899px) {
-  :root { --entete-h: 48px; --nav-h: 48px; }
-  .section-titre { font-size: 2rem; }
+  :root { --entete-h: 50px; --nav-h: 48px; }
+  .entete-logo { font-size: 1.35rem; }
+  .section-titre { font-size: 2.1rem; }
   .section-interieur { gap: 8px; }
   .perso-scene, .arme-scene { min-height: 120px; }
   .news-liste { grid-auto-columns: 40%; }
@@ -317,4 +330,10 @@
   .js .revele, .js .section-entete.revele { opacity: 1; transform: none; }
   .js .section:not(.est-visible) .arme-stat-remplissage { transform: scaleX(var(--valeur, 0)); }
   .sections { scroll-behavior: auto; }
+}
+
+/* Très petits téléphones (320 px) : les trois armes tiennent sur une ligne. */
+@media (max-width: 360px) {
+  .arme-bouton { font-size: 0.72rem; padding: 0 5px; letter-spacing: 0; }
+  .arme-choix { gap: 6px; }
 }

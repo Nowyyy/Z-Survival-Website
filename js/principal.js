@@ -3,6 +3,7 @@
 // de chaque section, et contenus provisoires générés depuis js/textes.js et js/donnees.js.
 import { appliquerTextes, mouvementReduit, t } from './i18n.js';
 import { ARMES } from './donnees.js';
+import { poserLogo } from './logo.js';
 
 const conteneur = document.getElementById('sections');
 const sections = [...document.querySelectorAll('.section')];
@@ -19,6 +20,11 @@ function element(balise, classe, texte) {
 
 appliquerTextes();
 document.title = t('meta.titrePrincipal');
+
+// Logo du jeu dans l'en-tête ; le lien garde son nom accessible « retour à l'accueil ».
+const logo = document.querySelector('.entete-logo');
+poserLogo(logo, t('accueil.titre'));
+logo?.setAttribute('aria-label', t('commun.accueilAria'));
 
 function construireNews() {
   const liste = document.getElementById('news-liste');
