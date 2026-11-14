@@ -18,6 +18,7 @@ publié sur https://nowyyy.github.io/Z-Survival/).
   ni vidéo, ni son, ni code. On s'inspire seulement de la mise en page et des effets.
 - Le dépôt **Nowyyy/Z-Survival** est une référence **en lecture seule** : on peut le cloner
   dans un dossier temporaire **hors de ce dépôt** pour le lire, jamais le modifier ni y pousser.
+  **Toujours lire sa branche `dev`, jamais `main`** (en retard).
 
 ## Règles techniques
 - HTML, CSS et JavaScript en modules ES, sans étape de build (tant qu'un lot n'en décide pas autrement).
@@ -28,10 +29,15 @@ publié sur https://nowyyy.github.io/Z-Survival/).
 - Le site est servi sous un sous-dossier GitHub Pages : **aucun chemin ne commence par « / »**
   (chemins relatifs uniquement).
 - Les contenus provisoires sont clairement marqués comme tels à l'écran.
+- **Direction artistique = celle du jeu** (`Docs/ref/direction-artistique.md`) : couleurs en jetons
+  dans `css/base.css` (mêmes noms que `css/tokens.css` du jeu), logo au Z incliné (`js/logo.js`),
+  polices du jeu dans `fonts/` (licences OFL à garder à côté). Pas de couleur en dur hors jetons
+  quand un jeton existe.
 
 ## Organisation
 - `index.html` : accueil plein écran (image animée à venir) + bouton « Entrer ».
 - `main.html` : page principale, sections plein écran News / Characters / Weapons.
-- `css/`, `js/` : styles et scripts ; `js/textes.js` : tous les textes.
+- `css/`, `js/` : styles et scripts ; `js/textes.js` : tous les textes ; `js/logo.js` : logo.
+- `fonts/` : polices du jeu (+ licences) ; `img/` : icônes.
 - `Docs/ref/` : documents de référence ; `Docs/lots/` : bilans de lot.
 - `.github/workflows/pages.yml` : déploiement GitHub Pages à chaque push sur `main`.

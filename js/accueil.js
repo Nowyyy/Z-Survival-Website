@@ -1,7 +1,9 @@
 // Page d'accueil : textes, puis petite transition de sortie vers la page principale (coupée en mouvement réduit).
 import { appliquerTextes, mouvementReduit, t } from './i18n.js';
+import { poserLogo } from './logo.js';
 
 appliquerTextes();
+poserLogo(document.querySelector('.accueil-titre'), t('accueil.titre'));
 document.title = t('meta.titreAccueil');
 document.body.classList.add('est-pret');
 

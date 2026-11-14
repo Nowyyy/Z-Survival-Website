@@ -1,4 +1,5 @@
-/* Accueil : image animée plein écran (emplacement provisoire), titre et bouton « Entrer ». */
+/* Accueil : image animée plein écran (emplacement provisoire), logo du jeu et bouton « Entrer ».
+   Cadre rouge lumineux et fond noir comme l'écran d'accueil du jeu. */
 
 .page-accueil { overflow: hidden; }
 
@@ -14,29 +15,38 @@
 }
 .est-en-sortie .accueil { opacity: 0; }
 
-/* Emplacement de l'image animée : fond sombre et brume qui dérive (provisoire). */
+/* Emplacement de l'image animée : fond noir, lueur rouge au sol, brume qui dérive (provisoire). */
 .accueil-scene {
   position: absolute;
   inset: 0;
   z-index: -1;
   overflow: hidden;
   background:
-    radial-gradient(120% 70% at 50% 100%, rgba(242, 163, 58, 0.18), transparent 60%),
-    radial-gradient(80% 60% at 85% 70%, rgba(179, 38, 30, 0.16), transparent 70%),
-    linear-gradient(180deg, #07080a 0%, #101318 55%, #16110c 100%);
+    radial-gradient(120% 60% at 50% 105%, rgb(216 20 20 / 22%), transparent 60%),
+    radial-gradient(120% 90% at 70% 10%, #161618, var(--color-bg) 70%);
+}
+/* Cadre rouge lumineux de l'écran du jeu. */
+.accueil-scene::after {
+  content: "";
+  position: absolute;
+  inset: max(8px, env(safe-area-inset-top)) 8px max(8px, env(safe-area-inset-bottom));
+  border: 3px solid var(--color-action);
+  border-radius: 24px;
+  box-shadow: 0 0 22px var(--color-action-glow), inset 0 0 22px rgb(216 20 20 / 25%);
+  pointer-events: none;
 }
 .accueil-scene-brume {
   position: absolute;
   inset: -20% -50%;
   background:
-    radial-gradient(40% 25% at 30% 65%, rgba(200, 205, 210, 0.08), transparent 70%),
-    radial-gradient(35% 20% at 70% 75%, rgba(200, 205, 210, 0.07), transparent 70%);
+    radial-gradient(40% 25% at 30% 65%, rgb(200 205 210 / 7%), transparent 70%),
+    radial-gradient(35% 20% at 70% 75%, rgb(200 205 210 / 6%), transparent 70%);
   animation: brume 18s ease-in-out infinite alternate;
 }
 .accueil-scene-grain {
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
+  background: repeating-linear-gradient(0deg, rgb(255 255 255 / 2.5%) 0 1px, transparent 1px 3px);
   mix-blend-mode: overlay;
 }
 @keyframes brume {
@@ -46,7 +56,7 @@
 
 .accueil-mention {
   position: absolute;
-  top: calc(var(--marge) + env(safe-area-inset-top));
+  top: calc(28px + env(safe-area-inset-top));
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
@@ -56,26 +66,24 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
   text-align: center;
 }
 
 .accueil-titre {
-  font-family: var(--police-titre);
-  font-size: clamp(2.75rem, 14vw, 7.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+  font-size: clamp(2.75rem, 14vw, 6.5rem);
+  padding-bottom: 0.35em;   /* place pour les coulures du Z */
+  filter: drop-shadow(0 4px 24px rgb(0 0 0 / 70%));
 }
 .accueil-sous-titre {
-  color: var(--texte-doux);
-  letter-spacing: 0.2em;
+  color: var(--color-text-muted);
+  font-family: var(--font-label);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   min-height: 1.5em;
 }
-.accueil-entrer { min-width: 12rem; min-height: 52px; font-size: 1.05rem; margin-top: 0.5rem; }
+.accueil-entrer { min-width: 11rem; min-height: 56px; font-size: 1.25rem; }
 
 /* Apparition à l'ouverture (seulement si JavaScript tourne). */
 .js .accueil-contenu > * { opacity: 0; transform: translateY(16px); }
@@ -89,7 +97,9 @@
 
 @media (min-width: 900px) {
   .accueil { padding-bottom: 14vh; }
-  .accueil-sous-titre { font-size: 0.95rem; }
+  .accueil-scene::after { inset: 24px; border-radius: 28px; }
+  .accueil-mention { top: 48px; }
+  .accueil-sous-titre { font-size: 1rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
