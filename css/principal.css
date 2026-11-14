@@ -24,7 +24,17 @@
   text-decoration: none;
   letter-spacing: 0.02em;
 }
-.bouton-jouer { min-height: 40px; padding: 0 1.1em; font-size: 0.85rem; }
+/* « Bientôt disponible » : pas cliquable, aspect atténué. */
+.bouton-bientot {
+  min-height: 40px;
+  padding: 0 1em;
+  border: 1px dashed rgba(242, 163, 58, 0.6);
+  background: rgba(242, 163, 58, 0.08);
+  color: var(--accent);
+  font-size: 0.75rem;
+  cursor: default;
+  user-select: none;
+}
 
 /* ---------- Navigation des sections ---------- */
 /* Téléphone : barre d'onglets en bas de l'écran. */
@@ -241,7 +251,7 @@
   :root { --marge: 32px; --entete-h: 72px; --nav-h: 0px; }
 
   .entete-logo { font-size: 1.4rem; }
-  .bouton-jouer { min-height: 44px; font-size: 0.95rem; }
+  .bouton-bientot { min-height: 44px; font-size: 0.85rem; }
 
   /* Navigation verticale à droite. */
   .nav-sections {

@@ -2,7 +2,7 @@
 // (scroll-snap en CSS), navigation qui suit la section affichée, apparition du contenu à l'entrée
 // de chaque section, et contenus provisoires générés depuis js/textes.js et js/donnees.js.
 import { appliquerTextes, mouvementReduit, t } from './i18n.js';
-import { ARMES, LIEN_JEU } from './donnees.js';
+import { ARMES } from './donnees.js';
 
 const conteneur = document.getElementById('sections');
 const sections = [...document.querySelectorAll('.section')];
@@ -19,7 +19,6 @@ function element(balise, classe, texte) {
 
 appliquerTextes();
 document.title = t('meta.titrePrincipal');
-document.querySelector('.bouton-jouer')?.setAttribute('href', LIEN_JEU);
 
 function construireNews() {
   const liste = document.getElementById('news-liste');
