@@ -293,7 +293,14 @@
 @media (max-height: 520px) and (max-width: 899px) {
   :root { --entete-h: 48px; --nav-h: 48px; }
   .section-titre { font-size: 2rem; }
+  .section-interieur { gap: 8px; }
   .perso-scene, .arme-scene { min-height: 120px; }
+  .news-liste { grid-auto-columns: 40%; }
+  .news-visuel { aspect-ratio: 21 / 9; }
+  .perso-miniature { aspect-ratio: auto; height: 56px; }
+  .arme-corps { flex-direction: row; }
+  .arme-scene { flex: 1; }
+  .arme-stats { flex: 1; align-content: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {
