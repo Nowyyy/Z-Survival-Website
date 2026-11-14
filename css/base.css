@@ -1,0 +1,115 @@
+/* Base commune : couleurs, typographie, boutons, marques « provisoire », mouvement réduit.
+   Polices système uniquement au lot 0 (aucune police de HoYoverse). */
+
+:root {
+  --fond: #0b0c0e;
+  --fond-2: #14161a;
+  --fond-3: #1d2026;
+  --texte: #eceae4;
+  --texte-doux: #a3a29c;
+  --accent: #f2a33a;          /* ambre : lumière de lampe dans la nuit */
+  --accent-fonce: #b86d12;
+  --sang: #b3261e;
+  --trait: rgba(236, 234, 228, 0.14);
+  --provisoire: #ffd34d;
+
+  --police: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --police-titre: "Arial Black", "Helvetica Neue", Impact, system-ui, sans-serif;
+
+  --marge: 16px;
+  --entete-h: 56px;
+  --nav-h: 60px;               /* barre de navigation en bas sur téléphone */
+  --rayon: 4px;
+  --duree: 600ms;
+  --courbe: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { margin: 0; height: 100%; }
+
+body {
+  background: var(--fond);
+  color: var(--texte);
+  font-family: var(--police);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2, h3, p { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* ---------- Boutons ---------- */
+.bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-height: 44px;
+  padding: 0 1.4em;
+  border: 1px solid transparent;
+  border-radius: var(--rayon);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 200ms, color 200ms, transform 200ms var(--courbe);
+}
+.bouton-principal {
+  background: var(--accent);
+  color: #121212;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+.bouton-principal:hover { background: #ffbd5c; }
+.bouton-principal:active { transform: scale(0.97); }
+
+/* ---------- Contenus provisoires : toujours visibles comme tels ---------- */
+.marque-provisoire {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border: 1px dashed var(--provisoire);
+  border-radius: var(--rayon);
+  color: var(--provisoire);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+}
+
+.emplacement {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25em;
+  border: 1px dashed var(--trait);
+  border-radius: var(--rayon);
+  background:
+    repeating-linear-gradient(135deg, transparent 0 14px, rgba(255, 211, 77, 0.04) 14px 28px),
+    var(--fond-2);
+  text-align: center;
+  padding: var(--marge);
+}
+.emplacement-etiquette { color: var(--provisoire); font-weight: 700; }
+.emplacement-detail { color: var(--texte-doux); font-size: 0.875rem; }
+
+/* ---------- Mouvement réduit : animations coupées ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
