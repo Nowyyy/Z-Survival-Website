@@ -1,0 +1,303 @@
+/* Page principale : en-tête, navigation des sections, sections plein écran avec défilement par section. */
+
+.page-principale { overflow: hidden; }
+
+/* ---------- En-tête ---------- */
+.entete {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--marge);
+  height: calc(var(--entete-h) + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) max(var(--marge), env(safe-area-inset-right)) 0 max(var(--marge), env(safe-area-inset-left));
+  background: linear-gradient(180deg, rgba(11, 12, 14, 0.92), rgba(11, 12, 14, 0));
+  pointer-events: none;
+}
+.entete > * { pointer-events: auto; }
+.entete-logo {
+  font-family: var(--police-titre);
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+.bouton-jouer { min-height: 40px; padding: 0 1.1em; font-size: 0.85rem; }
+
+/* ---------- Navigation des sections ---------- */
+/* Téléphone : barre d'onglets en bas de l'écran. */
+.nav-sections {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 20;
+  height: calc(var(--nav-h) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: rgba(11, 12, 14, 0.94);
+  border-top: 1px solid var(--trait);
+  backdrop-filter: blur(8px);
+}
+.nav-sections ol { display: grid; grid-template-columns: repeat(3, 1fr); height: 100%; }
+.nav-sections a {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 2px;
+  color: var(--texte-doux);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: color 250ms;
+}
+.nav-num { font-size: 0.65rem; opacity: 0.7; }
+.nav-sections a::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 20%;
+  right: 20%;
+  height: 3px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transition: transform 300ms var(--courbe);
+}
+.nav-sections a[aria-current="true"] { color: var(--texte); }
+.nav-sections a[aria-current="true"]::before { transform: scaleX(1); }
+
+/* ---------- Conteneur des sections : défilement qui s'arrête sur chaque section ---------- */
+.sections {
+  position: fixed;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.sections::-webkit-scrollbar { display: none; }
+
+.section {
+  position: relative;
+  display: flex;
+  min-height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  padding:
+    calc(var(--entete-h) + env(safe-area-inset-top) + 8px)
+    max(var(--marge), env(safe-area-inset-right))
+    calc(var(--nav-h) + env(safe-area-inset-bottom) + var(--marge))
+    max(var(--marge), env(safe-area-inset-left));
+  overflow: hidden;
+  isolation: isolate;
+}
+/* Grand numéro décoratif en fond de section. */
+.section::after {
+  content: attr(data-num);
+  position: absolute;
+  z-index: -1;
+  right: -0.05em;
+  bottom: -0.2em;
+  font-family: var(--police-titre);
+  font-size: clamp(10rem, 55vw, 28rem);
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.025);
+  pointer-events: none;
+}
+.section-news { background: radial-gradient(90% 60% at 0% 0%, rgba(242, 163, 58, 0.08), transparent 60%), var(--fond); }
+.section-characters { background: radial-gradient(90% 60% at 100% 30%, rgba(179, 38, 30, 0.10), transparent 60%), #0e0f12; }
+.section-weapons { background: radial-gradient(90% 60% at 0% 100%, rgba(242, 163, 58, 0.07), transparent 60%), var(--fond); }
+
+.section-interieur {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.section-entete { display: flex; align-items: baseline; gap: 0.6rem; }
+.section-num { color: var(--accent); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.1em; }
+.section-titre {
+  font-family: var(--police-titre);
+  font-size: clamp(2.25rem, 11vw, 5.5rem);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+.section-intro { align-self: flex-start; }
+
+/* ---------- Apparition à l'entrée de chaque section ---------- */
+.js .revele {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity var(--duree) var(--courbe),
+    transform var(--duree) var(--courbe);
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+.js .section-entete.revele { transform: translateX(-32px); }
+.js .est-visible .revele { opacity: 1; transform: none; }
+
+/* ---------- News ---------- */
+/* Téléphone : cartes en carrousel horizontal (glisser), qui s'arrête sur chaque carte. */
+.news-liste {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 82%;
+  gap: 12px;
+  margin: 4px calc(-1 * var(--marge)) 0;
+  padding: 0 var(--marge) 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 var(--marge);
+  scrollbar-width: none;
+}
+.news-liste::-webkit-scrollbar { display: none; }
+.news-carte {
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: start;
+  background: var(--fond-2);
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  overflow: hidden;
+}
+.news-visuel { aspect-ratio: 16 / 9; border: 0; border-bottom: 1px dashed var(--trait); border-radius: 0; }
+.news-corps { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 16px; }
+.news-meta { display: flex; gap: 10px; font-size: 0.75rem; color: var(--texte-doux); text-transform: uppercase; letter-spacing: 0.06em; }
+.news-categorie { color: var(--accent); font-weight: 700; }
+.news-titre { font-size: 1.1rem; line-height: 1.25; }
+.news-resume { color: var(--texte-doux); font-size: 0.9rem; }
+
+/* ---------- Characters ---------- */
+.perso-scene { flex: 1; min-height: 200px; }
+.perso-miniatures { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.perso-miniature {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  aspect-ratio: 1;
+  max-height: 96px;
+  padding: 6px;
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  background: var(--fond-2);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 200ms, background-color 200ms;
+}
+.perso-miniature-num { font-size: 0.7rem; color: var(--accent); font-weight: 700; }
+.perso-miniature-nom { font-size: 0.7rem; line-height: 1.2; color: var(--texte-doux); }
+.perso-miniature[aria-pressed="true"] { border-color: var(--accent); background: var(--fond-3); }
+.perso-miniature[aria-pressed="true"] .perso-miniature-nom { color: var(--texte); }
+
+/* ---------- Weapons ---------- */
+.arme-choix { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.arme-bouton {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--trait);
+  border-radius: var(--rayon);
+  background: var(--fond-2);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 200ms, background-color 200ms;
+}
+.arme-bouton[aria-pressed="true"] { border-color: var(--accent); background: var(--fond-3); color: var(--accent); }
+
+.arme-corps { display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0; }
+.arme-scene { flex: 1; min-height: 140px; }
+.arme-stats { display: grid; gap: 8px; margin: 0; }
+.arme-stat { display: grid; grid-template-columns: 6.5rem 1fr; align-items: center; gap: 10px; }
+.arme-stat-nom { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--texte-doux); }
+.arme-stat dd { display: flex; align-items: center; gap: 10px; margin: 0; }
+.arme-stat-barre { position: relative; flex: 1; height: 6px; background: var(--fond-3); overflow: hidden; }
+.arme-stat-remplissage {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--accent-fonce), var(--accent));
+  transform-origin: left;
+  transform: scaleX(var(--valeur, 0));
+  transition: transform 700ms var(--courbe) 200ms;
+}
+.js .section:not(.est-visible) .arme-stat-remplissage { transform: scaleX(0); }
+.arme-stat-valeur { width: 2.2em; text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 0.85rem; }
+
+/* ---------- Ordinateur ---------- */
+@media (min-width: 900px) {
+  :root { --marge: 32px; --entete-h: 72px; --nav-h: 0px; }
+
+  .entete-logo { font-size: 1.4rem; }
+  .bouton-jouer { min-height: 44px; font-size: 0.95rem; }
+
+  /* Navigation verticale à droite. */
+  .nav-sections {
+    inset: 50% max(var(--marge), env(safe-area-inset-right)) auto auto;
+    height: auto;
+    padding: 0;
+    background: none;
+    border: 0;
+    backdrop-filter: none;
+    transform: translateY(-50%);
+  }
+  .nav-sections ol { display: flex; flex-direction: column; gap: 6px; }
+  .nav-sections a {
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 10px;
+    height: 36px;
+    padding-right: 18px;
+    font-size: 0.8rem;
+  }
+  .nav-sections a::before { top: 8px; bottom: 8px; left: auto; right: 0; width: 3px; height: auto; transform: scaleY(0.3); background: var(--texte-doux); }
+  .nav-sections a[aria-current="true"]::before { transform: scaleY(1); background: var(--accent); }
+  .nav-sections a:hover { color: var(--texte); }
+  .nav-sections a[aria-current="true"] .nav-nom { color: var(--accent); }
+
+  .section { padding-right: calc(var(--marge) + 150px); padding-bottom: var(--marge); }
+  .section-interieur { gap: 20px; }
+  .section-news .section-interieur { justify-content: center; }
+  .section-num { font-size: 1rem; }
+
+  .news-liste {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 12px 0 0;
+    padding: 0;
+    overflow: visible;
+  }
+  .news-carte { transition: transform 300ms var(--courbe), border-color 300ms; }
+  .news-carte:hover { transform: translateY(-4px); border-color: var(--accent); }
+
+  .perso-miniatures { grid-template-columns: repeat(4, 120px); }
+
+  .arme-corps { flex-direction: row; align-items: stretch; }
+  .arme-scene { flex: 1.4; }
+  .arme-stats { flex: 1; align-content: center; gap: 18px; }
+}
+
+/* Écrans bas (téléphone en paysage) : on resserre. */
+@media (max-height: 520px) and (max-width: 899px) {
+  :root { --entete-h: 48px; --nav-h: 48px; }
+  .section-titre { font-size: 2rem; }
+  .perso-scene, .arme-scene { min-height: 120px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .revele, .js .section-entete.revele { opacity: 1; transform: none; }
+  .js .section:not(.est-visible) .arme-stat-remplissage { transform: scaleX(var(--valeur, 0)); }
+  .sections { scroll-behavior: auto; }
+}

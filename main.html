@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Z-Survival — News, Characters, Weapons</title>
+  <meta name="description" content="Site du jeu de survie zombies Z-Survival.">
+  <meta name="theme-color" content="#0b0c0e">
+  <script>document.documentElement.classList.add('js');</script>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/principal.css">
+  <script type="module" src="js/principal.js"></script>
+</head>
+<body class="page-principale">
+  <header class="entete">
+    <a class="entete-logo" href="index.html" data-t-aria="commun.accueilAria">Z-Survival</a>
+    <a class="bouton bouton-principal bouton-jouer" href="https://nowyyy.github.io/Z-Survival/" target="_blank" rel="noopener" data-t-aria="commun.jouerAria"><span data-t="commun.jouer">Jouer</span></a>
+  </header>
+
+  <nav class="nav-sections" data-t-aria="commun.navigation">
+    <ol>
+      <li><a href="#news" data-section="news"><span class="nav-num">01</span><span class="nav-nom" data-t="sections.news">News</span></a></li>
+      <li><a href="#characters" data-section="characters"><span class="nav-num">02</span><span class="nav-nom" data-t="sections.characters">Characters</span></a></li>
+      <li><a href="#weapons" data-section="weapons"><span class="nav-num">03</span><span class="nav-nom" data-t="sections.weapons">Weapons</span></a></li>
+    </ol>
+  </nav>
+
+  <main class="sections" id="sections">
+    <!-- News -->
+    <section class="section section-news" id="news" data-num="01" aria-labelledby="titre-news">
+      <div class="section-interieur">
+        <header class="section-entete revele" style="--i:0">
+          <span class="section-num" aria-hidden="true">01</span>
+          <h2 class="section-titre" id="titre-news" data-t="sections.news">News</h2>
+        </header>
+        <p class="section-intro marque-provisoire revele" style="--i:1" data-t="news.intro"></p>
+        <ul class="news-liste" id="news-liste"></ul>
+      </div>
+    </section>
+
+    <!-- Characters -->
+    <section class="section section-characters" id="characters" data-num="02" aria-labelledby="titre-characters">
+      <div class="section-interieur">
+        <header class="section-entete revele" style="--i:0">
+          <span class="section-num" aria-hidden="true">02</span>
+          <h2 class="section-titre" id="titre-characters" data-t="sections.characters">Characters</h2>
+        </header>
+        <p class="section-intro marque-provisoire revele" style="--i:1" data-t="characters.intro"></p>
+        <div class="perso-scene emplacement revele" style="--i:2" aria-live="polite">
+          <span class="emplacement-etiquette" id="perso-etiquette"></span>
+          <span class="emplacement-detail" id="perso-detail"></span>
+        </div>
+        <ul class="perso-miniatures revele" style="--i:3" id="perso-miniatures" data-t-aria="characters.liste"></ul>
+      </div>
+    </section>
+
+    <!-- Weapons -->
+    <section class="section section-weapons" id="weapons" data-num="03" aria-labelledby="titre-weapons">
+      <div class="section-interieur">
+        <header class="section-entete revele" style="--i:0">
+          <span class="section-num" aria-hidden="true">03</span>
+          <h2 class="section-titre" id="titre-weapons" data-t="sections.weapons">Weapons</h2>
+        </header>
+        <p class="section-intro marque-provisoire revele" style="--i:1" data-t="weapons.intro"></p>
+        <div class="arme-choix revele" style="--i:2" id="arme-choix" role="group" data-t-aria="weapons.liste"></div>
+        <div class="arme-corps">
+          <div class="arme-scene emplacement revele" style="--i:3" aria-live="polite">
+            <span class="emplacement-etiquette" id="arme-etiquette"></span>
+            <span class="emplacement-detail" id="arme-detail"></span>
+          </div>
+          <dl class="arme-stats revele" style="--i:4" id="arme-stats"></dl>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
