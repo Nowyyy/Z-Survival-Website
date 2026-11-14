@@ -1,6 +1,7 @@
 // Application des textes (js/textes.js) au HTML.
 // - data-t="cle.sous.cle"       → textContent
 // - data-t-aria="cle"            → aria-label
+// - data-t-alt="cle"             → alt (images)
 // La langue vient de l'attribut lang de <html> (fr par défaut).
 import { TEXTES, LANGUE_PAR_DEFAUT } from './textes.js';
 
@@ -25,6 +26,9 @@ export function appliquerTextes(racine = document) {
   });
   racine.querySelectorAll('[data-t-aria]').forEach((el) => {
     el.setAttribute('aria-label', t(el.dataset.tAria));
+  });
+  racine.querySelectorAll('[data-t-alt]').forEach((el) => {
+    el.setAttribute('alt', t(el.dataset.tAlt));
   });
 }
 

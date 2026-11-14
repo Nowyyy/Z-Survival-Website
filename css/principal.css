@@ -18,7 +18,14 @@
   pointer-events: none;
 }
 .entete > * { pointer-events: auto; }
+.entete-marques { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .entete-logo { font-size: 1.6rem; padding-bottom: 0.2em; }
+/* Logo du studio à gauche du logo du jeu : à partir de 600 px (trop serré sur téléphone). */
+.entete-studio, .entete-separateur { display: none; }
+@media (min-width: 600px) {
+  .entete-studio { display: block; height: 36px; }
+  .entete-separateur { display: block; width: 1px; height: 30px; background: var(--color-border); opacity: 0.6; }
+}
 
 /* « Bientôt disponible » : pas cliquable, aspect atténué. */
 .bouton-bientot {
@@ -47,7 +54,7 @@
   border-top: 1px solid rgb(216 20 20 / 45%);
   backdrop-filter: blur(8px);
 }
-.nav-sections ol { display: grid; grid-template-columns: repeat(3, 1fr); height: 100%; }
+.nav-sections ol { display: grid; grid-template-columns: repeat(4, 1fr); height: 100%; }
 .nav-sections a {
   position: relative;
   z-index: 0;
@@ -60,9 +67,10 @@
   color: var(--color-text-muted);
   text-decoration: none;
   font-family: var(--font-label);
-  font-size: 0.85rem;
-  letter-spacing: 0.04em;
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
+  white-space: nowrap;
   transition: color 200ms;
 }
 .nav-num { font-family: var(--font-sans); font-weight: 700; font-size: 0.65rem; opacity: 0.7; }
@@ -124,6 +132,7 @@
 }
 .section-news { background: radial-gradient(90% 60% at 0% 0%, rgb(216 20 20 / 10%), transparent 60%), var(--color-bg); }
 .section-characters { background: radial-gradient(90% 60% at 100% 30%, rgb(216 20 20 / 12%), transparent 60%), #0a0a0b; }
+.section-about { background: radial-gradient(90% 60% at 100% 100%, rgb(216 20 20 / 10%), transparent 60%), #0a0a0b; }
 .section-weapons { background: radial-gradient(90% 60% at 0% 100%, rgb(216 20 20 / 10%), transparent 60%), var(--color-bg); }
 
 .section-interieur {
@@ -252,6 +261,31 @@
 .js .section:not(.est-visible) .arme-stat-remplissage { transform: scaleX(0); }
 .arme-stat-valeur { width: 2.2em; text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 0.9rem; }
 
+/* ---------- About us ---------- */
+.about-corps { display: flex; flex-direction: column; gap: 16px; }
+.about-studio { align-self: center; }
+.about-logo { width: min(48vw, 190px); filter: drop-shadow(0 6px 24px rgb(0 0 0 / 70%)); }
+.about-texte { display: flex; flex-direction: column; gap: 10px; }
+.about-signature { font-family: var(--font-label); font-size: 1.05rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-action-text); }
+.about-paragraphe { color: var(--color-text); }
+.about-credits { display: grid; gap: 4px; margin: 0; }
+.about-credit { display: flex; gap: 10px; align-items: baseline; }
+.about-credit-titre { font-family: var(--font-label); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); }
+.about-credit-noms { margin: 0; font-weight: 700; }
+
+/* Pied de page (dernière section), comme le bas de page des sites de jeux : logo du studio + mentions. */
+.pied {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-surface-raised);
+}
+.pied-studio { width: 52px; flex: none; }
+.pied-texte { display: flex; flex-direction: column; gap: 2px; font-size: 0.78rem; color: var(--color-text-muted); }
+.pied-copyright { color: var(--color-text); font-weight: 700; }
+
 /* ---------- Ordinateur ---------- */
 @media (min-width: 900px) {
   :root { --marge: 32px; --entete-h: 76px; --nav-h: 0px; }
@@ -309,6 +343,16 @@
   .arme-corps { flex-direction: row; align-items: stretch; }
   .arme-scene { flex: 1.4; }
   .arme-stats { flex: 1; align-content: center; gap: 18px; }
+
+  .section-about .section-interieur { justify-content: center; }
+  .about-corps { flex-direction: row; align-items: center; gap: 56px; margin-block: auto; }
+  .about-logo { width: clamp(240px, 26vw, 380px); }
+  .about-texte { max-width: 34rem; gap: 14px; }
+  .about-signature { font-size: 1.4rem; }
+  .about-paragraphe { font-size: 1.1rem; }
+  .pied { margin-top: 0; }
+  .pied-studio { width: 64px; }
+  .pied-texte { font-size: 0.85rem; }
 }
 
 /* Écrans bas (téléphone en paysage) : on resserre. */
@@ -324,6 +368,8 @@
   .arme-corps { flex-direction: row; }
   .arme-scene { flex: 1; }
   .arme-stats { flex: 1; align-content: center; }
+  .about-corps { flex-direction: row; align-items: center; }
+  .about-logo { width: 140px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

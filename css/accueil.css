@@ -54,6 +54,15 @@
   to   { transform: translateX(6%); }
 }
 
+/* Logo du studio dans le coin, comme la signature de l'éditeur sur les sites de jeux. */
+.accueil-studio {
+  position: absolute;
+  top: calc(26px + env(safe-area-inset-top));
+  left: 26px;
+  width: 64px;
+  filter: drop-shadow(0 2px 8px rgb(0 0 0 / 60%));
+}
+
 .accueil-mention {
   position: absolute;
   top: calc(28px + env(safe-area-inset-top));
@@ -99,6 +108,7 @@
   .accueil { padding-bottom: 14vh; }
   .accueil-scene::after { inset: 24px; border-radius: 28px; }
   .accueil-mention { top: 48px; }
+  .accueil-studio { top: 44px; left: 52px; width: 96px; }
   .accueil-sous-titre { font-size: 1rem; }
 }
 

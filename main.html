@@ -22,7 +22,11 @@
     </filter>
   </svg>
   <header class="entete">
-    <a class="entete-logo" href="index.html" data-t-aria="commun.accueilAria"><span data-t="accueil.titre">Z-Survival</span></a>
+    <div class="entete-marques">
+      <img class="studio-logo entete-studio" src="img/no-way-studio.svg" alt="No Way Studio" data-t-alt="studio.logoAlt" width="824" height="628">
+      <span class="entete-separateur" aria-hidden="true"></span>
+      <a class="entete-logo" href="index.html" data-t-aria="commun.accueilAria"><span data-t="accueil.titre">Z-Survival</span></a>
+    </div>
     <span class="bouton bouton-bientot" role="status" data-t="commun.bientot">Bientôt disponible</span>
   </header>
 
@@ -31,6 +35,7 @@
       <li><a href="#news" data-section="news"><span class="brush" aria-hidden="true"></span><span class="nav-num">01</span><span class="nav-nom" data-t="sections.news">News</span></a></li>
       <li><a href="#characters" data-section="characters"><span class="brush" aria-hidden="true"></span><span class="nav-num">02</span><span class="nav-nom" data-t="sections.characters">Characters</span></a></li>
       <li><a href="#weapons" data-section="weapons"><span class="brush" aria-hidden="true"></span><span class="nav-num">03</span><span class="nav-nom" data-t="sections.weapons">Weapons</span></a></li>
+      <li><a href="#about" data-section="about"><span class="brush" aria-hidden="true"></span><span class="nav-num">04</span><span class="nav-nom" data-t="sections.about">About us</span></a></li>
     </ol>
   </nav>
 
@@ -79,6 +84,34 @@
           </div>
           <dl class="arme-stats revele" style="--i:4" id="arme-stats"></dl>
         </div>
+      </div>
+    </section>
+
+    <!-- About us -->
+    <section class="section section-about" id="about" data-num="04" aria-labelledby="titre-about">
+      <div class="section-interieur">
+        <header class="section-entete revele" style="--i:0">
+          <span class="section-num" aria-hidden="true">04</span>
+          <h2 class="section-titre" id="titre-about" data-t="sections.about">About us</h2>
+        </header>
+        <div class="about-corps">
+          <div class="about-studio revele" style="--i:1">
+            <img class="studio-logo about-logo" src="img/no-way-studio.svg" alt="No Way Studio" data-t-alt="studio.logoAlt" width="824" height="628">
+          </div>
+          <div class="about-texte">
+            <p class="about-signature revele" style="--i:2" data-t="studio.signature"></p>
+            <p class="section-intro marque-provisoire revele" style="--i:3" data-t="about.intro"></p>
+            <p class="about-paragraphe revele" style="--i:4" data-t="about.texte"></p>
+            <dl class="about-credits revele" style="--i:5" id="about-credits"></dl>
+          </div>
+        </div>
+        <footer class="pied revele" style="--i:6">
+          <img class="studio-logo pied-studio" src="img/no-way-studio.svg" alt="" width="824" height="628">
+          <div class="pied-texte">
+            <p class="pied-copyright" data-t="studio.copyright"></p>
+            <p class="pied-licences" data-t="about.licences"></p>
+          </div>
+        </footer>
       </div>
     </section>
   </main>

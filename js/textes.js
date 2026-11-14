@@ -27,6 +27,7 @@ export const TEXTES = {
       news: 'News',
       characters: 'Characters',
       weapons: 'Weapons',
+      about: 'About us',
     },
     news: {
       intro: 'Contenu provisoire : les actualités ci-dessous sont fictives.',
@@ -78,6 +79,20 @@ export const TEXTES = {
         fusil: { nom: 'Fusil à pompe', type: 'Courte portée' },
         carabine: { nom: 'Carabine', type: 'Longue portée' },
       },
+    },
+    studio: {
+      nom: 'No Way Studio',
+      logoAlt: 'No Way Studio',
+      signature: 'Un jeu de No Way Studio',
+      copyright: '© 2026 No Way Studio',
+    },
+    about: {
+      intro: 'Contenu provisoire : texte de présentation du studio à écrire.',
+      texte: 'No Way Studio crée Z-Survival, un jeu de survie zombies en vue de dessus, jouable directement dans le navigateur, sur téléphone comme sur ordinateur.',
+      credits: [
+        { titre: 'Création', noms: ['Nowy'] },
+      ],
+      licences: 'Polices : Barlow, Rubik Wet Paint et Rubik Dirt (licence SIL OFL 1.1).',
     },
   },
 };
