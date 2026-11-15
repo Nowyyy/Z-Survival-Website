@@ -95,7 +95,9 @@ main() {
   reessayer() {
     local n
     for n in 1 2 3 4 5 6; do
-      if "$@"; then return 0; fi
+      # Messages d'erreur masqués pendant les essais (souvent « n'existe pas » : le compte vient d'être créé) ;
+      # le dernier essai, plus bas, les affiche.
+      if "$@" 2>/dev/null; then return 0; fi
       info "… nouvel essai dans 10 s ($n/6)"
       sleep 10
     done
@@ -218,12 +220,12 @@ JSON
   fi
   if [[ -z "$etat" ]]; then
     gcloud iam workload-identity-pools providers create-oidc "$FOURNISSEUR" --location=global --workload-identity-pool="$POOL" \
-      --display-name="GitHub (Z-Survival-Website, main)" --issuer-uri="https://token.actions.githubusercontent.com" \
+      --display-name="GitHub Z-Survival-Website" --issuer-uri="https://token.actions.githubusercontent.com" \
       --attribute-mapping="$correspondance" --attribute-condition="$condition" --quiet
     fait "Fournisseur « ${FOURNISSEUR} » créé"
   else
     gcloud iam workload-identity-pools providers update-oidc "$FOURNISSEUR" --location=global --workload-identity-pool="$POOL" \
-      --display-name="GitHub (Z-Survival-Website, main)" --issuer-uri="https://token.actions.githubusercontent.com" \
+      --display-name="GitHub Z-Survival-Website" --issuer-uri="https://token.actions.githubusercontent.com" \
       --attribute-mapping="$correspondance" --attribute-condition="$condition" --quiet >/dev/null
     fait "Fournisseur « ${FOURNISSEUR} » mis à jour"
   fi
