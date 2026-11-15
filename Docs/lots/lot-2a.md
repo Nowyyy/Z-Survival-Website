@@ -84,3 +84,12 @@ La planche `musique/planche.html` est restée telle quelle.
 4. **Montée et descente** : douces, sans claquement, au clic et en changeant d'application (onglet caché puis revenu).
 5. **Chargement** : sur une connexion lente (4G), le cercle en pointillés tourne pendant le téléchargement de 1,5 Mo, puis la musique part.
 6. **Rechargement** : la page rouverte est toujours muette jusqu'au clic.
+
+## Retour du propriétaire (15/11/2026, branche `accueil-bientot`)
+- **« Bientôt disponible » aussi en haut à droite de l'accueil**, comme dans l'en-tête des autres sections : rangée
+  « Bientôt disponible » · son · globe. Jusqu'à 420 px, le globe de l'accueil perd son code « FR / EN » (comme dans l'en-tête) pour
+  laisser la place au logo du studio ; entre 900 et 1023 px, la mention « Image animée — à venir » passe sous la rangée.
+- `verifier-site.mjs` contrôle aussi cette rangée (présence, traduction, aucun chevauchement de 320 à 1440 px) : 150/150.
+- **Encart « Coming soon » des sections 03 Personnages et 04 Armes traduit en français : « Prochainement »** (« Coming soon » reste
+  en anglais) ; « Prochainement » plutôt que « Bientôt disponible » pour ne pas répéter l'étiquette de l'en-tête juste au-dessus.
+  `CLAUDE.md` mis à jour. `verifier-site.mjs` : 158/158.

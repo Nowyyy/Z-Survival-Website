@@ -1,5 +1,5 @@
 /* Accueil : première section plein écran de la page. Image animée (emplacement provisoire), logo du studio,
-   menu de langue (globe), logo du jeu et bouton « Entrer » qui descend vers News.
+   « Bientôt disponible », bouton de son, menu de langue (globe), logo du jeu et bouton « Entrer » qui descend vers News.
    Cadre rouge lumineux et fond noir comme l'écran d'accueil du jeu. */
 
 .section-accueil {
@@ -67,7 +67,8 @@
   white-space: nowrap;
 }
 
-/* Coin haut droit : bouton de son et globe de langue (styles communs : css/base.css). */
+/* Coin haut droit, comme l'en-tête des autres sections : « Bientôt disponible » (css/principal.css), bouton de son et globe
+   de langue (styles communs : css/base.css). */
 .accueil-reglages {
   position: absolute;
   z-index: 5;
@@ -76,6 +77,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+/* Téléphones jusqu'à 420 px : globe sans le code de langue (comme dans l'en-tête), pour laisser la place au logo du studio. */
+@media (max-width: 420px) {
+  .accueil-reglages { gap: 6px; }
+  .langue-accueil .langue-bouton { padding: 0; justify-content: center; }
+  .langue-accueil .langue-code { display: none; }
 }
 
 /* ---------- Logo, sous-titre, « En savoir plus » ---------- */
@@ -145,6 +152,10 @@
   .accueil-mention { top: 48px; }
   .accueil-reglages { top: 48px; right: 52px; }
   .accueil-sous-titre { font-size: 1rem; }
+}
+/* Ordinateur étroit : la mention passe sous la rangée du coin haut droit (elle la toucherait). */
+@media (min-width: 900px) and (max-width: 1023px) {
+  .accueil-mention { top: 112px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
