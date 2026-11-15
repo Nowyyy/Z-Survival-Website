@@ -5,8 +5,9 @@ Site vitrine du jeu de survie zombies **Z-Survival**
 
 - Adresse du site : https://nowyyy.github.io/Z-Survival-Website/
   (GitHub Pages sert le site sous le nom du dépôt, `Z-Survival-Website`).
-- Structure : une page d'accueil plein écran, puis une page principale en sections plein
-  écran (News, Characters, Weapons) avec un défilement qui s'arrête sur chaque section.
+- Structure : une seule page. Accueil plein écran (« En savoir plus » descend vers les sections),
+  puis les sections plein écran News, Characters, Weapons et About us, avec un défilement qui
+  s'arrête sur chaque section. Site en français et en anglais (globe sur l'accueil).
 
 ## Tester en local
 Le site est statique (HTML, CSS, JavaScript en modules ES, sans build). Les modules ES

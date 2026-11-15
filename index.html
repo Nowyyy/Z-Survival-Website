@@ -11,24 +11,140 @@
   <link rel="apple-touch-icon" sizes="180x180" href="img/icone-180.png">
   <script>document.documentElement.classList.add('js');</script>
   <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/principal.css">
   <link rel="stylesheet" href="css/accueil.css">
-  <script type="module" src="js/accueil.js"></script>
+  <script type="module" src="js/site.js"></script>
 </head>
-<body class="page-accueil">
-  <main class="accueil">
-    <!-- Emplacement de l'image animée (voir Docs/ref/scene-accueil.md) : vidéo en boucle dans un lot futur. -->
-    <div class="accueil-scene" aria-hidden="true">
-      <div class="accueil-scene-brume"></div>
-      <div class="accueil-scene-grain"></div>
+<body class="page-principale" data-section="accueil">
+  <svg class="defs" aria-hidden="true" focusable="false">
+    <filter id="brush" x="-5%" y="-30%" width="110%" height="160%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035 0.4" numOctaves="3" seed="4" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="16" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
+  <header class="entete">
+    <div class="entete-marques">
+      <img class="studio-logo entete-studio" src="img/no-way-studio.svg" alt="No Way Studio" data-t-alt="studio.logoAlt" width="824" height="628">
+      <span class="entete-separateur" aria-hidden="true"></span>
+      <a class="entete-logo" href="#accueil" data-t-aria="commun.accueilAria"><span data-t="accueil.titre">Z-Survival</span></a>
     </div>
-    <img class="studio-logo accueil-studio" src="img/no-way-studio.svg" alt="No Way Studio" data-t-alt="studio.logoAlt" width="824" height="628">
-    <p class="marque-provisoire accueil-mention" data-t="accueil.imageAVenir">Image animée — à venir</p>
+    <span class="bouton bouton-bientot" role="status" data-t="commun.bientot">Bientôt disponible</span>
+  </header>
 
-    <div class="accueil-contenu">
-      <h1 class="accueil-titre" data-t="accueil.titre">Z-Survival</h1>
-      <p class="accueil-sous-titre" data-t="accueil.sousTitre"></p>
-      <a class="bouton bouton-principal accueil-entrer" href="main.html" data-t="accueil.entrer">Entrer</a>
-    </div>
+  <nav class="nav-sections" data-t-aria="commun.navigation">
+    <ol>
+      <li><a href="#news" data-section="news"><span class="brush" aria-hidden="true"></span><span class="nav-num">01</span><span class="nav-nom" data-t="sections.news">News</span></a></li>
+      <li><a href="#characters" data-section="characters"><span class="brush" aria-hidden="true"></span><span class="nav-num">02</span><span class="nav-nom" data-t="sections.characters">Characters</span></a></li>
+      <li><a href="#weapons" data-section="weapons"><span class="brush" aria-hidden="true"></span><span class="nav-num">03</span><span class="nav-nom" data-t="sections.weapons">Weapons</span></a></li>
+      <li><a href="#about" data-section="about"><span class="brush" aria-hidden="true"></span><span class="nav-num">04</span><span class="nav-nom" data-t="sections.about">About us</span></a></li>
+    </ol>
+  </nav>
+
+  <main class="sections" id="sections">
+    <!-- Accueil : image animée plein écran (voir Docs/ref/scene-accueil.md), puis « Entrer » descend vers News. -->
+    <section class="section section-accueil" id="accueil" data-t-aria="accueil.titre" aria-label="Z-Survival">
+      <div class="accueil-scene" aria-hidden="true">
+        <div class="accueil-scene-brume"></div>
+        <div class="accueil-scene-grain"></div>
+      </div>
+      <img class="studio-logo accueil-studio" src="img/no-way-studio.svg" alt="No Way Studio" data-t-alt="studio.logoAlt" width="824" height="628">
+      <p class="marque-provisoire accueil-mention" data-t="accueil.imageAVenir">Image animée — à venir</p>
+
+      <div class="langue" id="langue">
+        <button class="langue-bouton" type="button" aria-expanded="false" aria-controls="langue-menu" data-t-aria="commun.langue" aria-label="Langue">
+          <svg class="globe-icone" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9.25"/><ellipse cx="12" cy="12" rx="4" ry="9.25"/><path d="M3 9h18M3 15h18"/></svg>
+          <span class="langue-code" id="langue-code">FR</span>
+        </button>
+        <ul class="langue-menu" id="langue-menu" hidden>
+          <li><button type="button" class="langue-choix" data-langue="fr" lang="fr">Français</button></li>
+          <li><button type="button" class="langue-choix" data-langue="en" lang="en">English</button></li>
+        </ul>
+      </div>
+
+      <div class="accueil-contenu">
+        <h1 class="accueil-titre" data-t="accueil.titre">Z-Survival</h1>
+        <p class="accueil-sous-titre" data-t="accueil.sousTitre"></p>
+        <a class="bouton bouton-principal accueil-entrer" href="#news" data-t="accueil.entrer">En savoir plus</a>
+        <a class="accueil-fleche" href="#news" tabindex="-1" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false"><path d="M5 9l7 7 7-7"/></svg>
+        </a>
+      </div>
+    </section>
+
+    <!-- News -->
+    <section class="section section-news" id="news" data-num="01" aria-labelledby="titre-news">
+      <div class="section-interieur">
+        <header class="section-entete revele" style="--i:0">
+          <span class="section-num" aria-hidden="true">01</span>
+          <h2 class="section-titre" id="titre-news" data-t="sections.news">News</h2>
+        </header>
+        <p class="section-intro marque-provisoire revele" style="--i:1" data-t="news.intro"></p>
+        <ul class="news-liste" id="news-liste"></ul>
+      </div>
+    </section>
+
+    <!-- Characters -->
+    <section class="section section-characters" id="characters" data-num="02" aria-labelledby="titre-characters">
+      <div class="section-interieur">
+        <header class="section-entete revele" style="--i:0">
+          <span class="section-num" aria-hidden="true">02</span>
+          <h2 class="section-titre" id="titre-characters" data-t="sections.characters">Characters</h2>
+        </header>
+        <p class="section-intro marque-provisoire revele" style="--i:1" data-t="characters.intro"></p>
+        <div class="perso-scene emplacement revele" style="--i:2" aria-live="polite">
+          <span class="emplacement-etiquette" id="perso-etiquette"></span>
+          <span class="emplacement-detail" id="perso-detail"></span>
+        </div>
+        <ul class="perso-miniatures revele" style="--i:3" id="perso-miniatures" data-t-aria="characters.liste"></ul>
+      </div>
+    </section>
+
+    <!-- Weapons -->
+    <section class="section section-weapons" id="weapons" data-num="03" aria-labelledby="titre-weapons">
+      <div class="section-interieur">
+        <header class="section-entete revele" style="--i:0">
+          <span class="section-num" aria-hidden="true">03</span>
+          <h2 class="section-titre" id="titre-weapons" data-t="sections.weapons">Weapons</h2>
+        </header>
+        <p class="section-intro marque-provisoire revele" style="--i:1" data-t="weapons.intro"></p>
+        <div class="arme-choix revele" style="--i:2" id="arme-choix" role="group" data-t-aria="weapons.liste"></div>
+        <div class="arme-corps">
+          <div class="arme-scene emplacement revele" style="--i:3" aria-live="polite">
+            <span class="emplacement-etiquette" id="arme-etiquette"></span>
+            <span class="emplacement-detail" id="arme-detail"></span>
+          </div>
+          <dl class="arme-stats revele" style="--i:4" id="arme-stats"></dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- About us -->
+    <section class="section section-about" id="about" data-num="04" aria-labelledby="titre-about">
+      <div class="section-interieur">
+        <header class="section-entete revele" style="--i:0">
+          <span class="section-num" aria-hidden="true">04</span>
+          <h2 class="section-titre" id="titre-about" data-t="sections.about">About us</h2>
+        </header>
+        <div class="about-corps">
+          <div class="about-studio revele" style="--i:1">
+            <img class="studio-logo about-logo" src="img/no-way-studio.svg" alt="No Way Studio" data-t-alt="studio.logoAlt" width="824" height="628">
+          </div>
+          <div class="about-texte">
+            <p class="about-signature revele" style="--i:2" data-t="studio.signature"></p>
+            <p class="section-intro marque-provisoire revele" style="--i:3" data-t="about.intro"></p>
+            <p class="about-paragraphe revele" style="--i:4" data-t="about.texte"></p>
+            <dl class="about-credits revele" style="--i:5" id="about-credits"></dl>
+          </div>
+        </div>
+        <footer class="pied revele" style="--i:6">
+          <img class="studio-logo pied-studio" src="img/no-way-studio.svg" alt="" width="824" height="628">
+          <div class="pied-texte">
+            <p class="pied-copyright" data-t="studio.copyright"></p>
+            <p class="pied-licences" data-t="about.licences"></p>
+          </div>
+        </footer>
+      </div>
+    </section>
   </main>
 </body>
 </html>

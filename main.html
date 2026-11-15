@@ -2,118 +2,14 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Z-Survival — News, Characters, Weapons</title>
-  <meta name="description" content="Site du jeu de survie zombies Z-Survival.">
-  <meta name="theme-color" content="#050505">
-  <meta name="color-scheme" content="dark">
-  <link rel="icon" type="image/png" sizes="48x48" href="img/icone-48.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="img/icone-180.png">
-  <script>document.documentElement.classList.add('js');</script>
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/principal.css">
-  <script type="module" src="js/principal.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Z-Survival</title>
+  <meta name="robots" content="noindex">
+  <!-- Ancienne page principale : tout est maintenant sur index.html. Redirection en gardant la section (#weapons…). -->
+  <script>location.replace('./' + (location.hash || '#news'));</script>
+  <meta http-equiv="refresh" content="0; url=./#news">
 </head>
-<body class="page-principale">
-  <svg class="defs" aria-hidden="true" focusable="false">
-    <filter id="brush" x="-5%" y="-30%" width="110%" height="160%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.035 0.4" numOctaves="3" seed="4" result="n"/>
-      <feDisplacementMap in="SourceGraphic" in2="n" scale="16" xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
-  </svg>
-  <header class="entete">
-    <div class="entete-marques">
-      <img class="studio-logo entete-studio" src="img/no-way-studio.svg" alt="No Way Studio" data-t-alt="studio.logoAlt" width="824" height="628">
-      <span class="entete-separateur" aria-hidden="true"></span>
-      <a class="entete-logo" href="index.html" data-t-aria="commun.accueilAria"><span data-t="accueil.titre">Z-Survival</span></a>
-    </div>
-    <span class="bouton bouton-bientot" role="status" data-t="commun.bientot">Bientôt disponible</span>
-  </header>
-
-  <nav class="nav-sections" data-t-aria="commun.navigation">
-    <ol>
-      <li><a href="#news" data-section="news"><span class="brush" aria-hidden="true"></span><span class="nav-num">01</span><span class="nav-nom" data-t="sections.news">News</span></a></li>
-      <li><a href="#characters" data-section="characters"><span class="brush" aria-hidden="true"></span><span class="nav-num">02</span><span class="nav-nom" data-t="sections.characters">Characters</span></a></li>
-      <li><a href="#weapons" data-section="weapons"><span class="brush" aria-hidden="true"></span><span class="nav-num">03</span><span class="nav-nom" data-t="sections.weapons">Weapons</span></a></li>
-      <li><a href="#about" data-section="about"><span class="brush" aria-hidden="true"></span><span class="nav-num">04</span><span class="nav-nom" data-t="sections.about">About us</span></a></li>
-    </ol>
-  </nav>
-
-  <main class="sections" id="sections">
-    <!-- News -->
-    <section class="section section-news" id="news" data-num="01" aria-labelledby="titre-news">
-      <div class="section-interieur">
-        <header class="section-entete revele" style="--i:0">
-          <span class="section-num" aria-hidden="true">01</span>
-          <h2 class="section-titre" id="titre-news" data-t="sections.news">News</h2>
-        </header>
-        <p class="section-intro marque-provisoire revele" style="--i:1" data-t="news.intro"></p>
-        <ul class="news-liste" id="news-liste"></ul>
-      </div>
-    </section>
-
-    <!-- Characters -->
-    <section class="section section-characters" id="characters" data-num="02" aria-labelledby="titre-characters">
-      <div class="section-interieur">
-        <header class="section-entete revele" style="--i:0">
-          <span class="section-num" aria-hidden="true">02</span>
-          <h2 class="section-titre" id="titre-characters" data-t="sections.characters">Characters</h2>
-        </header>
-        <p class="section-intro marque-provisoire revele" style="--i:1" data-t="characters.intro"></p>
-        <div class="perso-scene emplacement revele" style="--i:2" aria-live="polite">
-          <span class="emplacement-etiquette" id="perso-etiquette"></span>
-          <span class="emplacement-detail" id="perso-detail"></span>
-        </div>
-        <ul class="perso-miniatures revele" style="--i:3" id="perso-miniatures" data-t-aria="characters.liste"></ul>
-      </div>
-    </section>
-
-    <!-- Weapons -->
-    <section class="section section-weapons" id="weapons" data-num="03" aria-labelledby="titre-weapons">
-      <div class="section-interieur">
-        <header class="section-entete revele" style="--i:0">
-          <span class="section-num" aria-hidden="true">03</span>
-          <h2 class="section-titre" id="titre-weapons" data-t="sections.weapons">Weapons</h2>
-        </header>
-        <p class="section-intro marque-provisoire revele" style="--i:1" data-t="weapons.intro"></p>
-        <div class="arme-choix revele" style="--i:2" id="arme-choix" role="group" data-t-aria="weapons.liste"></div>
-        <div class="arme-corps">
-          <div class="arme-scene emplacement revele" style="--i:3" aria-live="polite">
-            <span class="emplacement-etiquette" id="arme-etiquette"></span>
-            <span class="emplacement-detail" id="arme-detail"></span>
-          </div>
-          <dl class="arme-stats revele" style="--i:4" id="arme-stats"></dl>
-        </div>
-      </div>
-    </section>
-
-    <!-- About us -->
-    <section class="section section-about" id="about" data-num="04" aria-labelledby="titre-about">
-      <div class="section-interieur">
-        <header class="section-entete revele" style="--i:0">
-          <span class="section-num" aria-hidden="true">04</span>
-          <h2 class="section-titre" id="titre-about" data-t="sections.about">About us</h2>
-        </header>
-        <div class="about-corps">
-          <div class="about-studio revele" style="--i:1">
-            <img class="studio-logo about-logo" src="img/no-way-studio.svg" alt="No Way Studio" data-t-alt="studio.logoAlt" width="824" height="628">
-          </div>
-          <div class="about-texte">
-            <p class="about-signature revele" style="--i:2" data-t="studio.signature"></p>
-            <p class="section-intro marque-provisoire revele" style="--i:3" data-t="about.intro"></p>
-            <p class="about-paragraphe revele" style="--i:4" data-t="about.texte"></p>
-            <dl class="about-credits revele" style="--i:5" id="about-credits"></dl>
-          </div>
-        </div>
-        <footer class="pied revele" style="--i:6">
-          <img class="studio-logo pied-studio" src="img/no-way-studio.svg" alt="" width="824" height="628">
-          <div class="pied-texte">
-            <p class="pied-copyright" data-t="studio.copyright"></p>
-            <p class="pied-licences" data-t="about.licences"></p>
-          </div>
-        </footer>
-      </div>
-    </section>
-  </main>
+<body style="background:#050505;color:#f4f1ec;font-family:system-ui,sans-serif">
+  <p><a href="./#news">Z-Survival</a></p>
 </body>
 </html>

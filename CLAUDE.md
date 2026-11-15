@@ -24,7 +24,7 @@ publié sur https://nowyyy.github.io/Z-Survival/).
 - HTML, CSS et JavaScript en modules ES, sans étape de build (tant qu'un lot n'en décide pas autrement).
 - **Téléphone d'abord** : le rendu en portrait (375 px de large) est la référence, puis l'ordinateur.
 - **`prefers-reduced-motion`** respecté partout : animations réduites ou coupées.
-- Textes regroupés dans `js/textes.js` (français aujourd'hui, prévu pour l'anglais),
+- Textes regroupés dans `js/textes.js` (français et anglais : toute nouvelle clé s'écrit dans les deux langues),
   jamais éparpillés dans le HTML. Les intitulés de section restent en anglais : « News », « Characters », « Weapons », « About us ».
 - Le site est servi sous un sous-dossier GitHub Pages : **aucun chemin ne commence par « / »**
   (chemins relatifs uniquement).
@@ -35,10 +35,14 @@ publié sur https://nowyyy.github.io/Z-Survival/).
   quand un jeton existe.
 
 ## Organisation
-- `index.html` : accueil plein écran (image animée à venir) + bouton « Entrer ».
-- `main.html` : page principale, sections plein écran News / Characters / Weapons / About us
-  (About us se termine par le pied de page).
-- `css/`, `js/` : styles et scripts ; `js/textes.js` : tous les textes ; `js/logo.js` : logo.
-- `fonts/` : polices du jeu (+ licences) ; `img/` : icônes et logo du studio (`no-way-studio.svg`).
+- `index.html` : **page unique**. Accueil plein écran (image animée à venir, logo du studio, globe
+  Français / English, « En savoir plus » + flèche qui descend vers News), puis les sections plein écran
+  News / Characters / Weapons / About us (About us : logo animé du studio rejoué à chaque arrivée,
+  puis pied de page). En-tête et navigation cachés sur l'accueil.
+- `main.html` : ancienne page principale, simple redirection vers `./#news` (garde l'ancre).
+- `css/`, `js/` : styles et scripts ; `js/site.js` : script de la page ; `js/textes.js` : tous les textes
+  (blocs `fr` et `en`, mêmes clés) ; `js/i18n.js` : langue (choix gardé dans le navigateur, `?lang=en`) ;
+  `js/logo.js` : logo du jeu.
+- `fonts/` : polices du jeu (+ licences) ; `img/` : icônes et logos du studio (`no-way-studio.svg` fixe, `no-way-studio-anime.svg` animé).
 - `Docs/ref/` : documents de référence ; `Docs/lots/` : bilans de lot.
 - `.github/workflows/pages.yml` : déploiement GitHub Pages à chaque push sur `main`.

@@ -1,13 +1,35 @@
-// Application des textes (js/textes.js) au HTML.
+// Langue et textes du site (js/textes.js).
 // - data-t="cle.sous.cle"       → textContent
 // - data-t-aria="cle"            → aria-label
 // - data-t-alt="cle"             → alt (images)
-// La langue vient de l'attribut lang de <html> (fr par défaut).
-import { TEXTES, LANGUE_PAR_DEFAUT } from './textes.js';
+// La langue courante est l'attribut lang de <html>. Le choix du visiteur est gardé dans son navigateur
+// (localStorage, simple confort : si le stockage est indisponible, le site reste en français).
+import { TEXTES, LANGUE_PAR_DEFAUT, LANGUES } from './textes.js';
+
+const CLE_STOCKAGE = 'z-survival-site.langue';
 
 export function langue() {
   const l = document.documentElement.lang;
   return TEXTES[l] ? l : LANGUE_PAR_DEFAUT;
+}
+
+// Langue au chargement : ?lang=en dans l'adresse, sinon le dernier choix du visiteur, sinon le français.
+export function langueInitiale() {
+  try {
+    const demandee = new URLSearchParams(window.location.search).get('lang');
+    if (LANGUES.includes(demandee)) return demandee;
+  } catch { /* adresse illisible : on ignore */ }
+  try {
+    const gardee = window.localStorage.getItem(CLE_STOCKAGE);
+    if (LANGUES.includes(gardee)) return gardee;
+  } catch { /* stockage indisponible */ }
+  return LANGUE_PAR_DEFAUT;
+}
+
+export function changerLangue(l) {
+  if (!LANGUES.includes(l)) return;
+  document.documentElement.lang = l;
+  try { window.localStorage.setItem(CLE_STOCKAGE, l); } catch { /* stockage indisponible */ }
 }
 
 function lire(objet, chemin) {
@@ -30,6 +52,8 @@ export function appliquerTextes(racine = document) {
   racine.querySelectorAll('[data-t-alt]').forEach((el) => {
     el.setAttribute('alt', t(el.dataset.tAlt));
   });
+  document.title = t('meta.titre');
+  document.querySelector('meta[name="description"]')?.setAttribute('content', t('meta.description'));
 }
 
 export function mouvementReduit() {

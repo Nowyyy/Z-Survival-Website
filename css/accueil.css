@@ -1,19 +1,14 @@
-/* Accueil : image animée plein écran (emplacement provisoire), logo du jeu et bouton « Entrer ».
+/* Accueil : première section plein écran de la page. Image animée (emplacement provisoire), logo du studio,
+   menu de langue (globe), logo du jeu et bouton « Entrer » qui descend vers News.
    Cadre rouge lumineux et fond noir comme l'écran d'accueil du jeu. */
 
-.page-accueil { overflow: hidden; }
-
-.accueil {
-  position: fixed;
-  inset: 0;
+.section-accueil {
   display: grid;
   place-items: end center;
   padding: var(--marge);
   padding-bottom: calc(12vh + env(safe-area-inset-bottom));
-  isolation: isolate;
-  transition: opacity 350ms ease;
+  background: var(--color-bg);
 }
-.est-en-sortie .accueil { opacity: 0; }
 
 /* Emplacement de l'image animée : fond noir, lueur rouge au sol, brume qui dérive (provisoire). */
 .accueil-scene {
@@ -54,7 +49,7 @@
   to   { transform: translateX(6%); }
 }
 
-/* Logo du studio dans le coin, comme la signature de l'éditeur sur les sites de jeux. */
+/* Logo du studio dans le coin haut gauche, comme la signature de l'éditeur sur les sites de jeux. */
 .accueil-studio {
   position: absolute;
   top: calc(26px + env(safe-area-inset-top));
@@ -63,14 +58,87 @@
   filter: drop-shadow(0 2px 8px rgb(0 0 0 / 60%));
 }
 
+/* Téléphone : la mention passe sous la rangée logo du studio / globe. */
 .accueil-mention {
   position: absolute;
-  top: calc(28px + env(safe-area-inset-top));
+  top: calc(86px + env(safe-area-inset-top));
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
 }
 
+/* ---------- Menu de langue : globe dans le coin haut droit ---------- */
+.langue {
+  position: absolute;
+  z-index: 5;
+  top: calc(26px + env(safe-area-inset-top));
+  right: 26px;
+}
+.langue-bouton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  padding: 0 10px;
+  border: 1px solid rgb(244 241 236 / 35%);
+  border-radius: 999px;
+  background: rgb(5 5 5 / 55%);
+  color: var(--color-text);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: border-color 150ms, color 150ms;
+}
+.langue-bouton:hover,
+.langue-bouton[aria-expanded="true"] { border-color: var(--color-action); color: var(--color-action-text); }
+.globe-icone {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.langue-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 9.5rem;
+  padding: 6px;
+  border: 1px solid var(--color-surface-raised);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 60%);
+  transform-origin: top right;
+  animation: langue-ouvre 160ms var(--courbe);
+}
+.langue-menu[hidden] { display: none; }
+@keyframes langue-ouvre {
+  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+}
+.langue-choix {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--touch-target);
+  padding: 0 12px;
+  border: 0;
+  border-left: 3px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+.langue-choix:hover,
+.langue-choix:focus-visible { background: var(--color-surface-raised); }
+.langue-choix[aria-current="true"] { border-left-color: var(--color-action); color: var(--color-action-text); }
+
+/* ---------- Logo, sous-titre, « Entrer » ---------- */
 .accueil-contenu {
   display: flex;
   flex-direction: column;
@@ -94,6 +162,31 @@
 }
 .accueil-entrer { min-width: 11rem; min-height: 56px; font-size: 1.25rem; }
 
+/* Petite flèche sous « En savoir plus » : rebondit vers le bas (immobile en mouvement réduit). */
+.accueil-fleche {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 36px;
+  margin-top: -0.5rem;
+  color: var(--color-action-text);
+}
+.accueil-fleche svg {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 6px var(--color-action-glow));
+  animation: fleche 1.4s ease-in-out infinite;
+}
+@keyframes fleche {
+  0%, 100% { transform: translateY(-3px); opacity: 0.55; }
+  50%      { transform: translateY(5px); opacity: 1; }
+}
+
 /* Apparition à l'ouverture (seulement si JavaScript tourne). */
 .js .accueil-contenu > * { opacity: 0; transform: translateY(16px); }
 .est-pret .accueil-contenu > * {
@@ -103,16 +196,18 @@
 }
 .est-pret .accueil-contenu > :nth-child(2) { transition-delay: 120ms; }
 .est-pret .accueil-contenu > :nth-child(3) { transition-delay: 240ms; }
+.est-pret .accueil-contenu > :nth-child(4) { transition-delay: 360ms; }
 
 @media (min-width: 900px) {
-  .accueil { padding-bottom: 14vh; }
+  .section-accueil { padding-bottom: 14vh; }
   .accueil-scene::after { inset: 24px; border-radius: 28px; }
-  .accueil-mention { top: 48px; }
   .accueil-studio { top: 44px; left: 52px; width: 96px; }
+  .accueil-mention { top: 48px; }
+  .langue { top: 48px; right: 52px; }
   .accueil-sous-titre { font-size: 1rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .accueil-scene-brume { animation: none; }
+  .accueil-scene-brume, .accueil-fleche svg { animation: none; }
   .js .accueil-contenu > * { opacity: 1; transform: none; }
 }

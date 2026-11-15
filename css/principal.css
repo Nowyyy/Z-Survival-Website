@@ -1,4 +1,4 @@
-/* Page principale : en-tête, navigation des sections, sections plein écran avec défilement par section.
+/* Page unique : en-tête, navigation des sections, sections plein écran avec défilement par section (l'accueil : css/accueil.css).
    Direction artistique du jeu : noir, rouge sang, titres qui dégoulinent (Rubik Wet Paint), libellés grunge (Rubik Dirt). */
 
 .page-principale { overflow: hidden; }
@@ -23,8 +23,8 @@
 /* Logo du studio à gauche du logo du jeu : à partir de 600 px (trop serré sur téléphone). */
 .entete-studio, .entete-separateur { display: none; }
 @media (min-width: 600px) {
-  .entete-studio { display: block; height: 36px; }
-  .entete-separateur { display: block; width: 1px; height: 30px; background: var(--color-border); opacity: 0.6; }
+  .entete-studio { display: block; height: 44px; }
+  .entete-separateur { display: block; width: 1px; height: 36px; background: var(--color-border); opacity: 0.6; }
 }
 
 /* « Bientôt disponible » : pas cliquable, aspect atténué. */
@@ -89,6 +89,15 @@
 .nav-sections a[aria-current="true"] { color: var(--color-text); }
 .nav-sections a[aria-current="true"]::before { transform: scaleX(1); }
 .nav-sections .brush { display: none; }
+
+/* Sur l'accueil (vidéo plein écran), l'en-tête et la navigation s'effacent ; ils reviennent dès News. */
+.entete, .nav-sections { transition: opacity 300ms ease, visibility 0s; }
+.js body[data-section="accueil"] .entete,
+.js body[data-section="accueil"] .nav-sections {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 300ms ease, visibility 0s 300ms;
+}
 
 /* ---------- Conteneur des sections : défilement qui s'arrête sur chaque section ---------- */
 .sections {
@@ -288,7 +297,10 @@
 
 /* ---------- Ordinateur ---------- */
 @media (min-width: 900px) {
-  :root { --marge: 32px; --entete-h: 76px; --nav-h: 0px; }
+  :root { --marge: 32px; --entete-h: 84px; --nav-h: 0px; }
+  .entete-marques { gap: 16px; }
+  .entete-studio { height: 60px; }
+  .entete-separateur { height: 44px; }
 
   .entete-logo { font-size: 2.1rem; }
   .bouton-bientot { min-height: 44px; font-size: 0.9rem; }
