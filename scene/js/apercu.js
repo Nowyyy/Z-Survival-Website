@@ -30,14 +30,23 @@ html, body, .section-accueil { background: transparent !important; }
 .accueil-scene-brume, .accueil-scene-grain, .accueil-mention { display: none !important; }
 .sections { overflow: hidden !important; }
 `;
-site.addEventListener('load', () => {
+// Feuille ajoutée dès que la page du site commence à se construire (sa tête existe), avant son premier affichage : les feuilles de style du
+// site bloquent l'affichage le temps de leur chargement, ce qui laisse le temps de l'ajouter. Avant (retour du propriétaire, sur PC), elle
+// n'était ajoutée qu'à la fin du chargement complet (polices, musique) : le fond noir de l'accueil cachait la scène une seconde après la neige.
+function rendreTransparent() {
   const doc = site.contentDocument;
-  if (!doc) return;
+  if (!doc?.head || !/index\.html/.test(site.contentWindow?.location.href ?? '') || doc.getElementById('apercu-transparent')) return Boolean(doc?.getElementById('apercu-transparent'));
   const style = doc.createElement('style');
+  style.id = 'apercu-transparent';
   style.textContent = CSS;
   doc.head.append(style);
   doc.documentElement.style.colorScheme = 'normal'; // un iframe en « dark » recevrait un fond opaque
-});
+  return true;
+}
+(function guetter() {
+  if (!rendreTransparent()) setTimeout(guetter, 4);
+}());
+site.addEventListener('load', rendreTransparent); // filet de sécurité
 
 // Coup de feu de la scène → événement « zs:tir » envoyé à l'accueil du site (js/accueil-tir.js : flash du cadre rouge), comme le fera la
 // vidéo du lot 2. On suit le temps de la boucle de la scène et on signale chaque passage de l'instant du tir.

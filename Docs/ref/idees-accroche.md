@@ -59,6 +59,8 @@ Toutes respectent « réduire les animations » et restent légères (HTML, CSS,
   s'écrit) se joue par-dessus la scène. Avant, le site arrivait en une fraction de seconde et son entrée se jouait sur fond noir, avant que la
   scène (plusieurs secondes de construction) soit visible.
 - Pour revoir l'entrée : recharger la page de l'aperçu.
+- La feuille qui rend le fond de l'accueil transparent est ajoutée dès que la page du site commence à se construire (avant son premier
+  affichage), et non plus à la fin de son chargement complet : sur PC, un écran noir d'environ une seconde apparaissait après la neige.
 
 ## 5 — Bandeau d'alerte (à l'essai)
 - **Pas encore sur le site public** : le propriétaire n'est pas sûr de le garder. Il ne s'affiche qu'avec `?bandeau=1` dans l'adresse :
