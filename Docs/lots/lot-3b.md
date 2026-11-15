@@ -112,6 +112,18 @@ Branche `lot-3b`, depuis `main` (`c1f90e4`). Références : `Docs/ref/admin.md` 
   le dépôt : rien (seulement des exemples fictifs déjà connus, et un faux positif : le *nom* `GITHUB_JETON_IMAGES=${S_GITHUB}`).
 - Aucun chemin qui commence par « / ».
 
+### En ligne, après la fusion (PR #45, commit `53a6903`)
+- Workflow **« serveur »** : tests, image, déploiement sur Cloud Run réussis ; `/api/sante` vu par le workflow :
+  `{"ok":true,"base":"connectée","version_migrations":1,"version_serveur":"53a6903"}`.
+- Workflow **« Déploiement GitHub Pages »** réussi : `admin/`, `js/config.js`, `js/actualites.js`, `js/markdown.js`, `css/actualites.css`
+  servis (200) ; `/admin/` s'ouvre sur l'écran de connexion (`noindex, nofollow`), sans erreur.
+- Accueil inchangé : bonne vidéo selon l'écran (9:16 au téléphone, 16:9 à l'ordinateur). `verifier-accueil.mjs --en-ligne` :
+  148 réussies, et `verifier-site.mjs --en-ligne` : 149 réussies ; **les 25 échecs viennent tous des appels vers `…run.app`, refusés par
+  le proxy de l'environnement de l'agent** (`ERR_TUNNEL_CONNECTION_FAILED`), comptés comme erreur console ou fichier manquant.
+- Section Actualités en ligne, vue depuis cet environnement : message sobre « Actualités indisponibles pour le moment » (le serveur y est
+  injoignable), reste du site normal. Depuis un vrai navigateur, elle doit afficher « Radio silencieuse » tant qu'aucun article n'est
+  publié : à confirmer à l'étape 4 ci-dessous.
+
 ## Limites
 - **Rien n'a été essayé sur le vrai GitHub ni sur Google Cloud** depuis la session (le jeton ne passe jamais par l'agent) : la route est
   vérifiée contre une API GitHub simulée, le script contre un faux `gcloud`. Le premier vrai envoi d'image confirmera.
