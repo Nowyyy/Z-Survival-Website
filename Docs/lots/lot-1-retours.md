@@ -170,3 +170,19 @@ Suite du lot 1 (`Docs/lots/lot-1.md`). Branche `lot-1-retours`, PR fusionnée pa
   `scene/js/enrichissements.js`. Le personnage 2 garde son visage.
 - Correction : l'œil gauche traversait le bout intérieur du sourcil froncé. Sourcils remontés (bout intérieur à 5,9, au-dessus du haut de
   l'œil à 5,77), avancés devant l'œil et un peu moins inclinés (0,32 au lieu de 0,42) : toujours en V, sans croisement.
+
+## Onzième retour : zombie, bouche, militaire, essai « vers le personnage 1 »
+- **Carré au coude du zombie** : c'était un lambeau de tissu plat du jeu (pièce « quad » sans épaisseur, lisible de dessus, qui flotte de
+  près). Tous les lambeaux plats sont retirés dans la scène (coude, ventre, dos, hanches).
+- **Bras détachés du corps** : l'épaule du jeu est en dehors du torse ; une épaule arrondie, portée par le torse et centrée sur
+  l'articulation, fait la jonction quelle que soit la position du bras (`epaules()` dans `scene/js/enrichissements.js`).
+- **Bouche du zombie** : elle s'ouvre quand il tend le bras (cavité sombre logée dans le visage, portée par une articulation ajoutée
+  `boucheZ`, qui s'agrandit ; elle claque un peu des dents pendant que le bras est tendu).
+- **Personnage 2 en militaire**, au style différent du personnage 1 (variante « militaire » construite dans la scène à partir de la
+  variante « riche » du jeu) : casque rond sombre avec rebord, jugulaires, lunettes relevées et petite lampe sur le côté (elle éclaire le
+  zombie) ; gilet pare-balles sombre à trois porte-chargeurs et radio ; sac d'hydratation ; gants ; treillis kaki et olive. Le personnage
+  1 garde casquette, gilet sable et sac à dos. `?p2=civil` remet l'ancienne tenue (variante B du jeu) pour comparer.
+- **Essai** `?zombie=vers-p1` (non retenu par défaut) : le zombie, et le personnage 2 qui le suit, sont tournés vers le personnage 1, comme
+  s'il rampait vers lui ; il tend alors le bras vers le personnage 1. Transmis par l'aperçu :
+  https://nowyyy.github.io/Z-Survival-Website/scene/apercu.html?bandeau=1&zombie=vers-p1
+- Contacts mesurés dans les deux versions : pied du personnage 2 sur le dos sans y entrer, mains et corps du zombie au-dessus du sol.

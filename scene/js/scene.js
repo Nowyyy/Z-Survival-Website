@@ -7,7 +7,7 @@ import { creerAmbiance } from './ambiance.js';
 import { DUREE } from './boucle.js';
 import { brumeEnBoucle } from './brume.js';
 import { CADRAGES, FORMATS } from './cadrages.js';
-import { enrichirPersonnages, enrichirPoses, texturesFines } from './enrichissements.js';
+import { MILITAIRE, enrichirPersonnages, enrichirPoses, texturesFines } from './enrichissements.js';
 import { creerFeu } from './feu.js';
 import { creerHelico } from './helico.js';
 import { TIR, creerTir } from './tir.js';
@@ -62,10 +62,11 @@ try {
 
   // Personnages : ceux du jeu, enrichis pour le plan rapproché (js/enrichissements.js).
   const kit = creerKit(d, m.lookup, enrichirPersonnages(d.characters), enrichirPoses(d.poses));
-  texturesFines(kit, [['joueur', 'riche'], ['joueur', 'B'], ['marcheur', 'riche']]);
+  texturesFines(kit, [['joueur', 'riche'], ['joueur', MILITAIRE], ['marcheur', 'riche']]);
   const p1 = posable(kit.create('player', 0, { outfit: 0 }), ECHELLE_SCENE);
-  // Personnage 2 : une autre tenue du jeu (variante B « civil débrouillard » : capuche, sac de sport, lampe frontale ; sweat gris clair).
-  const p2 = posable(kit.create('player', 0, { choice: 'B', outfit: 0 }), ECHELLE_SCENE);
+  // Personnage 2 : militaire, au style différent du personnage 1 (js/enrichissements.js, variante « militaire » : casque, gilet
+  // pare-balles sombre, treillis kaki). ?p2=civil : l'ancienne tenue (variante B du jeu, capuche et lampe frontale), pour comparer.
+  const p2 = posable(kit.create('player', 0, q.get('p2') === 'civil' ? { choice: 'B', outfit: 0 } : { choice: MILITAIRE, outfit: 0 }), ECHELLE_SCENE);
   const zb = posable(kit.create('zombie', 0, { outfit: 3, wear: 2 }), ECHELLE_SCENE);
   zb.char.setWound(1);
   for (const p of [p1, p2, zb]) scene.add(p.root);
@@ -85,7 +86,7 @@ try {
   const brume = brumeEnBoucle(world, { vitesse: 3, force: 1.3 });
 
   const camera = new THREE.PerspectiveCamera(40, FORMATS[format], 2, 40000);
-  const PLACEMENT_BASE = { p1: { ...PLACEMENT.p1 }, zombie: { ...PLACEMENT.zombie } };
+  const PLACEMENT_BASE = { p1: { ...PLACEMENT.p1 }, zombie: { ...PLACEMENT.zombie }, spectateur: PLACEMENT.spectateur.clone() };
   function placerCamera() {
     if (plein) format = innerWidth < innerHeight ? 'portrait' : 'paysage';
     const c = CADRAGES[cadrage][format];
@@ -94,6 +95,15 @@ try {
     const xz = (v, def) => (v ? (([x, z]) => ({ x, z }))(nums(v)) : def);
     Object.assign(PLACEMENT.p1, PLACEMENT_BASE.p1, pl.p1 ?? {}, xz(q.get('p1'), {}));
     Object.assign(PLACEMENT.zombie, PLACEMENT_BASE.zombie, pl.zombie ?? {}, xz(q.get('zb'), {}));
+    // Essai (?zombie=vers-p1, retour du propriétaire) : le zombie, et le personnage 2 qui le cloue au sol, sont tournés vers le personnage 1,
+    // comme si le zombie rampait vers lui ; il tend alors le bras vers le personnage 1, pas vers le spectateur.
+    PLACEMENT.spectateur.copy(PLACEMENT_BASE.spectateur);
+    if (q.get('zombie') === 'vers-p1') {
+      const p1 = PLACEMENT.p1;
+      const z = PLACEMENT.zombie;
+      z.cap = (Math.atan2(p1.x - z.x, p1.z - z.z) * 180) / Math.PI;
+      PLACEMENT.spectateur.set(p1.x, 18, p1.z);
+    }
     const cam = nums(q.get('cam'), c.cam);
     const vise = nums(q.get('vise'), c.vise);
     camera.fov = Number(q.get('fov') ?? c.fov);
@@ -145,7 +155,7 @@ try {
     poser(u);
     feuHelico.update(u);
     tir.update(u, p1.bones.get('prop'), ECHELLE_SCENE);
-    p2.bones.get('head').localToWorld(frontale.position.set(0, 7, 5));
+    p2.bones.get('head').localToWorld(q.get('p2') === 'civil' ? frontale.position.set(0, 7, 5) : frontale.position.set(-5.2, 7.3, 2.4)); // lampe frontale ou lampe du casque
     zb.bones.get('head').getWorldPosition(frontale.target.position);
     ambiance.update(u);
     brume.update(u);
