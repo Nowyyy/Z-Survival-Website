@@ -16,7 +16,7 @@ import { mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { servirCopiePubliee } from '../copie-publiee.mjs';
+import { servirCopiePubliee, simulerActualites } from '../copie-publiee.mjs';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
@@ -44,6 +44,7 @@ const attente = (ms) => new Promise((ok) => { setTimeout(ok, ms); });
 
 async function ouvrir(options) {
   const contexte = await navigateur.newContext(options);
+  if (copie) await simulerActualites(contexte); // lot 3b : serveur des actualités simulé en local (aucun article)
   const page = await contexte.newPage();
   const journal = { erreurs: [], manquants: [], musique: [] };
   page.on('console', (m) => { if (m.type() === 'error') journal.erreurs.push(m.text()); });

@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Installation Google Cloud du serveur du site Z-Survival (lot 3a)
+# Installation Google Cloud du serveur du site Z-Survival (lot 3a, jeton GitHub des images : lot 3b)
 # ============================================================================
 # À lancer dans Cloud Shell (icône >_ en haut de la console Google Cloud),
 # en collant CETTE LIGNE (pas le contenu du fichier : voir serveur/LISEZMOI.md) :
 #
 #   bash <(curl -fsSL https://raw.githubusercontent.com/Nowyyy/Z-Survival-Website/main/serveur/deploiement/installer-gcp.sh)
+#
+# Pour ranger SEULEMENT le jeton GitHub des images (lot 3b), sans toucher au reste, ajouter « --jeton-github » :
+#
+#   bash <(curl -fsSL https://raw.githubusercontent.com/Nowyyy/Z-Survival-Website/main/serveur/deploiement/installer-gcp.sh) --jeton-github
 #
 # Ce que fait le script (relançable sans casse : chaque étape regarde d'abord ce qui existe) :
 #   1. vérifie le projet (z-survival-website) ;
@@ -16,7 +20,7 @@
 #   5. relie GitHub à Google Cloud SANS CLÉ (fédération d'identité), seulement pour le dépôt
 #      Nowyyy/Z-Survival-Website et la branche main ;
 #   6. vous DEMANDE les valeurs secrètes (saisie masquée) et calcule l'empreinte du mot de passe ici ;
-#      génère lui-même la clé de session ;
+#      génère lui-même la clé de session ; demande le jeton GitHub des images des articles (facultatif) ;
 #   7. range ces valeurs dans Secret Manager ;
 #   8. affiche les 4 valeurs NON secrètes à recopier dans GitHub (onglet Variables).
 #
@@ -27,6 +31,13 @@
 
 main() {
   set -Eeuo pipefail
+  # --jeton-github : ne ranger QUE le jeton GitHub des images (le reste n'est ni vérifié ni modifié).
+  local JETON_SEUL=0
+  case "${1:-}" in
+    --jeton-github) JETON_SEUL=1 ;;
+    "") ;;
+    *) echo "✖ Option inconnue : $1 (seule option possible : --jeton-github)" >&2; exit 1 ;;
+  esac
   set +o history 2>/dev/null || true
   umask 077
   # gcloud ne pose JAMAIS de question (une question cachée par « >/dev/null 2>&1 » bloquait le script) :
@@ -46,11 +57,13 @@ main() {
   local FOURNISSEUR="github-oidc"
   # Noms des secrets dans Secret Manager (les mêmes que dans .github/workflows/serveur.yml).
   local S_URL="turso-url" S_JETON="turso-jeton" S_ID="admin-identifiant" S_EMPREINTE="admin-empreinte" S_CLE="cle-session"
+  # Lot 3b : jeton GitHub des images des articles (facultatif ; sans lui, seul l'envoi d'images est refusé).
+  local S_GITHUB="github-jeton-images"
   local IMAGE_ATTENTE="us-docker.pkg.dev/cloudrun/container/hello"
 
   local ETAPE="démarrage"
   trap 'echo; echo "✖ Arrêt pendant : ${ETAPE}. Rien de grave : corrigez si besoin, puis relancez la même ligne." >&2' ERR
-  trap 'unset turso_url turso_jeton identifiant mdp1 mdp2 2>/dev/null || true' EXIT
+  trap 'unset turso_url turso_jeton identifiant mdp1 mdp2 jeton_github 2>/dev/null || true' EXIT
 
   titre() { printf '\n\033[1m== %s ==\033[0m\n' "$1"; ETAPE="$1"; }
   info() { printf '   %s\n' "$1"; }
@@ -130,6 +143,79 @@ main() {
   local EMAIL_DEPLOIEMENT="${SA_DEPLOIEMENT}@${projet}.iam.gserviceaccount.com"
   fait "Projet : ${projet} (numéro ${NUMERO})"
 
+  # Fonctions des secrets (utilisées par l'étape 6 et par le mode --jeton-github).
+  a_une_valeur() {
+    [[ -n "$(lire gcloud secrets versions list "$1" --filter='state=ENABLED' --limit=1 --format='value(name)')" ]]
+  }
+  # Ajoute une version au secret $1 avec la valeur lue sur l'entrée standard, puis détruit les anciennes
+  # (une seule version utile : moins de risque, et Secret Manager facture chaque version gardée).
+  ranger() {
+    local nom="$1" derniere v
+    if ! existe gcloud secrets describe "$nom"; then
+      gcloud secrets create "$nom" --replication-policy=user-managed --locations="$REGION" \
+        --labels=application=z-survival-serveur --quiet >/dev/null
+    fi
+    gcloud secrets versions add "$nom" --data-file=- --quiet >/dev/null
+    derniere="$(gcloud secrets versions list "$nom" --filter='state=ENABLED' --sort-by='~createTime' --limit=1 --format='value(name.basename())')"
+    for v in $(gcloud secrets versions list "$nom" --filter='state=ENABLED OR state=DISABLED' --format='value(name.basename())'); do
+      if [[ "$v" != "$derniere" ]]; then gcloud secrets versions destroy "$v" --secret="$nom" --quiet >/dev/null; fi
+    done
+    fait "Secret « ${nom} » rangé (version ${derniere})"
+  }
+  # Demande le jeton GitHub des images (saisie masquée), le contrôle, le range. Retour 1 si la personne remet à plus tard.
+  demander_jeton_github() {
+    local jeton_github="" code
+    info "Jeton GitHub « fine-grained » (Settings → Developer settings → Fine-grained tokens) : dépôt ${DEPOT_GITHUB} SEULEMENT,"
+    info "permission « Contents » en lecture et écriture, expiration d'un an. Il commence par github_pat_. Mode d'emploi : Docs/ref/admin.md."
+    while true; do
+      lire_masque jeton_github "   Jeton GitHub des images (Entrée seule = plus tard) : "
+      jeton_github="$(printf '%s' "$jeton_github" | tr -d '[:space:]')"
+      if [[ -z "$jeton_github" ]]; then info "Jeton remis à plus tard : l'envoi d'images restera refusé, tout le reste fonctionne."; return 1; fi
+      if [[ ! "$jeton_github" =~ ^(github_pat_[A-Za-z0-9_]{40,}|ghp_[A-Za-z0-9]{30,})$ ]]; then
+        info "Jeton non reconnu : un jeton « fine-grained » commence par github_pat_ (copiez-le en entier). Réessayez."
+        continue
+      fi
+      # Contrôle : le jeton donne-t-il accès au dépôt ? (le jeton passe par l'entrée standard de curl, jamais en argument)
+      code="$(printf 'Authorization: Bearer %s\n' "$jeton_github" | curl -s -o /dev/null -w '%{http_code}' --max-time 20 -H @- \
+        -H 'Accept: application/vnd.github+json' "https://api.github.com/repos/${DEPOT_GITHUB}" 2>/dev/null || true)"
+      if [[ "$code" == "200" ]]; then
+        fait "Jeton accepté par GitHub pour ${DEPOT_GITHUB} (le droit d'écriture sera utilisé au premier envoi d'image)"
+        break
+      fi
+      info "GitHub refuse ce jeton pour ${DEPOT_GITHUB} (code ${code:-aucun}) : expiré, ou dépôt non choisi dans « Repository access » ?"
+      if oui_non "   Le ranger quand même ?" n; then break; fi
+    done
+    printf '%s' "$jeton_github" | ranger "$S_GITHUB"
+    unset jeton_github
+    return 0
+  }
+  # Donne le jeton GitHub au service Cloud Run (variable GITHUB_JETON_IMAGES, version « latest »). Crée une nouvelle révision.
+  brancher_jeton_github() {
+    reessayer gcloud secrets add-iam-policy-binding "$S_GITHUB" --member="serviceAccount:${EMAIL_SERVEUR}" \
+      --role="roles/secretmanager.secretAccessor" --quiet >/dev/null
+    if existe gcloud run services describe "$SERVICE" --region="$REGION"; then
+      gcloud run services update "$SERVICE" --region="$REGION" \
+        --update-secrets="GITHUB_JETON_IMAGES=${S_GITHUB}:latest" --quiet >/dev/null
+      fait "Jeton GitHub donné au serveur (nouvelle révision lancée : il le lit au démarrage)"
+    else
+      info "Service Cloud Run pas encore créé : relancez ce script sans option pour l'installation complète."
+    fi
+  }
+
+  if [[ "$JETON_SEUL" == 1 ]]; then
+    titre "Jeton GitHub des images des articles (saisie masquée : rien ne s'affiche quand vous tapez, c'est normal)"
+    if a_une_valeur "$S_GITHUB"; then info "Un jeton est déjà rangé : le nouveau va le remplacer."; fi
+    if demander_jeton_github; then
+      brancher_jeton_github
+      titre "Terminé"
+      info "Le serveur peut maintenant enregistrer les images des articles dans le dépôt."
+      info "Pour finir : GitHub → onglet « Actions » → workflow « serveur » → « Run workflow » (branche main)."
+      info "Pensez à noter le renouvellement du jeton dans votre agenda (11 mois)."
+    fi
+    ETAPE="fin"
+    return 0
+  fi
+
   # --- 2. API ------------------------------------------------------------------
   titre "2. Activation des API (une à deux minutes la première fois)"
   # Cloud Resource Manager : nécessaire pour donner un rôle au niveau du projet.
@@ -185,7 +271,7 @@ JSON
   reessayer gcloud iam service-accounts add-iam-policy-binding "$EMAIL_SERVEUR" \
     --member="serviceAccount:${EMAIL_DEPLOIEMENT}" --role="roles/iam.serviceAccountUser" --quiet >/dev/null
   fait "Droits du déploiement : Cloud Run (déployer), dépôt « ${DEPOT_IMAGES} » (écrire), compte du serveur (utiliser)"
-  info "Le compte du serveur n'a aucun droit sur le projet : seulement la lecture de ses 5 secrets (étape 7)."
+  info "Le compte du serveur n'a aucun droit sur le projet : seulement la lecture de ses secrets (étape 7)."
 
   # --- 5. Fédération d'identité GitHub → Google Cloud (sans clé) ---------------
   titre "5. Liaison GitHub ↔ Google Cloud sans clé"
@@ -237,25 +323,6 @@ JSON
 
   # --- 6 et 7. Secrets ---------------------------------------------------------
   titre "6. Valeurs secrètes (saisie masquée : rien ne s'affiche quand vous tapez, c'est normal)"
-
-  a_une_valeur() {
-    [[ -n "$(lire gcloud secrets versions list "$1" --filter='state=ENABLED' --limit=1 --format='value(name)')" ]]
-  }
-  # Ajoute une version au secret $1 avec la valeur lue sur l'entrée standard, puis détruit les anciennes
-  # (une seule version utile : moins de risque, et Secret Manager facture chaque version gardée).
-  ranger() {
-    local nom="$1" derniere v
-    if ! existe gcloud secrets describe "$nom"; then
-      gcloud secrets create "$nom" --replication-policy=user-managed --locations="$REGION" \
-        --labels=application=z-survival-serveur --quiet >/dev/null
-    fi
-    gcloud secrets versions add "$nom" --data-file=- --quiet >/dev/null
-    derniere="$(gcloud secrets versions list "$nom" --filter='state=ENABLED' --sort-by='~createTime' --limit=1 --format='value(name.basename())')"
-    for v in $(gcloud secrets versions list "$nom" --filter='state=ENABLED OR state=DISABLED' --format='value(name.basename())'); do
-      if [[ "$v" != "$derniere" ]]; then gcloud secrets versions destroy "$v" --secret="$nom" --quiet >/dev/null; fi
-    done
-    fait "Secret « ${nom} » rangé (version ${derniere})"
-  }
 
   local change=0
   # 6a. Turso
@@ -323,6 +390,22 @@ sys.stdout.write("pbkdf2$600000$" + base64.b64encode(sel).decode() + "$" + base6
     change=1
   fi
 
+  # 6d. Jeton GitHub des images des articles (lot 3b, facultatif).
+  local jeton_github_present=0 jeton_github_change=0
+  if a_une_valeur "$S_GITHUB"; then
+    jeton_github_present=1
+    if oui_non "   Le jeton GitHub des images est déjà rangé. Le garder ?" o; then
+      fait "Jeton GitHub des images : actuel gardé"
+    elif demander_jeton_github; then
+      jeton_github_change=1
+    fi                       # remis à plus tard : l'ancien reste en place
+  elif oui_non "   Avez-vous le jeton GitHub des images des articles (lot 3b) sous la main ?" n && demander_jeton_github; then
+    jeton_github_present=1
+    jeton_github_change=1
+  else
+    info "Jeton GitHub des images : plus tard (relancer avec --jeton-github). L'envoi d'images reste refusé en attendant."
+  fi
+
   titre "7. Accès du serveur à ses secrets (et à rien d'autre)"
   local s
   for s in "$S_URL" "$S_JETON" "$S_ID" "$S_EMPREINTE" "$S_CLE"; do
@@ -330,6 +413,11 @@ sys.stdout.write("pbkdf2$600000$" + base64.b64encode(sel).decode() + "$" + base6
       --role="roles/secretmanager.secretAccessor" --quiet >/dev/null
   done
   fait "Le compte « ${SA_SERVEUR} » peut lire ses 5 secrets"
+  if [[ "$jeton_github_present" == 1 ]]; then
+    reessayer gcloud secrets add-iam-policy-binding "$S_GITHUB" --member="serviceAccount:${EMAIL_SERVEUR}" \
+      --role="roles/secretmanager.secretAccessor" --quiet >/dev/null
+    fait "… et le jeton GitHub des images"
+  fi
 
   # --- Service Cloud Run -------------------------------------------------------
   titre "Service Cloud Run « ${SERVICE} » (${REGION})"
@@ -349,6 +437,17 @@ sys.stdout.write("pbkdf2$600000$" + base64.b64encode(sel).decode() + "$" + base6
       # Nouvelle révision : les instances relisent les secrets (version « latest »).
       gcloud run services update "$SERVICE" --region="$REGION" --update-env-vars="SECRETS_MAJ_LE=$(date -u +%Y%m%d%H%M%S)" --quiet >/dev/null
       fait "Nouvelle révision lancée pour prendre les nouveaux secrets"
+    fi
+  fi
+  # Jeton GitHub des images : donné au service (la variable reste d'un déploiement à l'autre : serveur.yml utilise --update-secrets).
+  # Nouvelle révision seulement si le jeton vient d'être rangé, ou si le service ne le reçoit pas encore.
+  if [[ "$jeton_github_present" == 1 ]]; then
+    if [[ "$jeton_github_change" == 1 ]] || ! lire gcloud run services describe "$SERVICE" --region="$REGION" \
+        --format='value(spec.template.spec.containers[0].env)' | grep -q GITHUB_JETON_IMAGES; then
+      gcloud run services update "$SERVICE" --region="$REGION" --update-secrets="GITHUB_JETON_IMAGES=${S_GITHUB}:latest" --quiet >/dev/null
+      fait "Jeton GitHub des images donné au serveur (nouvelle révision)"
+    else
+      fait "Le serveur reçoit déjà le jeton GitHub des images"
     fi
   fi
   # Accès public (la sécurité est gérée par l'application : jeton pour l'administration).

@@ -13,6 +13,7 @@ import { verifierMotDePasse } from './mot-de-passe.js';
 import { creerJeton, verifierJeton } from './jeton.js';
 import { hacherIp, reserverTentative, effacerTentatives, nettoyerTentatives } from './limite.js';
 import { ErreurValidation, LANGUES, entierPositif, slugValide, validerArticle, validerConnexion } from './validation.js';
+import { ErreurImage, TAILLE_MAX_IMAGE, COTE_MAX, cheminImage, enregistrerSurGithub, preparerImage } from './images.js';
 
 export const ORIGINE_SITE = 'https://nowyyy.github.io';
 const MOTIF_ORIGINE_LOCALE = /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d{1,5})?$/;
@@ -22,6 +23,7 @@ const PAR_PAGE_ADMIN = 50;
 const CACHE_PUBLIC = 'public, max-age=60';
 const TAILLE_MAX_CONNEXION = 4 * 1024;
 const TAILLE_MAX_ARTICLE = 256 * 1024;
+const ADRESSE_SITE = 'https://nowyyy.github.io/Z-Survival-Website/';
 const COLONNES = 'id, slug, statut, date_publication, titre_fr, titre_en, contenu_fr, contenu_en, image, cree_le, modifie_le';
 
 class ErreurHttp extends Error {
@@ -75,8 +77,9 @@ const limiteCorps = (maxSize) =>
  * @param {object|null} options.db    client libSQL (ou null si aucune base n'est configurée)
  * @param {object} options.journal    journal (creerJournal)
  * @param {() => number} [options.maintenant]  horloge en millisecondes (remplaçable dans les tests)
+ * @param {typeof fetch} [options.fetchGithub]  appels à l'API GitHub (remplaçable dans les tests : API simulée)
  */
-export function creerApp({ config, db, journal, maintenant = () => Date.now() }) {
+export function creerApp({ config, db, journal, maintenant = () => Date.now(), fetchGithub = (...a) => fetch(...a) }) {
   const app = new Hono();
 
   // --- Migrations : appliquées au démarrage (preparer), réessayées à la requête suivante en cas d'échec. ---
@@ -378,12 +381,47 @@ export function creerApp({ config, db, journal, maintenant = () => Date.now() })
     return c.json({ article: await enregistrer(article) });
   });
 
+  // --- Image d'un article (lot 3b) : JPEG, PNG ou WebP de 8 Mo au plus, corps brut (Content-Type: image/…).
+  // Réduite à 1600 px, convertie en WebP sans métadonnées, puis enregistrée dans le dépôt du site (img/actus/…) par un commit
+  // sur main : GitHub Pages republie le site, l'image est en ligne environ une minute plus tard.
+  // Sans le secret GITHUB_JETON_IMAGES : 503 clair, et tout le reste fonctionne.
+  app.post(
+    '/api/admin/images',
+    async (c, next) => {
+      if (!config.jetonGithubImages) {
+        throw new ErreurHttp(503, 'Envoi d’images pas encore configuré (jeton GitHub des images absent). L’article peut être enregistré sans image.');
+      }
+      const slug = c.req.query('slug') ?? '';
+      if (!slugValide(slug)) throw new ErreurValidation('« slug » de l’article obligatoire (lettres minuscules, chiffres et tirets) pour nommer l’image.');
+      await next();
+    },
+    bodyLimit({ maxSize: TAILLE_MAX_IMAGE, onError: (c) => c.json({ erreur: 'Image trop lourde : 8 Mo au plus.' }, 413) }),
+    async (c) => {
+      const slug = c.req.query('slug');
+      const octets = Buffer.from(await c.req.arrayBuffer());
+      const image = await preparerImage(octets, c.req.header('Content-Type'));
+      const chemin = cheminImage(slug, image.empreinte);
+      const envoi = await enregistrerSurGithub({ config, chemin, donnees: image.donnees, fetchGithub });
+      journal.info('Image enregistrée', { chemin, octets: image.donnees.length, deja_presente: envoi.deja_present });
+      return c.json({
+        image: chemin,
+        adresse: ADRESSE_SITE + chemin,
+        largeur: image.largeur,
+        hauteur: image.hauteur,
+        cote_max: COTE_MAX,
+        octets: image.donnees.length,
+        deja_presente: envoi.deja_present,
+        commit: envoi.commit,
+      }, envoi.deja_present ? 200 : 201);
+    },
+  );
+
   // --- Introuvable et erreurs. ---
   app.notFound((c) => c.json({ erreur: 'Introuvable.' }, 404));
 
   app.onError((err, c) => {
     if (err instanceof ErreurValidation) return c.json({ erreur: err.message }, 400);
-    if (err instanceof ErreurHttp) return c.json({ erreur: err.message }, err.statut);
+    if (err instanceof ErreurHttp || err instanceof ErreurImage) return c.json({ erreur: err.message }, err.statut);
     journal.erreur('Erreur interne', { chemin: c.req.path.slice(0, 200), erreur: resumerErreur(err) });
     return c.json({ erreur: 'Erreur interne du serveur.' }, 500);
   });

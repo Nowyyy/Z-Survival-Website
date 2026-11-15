@@ -9,6 +9,7 @@ export const NOMS_SECRETS = Object.freeze([
   'ADMIN_IDENTIFIANT',
   'ADMIN_EMPREINTE',
   'CLE_SESSION',
+  'GITHUB_JETON_IMAGES',
 ]);
 
 export function lireConfig(env = process.env) {
@@ -21,6 +22,12 @@ export function lireConfig(env = process.env) {
     adminIdentifiant: env.ADMIN_IDENTIFIANT ?? '',
     adminEmpreinte: env.ADMIN_EMPREINTE ?? '',
     cleSession: env.CLE_SESSION ?? '',
+    // Images des articles (lot 3b) : jeton GitHub (secret, facultatif : sans lui, seul l'envoi d'images est refusé),
+    // dépôt et branche où l'image est enregistrée (non secrets). GITHUB_API ne sert qu'aux tests (API GitHub simulée).
+    jetonGithubImages: env.GITHUB_JETON_IMAGES ?? '',
+    depotGithub: env.GITHUB_DEPOT || 'Nowyyy/Z-Survival-Website',
+    brancheGithub: env.GITHUB_BRANCHE || 'main',
+    apiGithub: (env.GITHUB_API || 'https://api.github.com').replace(/\/+$/, ''),
     // Origines http://localhost:* et http://127.0.0.1:* : autorisées hors production (tests locaux),
     // et en production seulement si ORIGINES_LOCALES=1.
     originesLocales: env.ORIGINES_LOCALES !== undefined ? env.ORIGINES_LOCALES === '1' : !production,
@@ -30,7 +37,7 @@ export function lireConfig(env = process.env) {
 
 /** Valeurs secrètes de la configuration, pour les masquer dans les journaux. */
 export function valeursSecretes(config) {
-  const valeurs = [config.jetonBase, config.adminIdentifiant, config.adminEmpreinte, config.cleSession];
+  const valeurs = [config.jetonBase, config.adminIdentifiant, config.adminEmpreinte, config.cleSession, config.jetonGithubImages];
   if (config.urlBase && !config.urlBase.startsWith('file:')) {
     valeurs.push(config.urlBase);
     try {

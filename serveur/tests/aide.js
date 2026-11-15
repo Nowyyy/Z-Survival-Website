@@ -24,7 +24,7 @@ export const SECRETS_TEST = Object.freeze({ identifiant, motDePasse, empreinte, 
 export const ORIGINE = 'https://nowyyy.github.io';
 
 /** Crée une application de test complète sur une base neuve. */
-export async function fabriquer({ env = {} } = {}) {
+export async function fabriquer({ env = {}, fetchGithub } = {}) {
   const dossier = await mkdtemp(path.join(tmpdir(), 'zs-serveur-test-'));
   const config = lireConfig({
     NODE_ENV: 'test',
@@ -38,21 +38,22 @@ export async function fabriquer({ env = {} } = {}) {
   const journal = creerJournal({ secrets: valeursSecretes(config), ecrire: (l) => lignes.push(l) });
   const db = ouvrirBase(config);
   const horloge = { t: Date.parse('2026-11-15T12:00:00Z') };
-  const app = creerApp({ config, db, journal, maintenant: () => horloge.t });
+  const app = creerApp({ config, db, journal, maintenant: () => horloge.t, ...(fetchGithub ? { fetchGithub } : {}) });
   await app.preparer();
 
   let numeroIp = 0;
   /** Requête JSON ; ip : adresse simulée (X-Forwarded-For), une nouvelle par défaut. */
   async function requete(methode, chemin, { corps, jeton, origine, ip, entetes = {} } = {}) {
     const headers = { ...entetes };
-    if (corps !== undefined) headers['Content-Type'] = 'application/json';
+    const brut = corps instanceof Uint8Array;
+    if (corps !== undefined && !brut) headers['Content-Type'] = 'application/json';
     if (jeton) headers.Authorization = `Bearer ${jeton}`;
     if (origine) headers.Origin = origine;
     headers['X-Forwarded-For'] = ip ?? `203.0.113.${(numeroIp++ % 250) + 1}`;
     const res = await app.request(chemin, {
       method: methode,
       headers,
-      body: corps === undefined ? undefined : typeof corps === 'string' ? corps : JSON.stringify(corps),
+      body: corps === undefined ? undefined : brut || typeof corps === 'string' ? corps : JSON.stringify(corps),
     });
     const texte = await res.text();
     let json = null;

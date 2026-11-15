@@ -1,0 +1,116 @@
+# Administration des actualités — mode d'emploi (téléphone)
+
+Adresse : **https://nowyyy.github.io/Z-Survival-Website/admin/**
+(page non reliée au site et invisible pour les moteurs de recherche : ajoutez-la à vos favoris ou à l'écran d'accueil du téléphone).
+
+Ce que vous écrivez ici apparaît dans la section **Actualités** du site, en français et, si vous le voulez, en anglais.
+
+---
+
+## 1. Se connecter
+1. Ouvrir l'adresse ci-dessus.
+2. Si un petit bandeau jaune **« Connexion au serveur… »** apparaît : c'est normal, le serveur dormait. Il se réveille en
+   quelques secondes.
+3. Taper votre **identifiant** et votre **mot de passe** (ceux choisis dans Cloud Shell), puis **Se connecter**.
+
+- Message **« Identifiant ou mot de passe incorrect »** : l'un des deux est faux (par sécurité, la page ne dit pas lequel).
+- Après **5 essais manqués en 15 minutes**, la connexion est **bloquée quelques minutes** (la page indique combien). Le blocage
+  s'arrête tout seul : patientez, puis réessayez calmement.
+- La connexion dure **2 heures**. Ensuite, la page revient à l'écran de connexion. Si vous étiez en train d'écrire, **votre texte
+  est gardé** : reconnectez-vous et il revient (pensez alors à l'enregistrer).
+- Fermer l'onglet vous déconnecte. Le bouton **Déconnexion** est en haut à droite.
+
+## 2. Écrire un article
+1. Toucher **Nouvel article**.
+2. Onglet **Français** (obligatoire) : écrire le **titre**, puis le **texte**.
+3. La petite barre au-dessus du texte met en forme : sélectionnez des mots (appui long), puis touchez :
+
+   | Bouton | Effet | Ce qui s'écrit |
+   |---|---|---|
+   | **G** | gras | `**mots**` |
+   | *I* | italique | `*mots*` |
+   | **T** | intertitre (toute la ligne) | `## Intertitre` |
+   | **•≡** | liste à puces (une puce par ligne) | `- élément` |
+   | **Lien** | lien (la page demande l'adresse, qui doit commencer par `https://`) | `[mots](https://…)` |
+
+   Une ligne vide sépare deux paragraphes. Aucun autre code n'est interprété : si vous collez du HTML, il s'affiche tel quel.
+4. Onglet **English** (facultatif) : titre et texte en anglais. **Sans titre anglais**, le site anglais affiche la version
+   française avec la petite mention **« (FR) »**.
+5. **Adresse de l'article (slug)** : calculée toute seule depuis le titre français (`Nouvelle carte : l'hôpital !` →
+   `nouvelle-carte-l-hopital`). C'est la fin de l'adresse partageable de l'article (`…/#actu/nouvelle-carte-l-hopital`).
+   Vous pouvez la changer, mais **pas après avoir partagé l'article** (les liens déjà envoyés ne marcheraient plus).
+6. **Date de publication** : laissez vide pour prendre la date du moment où vous publiez.
+7. Toucher **Enregistrer le brouillon** : l'article est gardé mais **invisible sur le site**.
+
+## 3. Ajouter une image
+1. Écrire d'abord le titre français (il donne son nom au fichier).
+2. **Choisir une image** : une photo de la galerie ou une image (JPEG, PNG ou WebP, **8 Mo au plus**). L'aperçu s'affiche.
+   Sur iPhone, les photos HEIC sont converties automatiquement en JPEG par le téléphone.
+3. Toucher **Envoyer l'image**. Le serveur :
+   - la réduit (1600 pixels au plus de côté) et la convertit en WebP (fichier léger) ;
+   - **retire les informations cachées de la photo** (position GPS, modèle du téléphone, date…) ;
+   - l'enregistre dans le dépôt GitHub du site (`img/actus/…`).
+4. **L'image apparaît sur le site environ une minute plus tard**, le temps que GitHub republie le site. Pendant cette minute,
+   le site affiche un grand Z rouge à la place : c'est normal.
+5. **Enregistrer** l'article (sinon l'image n'y est pas rattachée).
+
+- **Remplacer l'image** : choisir une autre image, puis l'envoyer. **Retirer l'image** : l'article n'a plus d'image.
+- Les images envoyées restent dans le dépôt, même si on les retire ou si on supprime l'article.
+- Message « Envoi d'images pas encore configuré » : le jeton GitHub n'est pas rangé (voir « Jeton GitHub » plus bas).
+  L'article peut être enregistré et publié sans image.
+
+## 4. Prévisualiser
+Toucher **Aperçu** : la carte de la liste et l'article complet, **exactement comme sur le site**. Les boutons **FR** et **EN**
+montrent les deux versions (EN sans traduction : version française avec « (FR) »). **Fermer** pour revenir à l'éditeur.
+
+## 5. Publier
+Toucher **Publier**. L'article est enregistré puis mis en ligne : il apparaît dans la section Actualités **en une minute au
+plus** (le serveur garde la liste en mémoire 60 secondes). Pour le voir : https://nowyyy.github.io/Z-Survival-Website/#news
+
+- Modifier un article publié : changer le texte, puis **Enregistrer (reste publié)**.
+- Si le bandeau d'alerte de l'accueil est un jour mis en service, il annonce le dernier article publié.
+
+## 6. Dépublier, supprimer
+- **Dépublier** (après confirmation) : l'article disparaît du site et redevient un brouillon. Il peut être republié plus tard.
+- **Supprimer l'article** (en bas, après confirmation) : définitif. L'image éventuelle reste dans le dépôt.
+- Quitter l'éditeur (**← Articles**, fermer l'onglet…) avec des modifications non enregistrées : la page demande confirmation.
+
+## 7. Liste des articles
+Tous les articles, du plus récent au plus ancien, avec leur statut (**Publié** en rouge, **Brouillon** en pointillés jaunes) et
+« FR seulement » s'il n'y a pas de version anglaise. Toucher un article pour l'ouvrir.
+
+---
+
+## Jeton GitHub (pour les images)
+Le serveur enregistre les images dans le dépôt grâce à un **jeton GitHub** limité à ce dépôt. Il est rangé dans Google Secret
+Manager (jamais dans le dépôt) et **expire au bout d'un an** : à renouveler.
+
+**Créer (ou renouveler) le jeton** :
+1. GitHub → photo de profil → **Settings** → **Developer settings** (tout en bas à gauche) → **Personal access tokens** →
+   **Fine-grained tokens** → **Generate new token**.
+2. **Token name** : `Z-Survival images` ; **Expiration** : 1 an (*Custom* → date dans un an) ;
+   **Repository access** : *Only select repositories* → **Nowyyy/Z-Survival-Website** seulement.
+3. **Permissions** → **Repository permissions** → **Contents** : **Read and write** (rien d'autre).
+4. **Generate token**, puis copier le jeton (`github_pat_…`) : GitHub ne le montre qu'une fois.
+
+**Le ranger** : console Google Cloud (projet `z-survival-website`) → Cloud Shell (**>_**) → coller cette ligne, puis le jeton
+(rien ne s'affiche quand vous collez : normal) :
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/Nowyyy/Z-Survival-Website/main/serveur/deploiement/installer-gcp.sh) --jeton-github
+```
+
+Le script ne touche à rien d'autre. Il vérifie le jeton auprès de GitHub, le range et le donne au serveur.
+
+Message **« GitHub refuse le jeton des images »** dans l'admin : jeton expiré ou révoqué → en créer un nouveau et le ranger.
+
+## Pour le développeur
+- Fichiers : `admin/index.html`, `admin/admin.js`, `admin/admin.css` ; partagés avec le site : `js/config.js` (adresse du
+  serveur), `js/markdown.js` (Markdown sûr), `js/article.js` (carte et article), `css/actualites.css`, `js/textes.js` (`news.*`).
+- Sécurité de la page : `Content-Security-Policy` stricte en tête de `admin/index.html` (scripts et styles du site seulement,
+  connexions vers le serveur seulement, images du site ou `blob:`). **Changer l'adresse du serveur** (futur nom de domaine) :
+  `js/config.js` **et** la directive `connect-src` de cette CSP (une règle de sécurité ne peut pas lire le JavaScript) ;
+  `outils/admin/verifier-actus.mjs` échoue tant que les deux diffèrent.
+- Jeton de connexion dans `sessionStorage` (onglet seulement), envoyé dans `Authorization: Bearer` ; fin comptée sur l'horloge de
+  l'appareil (durée du jeton), pour qu'une horloge de téléphone décalée ne fausse pas l'expiration.
+- Vérification de bout en bout : `node outils/admin/verifier-actus.mjs` (serveur local sur SQLite, API GitHub simulée).

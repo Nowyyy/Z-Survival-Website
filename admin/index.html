@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Règle de sécurité stricte (lot 3b) : scripts et styles du site seulement, connexions vers le serveur des actualités seulement
+       (même adresse que js/config.js : outils/admin/verifier-actus.mjs le vérifie), images du site ou choisies sur l'appareil (blob:). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob:; font-src 'self'; connect-src https://z-survival-serveur-l3ab2tj6vq-ey.a.run.app; base-uri 'none'; form-action 'none'; object-src 'none'; manifest-src 'none'">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#050505">
+  <meta name="color-scheme" content="dark">
+  <title>Z-Survival — administration</title>
+  <link rel="icon" type="image/png" sizes="48x48" href="../img/icone-48.png">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/actualites.css">
+  <link rel="stylesheet" href="admin.css">
+  <script type="module" src="admin.js"></script>
+</head>
+<!-- Page d'administration des actualités (lot 3b) : non reliée au site, en français seulement. Mode d'emploi : Docs/ref/admin.md. -->
+<body class="admin">
+  <header class="admin-entete">
+    <p class="admin-marque"><span class="admin-z" aria-hidden="true">Z</span> Administration</p>
+    <p class="admin-reveil" id="reveil" role="status" hidden><span class="admin-reveil-point" aria-hidden="true"></span><span id="reveil-texte">Connexion au serveur…</span></p>
+    <button class="admin-bouton admin-bouton-discret" id="deconnexion" type="button" hidden>Déconnexion</button>
+  </header>
+
+  <p class="admin-message" id="message" role="status" aria-live="polite" hidden></p>
+
+  <main class="admin-principal">
+    <!-- Écran 1 : connexion -->
+    <section class="admin-ecran" id="ecran-connexion" aria-labelledby="titre-connexion">
+      <h1 class="admin-titre" id="titre-connexion">Connexion</h1>
+      <form class="admin-carte admin-formulaire" id="formulaire-connexion" novalidate>
+        <label class="admin-champ">
+          <span class="admin-etiquette">Identifiant</span>
+          <input id="identifiant" name="identifiant" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="200" required>
+        </label>
+        <label class="admin-champ">
+          <span class="admin-etiquette">Mot de passe</span>
+          <input id="mot-de-passe" name="mot_de_passe" type="password" autocomplete="current-password" maxlength="256" required>
+        </label>
+        <p class="admin-erreur" id="erreur-connexion" role="alert" hidden></p>
+        <button class="bouton bouton-principal admin-bouton-large" id="bouton-connexion" type="submit">Se connecter</button>
+        <p class="admin-aide">Après 5 essais manqués en 15 minutes, la connexion est bloquée quelques minutes par sécurité, puis se débloque toute seule.</p>
+      </form>
+    </section>
+
+    <!-- Écran 2 : liste des articles -->
+    <section class="admin-ecran" id="ecran-liste" aria-labelledby="titre-liste" hidden>
+      <div class="admin-barre">
+        <h1 class="admin-titre" id="titre-liste">Articles</h1>
+        <button class="bouton bouton-principal" id="nouvel-article" type="button">Nouvel article</button>
+      </div>
+      <p class="admin-aide" id="liste-vide" hidden>Aucun article pour l’instant. Touchez « Nouvel article » pour écrire le premier.</p>
+      <ul class="admin-liste" id="liste-articles"></ul>
+      <button class="admin-bouton admin-bouton-discret" id="actualiser" type="button">Actualiser la liste</button>
+    </section>
+
+    <!-- Écran 3 : éditeur -->
+    <section class="admin-ecran" id="ecran-editeur" aria-labelledby="titre-editeur" hidden>
+      <div class="admin-barre">
+        <button class="admin-bouton admin-bouton-discret" id="retour-liste" type="button">← Articles</button>
+        <span class="admin-statut" id="statut-article" data-statut="nouveau">Nouveau</span>
+      </div>
+      <h1 class="admin-titre" id="titre-editeur">Nouvel article</h1>
+
+      <form class="admin-formulaire" id="formulaire-article" novalidate>
+        <div class="admin-onglets" role="tablist" aria-label="Langue du texte">
+          <button class="admin-onglet" id="onglet-fr" type="button" role="tab" aria-selected="true" aria-controls="panneau-fr" data-langue="fr">Français <span class="admin-requis">obligatoire</span></button>
+          <button class="admin-onglet" id="onglet-en" type="button" role="tab" aria-selected="false" aria-controls="panneau-en" data-langue="en" tabindex="-1">English <span class="admin-facultatif">facultatif</span></button>
+        </div>
+
+        <div class="admin-panneau admin-carte" id="panneau-fr" role="tabpanel" aria-labelledby="onglet-fr">
+          <label class="admin-champ">
+            <span class="admin-etiquette">Titre (français)</span>
+            <input id="titre_fr" type="text" maxlength="200" lang="fr" autocomplete="off">
+          </label>
+          <div class="admin-champ">
+            <label class="admin-etiquette" for="contenu_fr">Texte (français)</label>
+            <div class="admin-outils" role="toolbar" aria-label="Mise en forme du texte français" data-cible="contenu_fr">
+              <button type="button" data-format="gras" aria-label="Gras"><b>G</b></button>
+              <button type="button" data-format="italique" aria-label="Italique"><i>I</i></button>
+              <button type="button" data-format="titre" aria-label="Intertitre">T</button>
+              <button type="button" data-format="liste" aria-label="Liste à puces">•≡</button>
+              <button type="button" data-format="lien" aria-label="Lien">Lien</button>
+            </div>
+            <textarea id="contenu_fr" rows="12" maxlength="40000" lang="fr" spellcheck="true"></textarea>
+          </div>
+        </div>
+
+        <div class="admin-panneau admin-carte" id="panneau-en" role="tabpanel" aria-labelledby="onglet-en" hidden>
+          <p class="admin-aide">Facultatif. Sans titre anglais, le site anglais affiche la version française avec la mention « (FR) ».</p>
+          <label class="admin-champ">
+            <span class="admin-etiquette">Title (English)</span>
+            <input id="titre_en" type="text" maxlength="200" lang="en" autocomplete="off">
+          </label>
+          <div class="admin-champ">
+            <label class="admin-etiquette" for="contenu_en">Text (English)</label>
+            <div class="admin-outils" role="toolbar" aria-label="Mise en forme du texte anglais" data-cible="contenu_en">
+              <button type="button" data-format="gras" aria-label="Gras"><b>G</b></button>
+              <button type="button" data-format="italique" aria-label="Italique"><i>I</i></button>
+              <button type="button" data-format="titre" aria-label="Intertitre">T</button>
+              <button type="button" data-format="liste" aria-label="Liste à puces">•≡</button>
+              <button type="button" data-format="lien" aria-label="Lien">Lien</button>
+            </div>
+            <textarea id="contenu_en" rows="12" maxlength="40000" lang="en" spellcheck="true"></textarea>
+          </div>
+        </div>
+
+        <div class="admin-carte admin-groupe">
+          <h2 class="admin-sous-titre">Image</h2>
+          <div class="admin-image" id="image-zone">
+            <img id="image-apercu" alt="Aperçu de l’image de l’article" hidden>
+            <p class="admin-aide" id="image-vide">Pas d’image : le site affiche un grand Z rouge à la place.</p>
+          </div>
+          <p class="admin-aide" id="image-etat" hidden></p>
+          <input class="admin-fichier" id="image-fichier" type="file" accept="image/jpeg,image/png,image/webp">
+          <div class="admin-actions-image">
+            <label class="admin-bouton" for="image-fichier" id="image-choisir">Choisir une image</label>
+            <button class="bouton bouton-principal" id="image-envoyer" type="button" hidden>Envoyer l’image</button>
+            <button class="admin-bouton admin-bouton-discret" id="image-retirer" type="button" hidden>Retirer l’image</button>
+          </div>
+          <p class="admin-aide">JPEG, PNG ou WebP, 8 Mo au plus. Le serveur la réduit (1600 pixels au plus), la convertit en WebP et retire les informations cachées de la photo (position GPS, appareil). Elle apparaît sur le site environ une minute après l’envoi.</p>
+        </div>
+
+        <div class="admin-carte admin-groupe">
+          <h2 class="admin-sous-titre">Publication</h2>
+          <label class="admin-champ">
+            <span class="admin-etiquette">Adresse de l’article (slug)</span>
+            <input id="slug" type="text" maxlength="120" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="url" pattern="[a-z0-9]+(-[a-z0-9]+)*">
+            <span class="admin-aide" id="slug-aide">Calculée depuis le titre français. Lettres minuscules, chiffres et tirets.</span>
+          </label>
+          <label class="admin-champ">
+            <span class="admin-etiquette">Date de publication</span>
+            <input id="date_publication" type="datetime-local">
+            <span class="admin-aide">Vide : la date du moment où vous publiez.</span>
+          </label>
+        </div>
+
+        <p class="admin-erreur" id="erreur-article" role="alert" hidden></p>
+
+        <div class="admin-actions" id="actions-article">
+          <button class="admin-bouton" id="bouton-apercu" type="button">Aperçu</button>
+          <button class="admin-bouton" id="bouton-enregistrer" type="button">Enregistrer le brouillon</button>
+          <button class="bouton bouton-principal" id="bouton-publier" type="button">Publier</button>
+          <button class="admin-bouton" id="bouton-depublier" type="button" hidden>Dépublier</button>
+        </div>
+
+        <div class="admin-zone-danger" id="zone-suppression" hidden>
+          <button class="admin-bouton admin-bouton-danger" id="bouton-supprimer" type="button">Supprimer l’article</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <!-- Aperçu de l'article tel qu'il apparaîtra sur le site (carte de la liste, puis article complet), en français et en anglais. -->
+  <dialog class="admin-apercu" id="apercu" aria-labelledby="apercu-titre">
+    <div class="admin-apercu-barre">
+      <h2 class="admin-sous-titre" id="apercu-titre">Aperçu</h2>
+      <div class="admin-onglets admin-onglets-petits" role="group" aria-label="Langue de l’aperçu">
+        <button class="admin-onglet" type="button" data-apercu="fr" aria-pressed="true">FR</button>
+        <button class="admin-onglet" type="button" data-apercu="en" aria-pressed="false">EN</button>
+      </div>
+      <button class="admin-bouton admin-bouton-discret" id="apercu-fermer" type="button">Fermer</button>
+    </div>
+    <p class="admin-aide admin-apercu-note" id="apercu-note"></p>
+    <p class="admin-etiquette">Dans la liste des actualités</p>
+    <div class="news-carte admin-apercu-carte" id="apercu-carte"></div>
+    <p class="admin-etiquette">Article complet</p>
+    <div class="admin-apercu-article"><article class="actu-article" id="apercu-article"></article></div>
+  </dialog>
+</body>
+</html>

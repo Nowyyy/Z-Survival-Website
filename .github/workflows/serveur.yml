@@ -121,7 +121,9 @@ jobs:
           # Règles de coût : 0 instance au repos (le serveur s'endort), 2 au plus, processeur facturé
           # seulement pendant les requêtes, 256 Mio de mémoire.
           # Secrets : lus dans Secret Manager par Cloud Run au démarrage de chaque instance (jamais ici).
-          # L'accès public a été donné une fois pour toutes par le script d'installation.
+          # « --update-… » (et non « --set-… ») : le jeton GitHub des images (GITHUB_JETON_IMAGES, lot 3b), facultatif, est donné
+          # au service par le script d'installation quand il est rangé ; un redéploiement le garde. S'il manque, seul l'envoi
+          # d'images est refusé. L'accès public a été donné une fois pour toutes par le script d'installation.
           gcloud run deploy "$SERVICE" \
             --project="$PROJET" \
             --region="$REGION" \
@@ -136,8 +138,8 @@ jobs:
             --concurrency=40 \
             --timeout=30 \
             --port=8080 \
-            --set-env-vars="NODE_ENV=production,VERSION_SERVEUR=${GITHUB_SHA::7}" \
-            --set-secrets="TURSO_DATABASE_URL=turso-url:latest,TURSO_AUTH_TOKEN=turso-jeton:latest,ADMIN_IDENTIFIANT=admin-identifiant:latest,ADMIN_EMPREINTE=admin-empreinte:latest,CLE_SESSION=cle-session:latest" \
+            --update-env-vars="NODE_ENV=production,VERSION_SERVEUR=${GITHUB_SHA::7}" \
+            --update-secrets="TURSO_DATABASE_URL=turso-url:latest,TURSO_AUTH_TOKEN=turso-jeton:latest,ADMIN_IDENTIFIANT=admin-identifiant:latest,ADMIN_EMPREINTE=admin-empreinte:latest,CLE_SESSION=cle-session:latest" \
             --quiet
 
       - name: Vérifier /api/sante

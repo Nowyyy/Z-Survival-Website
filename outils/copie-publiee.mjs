@@ -44,3 +44,16 @@ export async function servirCopiePubliee() {
   await new Promise((ok) => { serveur.listen(0, '127.0.0.1', ok); });
   return { base: `http://127.0.0.1:${serveur.address().port}/Z-Survival-Website/`, commande, dossier, fermer: () => serveur.close() };
 }
+
+// Lot 3b : la section Actualités appelle le serveur (adresse de js/config.js). Les contrôles locaux qui ne portent pas sur les
+// actualités (accueil, musique) lui substituent une réponse vide (aucun article) : pas d'appel réseau, pas d'erreur console.
+// Les actualités elles-mêmes sont vérifiées par outils/admin/verifier-actus.mjs (vrai serveur en local).
+export async function simulerActualites(cible) {
+  const { ADRESSE_SERVEUR } = await import(new URL('../js/config.js', import.meta.url).href);
+  await cible.route(`${ADRESSE_SERVEUR}/**`, (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    headers: { 'access-control-allow-origin': '*' },
+    body: JSON.stringify({ lang: 'fr', page: 1, par_page: 10, total: 0, pages: 0, articles: [] }),
+  }));
+}

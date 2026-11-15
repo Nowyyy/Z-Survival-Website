@@ -44,28 +44,22 @@ export const TEXTES = {
       weapons: 'Armes',
       about: 'À propos',
     },
+    // Actualités (lot 3b) : articles lus sur le serveur (js/actualites.js) ; le texte des articles vient de la page d'administration.
     news: {
-      intro: 'Contenu provisoire : les actualités ci-dessous sont fictives.',
-      cartes: [
-        {
-          date: '12/11/2026',
-          categorie: 'Mise à jour',
-          titre: 'Nouvelle vague de zombies',
-          resume: 'Exemple d’actualité : les nuits deviennent plus longues et les zombies plus nombreux.',
-        },
-        {
-          date: '05/11/2026',
-          categorie: 'Carte',
-          titre: 'L’hélicoptère écrasé',
-          resume: 'Exemple d’actualité : une épave fumante apparaît près du bâtiment.',
-        },
-        {
-          date: '28/10/2026',
-          categorie: 'Communauté',
-          titre: 'Le site ouvre ses portes',
-          resume: 'Exemple d’actualité : bienvenue sur le site de Z-Survival.',
-        },
-      ],
+      chargement: 'Chargement des actualités…',
+      indisponible: 'Actualités indisponibles pour le moment.',
+      vide: {
+        titre: 'Radio silencieuse',
+        texte: 'Aucune transmission pour l’instant. Restez à l’abri et à l’écoute : les premières nouvelles arrivent.',
+      },
+      plus: 'Actualités plus anciennes',
+      fermer: 'Fermer l’article',
+      chargementArticle: 'Chargement de l’article…',
+      introuvable: 'Cet article n’existe pas ou n’est plus en ligne.',
+      articleIndisponible: 'Article indisponible pour le moment.',
+      mentionFr: '(FR)',
+      mentionFrTitre: 'Article disponible en français seulement',
+      bandeau: 'Dernière transmission',
     },
     characters: {
       intro: 'Contenu provisoire : les personnages définitifs arriveront dans un prochain lot.',
@@ -151,28 +145,22 @@ export const TEXTES = {
       weapons: 'Weapons',
       about: 'About us',
     },
+    // News (lot 3b): articles read from the server (js/actualites.js); the article text comes from the admin page.
     news: {
-      intro: 'Placeholder content: the news below is fictional.',
-      cartes: [
-        {
-          date: 'Nov 12, 2026',
-          categorie: 'Update',
-          titre: 'A new zombie wave',
-          resume: 'Sample news: nights are getting longer and the zombies more numerous.',
-        },
-        {
-          date: 'Nov 5, 2026',
-          categorie: 'Map',
-          titre: 'The crashed helicopter',
-          resume: 'Sample news: a smoking wreck appears near the building.',
-        },
-        {
-          date: 'Oct 28, 2026',
-          categorie: 'Community',
-          titre: 'The website is open',
-          resume: 'Sample news: welcome to the Z-Survival website.',
-        },
-      ],
+      chargement: 'Loading news…',
+      indisponible: 'News unavailable at the moment.',
+      vide: {
+        titre: 'Radio silence',
+        texte: 'No transmissions yet. Stay safe and keep listening: the first news is on its way.',
+      },
+      plus: 'Older news',
+      fermer: 'Close the article',
+      chargementArticle: 'Loading the article…',
+      introuvable: 'This article does not exist or is no longer online.',
+      articleIndisponible: 'Article unavailable at the moment.',
+      mentionFr: '(FR)',
+      mentionFrTitre: 'Article available in French only',
+      bandeau: 'Latest transmission',
     },
     characters: {
       intro: 'Placeholder content: the final characters will arrive in a later update.',

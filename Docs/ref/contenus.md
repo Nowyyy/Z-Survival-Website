@@ -25,6 +25,8 @@ développeur. Les libellés fixes (par exemple l'étiquette « Alerte ») resten
 - Les messages défilent dans l'ordre du fichier. La vitesse reste la même quelle que soit la longueur (environ 70 px par seconde).
 - Fichier illisible ou aucun message actif : pas de bandeau (l'accueil reprend sa mise en page sans bandeau).
 - Lecture : `js/accueil-bandeau.js`, constante `SOURCE_BANDEAU`.
+- Lot 3b : quand des articles sont publiés (page d'administration, `Docs/ref/admin.md`), le **titre du dernier article** passe en
+  tête du bandeau (« Dernière transmission : … »), avec un lien vers l'article (`#actu/<slug>`).
 
 ### Modifier les messages aujourd'hui (depuis le navigateur, même sur téléphone)
 1. Ouvrir https://github.com/Nowyyy/Z-Survival-Website/blob/main/contenus/bandeau.json

@@ -1,0 +1,299 @@
+/* Actualités (lot 3b) : cartes de la section News, cartes squelettes, messages, fenêtre de l'article complet.
+   Utilisé par le site (index.html) et par l'aperçu de la page d'administration (admin/index.html). Jetons de css/base.css. */
+
+/* ---------- Liste : carrousel horizontal sur téléphone (glisser), grille sur ordinateur ---------- */
+.news-liste {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 82%;
+  gap: 12px;
+  margin: 4px calc(-1 * var(--marge)) 0;
+  padding: 0 var(--marge) 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 var(--marge);
+  scrollbar-width: none;
+}
+.news-liste::-webkit-scrollbar { display: none; }
+.news-liste:empty { display: none; }
+
+.news-carte {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  scroll-snap-align: start;
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-raised);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.news-lien {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  color: inherit;
+  text-decoration: none;
+  -webkit-touch-callout: none;
+}
+.news-lien:focus-visible { outline-offset: -3px; }
+.news-carte:has(.news-lien:active) { border-color: var(--color-action); }
+
+.news-visuel {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--color-surface-raised);
+  border-bottom: 1px solid var(--color-surface-raised);
+}
+.news-visuel img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* Sans image (ou image pas encore publiée) : rayures sombres et grand Z rouge incliné, comme le logo. */
+.news-visuel-vide,
+.actu-image-vide {
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(70% 90% at 30% 20%, rgb(216 20 20 / 22%), transparent 70%),
+    repeating-linear-gradient(135deg, transparent 0 14px, rgb(216 20 20 / 6%) 14px 28px),
+    var(--color-surface);
+}
+.news-visuel-z,
+.actu-image-z {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 18vw, 5.5rem);
+  line-height: 1;
+  color: var(--color-action);
+  -webkit-text-stroke: 0.035em var(--menu-z-contour);
+  paint-order: stroke fill;
+  text-shadow: 0 0 18px var(--color-action-glow);
+  transform: rotate(13deg);
+}
+
+.news-corps { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 16px; min-width: 0; }
+.news-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-size: 0.8rem; color: var(--color-text-muted); }
+.news-meta-date { color: var(--color-action-text); font-weight: 700; letter-spacing: 0.02em; }
+.news-titre { font-size: 1.15rem; line-height: 1.25; overflow-wrap: anywhere; }
+.news-resume {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+/* « (FR) » : article montré en français sur le site anglais. */
+.actu-mention-fr {
+  display: inline-block;
+  padding: 0 0.4em;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+}
+/* Texte pour les lecteurs d'écran seulement. */
+.actu-cache {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Chargement : cartes squelettes ---------- */
+.news-squelette .news-visuel,
+.squelette-ligne {
+  background: linear-gradient(100deg, var(--color-surface-raised) 30%, #2d2d30 50%, var(--color-surface-raised) 70%) 0 0 / 300% 100%;
+  animation: squelette 1.4s ease-in-out infinite;
+}
+.squelette-ligne { display: block; height: 0.9rem; border-radius: var(--radius-sm); }
+.squelette-ligne + .squelette-ligne { margin-top: 4px; }
+.squelette-court { width: 40%; }
+@keyframes squelette { from { background-position: 100% 0; } to { background-position: 0 0; } }
+
+/* ---------- Messages : indisponible, aucun article ---------- */
+.news-etat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-self: stretch;
+  max-width: 40rem;
+  padding: 16px 18px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background: rgb(19 19 19 / 80%);
+  color: var(--color-text-muted);
+}
+.news-etat[hidden],
+.news-etat[data-etat="chargement"] { display: none; }
+.news-etat-titre {
+  font-family: var(--font-label);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-action-text);
+}
+.news-etat-titre::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 10px;
+  border-radius: 50%;
+  background: var(--color-action-text);
+  vertical-align: 0.1em;
+  animation: news-voyant 1.6s steps(1) infinite;
+}
+@keyframes news-voyant { 50% { opacity: 0.25; } }
+
+.news-plus {
+  align-self: flex-start;
+  min-height: var(--touch-target);
+  padding: 0 1.1em;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-family: var(--font-label);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.news-plus:hover { border-color: var(--color-action); color: var(--color-action-text); }
+.news-plus[hidden] { display: none; }
+.news-plus:disabled { opacity: 0.6; cursor: progress; }
+
+/* ---------- Article complet : fenêtre plein écran sur téléphone, panneau centré sur ordinateur ---------- */
+.actu-vue {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.actu-vue[open] { animation: actu-ouvre 260ms var(--courbe); }
+.actu-vue::backdrop { background: rgb(0 0 0 / 78%); backdrop-filter: blur(4px); }
+@keyframes actu-ouvre { from { opacity: 0; transform: translateY(18px); } }
+
+.actu-panneau {
+  position: relative;
+  padding:
+    calc(env(safe-area-inset-top) + 8px)
+    max(var(--marge), env(safe-area-inset-right))
+    calc(env(safe-area-inset-bottom) + 32px)
+    max(var(--marge), env(safe-area-inset-left));
+}
+.actu-fermer {
+  position: sticky;
+  z-index: 2;
+  top: calc(env(safe-area-inset-top) + 8px);
+  float: right;
+  display: grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  margin: 0 0 -44px 8px;
+  padding: 0;
+  border: 1px solid rgb(244 241 236 / 35%);
+  border-radius: 999px;
+  background: rgb(5 5 5 / 70%);
+  color: var(--color-text);
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+.actu-fermer:hover { border-color: var(--color-action); color: var(--color-action-text); }
+.actu-fermer svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+
+.actu-article { display: flex; flex-direction: column; gap: 14px; }
+.actu-image {
+  margin: 52px calc(-1 * max(var(--marge), env(safe-area-inset-left))) 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--color-surface-raised);
+}
+.actu-image img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.actu-entete { display: flex; flex-direction: column; gap: 6px; padding-top: 4px; }
+.actu-image + .actu-entete { padding-top: 0; }
+.actu-article > .actu-entete:first-child { padding-top: 56px; }
+.actu-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-size: 0.85rem; color: var(--color-text-muted); }
+.actu-meta-date { color: var(--color-action-text); font-weight: 700; }
+.actu-titre {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 8.5vw, 3.2rem);
+  line-height: 1.08;
+  color: var(--color-action);
+  text-shadow: 0 0 18px var(--color-action-glow);
+  overflow-wrap: anywhere;
+}
+.actu-titre:focus { outline: none; }
+
+/* Texte de l'article (Markdown sûr : js/markdown.js). */
+.actu-texte { display: flex; flex-direction: column; gap: 0.9em; font-size: 1.02rem; line-height: 1.6; overflow-wrap: anywhere; }
+.actu-texte h3, .actu-texte h4, .actu-texte h5, .actu-texte h6 { margin: 0.4em 0 -0.2em; font-weight: 700; line-height: 1.25; color: var(--color-text); }
+.actu-texte h3 { font-size: 1.3rem; color: var(--color-action-text); }
+.actu-texte h4 { font-size: 1.12rem; }
+.actu-texte h5, .actu-texte h6 { font-size: 1rem; color: var(--color-text-muted); }
+.actu-texte ul, .actu-texte ol { margin: 0; padding-left: 1.4em; }
+.actu-texte ul { list-style: disc; }
+.actu-texte ol { list-style: decimal; }
+.actu-texte li + li { margin-top: 0.3em; }
+.actu-texte li::marker { color: var(--color-action-text); }
+.actu-texte a { color: var(--color-action-text); text-underline-offset: 3px; }
+.actu-texte a:hover { color: var(--color-action-hover); }
+.actu-texte strong { color: var(--color-text); }
+
+.actu-message { padding: 64px 0 16px; color: var(--color-text-muted); }
+.actu-message:focus { outline: none; }
+
+/* La page derrière ne défile pas pendant la lecture. */
+.actu-ouverte .sections { overflow: hidden; }
+
+@media (min-width: 900px) {
+  .news-liste {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 12px 0 0;
+    padding: 0;
+    overflow: visible;
+  }
+  .news-carte { transition: transform 300ms var(--courbe), border-color 300ms, box-shadow 300ms; }
+  .news-carte:hover { transform: translateY(-4px); border-color: var(--color-action); box-shadow: 0 0 18px var(--color-action-glow); }
+
+  .actu-vue {
+    width: min(760px, calc(100% - 64px));
+    height: auto;
+    max-height: calc(100% - 64px);
+    margin: auto;
+    border: 1px solid rgb(216 20 20 / 55%);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 0 40px var(--color-action-glow), 0 24px 60px rgb(0 0 0 / 70%);
+  }
+  .actu-panneau { padding: 20px 36px 40px; }
+  .actu-fermer { top: 16px; }
+  .actu-image { margin: 0 -36px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; margin-top: -20px; }
+  .actu-texte { font-size: 1.08rem; }
+}
+
+/* Écrans bas (téléphone en paysage). */
+@media (max-height: 520px) and (max-width: 899px) {
+  .news-liste { grid-auto-columns: 40%; }
+  .news-visuel { aspect-ratio: 21 / 9; }
+  .actu-image { aspect-ratio: 21 / 9; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .news-squelette .news-visuel, .squelette-ligne, .news-etat-titre::before, .actu-vue[open] { animation: none; }
+  .news-carte, .news-carte:hover { transition: none; transform: none; }
+}

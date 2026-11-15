@@ -208,6 +208,10 @@
   background: var(--color-action-text);
   transform: rotate(45deg);
 }
+/* Lot 3b : dernier article publié en tête du bandeau, lien vers l'article (#actu/<slug>). */
+.bandeau-actu a { color: var(--color-text); text-decoration: underline; text-decoration-color: var(--color-action-text); text-underline-offset: 3px; }
+.bandeau-actu a:hover, .bandeau-actu a:focus-visible { color: var(--color-action-text); }
+.accueil-bandeau:focus-within .bandeau-piste { animation-play-state: paused; }
 @keyframes bandeau-defile { to { transform: translateX(-50%); } }
 .avec-bandeau .section-accueil { padding-bottom: calc(max(8px, env(safe-area-inset-bottom)) + 3px + var(--bandeau-h, 34px) + 4px); }
 /* Avec le bandeau, le bas est resserré (retour du propriétaire) : flèche plus près du bouton et du bandeau ; titre et accroche descendent. */

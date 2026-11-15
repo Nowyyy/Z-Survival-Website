@@ -203,36 +203,7 @@
 .js .section-entete.revele { transform: translateX(-32px); }
 .js .est-visible .revele { opacity: 1; transform: none; }
 
-/* ---------- News ---------- */
-/* Téléphone : cartes en carrousel horizontal (glisser), qui s'arrête sur chaque carte. */
-.news-liste {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 82%;
-  gap: 12px;
-  margin: 4px calc(-1 * var(--marge)) 0;
-  padding: 0 var(--marge) 8px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-padding: 0 var(--marge);
-  scrollbar-width: none;
-}
-.news-liste::-webkit-scrollbar { display: none; }
-.news-carte {
-  display: flex;
-  flex-direction: column;
-  scroll-snap-align: start;
-  background: var(--color-surface);
-  border: 1px solid var(--color-surface-raised);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-.news-visuel { aspect-ratio: 16 / 9; border: 0; border-bottom: 1px dashed var(--color-border); border-radius: 0; }
-.news-corps { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 16px; }
-.news-meta { display: flex; align-items: baseline; gap: 10px; font-size: 0.8rem; color: var(--color-text-muted); }
-.news-categorie { color: var(--color-action-text); font-family: var(--font-label); text-transform: uppercase; letter-spacing: 0.04em; }
-.news-titre { font-size: 1.15rem; line-height: 1.25; }
-.news-resume { color: var(--color-text-muted); font-size: 0.9rem; }
+/* ---------- News : css/actualites.css (lot 3b) ---------- */
 
 /* ---------- Characters ---------- */
 .perso-scene { flex: 1; min-height: 200px; }
@@ -412,16 +383,6 @@
   .section-news .section-interieur { justify-content: center; }
   .section-num { font-size: 1.25rem; }
 
-  .news-liste {
-    grid-auto-flow: row;
-    grid-template-columns: repeat(3, 1fr);
-    margin: 12px 0 0;
-    padding: 0;
-    overflow: visible;
-  }
-  .news-carte { transition: transform 300ms var(--courbe), border-color 300ms, box-shadow 300ms; }
-  .news-carte:hover { transform: translateY(-4px); border-color: var(--color-action); box-shadow: 0 0 18px var(--color-action-glow); }
-
   .perso-miniatures { grid-template-columns: repeat(4, 120px); }
 
   .arme-choix { overflow: visible; }
@@ -448,8 +409,6 @@
   .section-titre { font-size: 2.1rem; }
   .section-interieur { gap: 8px; }
   .perso-scene, .arme-scene { min-height: 120px; }
-  .news-liste { grid-auto-columns: 40%; }
-  .news-visuel { aspect-ratio: 21 / 9; }
   .perso-miniature { aspect-ratio: auto; height: 56px; }
   .arme-corps { flex-direction: row; }
   .arme-scene { flex: 1; }
