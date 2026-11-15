@@ -74,10 +74,12 @@ Toutes les réponses sont en JSON. Erreurs : `{ "erreur": "message en français"
 | `GET /api/admin/articles/:id` | un article (tous les champs) |
 | `POST /api/admin/articles` | crée un article (`slug` et `titre_fr` obligatoires ; brouillon par défaut) → 201 |
 | `PUT /api/admin/articles/:id` | modifie les champs fournis (les autres restent) |
-| `DELETE /api/admin/articles/:id` | supprime l'article |
+| `DELETE /api/admin/articles/:id` | supprime l'article **et son image** (si aucun autre article ne l'utilise) → `{ supprime, id, image: null \| { chemin, supprimee, raison? } }` ; `raison` : `utilisee_ailleurs`, `non_configure` ou `erreur_github` (l'article est supprimé quand même) |
 | `POST /api/admin/articles/:id/publier` | publie (date de publication = maintenant si elle est vide) |
 | `POST /api/admin/articles/:id/depublier` | repasse en brouillon |
-| `POST /api/admin/images?slug=<slug>` | image d'un article (lot 3b) : corps **brut** (`Content-Type: image/jpeg`, `image/png` ou `image/webp`), 8 Mo au plus → 201 `{ image, adresse, largeur, hauteur, octets, deja_presente, commit }` |
+| `POST /api/admin/images?slug=<slug>` | image d'un article (lot 3b) : corps **brut** (`Content-Type: image/jpeg`, `image/png` ou `image/webp`), 8 Mo au plus → 201 `{ image, adresse, largeur, hauteur, octets, deja_presente, commit }` (200 si l'image était déjà dans le dépôt) |
+| `GET /api/admin/images` | bibliothèque : images de `img/actus/` (lues dans le dépôt) avec les articles qui les utilisent → `{ source: "depot" \| "articles", images: [{ image, octets, utilisee_par: [{ id, titre_fr, statut }] }] }` ; sans jeton GitHub, `source: "articles"` (images connues des articles) |
+| `DELETE /api/admin/images/:nom` | supprime une image **inutilisée** du dépôt (commit sur `main`) ; 409 si un article l'utilise, 404 si le nom est invalide, 503 sans jeton GitHub |
 
 - Champs acceptés : `slug`, `statut`, `date_publication`, `titre_fr`, `titre_en`, `contenu_fr`, `contenu_en`, `image`. Un champ inconnu est refusé (400).
 - `slug` : minuscules, chiffres et tirets (`nouvelle-carte`), 120 caractères au plus, unique (409 sinon).
@@ -93,10 +95,16 @@ Toutes les réponses sont en JSON. Erreurs : `{ "erreur": "message en français"
 2. **Transformation** (sharp) : tournée selon l'orientation de la photo, réduite à **1600 px** au plus de côté (jamais agrandie),
    convertie en **WebP** (qualité 82). **Aucune métadonnée gardée** : EXIF, position GPS, modèle de l'appareil, profil, XMP.
 3. **Enregistrement** dans le dépôt par l'API GitHub (`PUT /repos/Nowyyy/Z-Survival-Website/contents/…`) : un commit sur `main`,
-   auteur « Z-Survival admin », fichier **`img/actus/<slug>-<8 premiers caractères du SHA-256>.webp`**. La même image envoyée deux
-   fois a le même nom : pas de second commit (200, `deja_presente: true`).
+   auteur « Z-Survival admin », fichier **`img/actus/<slug>-<8 premiers caractères du SHA-256>.webp`**. Si une image identique (même
+   empreinte) est déjà dans `img/actus/`, même sous le nom d'un autre article, ce fichier est repris : pas de second commit
+   (200, `deja_presente: true`, `image` = chemin existant).
 4. **Publication** : le commit sur `main` relance `pages.yml` ; l'image est en ligne **environ une minute plus tard** (l'admin
    l'indique ; en attendant, le site montre son motif de repli). `serveur.yml` n'est pas relancé (le commit ne touche pas `serveur/`).
+6. **Réutilisation** : la bibliothèque de l'admin (`GET /api/admin/images`) permet de reprendre une image déjà en ligne pour un
+   autre article ; plusieurs articles peuvent partager une image.
+7. **Suppression** : supprimer un article supprime son image du dépôt (`DELETE` de l'API GitHub, commit « Z-Survival admin » sur
+   `main`) **si plus aucun article ne l'utilise** ; une image inutilisée (retirée ou remplacée) se supprime depuis la bibliothèque
+   (`DELETE /api/admin/images/:nom`). Seuls des noms simples de `img/actus/` sont acceptés.
 5. Le champ `image` de l'article reçoit le chemin relatif (`img/actus/…`), affiché par le site tel quel (chemin relatif).
 
 - **Sans le secret `GITHUB_JETON_IMAGES`** : 503 « Envoi d'images pas encore configuré… », tout le reste fonctionne.
@@ -223,6 +231,7 @@ hasard à chaque lancement.
 - La limite des tentatives repose sur l'adresse IP vue par Google : plusieurs personnes derrière la même box partagent le compteur.
 - Pas encore de publication programmée (un article publié avec une date future est visible tout de suite).
 - `contenu` est renvoyé en Markdown brut : ne jamais l'insérer tel quel dans la page (rendu sûr : `js/markdown.js`).
-- **Images** : supprimer un article (ou lui retirer son image) ne supprime pas le fichier du dépôt ; une image n'est en ligne
+- **Images** : retirer ou remplacer l'image d'un article ne supprime pas le fichier (il reste réutilisable ; le supprimer depuis la
+  bibliothèque) ; si GitHub ne répond pas pendant la suppression d'un article, l'image reste (inutilisée) ; une image n'est en ligne
   qu'environ une minute après l'envoi ; le jeton GitHub expire au bout d'un an (à renouveler, voir `Docs/ref/admin.md`) ;
   chaque image ajoute un commit sur `main` (penser à `git pull` avant de travailler sur le site).

@@ -13,7 +13,10 @@ import { verifierMotDePasse } from './mot-de-passe.js';
 import { creerJeton, verifierJeton } from './jeton.js';
 import { hacherIp, reserverTentative, effacerTentatives, nettoyerTentatives } from './limite.js';
 import { ErreurValidation, LANGUES, entierPositif, slugValide, validerArticle, validerConnexion } from './validation.js';
-import { ErreurImage, TAILLE_MAX_IMAGE, COTE_MAX, cheminImage, enregistrerSurGithub, preparerImage } from './images.js';
+import {
+  ErreurImage, TAILLE_MAX_IMAGE, COTE_MAX, cheminImage, enregistrerSurGithub, listerSurGithub, nomDansDossier, nomImageValide, preparerImage,
+  supprimerSurGithub,
+} from './images.js';
 
 export const ORIGINE_SITE = 'https://nowyyy.github.io';
 const MOTIF_ORIGINE_LOCALE = /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d{1,5})?$/;
@@ -357,12 +360,39 @@ export function creerApp({ config, db, journal, maintenant = () => Date.now(), f
     return c.json({ article: await enregistrer(article) });
   });
 
+  /** Articles qui utilisent une image (chemin img/actus/…). */
+  async function articlesAvecImage(chemin) {
+    return enObjets(await db.execute({ sql: 'SELECT id, titre_fr, statut FROM articles WHERE image = ? ORDER BY id', args: [chemin] }));
+  }
+
+  // Suppression d'un article : son image (img/actus/…) est aussi supprimée du dépôt, sauf si un autre article l'utilise.
+  // L'article est supprimé d'abord ; si l'image ne peut pas l'être (jeton absent, GitHub en panne), elle reste dans la
+  // bibliothèque de l'admin, d'où on peut la supprimer plus tard. Réponse : { supprime, id, image: null | { chemin, supprimee, raison? } }.
   app.delete('/api/admin/articles/:id', async (c) => {
     const id = idValide(c);
+    const [avant] = enObjets(await db.execute({ sql: 'SELECT image FROM articles WHERE id = ?', args: [id] }));
     const r = await db.execute({ sql: 'DELETE FROM articles WHERE id = ?', args: [id] });
     if (r.rowsAffected === 0) throw new ErreurHttp(404, 'Article introuvable.');
     journal.info('Article supprimé', { id });
-    return c.json({ supprime: true, id });
+    let image = null;
+    const nom = nomDansDossier(avant?.image);
+    if (nom) {
+      image = { chemin: avant.image, supprimee: false };
+      if ((await articlesAvecImage(avant.image)).length > 0) image.raison = 'utilisee_ailleurs';
+      else if (!config.jetonGithubImages) image.raison = 'non_configure';
+      else {
+        try {
+          await supprimerSurGithub({ config, nom, fetchGithub });
+          image.supprimee = true;
+          journal.info('Image supprimée', { chemin: avant.image });
+        } catch (err) {
+          image.raison = 'erreur_github';
+          image.message = err instanceof ErreurImage ? err.message : 'Erreur inattendue.';
+          journal.avertissement('Image non supprimée', { chemin: avant.image, erreur: resumerErreur(err) });
+        }
+      }
+    }
+    return c.json({ supprime: true, id, image });
   });
 
   app.post('/api/admin/articles/:id/publier', async (c) => {
@@ -401,11 +431,11 @@ export function creerApp({ config, db, journal, maintenant = () => Date.now(), f
       const octets = Buffer.from(await c.req.arrayBuffer());
       const image = await preparerImage(octets, c.req.header('Content-Type'));
       const chemin = cheminImage(slug, image.empreinte);
-      const envoi = await enregistrerSurGithub({ config, chemin, donnees: image.donnees, fetchGithub });
-      journal.info('Image enregistrée', { chemin, octets: image.donnees.length, deja_presente: envoi.deja_present });
+      const envoi = await enregistrerSurGithub({ config, chemin, empreinte: image.empreinte, donnees: image.donnees, fetchGithub });
+      journal.info('Image enregistrée', { chemin: envoi.chemin, octets: image.donnees.length, deja_presente: envoi.deja_present });
       return c.json({
-        image: chemin,
-        adresse: ADRESSE_SITE + chemin,
+        image: envoi.chemin,
+        adresse: ADRESSE_SITE + envoi.chemin,
         largeur: image.largeur,
         hauteur: image.hauteur,
         cote_max: COTE_MAX,
@@ -415,6 +445,46 @@ export function creerApp({ config, db, journal, maintenant = () => Date.now(), f
       }, envoi.deja_present ? 200 : 201);
     },
   );
+
+  // --- Bibliothèque des images (lot 3b) : images de img/actus/ (lues dans le dépôt), avec les articles qui les utilisent,
+  // pour en réutiliser une sans la republier. Sans jeton GitHub : seulement les images connues des articles.
+  app.get('/api/admin/images', async (c) => {
+    const usages = enObjets(await db.execute(
+      "SELECT image, id, titre_fr, statut, COALESCE(date_publication, modifie_le) AS quand FROM articles WHERE image <> '' ORDER BY quand DESC, id DESC",
+    ));
+    let source = 'depot';
+    let fichiers;
+    if (config.jetonGithubImages) {
+      fichiers = (await listerSurGithub({ config, fetchGithub })).map((f) => ({ chemin: f.chemin, octets: f.octets }));
+    } else {
+      source = 'articles';
+      fichiers = [...new Set(usages.map((u) => u.image).filter((i) => nomDansDossier(i)))].map((chemin) => ({ chemin, octets: null }));
+    }
+    const images = fichiers.map((f) => {
+      const par = usages.filter((u) => u.image === f.chemin);
+      return { image: f.chemin, octets: f.octets, utilisee_par: par.map(({ id, titre_fr, statut }) => ({ id, titre_fr, statut })), quand: par[0]?.quand ?? '' };
+    });
+    // Images des articles les plus récents d'abord, puis les images inutilisées (par nom).
+    images.sort((a, b) => (b.quand.localeCompare(a.quand)) || a.image.localeCompare(b.image));
+    return c.json({ source, images: images.map(({ quand, ...reste }) => reste) });
+  });
+
+  // Supprime une image INUTILISÉE de la bibliothèque (commit sur main) ; 409 si un article l'utilise.
+  app.delete('/api/admin/images/:nom', async (c) => {
+    const nom = c.req.param('nom');
+    if (!nomImageValide(nom)) throw new ErreurHttp(404, 'Image introuvable.');
+    if (!config.jetonGithubImages) {
+      throw new ErreurHttp(503, 'Suppression d’images pas encore configurée (jeton GitHub des images absent).');
+    }
+    const chemin = `img/actus/${nom}`;
+    const par = await articlesAvecImage(chemin);
+    if (par.length > 0) {
+      throw new ErreurHttp(409, `Image utilisée par ${par.length > 1 ? `${par.length} articles` : 'un article'} : retirez-la d’abord de ${par.length > 1 ? 'ces articles' : 'cet article'}.`);
+    }
+    const r = await supprimerSurGithub({ config, nom, fetchGithub });
+    journal.info('Image supprimée', { chemin });
+    return c.json({ image: chemin, supprimee: true, deja_absente: r.deja_absente });
+  });
 
   // --- Introuvable et erreurs. ---
   app.notFound((c) => c.json({ erreur: 'Introuvable.' }, 404));

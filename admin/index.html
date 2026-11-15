@@ -118,10 +118,11 @@
           <input class="admin-fichier" id="image-fichier" type="file" accept="image/jpeg,image/png,image/webp">
           <div class="admin-actions-image">
             <label class="admin-bouton" for="image-fichier" id="image-choisir">Choisir une image</label>
+            <button class="admin-bouton" id="image-bibliotheque" type="button">Réutiliser une image</button>
             <button class="bouton bouton-principal" id="image-envoyer" type="button" hidden>Envoyer l’image</button>
             <button class="admin-bouton admin-bouton-discret" id="image-retirer" type="button" hidden>Retirer l’image</button>
           </div>
-          <p class="admin-aide">JPEG, PNG ou WebP, 8 Mo au plus. Le serveur la réduit (1600 pixels au plus), la convertit en WebP et retire les informations cachées de la photo (position GPS, appareil). Elle apparaît sur le site environ une minute après l’envoi.</p>
+          <p class="admin-aide">JPEG, PNG ou WebP, 8 Mo au plus. Le serveur la réduit (1600 pixels au plus), la convertit en WebP et retire les informations cachées de la photo (position GPS, appareil). Elle apparaît sur le site environ une minute après l’envoi. « Réutiliser une image » reprend une image déjà envoyée, sans la republier.</p>
         </div>
 
         <div class="admin-carte admin-groupe">
@@ -153,6 +154,17 @@
       </form>
     </section>
   </main>
+
+  <!-- Bibliothèque : images déjà envoyées (img/actus/ du dépôt), à réutiliser sans les republier ; les inutilisées peuvent être supprimées. -->
+  <dialog class="admin-apercu admin-bibliotheque" id="bibliotheque" aria-labelledby="bibliotheque-titre">
+    <div class="admin-apercu-barre">
+      <h2 class="admin-sous-titre" id="bibliotheque-titre">Images déjà envoyées</h2>
+      <button class="admin-bouton admin-bouton-discret" id="bibliotheque-fermer" type="button">Fermer</button>
+    </div>
+    <p class="admin-aide">Touchez « Utiliser » : l’image est reprise telle quelle, rien n’est republié. Une image qu’aucun article n’utilise peut être supprimée du site.</p>
+    <p class="admin-aide" id="bibliotheque-etat" role="status"></p>
+    <ul class="admin-galerie" id="bibliotheque-liste"></ul>
+  </dialog>
 
   <!-- Aperçu de l'article tel qu'il apparaîtra sur le site (carte de la liste, puis article complet), en français et en anglais. -->
   <dialog class="admin-apercu" id="apercu" aria-labelledby="apercu-titre">

@@ -55,7 +55,12 @@ Ce que vous écrivez ici apparaît dans la section **Actualités** du site, en f
 5. **Enregistrer** l'article (sinon l'image n'y est pas rattachée).
 
 - **Remplacer l'image** : choisir une autre image, puis l'envoyer. **Retirer l'image** : l'article n'a plus d'image.
-- Les images envoyées restent dans le dépôt, même si on les retire ou si on supprime l'article.
+- **Réutiliser une image** (déjà envoyée pour un autre article) : toucher **Réutiliser une image**. Les images déjà envoyées
+  s'affichent, avec les articles qui les utilisent. Toucher **Utiliser** : l'image est reprise telle quelle, **rien n'est
+  republié** (elle est déjà en ligne). Puis **Enregistrer**.
+- Si vous renvoyez par erreur une photo déjà envoyée, le serveur la reconnaît et reprend le fichier existant (pas de doublon).
+- Une image qu'**aucun article n'utilise** (retirée ou remplacée) est marquée « Inutilisée » dans **Réutiliser une image**, avec
+  un bouton **Supprimer** (après confirmation, elle disparaît du site d'ici une minute).
 - Message « Envoi d'images pas encore configuré » : le jeton GitHub n'est pas rangé (voir « Jeton GitHub » plus bas).
   L'article peut être enregistré et publié sans image.
 
@@ -72,7 +77,10 @@ plus** (le serveur garde la liste en mémoire 60 secondes). Pour le voir : https
 
 ## 6. Dépublier, supprimer
 - **Dépublier** (après confirmation) : l'article disparaît du site et redevient un brouillon. Il peut être republié plus tard.
-- **Supprimer l'article** (en bas, après confirmation) : définitif. L'image éventuelle reste dans le dépôt.
+- **Supprimer l'article** (en bas, après confirmation) : définitif. **Son image est supprimée aussi** (elle disparaît du site
+  d'ici une minute), **sauf si un autre article l'utilise** : elle est alors gardée. Le message après la suppression dit ce qu'il
+  est advenu de l'image. Si GitHub ne répond pas, l'article est quand même supprimé et l'image, devenue « Inutilisée », pourra être
+  supprimée plus tard depuis **Réutiliser une image**.
 - Quitter l'éditeur (**← Articles**, fermer l'onglet…) avec des modifications non enregistrées : la page demande confirmation.
 
 ## 7. Liste des articles

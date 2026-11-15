@@ -131,7 +131,7 @@ describe('articles', () => {
     assert.equal((await s.requete('PUT', '/api/admin/articles/999999', { jeton, corps: { titre_fr: 'x' } })).statut, 404);
 
     const sup = await s.requete('DELETE', `/api/admin/articles/${a.id}`, { jeton });
-    assert.deepEqual(sup.json, { supprime: true, id: a.id });
+    assert.deepEqual(sup.json, { supprime: true, id: a.id, image: null });
     assert.equal((await s.requete('GET', `/api/admin/articles/${a.id}`, { jeton })).statut, 404);
     assert.equal((await s.requete('DELETE', `/api/admin/articles/${a.id}`, { jeton })).statut, 404);
     assert.equal((await s.requete('GET', '/api/articles/actu-trois')).statut, 404);
