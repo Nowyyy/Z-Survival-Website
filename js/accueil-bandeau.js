@@ -1,7 +1,7 @@
 // Accueil : bandeau d'alerte qui défile en bas (idée « catchy » n° 5). En service sur le site public (décision du propriétaire) ;
 // ?bandeau=0 dans l'adresse le cache (pour comparer).
-// Messages : SOURCE_BANDEAU (aujourd'hui le fichier contenus/bandeau.json, modifiable sans toucher au code ; demain l'adresse de l'API de
-// l'interface d'administration, même format : Docs/ref/contenus.md). Format : { messages: [{ id, actif, fr, en }] }, texte brut seulement.
+// Messages : SOURCE_BANDEAU, le fichier contenus/bandeau.json, modifiable depuis l'admin (lot 3d : le serveur le réécrit dans le dépôt)
+// ou à la main sur GitHub (Docs/ref/contenus.md). Format : { messages: [{ id, actif, fr, en }] }, texte brut seulement.
 // La piste contient deux fois la liste : le défilement (CSS) boucle sans saut. Les lecteurs d'écran lisent la première copie ; la seconde est
 // décorative. Mouvement réduit : pas de défilement. Source illisible ou aucun message actif : pas de bandeau.
 // Lot 3b : le titre du dernier article publié passe en tête du bandeau, avec un lien vers l'article (#actu/<slug>), quand il y en a un.

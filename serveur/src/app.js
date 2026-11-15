@@ -13,6 +13,7 @@ import { verifierMotDePasse } from './mot-de-passe.js';
 import { creerJeton, verifierJeton } from './jeton.js';
 import { hacherIp, reserverTentative, effacerTentatives, nettoyerTentatives } from './limite.js';
 import { annoncerArticle } from './discord.js';
+import { ecrireBandeau, lireBandeau, validerBandeau } from './bandeau.js';
 import { ErreurValidation, LANGUES, PAGES, entierPositif, slugValide, validerArticle, validerConnexion, validerPage } from './validation.js';
 import {
   ErreurImage, TAILLE_MAX_IMAGE, COTE_MAX, cheminImage, enregistrerSurGithub, listerSurGithub, nomDansDossier, nomImageValide, preparerImage,
@@ -562,6 +563,25 @@ export function creerApp({ config, db, journal, maintenant = () => Date.now(), f
   });
 
   // --- Introuvable et erreurs. ---
+  // --- Bandeau d'alerte de l'accueil (lot 3d) : messages de contenus/bandeau.json, lus et réécrits dans le dépôt par l'API GitHub
+  // (même jeton que les images). Sans jeton : 503 clair, le reste fonctionne.
+  const bandeauConfigure = () => {
+    if (!config.jetonGithubImages) {
+      throw new ErreurHttp(503, 'Modification du bandeau pas encore configurée (jeton GitHub absent : voir Docs/ref/admin.md, « Jeton GitHub »).');
+    }
+  };
+  app.get('/api/admin/bandeau', async (c) => {
+    bandeauConfigure();
+    return c.json(await lireBandeau({ config, fetchGithub }), 200, { 'Cache-Control': 'no-store' });
+  });
+  app.put('/api/admin/bandeau', limiteCorps(64 * 1024), async (c) => {
+    bandeauConfigure();
+    const { messages, sha } = validerBandeau(await lireJson(c));
+    const r = await ecrireBandeau({ config, fetchGithub, messages, sha });
+    journal.info('Bandeau modifié', { messages: messages.length, affiches: messages.filter((m) => m.actif).length });
+    return c.json({ messages: r.messages, sha: r.sha });
+  });
+
   app.notFound((c) => c.json({ erreur: 'Introuvable.' }, 404));
 
   app.onError((err, c) => {

@@ -28,14 +28,20 @@ développeur. Les libellés fixes (par exemple l'étiquette « Alerte ») resten
 - Lot 3b : quand des articles sont publiés (page d'administration, `Docs/ref/admin.md`), le **titre du dernier article** passe en
   tête du bandeau (« Dernière transmission : … »), avec un lien vers l'article (`#actu/<slug>`).
 
-### Modifier les messages aujourd'hui (depuis le navigateur, même sur téléphone)
+### Modifier les messages depuis l'admin (lot 3d, le plus simple)
+Page d'administration → **Pages du site** → **Modifier le bandeau d’alerte** (`Docs/ref/admin.md`, section 9) : textes FR / EN, affiché ou
+caché, ordre, ajout et suppression, aperçu. Le serveur réécrit ce fichier dans le dépôt (même format, un message par ligne, commit
+« Z-Survival admin » sur `main`) ; le site est republié en une minute environ. Le site lit toujours le fichier : il n'attend jamais le
+serveur pour afficher le bandeau.
+
+### Modifier les messages à la main sur GitHub (toujours possible)
 1. Ouvrir https://github.com/Nowyyy/Z-Survival-Website/blob/main/contenus/bandeau.json
 2. Cliquer sur le crayon (« Edit this file »).
 3. Changer les textes entre guillemets, ajouter ou retirer un bloc `{ … }` (attention aux virgules entre les blocs).
 4. « Commit changes » sur `main`. Le site est republié en une minute environ.
 
-### Plus tard : l'interface d'administration
-- Elle écrira le même format (liste `{ id, actif, fr, en }`), dans la base de données ou dans ce fichier.
-- Le site lira alors l'adresse de l'API au lieu du fichier : seule `SOURCE_BANDEAU` change.
-- À trancher à ce moment : connexion à l'interface (qui a le droit de modifier), dates de début et de fin d'un message, ordre, repli sur
-  le fichier si l'API ne répond pas.
+### Choix faits pour l'interface d'administration (lot 3d)
+- Elle écrit **ce fichier** (pas une base de données) : le site n'a pas besoin du serveur pour le bandeau, et `SOURCE_BANDEAU` ne change pas.
+- Connexion : celle de l'admin. Ordre : celui de la liste. Si quelqu'un a modifié le fichier entre-temps, l'enregistrement est refusé
+  (aucune écriture à l'aveugle).
+- Pas encore de dates de début et de fin par message (un message se cache ou se montre à la main).

@@ -312,6 +312,41 @@ body.admin {
 .admin-apercu-article .actu-image { margin: 12px 0 0; }
 .admin-apercu-article .actu-article > .actu-entete:first-child { padding-top: 12px; }
 
+/* ---------- Bandeau d'alerte (lot 3d) ---------- */
+.admin-bandeau-liste { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.admin-bandeau-message { display: flex; flex-direction: column; gap: 10px; }
+.admin-bandeau-message[data-cache="true"] { border-style: dashed; opacity: 0.72; }
+.admin-bandeau-tete { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.admin-bandeau-numero { font-family: var(--font-label); text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-action-text); }
+.admin-interrupteur { display: inline-flex; align-items: center; gap: 8px; min-height: var(--touch-target); font-weight: 700; cursor: pointer; }
+.admin-interrupteur input { width: 22px; height: 22px; accent-color: var(--color-action); }
+.admin-bandeau-outils { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.admin-bandeau-outils .admin-bouton { padding: 0 0.5rem; font-size: 0.85rem; white-space: nowrap; }
+/* Petits téléphones : « Monter » et « Descendre » côte à côte, « Supprimer » dessous, sur toute la largeur. */
+@media (max-width: 380px) {
+  .admin-bandeau-outils { grid-template-columns: 1fr 1fr; }
+  .admin-bandeau-outils [data-action="supprimer"] { grid-column: 1 / -1; }
+}
+/* Aperçu : bande sombre comme celle de l'accueil, sans défilement (les messages vont à la ligne). */
+.admin-bandeau-bande {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--color-action);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  flex-wrap: wrap;
+}
+.admin-bandeau-bande .admin-bandeau-defile { flex: 1 1 14rem; }
+.admin-bandeau-etiquette { flex: none; font-family: var(--font-label); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-action-text); }
+.admin-bandeau-defile { display: flex; flex-wrap: wrap; gap: 2px 0; margin: 0; padding: 0; list-style: none; color: var(--color-text-muted); }
+.admin-bandeau-defile li { display: inline-flex; align-items: center; }
+.admin-bandeau-defile li:not(:last-child)::after { content: ""; width: 5px; height: 5px; margin: 0 12px; background: var(--color-action-text); transform: rotate(45deg); }
+.admin-bandeau-defile .admin-bandeau-actu { color: var(--color-text); font-style: italic; }
+
 /* ---------- Pages du site ---------- */
 .admin-pages { margin-bottom: 6px; }
 .admin-actions-page { grid-template-columns: 1fr 1fr; }

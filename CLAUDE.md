@@ -57,6 +57,9 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
 - Annonce Discord (lot 3c, `serveur/src/discord.js`) : à la **première** publication d'un article, message dans un salon par le webhook
   `DISCORD_WEBHOOK_ACTUS` (secret facultatif, `installer-gcp.sh --discord`), une seule fois par article (`annonce_discord_le`) ; un échec
   de Discord n'empêche jamais la publication ; aucune mention qui notifie.
+- Bandeau d'alerte (lot 3d, `serveur/src/bandeau.js`) : l'admin modifie `contenus/bandeau.json`, que le serveur relit et réécrit dans le
+  dépôt par l'API GitHub (même jeton que les images, commit « Z-Survival admin » sur `main`, refus 409 si le fichier a changé entre-temps) ;
+  le site lit toujours le fichier.
 - Connexion admin sans cookie (domaines différents) : jeton signé dans `Authorization: Bearer`. Migrations versionnées
   dans `serveur/migrations/` (nouveau fichier `NNN_…sql`, jamais modifier une migration déployée).
 
@@ -73,7 +76,7 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   image `img/partage.jpg`), canonique, icônes, manifeste, JSON-LD (VideoGame, Organization, WebSite).
 - `main.html` : ancienne page principale, simple redirection vers `./#news` (garde l'ancre).
 - `admin/` (lot 3b) : page d'administration des actualités (noindex, non reliée au site, français seulement, CSP stricte),
-  mode d'emploi `Docs/ref/admin.md`.
+  mode d'emploi `Docs/ref/admin.md` ; « Pages du site » : page « À propos », puis bandeau d'alerte (lot 3d).
 - `css/`, `js/` : styles et scripts ; `js/site.js` : script de la page ; `js/textes.js` : tous les textes
   (blocs `fr` et `en`, mêmes clés) ; `js/i18n.js` : langue (priorité : `?lang=`, puis choix gardé du globe, puis langue du navigateur :
   français pour les visiteurs francophones, anglais pour les autres ; aucune géolocalisation) ;
@@ -96,7 +99,7 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   d'intégration dans `Docs/ref/musique.md`) et planche d'écoute
   `planche.html` (noindex, non reliée au site) ; `outils/musique/` : script qui génère la musique (`Docs/ref/musique.md`).
 - `contenus/` : contenus modifiables sans toucher au code, aujourd'hui sur GitHub, plus tard par une interface d'administration
-  (`bandeau.json` : messages du bandeau d'alerte ; format et marche à suivre : `Docs/ref/contenus.md`). Exception assumée à la règle
+  (`bandeau.json` : messages du bandeau d'alerte, modifiables depuis l'admin (lot 3d) ; format et marche à suivre : `Docs/ref/contenus.md`). Exception assumée à la règle
   « textes dans `js/textes.js` », qui vaut pour les libellés fixes.
 - `img/actus/` (lot 3b) : images des articles, ajoutées par le serveur (commit « Z-Survival admin » sur `main`) : ne pas les retoucher à la main.
 - Racine : `favicon.ico`, `site.webmanifest`, `robots.txt`, `sitemap.xml` (lot 4a, publiés par `pages.yml`).
@@ -115,7 +118,7 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   `scene/jeu/` (copie figée du jeu, jamais retouchée), `scene/js/` (scène, poses, enrichissements), `scene/outils/`
   (copie, captures, vérification de la boucle ; Node + Playwright, non publiés).
 - `outils/admin/` (lot 3b) : banc local des actualités (`banc.mjs` : serveur sur SQLite, API GitHub simulée) et vérification
-  de bout en bout `verifier-actus.mjs` (site et admin) ; `outils/copie-publiee.mjs` : copie publiée + `simulerActualites()`.
+  de bout en bout `verifier-actus.mjs` (site et admin) et `verifier-bandeau.mjs` (bandeau d'alerte, lot 3d) ; `outils/copie-publiee.mjs` : copie publiée + `simulerActualites()`.
 - `Docs/ref/` : documents de référence ; `Docs/lots/` : bilans de lot.
 - `.github/workflows/pages.yml` : déploiement GitHub Pages à chaque push sur `main`.
 - `serveur/` (lot 3a) : serveur des actualités (Node.js, Hono, `@libsql/client`, Dockerfile ; mode d'emploi `serveur/LISEZMOI.md`) ;

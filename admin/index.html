@@ -55,6 +55,7 @@
       <div class="admin-carte admin-groupe admin-pages">
         <h2 class="admin-sous-titre">Pages du site</h2>
         <button class="admin-bouton" id="ouvrir-page-a-propos" type="button">Modifier la page « À propos »</button>
+        <button class="admin-bouton" id="ouvrir-bandeau" type="button">Modifier le bandeau d’alerte</button>
       </div>
 
       <div class="admin-barre">
@@ -125,6 +126,37 @@
           <button class="bouton bouton-principal" id="page-enregistrer" type="button">Enregistrer et publier</button>
         </div>
       </form>
+    </section>
+
+    <!-- Écran 5 : bandeau d'alerte de l'accueil (lot 3d) : messages de contenus/bandeau.json, réécrits dans le dépôt par le serveur. -->
+    <section class="admin-ecran" id="ecran-bandeau" aria-labelledby="titre-bandeau" hidden>
+      <div class="admin-barre">
+        <button class="admin-bouton admin-bouton-discret" id="bandeau-retour" type="button">← Articles</button>
+        <span class="admin-statut" id="bandeau-statut" data-statut="publie"></span>
+      </div>
+      <h1 class="admin-titre" id="titre-bandeau">Bandeau d’alerte</h1>
+      <p class="admin-aide">Messages qui défilent en bas de l’accueil, dans cet ordre. Le titre du dernier article publié passe tout seul en tête (« Dernière transmission : … »). Texte simple, une ligne par message. Sans anglais, le site anglais affiche le français. Les changements sont en ligne <strong>environ une minute</strong> après l’enregistrement.</p>
+
+      <div class="admin-carte admin-bandeau-apercu">
+        <div class="admin-barre">
+          <h2 class="admin-sous-titre">Aperçu</h2>
+          <div class="admin-onglets" role="group" aria-label="Langue de l’aperçu">
+            <button class="admin-onglet" type="button" data-apercu-bandeau="fr" aria-pressed="true">FR</button>
+            <button class="admin-onglet" type="button" data-apercu-bandeau="en" aria-pressed="false">EN</button>
+          </div>
+        </div>
+        <div class="admin-bandeau-bande" id="bandeau-apercu"><span class="admin-bandeau-etiquette" id="bandeau-apercu-titre">Alerte</span><ul class="admin-bandeau-defile" id="bandeau-apercu-liste"></ul></div>
+        <p class="admin-aide" id="bandeau-apercu-vide" hidden>Aucun message affiché : sans article publié, le bandeau disparaît de l’accueil.</p>
+      </div>
+
+      <ol class="admin-bandeau-liste" id="bandeau-liste"></ol>
+      <button class="admin-bouton admin-bouton-large" id="bandeau-ajouter" type="button">+ Ajouter un message</button>
+      <p class="admin-erreur" id="erreur-bandeau" role="alert" hidden></p>
+
+      <div class="admin-actions admin-actions-page">
+        <button class="admin-bouton" id="bandeau-annuler" type="button">Annuler les changements</button>
+        <button class="bouton bouton-principal" id="bandeau-enregistrer" type="button">Enregistrer et publier</button>
+      </div>
     </section>
 
     <!-- Écran 3 : éditeur -->

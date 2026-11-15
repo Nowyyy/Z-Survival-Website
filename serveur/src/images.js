@@ -73,7 +73,7 @@ export function cheminImage(slug, empreinte) {
   return `${DOSSIER_IMAGES}/${slug}-${empreinte}.webp`;
 }
 
-const AUTEUR = Object.freeze({ name: 'Z-Survival admin', email: 'z-survival-admin@nowyyy.github.io' });
+export const AUTEUR = Object.freeze({ name: 'Z-Survival admin', email: 'z-survival-admin@nowyyy.github.io' });
 
 // Nom de fichier accepté dans img/actus/ (suppression, bibliothèque) : simple, sans dossier ni « .. ».
 const MOTIF_NOM_IMAGE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,150}\.(?:webp|jpe?g|png)$/;
@@ -90,7 +90,7 @@ export function nomDansDossier(chemin) {
  * Appels à l'API GitHub (« contents ») du dépôt du site. Le jeton n'apparaît jamais dans une erreur :
  * seuls des messages fixes et le code HTTP de GitHub remontent.
  */
-function clientGithub({ config, fetchGithub = fetch }) {
+export function clientGithub({ config, fetchGithub = fetch }) {
   const [proprietaire, depot] = config.depotGithub.split('/');
   const base = `${config.apiGithub}/repos/${encodeURIComponent(proprietaire)}/${encodeURIComponent(depot)}/contents/`;
   const entetes = {

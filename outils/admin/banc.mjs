@@ -4,8 +4,8 @@
 // - une copie exacte de ce que publie .github/workflows/pages.yml, servie sous /Z-Survival-Website/ (outils/copie-publiee.mjs) ;
 // - brancher(page) : dans Playwright, les appels vers l'adresse de js/config.js (…run.app) partent vers ce serveur local.
 import { spawn } from 'node:child_process';
-import { randomBytes } from 'node:crypto';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { createHash, randomBytes } from 'node:crypto';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -38,8 +38,14 @@ async function fausseApiGithub(dossierSite, jeton) {
         if (liste.length) json(res, 200, liste); else json(res, 404, { message: 'Not Found' });
         return;
       }
+      // Lot 3d : fichiers déjà dans la copie du site (contenus/bandeau.json…) lus comme sur GitHub : contenu en base64 et empreinte
+      // calculée sur le contenu (un fichier modifié sur le disque change d'empreinte, comme une modification faite ailleurs).
+      const surDisque = join(dossierSite, chemin);
+      const empreinteDisque = () => createHash('sha1').update(readFileSync(surDisque)).digest('hex');
       if (req.method === 'GET') {
-        if (etat.fichiers.has(chemin)) json(res, 200, { sha: etat.fichiers.get(chemin).sha }); else json(res, 404, {});
+        if (etat.fichiers.has(chemin)) json(res, 200, { sha: etat.fichiers.get(chemin).sha });
+        else if (existsSync(surDisque) && statSync(surDisque).isFile()) json(res, 200, { sha: empreinteDisque(), content: readFileSync(surDisque).toString('base64') });
+        else json(res, 404, {});
         return;
       }
       const donnees = JSON.parse(corps);
@@ -53,12 +59,18 @@ async function fausseApiGithub(dossierSite, jeton) {
         return;
       }
       const fichier = join(dossierSite, chemin);
+      if (!chemin.startsWith('img/actus/') && existsSync(fichier)) {
+        // Fichier existant : GitHub exige l'empreinte de la version actuelle (422 sans elle, 409 si elle est périmée).
+        if (!donnees.sha) { json(res, 422, { message: 'sha wasn’t supplied' }); return; }
+        if (donnees.sha !== empreinteDisque()) { json(res, 409, { message: 'conflict' }); return; }
+      }
       mkdirSync(dirname(fichier), { recursive: true });
       const octets = Buffer.from(donnees.content, 'base64');
       writeFileSync(fichier, octets);
-      etat.fichiers.set(chemin, { sha: randomBytes(20).toString('hex'), octets: octets.length });
+      const nouveau = chemin.startsWith('img/actus/');
+      if (nouveau) etat.fichiers.set(chemin, { sha: randomBytes(20).toString('hex'), octets: octets.length });
       etat.commits.push({ depot: `${m[1]}/${m[2]}`, chemin, branche: donnees.branch, auteur: donnees.author, message: donnees.message });
-      json(res, 201, { commit: { sha: randomBytes(20).toString('hex') } });
+      json(res, nouveau ? 201 : 200, { content: { sha: nouveau ? etat.fichiers.get(chemin).sha : empreinteDisque() }, commit: { sha: randomBytes(20).toString('hex') } });
     });
   });
   await new Promise((ok) => serveur.listen(0, '127.0.0.1', ok));
