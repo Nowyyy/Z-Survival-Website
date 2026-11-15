@@ -126,8 +126,9 @@ contenu_fr, contenu_en, modifie_le } }` ; `PUT /api/admin/pages/a-propos` avec `
   ni pour une republication après dépublication.
 - **Message** (webhook `DISCORD_WEBHOOK_ACTUS`, `POST …?wait=true`) : ligne « 📰 **Nouvelle actualité · New post** » (sans lien : Discord
   ajouterait un second aperçu, celui du site), carte (*embed*) rouge `#d81414` dont le titre est **« 🇫🇷 titre français — 🇬🇧 titre
-  anglais »** (seulement « 🇫🇷 titre français » sans version anglaise ; 256 caractères au plus), un extrait du texte français (Markdown
-  retiré, un point après un titre ou un élément de liste, 280 caractères au plus), l'image, le lien `https://zsurvival-game.com/#actu/<slug>`
+  anglais »** (seulement « 🇫🇷 titre français » sans version anglaise ; 256 caractères au plus), en corps **« 🇫🇷 début du texte
+  français » puis « 🇬🇧 début du texte anglais »** (200 caractères chacun ; sans version anglaise : le français seul, 280 caractères, sans
+  drapeau ; Markdown retiré, un point après un titre ou un élément de liste), l'image, le lien `https://zsurvival-game.com/#actu/<slug>`
   (titre cliquable), la date ; pied « Z-Survival — Actualités · News » ; nom « Z-Survival », icône du site. `allowed_mentions: { parse: [] }` :
   aucune mention ne notifie.
 - **Image** : son adresse publique si elle répond déjà (`HEAD`) ; sinon (image envoyée à l'instant, pas encore republiée par GitHub

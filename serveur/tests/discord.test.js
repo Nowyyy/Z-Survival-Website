@@ -4,7 +4,7 @@ import { test, describe, before, after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
 import { fabriquer } from './aide.js';
-import { extrait, texteBrut, titreBilingue, webhookValide } from '../src/discord.js';
+import { corpsBilingue, extrait, texteBrut, titreBilingue, webhookValide } from '../src/discord.js';
 
 // Adresse de webhook tirée au hasard (aucune valeur réelle dans le dépôt).
 const JETON_WEBHOOK = randomBytes(40).toString('base64url');
@@ -209,6 +209,16 @@ describe('annonce Discord : outils', () => {
     const long = titreBilingue({ titre_fr: 'é'.repeat(200), titre_en: 'e'.repeat(200) });
     assert.ok(long.length <= 256 && long.includes(' — 🇬🇧 ') && long.endsWith('…'), long.length);
     assert.ok(titreBilingue({ titre_fr: 'é'.repeat(300) }).length <= 256);
+  });
+
+  test('corps bilingue : début du français puis de l’anglais, chacun avec son drapeau', () => {
+    assert.equal(corpsBilingue({ titre_en: 'Hello', contenu_fr: '# Titre\nBonjour à tous.', contenu_en: '# Title\nHello everyone.' }),
+      '🇫🇷 Titre. Bonjour à tous.\n\n🇬🇧 Title. Hello everyone.');
+    assert.equal(corpsBilingue({ titre_en: '', contenu_fr: 'Bonjour.', contenu_en: 'Hello.' }), 'Bonjour.'); // pas de version anglaise publiée
+    assert.equal(corpsBilingue({ titre_en: 'Hello', contenu_fr: 'Bonjour.', contenu_en: '' }), 'Bonjour.');
+    const long = corpsBilingue({ titre_en: 'x', contenu_fr: 'mot '.repeat(100), contenu_en: 'word '.repeat(100) });
+    const [fr, en] = long.split('\n\n');
+    assert.ok(fr.startsWith('🇫🇷 ') && en.startsWith('🇬🇧 ') && fr.length <= 204 && en.length <= 204 && fr.endsWith('…') && en.endsWith('…'));
   });
 
   test('texte brut et extrait', () => {

@@ -1,7 +1,7 @@
 // Annonce Discord des actualités (lot 3c) : à la PREMIÈRE publication d'un article, un message part dans un salon Discord
 // par un webhook (adresse secrète DISCORD_WEBHOOK_ACTUS, rangée dans Google Secret Manager par installer-gcp.sh --discord).
 // Message : une ligne « Nouvelle actualité · New post », puis une carte (embed) avec le titre en français et en anglais (drapeaux),
-// un extrait du texte français, l'image de l'article et le lien vers l'article sur le site (https://zsurvival-game.com/#actu/<slug>).
+// le début du texte en français puis en anglais, l'image de l'article et le lien vers l'article sur le site (https://zsurvival-game.com/#actu/<slug>).
 // Règles :
 // - l'adresse du webhook ne quitte jamais le serveur : ni dans les réponses, ni dans le journal (masquée), ni dans les erreurs ;
 // - aucune mention ne notifie qui que ce soit (allowed_mentions vide) : un « @everyone » dans un titre reste du texte ;
@@ -10,7 +10,8 @@
 export const ADRESSE_SITE = 'https://zsurvival-game.com/';
 const COULEUR = 0xd81414; // --color-action (rouge sang du jeu)
 const MOTIF_WEBHOOK = /^https:\/\/(?:discord\.com|discordapp\.com|ptb\.discord\.com|canary\.discord\.com)\/api\/webhooks\/\d{5,25}\/[A-Za-z0-9_-]{20,200}$/;
-const LONGUEUR_EXTRAIT = 280;
+const LONGUEUR_EXTRAIT = 280; // texte en une seule langue
+const LONGUEUR_EXTRAIT_LANGUE = 200; // chaque langue, quand le texte existe en français et en anglais
 const DELAI_MS = 8_000;
 
 /** Adresse de webhook Discord valable (forme seulement) ? */
@@ -93,12 +94,22 @@ export function titreBilingue(article) {
   return `🇫🇷 ${couper(fr, place)} — 🇬🇧 ${couper(en, place)}`;
 }
 
+/**
+ * Corps de la carte (retour du propriétaire) : le début du texte français, puis le début du texte anglais, chacun précédé de son
+ * drapeau. Sans texte anglais : le début du texte français seul (280 caractères), sans drapeau.
+ */
+export function corpsBilingue(article) {
+  const en = String(article.contenu_en ?? '').trim() && String(article.titre_en ?? '').trim() ? article.contenu_en : '';
+  if (!en) return extrait(article.contenu_fr);
+  return `🇫🇷 ${extrait(article.contenu_fr, LONGUEUR_EXTRAIT_LANGUE)}\n\n🇬🇧 ${extrait(en, LONGUEUR_EXTRAIT_LANGUE)}`;
+}
+
 /** Contenu JSON du message Discord pour un article (sans l'image). */
 export function messageArticle(article) {
   const embed = {
     title: titreBilingue(article),
     url: adresseArticle(article.slug),
-    description: extrait(article.contenu_fr),
+    description: corpsBilingue(article),
     color: COULEUR,
     footer: { text: 'Z-Survival — Actualités · News' },
   };

@@ -85,9 +85,14 @@ channel Discord ». Lot **serveur** : aucun fichier du site n'est touché (règl
 - Pied de carte « Z-Survival — Actualités · News ».
 - Extrait : un titre (`#`) ou un élément de liste sans ponctuation finale est suivi d'un point (« La nuit tombe sur l’hôpital. Une nouvelle
   carte… » au lieu de « …l’hôpital Une nouvelle carte… »).
+- **Corps bilingue** (second retour) : « 🇫🇷 début du texte français », une ligne vide, puis « 🇬🇧 début du texte anglais », 200 caractères
+  chacun, coupés à un mot. Sans version anglaise publiée (titre anglais vide) ou sans texte anglais : le français seul (280 caractères),
+  sans drapeau.
+- **Titres longs** : montrés au propriétaire dans l'aperçu ; Discord les affiche en entier sur plusieurs lignes (256 caractères au plus,
+  partagés entre les deux langues, chaque titre coupé avec « … » si besoin).
 - **Aperçu** montré au propriétaire avant la mise en service : maquette fabriquée à partir du contenu exact que le serveur envoie
   (`messageArticle` de `serveur/src/discord.js`), avec et sans titre anglais.
-- Tests du serveur : **65/65** (titre bilingue, ligne sans lien, ponctuation de l'extrait).
+- Tests du serveur : **66/66** (titre et corps bilingues, ligne sans lien, ponctuation de l'extrait).
 
 ## État git
 - Commits `lot-3c A` à `lot-3c D` sur la branche `lot-3c`, PR vers `main` fusionnée par l'agent (règle de `CLAUDE.md`). Le push sur `main`
