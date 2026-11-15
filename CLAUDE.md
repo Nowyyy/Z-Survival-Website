@@ -49,6 +49,8 @@ publié sur https://nowyyy.github.io/Z-Survival/).
   français pour les visiteurs francophones, anglais pour les autres ; aucune géolocalisation) ;
   `js/logo.js` : logo du jeu ;
   `js/musique.js` : musique M2 et boutons de son à côté de chaque globe (règles : `Docs/ref/musique.md`, volume : constante `VOLUME`).
+  `js/accueil-tir.js` : flash du cadre rouge de l'accueil à l'événement `zs:tir` (coup de feu de l'image animée ;
+  idées « catchy » suivies dans `Docs/ref/idees-accroche.md`).
 - `musique/` : propositions de musique (MP3 en boucle, points de boucle dans `boucles.json` ; **M2 retenue**, règles
   d'intégration dans `Docs/ref/musique.md`) et planche d'écoute
   `planche.html` (noindex, non reliée au site) ; `outils/musique/` : script qui génère la musique (`Docs/ref/musique.md`).

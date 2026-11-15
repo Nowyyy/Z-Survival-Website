@@ -90,3 +90,7 @@ La scène 3D (`scene/`) ne charge rien depuis le jeu en ligne : les fichiers du 
   (variante B du jeu, lampe frontale).
 - Ordinateur : angle d'origine du cadrage B, personnage 1 au centre, zombie et personnage 2 décalés à droite (`placement` dans `cadrages.js`).
 - Accueil du site : vignette sombre en bas (`.accueil-scene-vignette`), logo, accroche et bouton au plus bas, juste au-dessus du cadre.
+
+## Coup de feu et accueil
+- L'accueil du site fait flasher son cadre rouge à l'événement `zs:tir` (`js/accueil-tir.js`). L'aperçu (`scene/apercu.html`) l'envoie
+  à chaque coup de feu de la scène ; **la vidéo du lot 2 devra l'envoyer à 5,2 s de chaque boucle** (`TIR` dans `scene/js/tir.js`).

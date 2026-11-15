@@ -5,6 +5,7 @@
 import { appliquerTextes, changerLangue, langue, langueInitiale, mouvementReduit, t } from './i18n.js';
 import { ARMES } from './donnees.js';
 import { poserLogo } from './logo.js';
+import { installerFlashTir } from './accueil-tir.js';
 
 document.documentElement.lang = langueInitiale();
 
@@ -295,5 +296,8 @@ document.addEventListener('keydown', (e) => {
 const depart = indexDe(window.location.hash.slice(1));
 if (depart > 0) sections[depart].scrollIntoView({ behavior: 'auto', block: 'start' });
 activer(Math.max(0, depart));
+
+// Flash du cadre de l'accueil au coup de feu de l'image animée (js/accueil-tir.js).
+installerFlashTir(document.getElementById('accueil'));
 
 document.body.classList.add('est-pret');
