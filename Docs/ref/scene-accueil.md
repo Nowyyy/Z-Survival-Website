@@ -82,7 +82,7 @@ La scène 3D (`scene/`) ne charge rien depuis le jeu en ligne : les fichiers du 
   douille, fumée 1,4 s), terminé bien avant la fin de la boucle.
 - **Détails** (retours 14 à 18 de `Docs/lots/lot-1-retours.md`, validés ; `?details=0` : l'ancienne scène) : **coup de feu du personnage 2** à
   2,6 s sur le zombie bras tendu (bras qui retombe, tête qui tape le sol, yeux fermés, relève de 6,5 à 7,5 s) ; coups d'œil du personnage 2
-  (4,35 à 6,6 s) et du personnage 1 (5,95 à 7,8 s) ; rotor de queue (un tour par boucle) ; tôle métal irrégulière de l'hélicoptère ; flamme des
+  (4,35 à 6,6 s) et du personnage 1 (5,8 à 7,65 s) ; rotor de queue (un tour par boucle) ; tôle métal irrégulière de l'hélicoptère ; flamme des
   lampes qui vacille ; barbe peinte et gilet noir matelassé du personnage 1 ; gilet à sangles du personnage 2.
 - Vérification : `node scene/outils/verifier-boucle.mjs` (écart entre images voisines et à la jonction 8 s → 0 s ; le coup de feu
   donne un pic d'écart, attendu).

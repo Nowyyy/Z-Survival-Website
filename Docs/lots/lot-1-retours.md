@@ -291,6 +291,9 @@ les reprendront quand elles seront refaites, après validation).
   `js/accueil-boucle.js`).
 - **Affiche** à 1,9 s (au lieu de 2,4 s, qui tombait 0,2 s avant le tir du personnage 2) : bras du zombie tendu, bouche ouverte. La vidéo
   part de cet instant : le tir du personnage 2 arrive 0,7 s après.
+- **Coup d'œil du personnage 1 avancé de 0,15 s** (5,8 à 7,65 s) : il finissait juste avant la jonction de la boucle, où l'encodeur place une
+  image clé ; la jonction de la vidéo 16:9 changeait alors un peu plus que les autres images (`verifier-accueil.mjs` : 0,80 pour un maximum de
+  0,74). Le retour de la tête relance toujours la boucle.
 - `outils/video/fabriquer.mjs` refuse une affiche à moins de 0,6 s d'un des tirs ; `outils/video/verifier-accueil.mjs` attend les deux tirs
   du tour (personnage 2 puis personnage 1), le retour au début, puis le premier tir du tour suivant, et exclut les deux tirs du calcul du
   raccord.
