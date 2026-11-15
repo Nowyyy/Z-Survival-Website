@@ -6,6 +6,7 @@ import { appliquerTextes, changerLangue, langue, langueInitiale, mouvementReduit
 import { ARMES } from './donnees.js';
 import { poserLogo } from './logo.js';
 import { installerFlashTir } from './accueil-tir.js';
+import { lancerEntree } from './accueil-entree.js';
 
 document.documentElement.lang = langueInitiale();
 
@@ -297,6 +298,8 @@ const depart = indexDe(window.location.hash.slice(1));
 if (depart > 0) sections[depart].scrollIntoView({ behavior: 'auto', block: 'start' });
 activer(Math.max(0, depart));
 
+// Entrée en scène de l'accueil (js/accueil-entree.js) : seulement si la page s'ouvre sur l'accueil.
+if (depart <= 0) lancerEntree(sections[0]);
 // Flash du cadre de l'accueil au coup de feu de l'image animée (js/accueil-tir.js).
 installerFlashTir(document.getElementById('accueil'));
 

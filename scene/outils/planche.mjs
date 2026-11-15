@@ -54,7 +54,7 @@ for (const [nom, viewport, scale] of [['apercu-ordinateur', { width: 1600, heigh
   watch(page, errors);
   await page.goto(`${base}apercu.html?t=${t}&lang=fr&capture=1`);
   await page.waitForFunction(() => window.__apercu?.pret(), null, { timeout: 180000 });
-  await page.waitForTimeout(2500); // apparition des textes de l'accueil
+  await page.waitForTimeout(4500); // entrée en scène de l'accueil finie (js/accueil-entree.js : 4 s)
   const file = path.join(out, `${nom}.jpg`);
   await page.screenshot({ path: file, type: 'jpeg', quality: 86 });
   report(file, `${viewport.width}×${viewport.height} ×${scale}`, errors);
