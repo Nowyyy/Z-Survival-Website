@@ -1,0 +1,9 @@
+# Dépendances
+node_modules/
+# Bases SQLite locales et fichiers de configuration locale (secrets d'essai) : jamais dans le dépôt.
+donnees/
+*.db
+*.db-shm
+*.db-wal
+.env
+.env.*

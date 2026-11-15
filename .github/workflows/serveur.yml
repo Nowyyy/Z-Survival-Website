@@ -1,0 +1,160 @@
+# Déploiement du SERVEUR du site (dossier serveur/) sur Google Cloud Run, région europe-west3.
+# Le site lui-même est publié par pages.yml (GitHub Pages) : les deux évoluent séparément,
+# et le serveur n'est jamais publié sur GitHub Pages.
+#
+# Connexion à Google Cloud SANS CLÉ (fédération d'identité de charge de travail), réservée à ce dépôt
+# et à la branche main. Les 4 variables (non secrètes) viennent de serveur/deploiement/installer-gcp.sh :
+#   Settings → Secrets and variables → Actions → onglet Variables :
+#   GCP_PROJECT_ID, GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_SERVICE_ACCOUNT, GCP_REGION.
+# Tant qu'elles manquent, le workflow s'arrête proprement (« installation Google Cloud pas encore faite »).
+# Les secrets restent dans Google Secret Manager : ce workflow n'en voit aucun.
+name: serveur
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'serveur/**'
+      - '.github/workflows/serveur.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: serveur
+  cancel-in-progress: false
+
+env:
+  SERVICE: z-survival-serveur
+  DEPOT_IMAGES: serveur
+  IMAGE: serveur-site
+
+jobs:
+  tests:
+    name: Tests du serveur
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: serveur
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: serveur/package-lock.json
+      - run: npm ci
+      - run: npm test
+
+  verifier-installation:
+    name: Installation Google Cloud faite ?
+    runs-on: ubuntu-latest
+    outputs:
+      prete: ${{ steps.verif.outputs.prete }}
+    steps:
+      - id: verif
+        env:
+          PROJET: ${{ vars.GCP_PROJECT_ID }}
+          FOURNISSEUR: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          COMPTE: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          REGION: ${{ vars.GCP_REGION }}
+        run: |
+          manquantes=""
+          [ -n "$PROJET" ] || manquantes="$manquantes GCP_PROJECT_ID"
+          [ -n "$FOURNISSEUR" ] || manquantes="$manquantes GCP_WORKLOAD_IDENTITY_PROVIDER"
+          [ -n "$COMPTE" ] || manquantes="$manquantes GCP_SERVICE_ACCOUNT"
+          [ -n "$REGION" ] || manquantes="$manquantes GCP_REGION"
+          if [ -n "$manquantes" ]; then
+            echo "::notice title=Serveur non déployé::Installation Google Cloud pas encore faite (variables manquantes :$manquantes). Lancer serveur/deploiement/installer-gcp.sh dans Cloud Shell, recopier les variables, puis relancer ce workflow."
+            {
+              echo "### Installation Google Cloud pas encore faite"
+              echo "Variables GitHub manquantes :$manquantes."
+              echo "Marche à suivre : \`serveur/LISEZMOI.md\`, partie « Installation Google Cloud »."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "prete=non" >> "$GITHUB_OUTPUT"
+          else
+            echo "prete=oui" >> "$GITHUB_OUTPUT"
+          fi
+
+  deployer:
+    name: Construire et déployer sur Cloud Run
+    needs: [tests, verifier-installation]
+    if: needs.verifier-installation.outputs.prete == 'oui' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # jeton OIDC de GitHub, échangé contre un accès Google temporaire (aucune clé stockée)
+    env:
+      PROJET: ${{ vars.GCP_PROJECT_ID }}
+      REGION: ${{ vars.GCP_REGION }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Connexion à Google Cloud (fédération d'identité, sans clé)
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Connexion au dépôt d'images
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.GCP_REGION }}-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Construire et envoyer l'image
+        run: |
+          IMAGE_COMPLETE="${REGION}-docker.pkg.dev/${PROJET}/${DEPOT_IMAGES}/${IMAGE}:${GITHUB_SHA}"
+          # Une seule image par version (pas d'attestations à part) : la règle « garder les 3 dernières » compte juste.
+          docker build --provenance=false --sbom=false -t "$IMAGE_COMPLETE" serveur
+          docker push "$IMAGE_COMPLETE"
+          echo "IMAGE_COMPLETE=$IMAGE_COMPLETE" >> "$GITHUB_ENV"
+
+      - name: Déployer sur Cloud Run (règles de coût et secrets)
+        run: |
+          # Règles de coût : 0 instance au repos (le serveur s'endort), 2 au plus, processeur facturé
+          # seulement pendant les requêtes, 256 Mio de mémoire.
+          # Secrets : lus dans Secret Manager par Cloud Run au démarrage de chaque instance (jamais ici).
+          # L'accès public a été donné une fois pour toutes par le script d'installation.
+          gcloud run deploy "$SERVICE" \
+            --project="$PROJET" \
+            --region="$REGION" \
+            --image="$IMAGE_COMPLETE" \
+            --service-account="serveur-site@${PROJET}.iam.gserviceaccount.com" \
+            --min-instances=0 \
+            --max-instances=2 \
+            --cpu-throttling \
+            --cpu=1 \
+            --memory=256Mi \
+            --execution-environment=gen1 \
+            --concurrency=40 \
+            --timeout=30 \
+            --port=8080 \
+            --set-env-vars="NODE_ENV=production,VERSION_SERVEUR=${GITHUB_SHA::7}" \
+            --set-secrets="TURSO_DATABASE_URL=turso-url:latest,TURSO_AUTH_TOKEN=turso-jeton:latest,ADMIN_IDENTIFIANT=admin-identifiant:latest,ADMIN_EMPREINTE=admin-empreinte:latest,CLE_SESSION=cle-session:latest" \
+            --quiet
+
+      - name: Vérifier /api/sante
+        run: |
+          ADRESSE="$(gcloud run services describe "$SERVICE" --project="$PROJET" --region="$REGION" --format='value(status.url)')"
+          echo "Adresse du serveur : $ADRESSE"
+          for _ in 1 2 3 4 5 6; do
+            if REPONSE="$(curl -fsS --max-time 20 "$ADRESSE/api/sante")"; then
+              echo "$REPONSE"
+              {
+                echo "### Serveur déployé"
+                echo "- Adresse : $ADRESSE"
+                echo "- Santé : \`$REPONSE\`"
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::Le serveur est déployé mais /api/sante ne répond pas « ok » (base injoignable ?). Voir les journaux Cloud Run."
+          exit 1

@@ -1,0 +1,9 @@
+node_modules
+tests
+outils
+deploiement
+donnees
+*.db
+*.db-*
+.env*
+LISEZMOI.md

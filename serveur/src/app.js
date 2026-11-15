@@ -1,0 +1,392 @@
+// Application HTTP (Hono) : routes publiques, routes d'administration, CORS, en-têtes, erreurs.
+// Construite par creerApp() pour pouvoir être testée sans réseau (app.request) sur une base SQLite en fichier.
+
+import { createHash, timingSafeEqual } from 'node:crypto';
+import { Hono } from 'hono';
+import { bodyLimit } from 'hono/body-limit';
+import { getConnInfo } from '@hono/node-server/conninfo';
+
+import { manquantesAdmin } from './config.js';
+import { resumerErreur } from './journal.js';
+import { appliquerMigrations, versionMigrations } from './base.js';
+import { verifierMotDePasse } from './mot-de-passe.js';
+import { creerJeton, verifierJeton } from './jeton.js';
+import { hacherIp, reserverTentative, effacerTentatives, nettoyerTentatives } from './limite.js';
+import { ErreurValidation, LANGUES, entierPositif, slugValide, validerArticle, validerConnexion } from './validation.js';
+
+export const ORIGINE_SITE = 'https://nowyyy.github.io';
+const MOTIF_ORIGINE_LOCALE = /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d{1,5})?$/;
+const MESSAGE_ECHEC = 'Identifiant ou mot de passe incorrect.';
+const PAR_PAGE_PUBLIC = 10;
+const PAR_PAGE_ADMIN = 50;
+const CACHE_PUBLIC = 'public, max-age=60';
+const TAILLE_MAX_CONNEXION = 4 * 1024;
+const TAILLE_MAX_ARTICLE = 256 * 1024;
+const COLONNES = 'id, slug, statut, date_publication, titre_fr, titre_en, contenu_fr, contenu_en, image, cree_le, modifie_le';
+
+class ErreurHttp extends Error {
+  constructor(statut, message) {
+    super(message);
+    this.name = 'ErreurHttp';
+    this.statut = statut;
+  }
+}
+
+/** Lignes libSQL → objets simples. */
+function enObjets(resultat) {
+  return resultat.rows.map((ligne) => Object.fromEntries(resultat.columns.map((col, i) => [col, ligne[i]])));
+}
+
+function versPublic(a, lang) {
+  const traduit = Boolean(a[`titre_${lang}`]);
+  return {
+    slug: a.slug,
+    date_publication: a.date_publication,
+    langue: traduit ? lang : 'fr',
+    titre: traduit ? a[`titre_${lang}`] : a.titre_fr,
+    contenu: (traduit ? a[`contenu_${lang}`] : '') || a.contenu_fr,
+    image: a.image,
+  };
+}
+
+/** Comparaison de l'identifiant en temps constant (empreintes SHA-256 de même longueur). */
+function identifiantsEgaux(recu, attendu) {
+  const a = createHash('sha256').update(String(recu), 'utf8').digest();
+  const b = createHash('sha256').update(String(attendu), 'utf8').digest();
+  return timingSafeEqual(a, b) && attendu.length > 0;
+}
+
+async function lireJson(c) {
+  const type = c.req.header('Content-Type') ?? '';
+  if (!/^application\/json\b/i.test(type)) throw new ErreurHttp(415, 'Corps JSON attendu (Content-Type: application/json).');
+  try {
+    return await c.req.json();
+  } catch {
+    throw new ErreurHttp(400, 'Corps de requête illisible (JSON attendu).');
+  }
+}
+
+const limiteCorps = (maxSize) =>
+  bodyLimit({ maxSize, onError: (c) => c.json({ erreur: `Corps de requête trop gros (${Math.round(maxSize / 1024)} Kio au plus).` }, 413) });
+
+/**
+ * @param {object} options
+ * @param {object} options.config     configuration (lireConfig)
+ * @param {object|null} options.db    client libSQL (ou null si aucune base n'est configurée)
+ * @param {object} options.journal    journal (creerJournal)
+ * @param {() => number} [options.maintenant]  horloge en millisecondes (remplaçable dans les tests)
+ */
+export function creerApp({ config, db, journal, maintenant = () => Date.now() }) {
+  const app = new Hono();
+
+  // --- Migrations : appliquées au démarrage (preparer), réessayées à la requête suivante en cas d'échec. ---
+  let preparation = null;
+  function preparer() {
+    if (!db) return Promise.reject(new ErreurHttp(503, 'Base de données non configurée.'));
+    if (!preparation) {
+      preparation = appliquerMigrations(db)
+        .then((version) => {
+          journal.info('Migrations à jour', { version });
+          return version;
+        })
+        .catch((err) => {
+          preparation = null;
+          journal.erreur('Migrations impossibles', { erreur: resumerErreur(err) });
+          throw new ErreurHttp(503, 'Base de données indisponible.');
+        });
+    }
+    return preparation;
+  }
+  app.preparer = preparer;
+
+  function origineAutorisee(origine) {
+    return origine === ORIGINE_SITE || (config.originesLocales && MOTIF_ORIGINE_LOCALE.test(origine));
+  }
+
+  function adresseIp(c) {
+    // Sur Cloud Run, le frontal de Google AJOUTE l'adresse du client à la fin de X-Forwarded-For :
+    // les valeurs placées avant peuvent venir du client lui-même, on prend donc la dernière.
+    const dernierRelais = () => {
+      const valeurs = (c.req.header('X-Forwarded-For') ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+      return valeurs.length > 0 ? valeurs[valeurs.length - 1].slice(0, 100) : null;
+    };
+    if (config.production) return dernierRelais() ?? 'inconnue';
+    try {
+      const adresse = getConnInfo(c).remote.address;
+      if (adresse) return adresse;
+    } catch { /* pas de connexion réseau (tests par app.request) */ }
+    return dernierRelais() ?? 'inconnue';
+  }
+
+  // --- Journal des requêtes (méthode, chemin, statut, durée : jamais d'en-tête, de corps ni d'adresse IP). ---
+  app.use('*', async (c, next) => {
+    const debut = performance.now();
+    await next();
+    journal.info('Requête', {
+      methode: c.req.method,
+      chemin: c.req.path.slice(0, 200),
+      statut: c.res.status,
+      duree_ms: Math.round(performance.now() - debut),
+    });
+  });
+
+  // --- En-têtes de sécurité (réponses JSON uniquement). ---
+  app.use('*', async (c, next) => {
+    await next();
+    const h = c.res.headers;
+    h.set('X-Content-Type-Options', 'nosniff');
+    h.set('Referrer-Policy', 'no-referrer');
+    h.set('X-Frame-Options', 'DENY');
+    h.set('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'");
+    h.set('Strict-Transport-Security', 'max-age=31536000');
+    if (!h.has('Cache-Control')) h.set('Cache-Control', 'no-store');
+  });
+
+  // --- CORS : seule l'origine du site (plus localhost hors production). ---
+  app.use('*', async (c, next) => {
+    const origine = c.req.header('Origin');
+    const autorisee = origine !== undefined && origineAutorisee(origine);
+
+    if (c.req.method === 'OPTIONS') {
+      if (!autorisee) return c.body(null, 403, { Vary: 'Origin' });
+      return c.body(null, 204, {
+        'Access-Control-Allow-Origin': origine,
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+        'Access-Control-Max-Age': '600',
+        Vary: 'Origin',
+      });
+    }
+    // Un navigateur d'une autre origine ne peut rien faire côté administration (lecture publique : sans effet).
+    if (origine !== undefined && !autorisee && c.req.path.startsWith('/api/admin/')) {
+      return c.json({ erreur: 'Origine non autorisée.' }, 403, { Vary: 'Origin' });
+    }
+    await next();
+    c.res.headers.append('Vary', 'Origin');
+    if (autorisee) c.res.headers.set('Access-Control-Allow-Origin', origine);
+  });
+
+  // --- Santé : la base répond-elle, quelle version des migrations ? ---
+  app.get('/api/sante', async (c) => {
+    let connectee = false;
+    let version = null;
+    try {
+      await preparer();
+      await db.execute('SELECT 1');
+      version = await versionMigrations(db);
+      connectee = true;
+    } catch (err) {
+      if (!(err instanceof ErreurHttp)) journal.avertissement('Base injoignable', { erreur: resumerErreur(err) });
+    }
+    return c.json(
+      { ok: connectee, base: connectee ? 'connectée' : 'non connectée', version_migrations: version, version_serveur: config.version },
+      connectee ? 200 : 503,
+      { 'Cache-Control': 'no-store' },
+    );
+  });
+
+  // Toutes les autres routes /api ont besoin de la base à jour.
+  app.use('/api/*', async (c, next) => {
+    if (c.req.path !== '/api/sante') await preparer();
+    await next();
+  });
+
+  // --- Routes publiques : articles PUBLIÉS seulement. ---
+  app.get('/api/articles', async (c) => {
+    const lang = c.req.query('lang') ?? 'fr';
+    if (!LANGUES.includes(lang)) throw new ErreurHttp(400, '« lang » doit valoir « fr » ou « en ».');
+    const page = entierPositif(c.req.query('page'), { defaut: 1, max: 10_000 });
+    if (page === null) throw new ErreurHttp(400, '« page » doit être un entier à partir de 1.');
+
+    const total = Number((await db.execute("SELECT COUNT(*) AS n FROM articles WHERE statut = 'publie'")).rows[0].n);
+    const lignes = enObjets(
+      await db.execute({
+        sql: `SELECT ${COLONNES} FROM articles WHERE statut = 'publie'
+              ORDER BY date_publication DESC, id DESC LIMIT ? OFFSET ?`,
+        args: [PAR_PAGE_PUBLIC, (page - 1) * PAR_PAGE_PUBLIC],
+      }),
+    );
+    return c.json(
+      { lang, page, par_page: PAR_PAGE_PUBLIC, total, pages: Math.ceil(total / PAR_PAGE_PUBLIC), articles: lignes.map((a) => versPublic(a, lang)) },
+      200,
+      { 'Cache-Control': CACHE_PUBLIC },
+    );
+  });
+
+  app.get('/api/articles/:slug', async (c) => {
+    const lang = c.req.query('lang') ?? 'fr';
+    if (!LANGUES.includes(lang)) throw new ErreurHttp(400, '« lang » doit valoir « fr » ou « en ».');
+    const slug = c.req.param('slug');
+    if (!slugValide(slug)) throw new ErreurHttp(404, 'Article introuvable.');
+    const [article] = enObjets(
+      await db.execute({ sql: `SELECT ${COLONNES} FROM articles WHERE slug = ? AND statut = 'publie'`, args: [slug] }),
+    );
+    if (!article) throw new ErreurHttp(404, 'Article introuvable.');
+    return c.json({ article: versPublic(article, lang) }, 200, { 'Cache-Control': CACHE_PUBLIC });
+  });
+
+  // --- Administration : configuration complète et jeton obligatoires (sauf pour se connecter). ---
+  app.use('/api/admin/*', async (c, next) => {
+    if (manquantesAdmin(config).length > 0) throw new ErreurHttp(503, 'Administration pas encore configurée.');
+    if (c.req.path === '/api/admin/connexion') return next();
+    const m = /^Bearer ([A-Za-z0-9._-]{1,512})$/.exec(c.req.header('Authorization') ?? '');
+    if (!m || !verifierJeton(config.cleSession, m[1], maintenant()).valide) {
+      return c.json({ erreur: 'Connexion requise.' }, 401, { 'WWW-Authenticate': 'Bearer' });
+    }
+    await next();
+  });
+
+  app.post('/api/admin/connexion', limiteCorps(TAILLE_MAX_CONNEXION), async (c) => {
+    const { identifiant, motDePasse } = validerConnexion(await lireJson(c));
+    const ipHachee = hacherIp(config.cleSession, adresseIp(c));
+    const instant = maintenant();
+
+    const reservation = await reserverTentative(db, ipHachee, instant);
+    if (!reservation.autorisee) {
+      journal.avertissement('Connexion bloquée (trop de tentatives)');
+      return c.json({ erreur: 'Trop de tentatives. Réessayez dans quelques minutes.' }, 429, { 'Retry-After': String(reservation.reessayerDansS) });
+    }
+
+    // Les deux vérifications sont toujours faites (même durée, même message, que l'erreur vienne de l'un ou de l'autre).
+    const [identifiantOk, motDePasseOk] = await Promise.all([
+      identifiantsEgaux(identifiant, config.adminIdentifiant),
+      verifierMotDePasse(motDePasse, config.adminEmpreinte),
+    ]);
+    if (!(identifiantOk && motDePasseOk)) {
+      journal.avertissement('Connexion refusée');
+      return c.json({ erreur: MESSAGE_ECHEC }, 401);
+    }
+    await effacerTentatives(db, ipHachee);
+    await nettoyerTentatives(db, instant);
+    journal.info('Connexion réussie');
+    return c.json(creerJeton(config.cleSession, instant));
+  });
+
+  function idValide(c) {
+    const id = c.req.param('id');
+    if (!/^\d{1,12}$/.test(id)) throw new ErreurHttp(404, 'Article introuvable.');
+    return Number(id);
+  }
+
+  async function lireArticle(id) {
+    const [article] = enObjets(await db.execute({ sql: `SELECT ${COLONNES} FROM articles WHERE id = ?`, args: [id] }));
+    if (!article) throw new ErreurHttp(404, 'Article introuvable.');
+    return article;
+  }
+
+  async function slugLibre(slug, saufId = null) {
+    const r = await db.execute({ sql: 'SELECT id FROM articles WHERE slug = ? AND id IS NOT ?', args: [slug, saufId] });
+    if (r.rows.length > 0) throw new ErreurHttp(409, 'Ce slug est déjà utilisé par un autre article.');
+  }
+
+  /** Règles d'un article publié : titre et contenu français, date de publication (maintenant si absente). */
+  function completerPublication(article, instantIso) {
+    if (article.statut !== 'publie') return article;
+    if (!article.titre_fr.trim() || !article.contenu_fr.trim()) {
+      throw new ErreurValidation('Pour publier, « titre_fr » et « contenu_fr » sont obligatoires.');
+    }
+    return { ...article, date_publication: article.date_publication ?? instantIso };
+  }
+
+  async function enregistrer(article) {
+    try {
+      await db.execute({
+        sql: `UPDATE articles SET slug = ?, statut = ?, date_publication = ?, titre_fr = ?, titre_en = ?,
+              contenu_fr = ?, contenu_en = ?, image = ?, modifie_le = ? WHERE id = ?`,
+        args: [article.slug, article.statut, article.date_publication, article.titre_fr, article.titre_en,
+          article.contenu_fr, article.contenu_en, article.image, article.modifie_le, article.id],
+      });
+    } catch (err) {
+      if (/UNIQUE/i.test(String(err?.message))) throw new ErreurHttp(409, 'Ce slug est déjà utilisé par un autre article.');
+      throw err;
+    }
+    return lireArticle(article.id);
+  }
+
+  app.get('/api/admin/articles', async (c) => {
+    const page = entierPositif(c.req.query('page'), { defaut: 1, max: 10_000 });
+    if (page === null) throw new ErreurHttp(400, '« page » doit être un entier à partir de 1.');
+    const total = Number((await db.execute('SELECT COUNT(*) AS n FROM articles')).rows[0].n);
+    const articles = enObjets(
+      await db.execute({
+        sql: `SELECT ${COLONNES} FROM articles ORDER BY COALESCE(date_publication, cree_le) DESC, id DESC LIMIT ? OFFSET ?`,
+        args: [PAR_PAGE_ADMIN, (page - 1) * PAR_PAGE_ADMIN],
+      }),
+    );
+    return c.json({ page, par_page: PAR_PAGE_ADMIN, total, pages: Math.ceil(total / PAR_PAGE_ADMIN), articles });
+  });
+
+  app.get('/api/admin/articles/:id', async (c) => c.json({ article: await lireArticle(idValide(c)) }));
+
+  app.post('/api/admin/articles', limiteCorps(TAILLE_MAX_ARTICLE), async (c) => {
+    const champs = validerArticle(await lireJson(c), { creation: true });
+    const instantIso = new Date(maintenant()).toISOString();
+    const article = completerPublication(
+      { statut: 'brouillon', date_publication: null, titre_en: '', contenu_fr: '', contenu_en: '', image: '', ...champs },
+      instantIso,
+    );
+    await slugLibre(article.slug);
+    let r;
+    try {
+      r = await db.execute({
+        sql: `INSERT INTO articles (slug, statut, date_publication, titre_fr, titre_en, contenu_fr, contenu_en, image, cree_le, modifie_le)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [article.slug, article.statut, article.date_publication, article.titre_fr, article.titre_en,
+          article.contenu_fr, article.contenu_en, article.image, instantIso, instantIso],
+      });
+    } catch (err) {
+      if (/UNIQUE/i.test(String(err?.message))) throw new ErreurHttp(409, 'Ce slug est déjà utilisé par un autre article.');
+      throw err;
+    }
+    journal.info('Article créé', { id: Number(r.lastInsertRowid) });
+    return c.json({ article: await lireArticle(Number(r.lastInsertRowid)) }, 201);
+  });
+
+  app.put('/api/admin/articles/:id', limiteCorps(TAILLE_MAX_ARTICLE), async (c) => {
+    const id = idValide(c);
+    const champs = validerArticle(await lireJson(c), { creation: false });
+    if (Object.keys(champs).length === 0) throw new ErreurValidation('Aucun champ à modifier.');
+    const actuel = await lireArticle(id);
+    const instantIso = new Date(maintenant()).toISOString();
+    if (champs.slug !== undefined) await slugLibre(champs.slug, id);
+    const article = completerPublication({ ...actuel, ...champs, modifie_le: instantIso }, instantIso);
+    journal.info('Article modifié', { id });
+    return c.json({ article: await enregistrer(article) });
+  });
+
+  app.delete('/api/admin/articles/:id', async (c) => {
+    const id = idValide(c);
+    const r = await db.execute({ sql: 'DELETE FROM articles WHERE id = ?', args: [id] });
+    if (r.rowsAffected === 0) throw new ErreurHttp(404, 'Article introuvable.');
+    journal.info('Article supprimé', { id });
+    return c.json({ supprime: true, id });
+  });
+
+  app.post('/api/admin/articles/:id/publier', async (c) => {
+    const id = idValide(c);
+    const instantIso = new Date(maintenant()).toISOString();
+    const article = completerPublication({ ...(await lireArticle(id)), statut: 'publie', modifie_le: instantIso }, instantIso);
+    journal.info('Article publié', { id });
+    return c.json({ article: await enregistrer(article) });
+  });
+
+  app.post('/api/admin/articles/:id/depublier', async (c) => {
+    const id = idValide(c);
+    const instantIso = new Date(maintenant()).toISOString();
+    const article = { ...(await lireArticle(id)), statut: 'brouillon', modifie_le: instantIso };
+    journal.info('Article dépublié', { id });
+    return c.json({ article: await enregistrer(article) });
+  });
+
+  // --- Introuvable et erreurs. ---
+  app.notFound((c) => c.json({ erreur: 'Introuvable.' }, 404));
+
+  app.onError((err, c) => {
+    if (err instanceof ErreurValidation) return c.json({ erreur: err.message }, 400);
+    if (err instanceof ErreurHttp) return c.json({ erreur: err.message }, err.statut);
+    journal.erreur('Erreur interne', { chemin: c.req.path.slice(0, 200), erreur: resumerErreur(err) });
+    return c.json({ erreur: 'Erreur interne du serveur.' }, 500);
+  });
+
+  return app;
+}
