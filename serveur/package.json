@@ -1,0 +1,21 @@
+{
+  "name": "z-survival-serveur",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Serveur du site Z-Survival (actualités) : Cloud Run + Turso. Voir LISEZMOI.md et Docs/ref/serveur.md.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --env-file-if-exists=.env.local src/index.js",
+    "test": "node --test --test-concurrency=1 \"tests/*.test.js\"",
+    "preparer-local": "node outils/preparer-local.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.8",
+    "@libsql/client": "^0.18.0",
+    "hono": "^4.13.18"
+  }
+}
