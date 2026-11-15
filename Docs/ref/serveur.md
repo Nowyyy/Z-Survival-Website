@@ -120,6 +120,27 @@ contenu_fr, contenu_en, modifie_le } }` ; `PUT /api/admin/pages/a-propos` avec `
 - GitHub refuse (jeton expiré, sans droit) ou ne répond pas : 502 avec un message clair, **jamais** le jeton ni la réponse de GitHub.
 - Les **tests** utilisent une API GitHub **simulée** (`fetchGithub` remplaçable dans `creerApp`, ou `GITHUB_API` pour le banc local).
 
+### Annonce Discord des actualités (lot 3c, `src/discord.js`)
+- **Quand** : un article devient public (`POST /api/admin/articles/:id/publier`, création avec `statut: "publie"`, ou `PUT` qui passe le
+  statut à `publie`) **et** n'a jamais été annoncé (colonne `annonce_discord_le` nulle, migration 003). Jamais pour une modification,
+  ni pour une republication après dépublication.
+- **Message** (webhook `DISCORD_WEBHOOK_ACTUS`, `POST …?wait=true`) : ligne « 📰 Nouvelle actualité sur Z-Survival » + lien, carte
+  (*embed*) rouge `#d81414` avec le titre français, un extrait du texte (Markdown retiré, 280 caractères au plus), l'image, le lien
+  `https://zsurvival-game.com/#actu/<slug>`, la date de publication ; nom « Z-Survival », icône du site. `allowed_mentions: { parse: [] }` :
+  aucune mention ne notifie.
+- **Image** : son adresse publique si elle répond déjà (`HEAD`) ; sinon (image envoyée à l'instant, pas encore republiée par GitHub
+  Pages), le fichier lu dans le dépôt par l'API GitHub (`Accept: application/vnd.github.raw`) et **joint** au message
+  (`attachment://…`) ; sinon pas d'image.
+- **Réponse** des routes qui publient : champ en plus `annonce_discord: { envoyee: true }` ou `{ envoyee: false, raison }`
+  (`non_configure`, `webhook_invalide`, `erreur_discord`), seulement quand l'article devenait public sans avoir été annoncé. La date
+  d'annonce n'est notée qu'en cas de succès : un échec est réessayé à la publication suivante.
+- **Un échec de Discord n'empêche jamais la publication** (délai de 8 s au plus pendant la requête de publication ; Cloud Run ne
+  facturant le processeur que pendant les requêtes, l'envoi ne peut pas être fait après la réponse).
+- **Secret** : l'adresse entière et sa dernière partie (le jeton) sont masquées dans le journal ; jamais dans une réponse ni une erreur.
+  Une adresse mal formée est ignorée (avertissement sans la valeur).
+- **Tests** : `tests/discord.test.js`, Discord et site simulés (`fetchAnnonce` remplaçable dans `creerApp`) ; par défaut, les tests
+  font échouer tout appel réseau imprévu.
+
 ## Base de données (Turso, libSQL)
 
 Dates en texte ISO 8601 UTC, sauf `tentee_le` (millisecondes depuis 1970).
@@ -189,6 +210,7 @@ d'environnement (version `latest`, lue au démarrage de chaque instance). Seul l
 | `admin-empreinte` | `ADMIN_EMPREINTE` | empreinte PBKDF2 du mot de passe |
 | `cle-session` | `CLE_SESSION` | clé de signature des jetons (32 octets aléatoires, générée par le script) |
 | `github-jeton-images` | `GITHUB_JETON_IMAGES` | **facultatif (lot 3b)** : jeton GitHub « fine-grained », dépôt `Nowyyy/Z-Survival-Website` seulement, permission *Contents* en lecture et écriture, **expire au bout d'un an** |
+| `discord-webhook-actus` | `DISCORD_WEBHOOK_ACTUS` | **facultatif (lot 3c)** : adresse du webhook Discord du salon des annonces (`https://discord.com/api/webhooks/…`), rangée par `installer-gcp.sh --discord` ; sans elle, pas d'annonce |
 
 Variables **non secrètes** : `NODE_ENV=production`, `VERSION_SERVEUR` (commit déployé), `PORT` (fourni par Cloud Run) ; facultatives,
 avec valeur par défaut : `GITHUB_DEPOT` (`Nowyyy/Z-Survival-Website`), `GITHUB_BRANCHE` (`main`), `GITHUB_API` (tests seulement).
@@ -197,6 +219,8 @@ avec valeur par défaut : `GITHUB_DEPOT` (`Nowyyy/Z-Survival-Website`), `GITHUB_
 compte `serveur-site` la lecture de ce secret et l'ajoute au service (`gcloud run services update --update-secrets`). Le workflow
 déploie avec `--update-secrets` / `--update-env-vars` : un redéploiement garde ce secret. Tant qu'il n'est pas rangé, le
 déploiement marche et seul l'envoi d'images est refusé.
+**Webhook Discord** (lot 3c) : même principe, `installer-gcp.sh --discord` (ou question 6e du passage complet) ; tant qu'il n'est pas
+rangé, les articles publiés ne sont pas annoncés.
 Variables GitHub (non secrètes, onglet **Variables**, pas Secrets) : `GCP_PROJECT_ID`, `GCP_WORKLOAD_IDENTITY_PROVIDER`,
 `GCP_SERVICE_ACCOUNT`, `GCP_REGION`.
 
