@@ -27,12 +27,15 @@ node outils/clip-jeu/fabriquer.mjs
 2. **Jeu ouvert dans Chromium sans écran**, avec son accès de test (`jeu.html?test=1`) : graine fixe (`seed=7`), aucune vague automatique
    (`nospawn=1`), sans effet VHS (`vhs=0` : plus net à petite taille et plus léger), zoom maximal du jeu (`zoom=3`). Le HUD est masqué.
 3. **Horloge contrôlée** (`page.clock` de Playwright) : chaque image avance le jeu d'exactement 1/30 s, quel que soit le temps de rendu.
-4. **Action** : des groupes de zombies apparaissent à des instants fixes autour du point de départ (`REGLAGES.vagues`). Le survivant
-   **se déplace** : il marche sur un huit qui revient à son point de départ en exactement 8 s (la boucle reste propre), commandé comme un
-   joystick analogique qui suit le parcours (`REGLAGES.pilote.parcours`). Sa **visée est « humaine »** (`REGLAGES.pilote.visee`) : temps de
-   réaction de 0,2 à 0,3 s avant de changer de cible après un zombie abattu, rotation amortie (accélère, dépasse un peu, se reprend), petit
-   tremblement de la main, et sans cible le regard suit la direction de marche. Le tir est celui du jeu (automatique quand un zombie est dans
-   la ligne de visée ; le cône s'élargit en marchant, des balles partent à côté). Environ 8 zombies tués en 8 s.
+4. **Action** : des groupes de zombies apparaissent à des instants fixes autour du point de départ (`REGLAGES.vagues`). Le survivant est
+   piloté **comme par un joueur au clavier et à la souris** (`creerPilote`, réglages `REGLAGES.pilote`) :
+   - **clavier** : 8 directions à pleine vitesse, appuis d'au moins 0,2 s ; il recule quand un zombie s'approche à moins de 120 unités,
+     reste immobile pour tirer le reste du temps, ne sort pas de la zone dégagée autour de son point de départ, et y revient dans les 2
+     dernières secondes (la boucle reste propre) ;
+   - **souris** : temps de réaction de 0,13 à 0,23 s (souris immobile) après chaque zombie abattu ; geste rapide vers la cible (0,13 à 0,23 s,
+     vitesse en cloche) qui la dépasse le plus souvent (6 à 18 % de l'angle parcouru) ou s'arrête un peu avant ; courte correction ; puis
+     suivi du zombie avec un léger retard ; nouveau geste s'il décroche. Sans cible, la souris ne bouge pas.
+   Le tir est celui du jeu (automatique quand un zombie est dans la ligne de visée ; le cône s'élargit quand le joueur bouge).
 5. **Cadrage** : 800 × 450 autour du joueur dans une fenêtre de 1600 × 900 (personnages deux fois plus grands qu'en plein écran au zoom maximal du jeu, sans perte de netteté).
 6. **Boucle** : 255 images rendues ; la vidéo commence à l'image 15 et ses 15 dernières images sont fondues dans les 15 premières (0,5 s) :
    la fin rejoint le début sans saut (les corps au sol apparaissent et disparaissent dans ce fondu).

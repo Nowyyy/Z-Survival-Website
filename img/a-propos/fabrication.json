@@ -83,46 +83,56 @@
       ]
     ],
     "pilote": {
-      "parcours": {
-        "ax": 110,
-        "ay": 35,
-        "periode": 8,
-        "rappel": 4
+      "clavier": {
+        "appuiMin": 6,
+        "recul": 120,
+        "zone": {
+          "x": [
+            -150,
+            50
+          ],
+          "y": [
+            -60,
+            25
+          ]
+        },
+        "retour": 60,
+        "arrivee": 6
       },
-      "visee": {
-        "pulsation": 14,
-        "amortissement": 0.65,
-        "vitesseMax": 9,
+      "souris": {
         "reaction": [
-          6,
-          9
+          4,
+          7
         ],
-        "tremblement": 0.05,
-        "tremblementLibre": 0.15
+        "geste": [
+          4,
+          7
+        ],
+        "depassement": [
+          0.06,
+          0.18
+        ],
+        "sousVisee": 0.3,
+        "erreur": 0.05,
+        "correction": 3,
+        "suivi": 0.4,
+        "decroche": 0.3
       }
     }
   },
   "rendu": {
-    "zombies_tues": 8,
-    "vie": 77,
-    "images_eteintes_reparees": [
-      14,
-      49,
-      50,
-      132,
-      133,
-      170,
-      254
-    ]
+    "zombies_tues": 9,
+    "vie": 100,
+    "images_eteintes_reparees": []
   },
   "fichiers": {
     "img/a-propos/jeu-clip.mp4": {
-      "octets": 419332,
-      "sha256": "3b3c3b111df7d5ec675ca8f822ea161cea6214bb40eb6ffd0260a1b823e3346a"
+      "octets": 341071,
+      "sha256": "957a8267477c171746d400cc5244174efe1718dd753ed871d3b064d84e45f0b6"
     },
     "img/a-propos/jeu-clip.webp": {
-      "octets": 15920,
-      "sha256": "4df1d63c176c16fd58b4096982a1254cbe409db2d2e08eb7aa01abe2a7141471"
+      "octets": 13804,
+      "sha256": "360e3e07a5b95caf4d7059c9a0529bb6e06addebd1759e51e4310d33e8be81fd"
     }
   }
 }

@@ -7,10 +7,10 @@
 // 2. Il est servi en local et ouvert dans Chromium sans écran (Playwright), avec son accès de test (?test=1) : graine fixe, aucune vague
 //    automatique (?nospawn=1), sans effet VHS (?vhs=0, plus net et plus léger en vidéo), zoom maximal (?zoom=3). Le HUD est masqué.
 // 3. L'horloge de la page est celle de Playwright (page.clock) : chaque image avance le jeu d'exactement 1/30 s, quel que soit le temps
-//    de rendu (rendu logiciel, environ 1,5 s par image). Les zombies arrivent par petits groupes à des instants fixes. Le survivant marche
-//    sur un huit qui revient à son point de départ en 8 s (joystick analogique) ; sa visée est « humaine » : temps de réaction avant de
-//    changer de cible, rotation amortie, petit tremblement, regard dans le sens de la marche sans cible (creerPilote). Le tir est celui du
-//    jeu (automatique quand un zombie est dans la ligne de visée ; le cône s'élargit quand le joueur bouge).
+//    de rendu (rendu logiciel, environ 1,5 s par image). Les zombies arrivent par petits groupes à des instants fixes. Le survivant est
+//    piloté comme par un joueur (creerPilote) : clavier à 8 directions (il recule quand un zombie approche, reste immobile pour tirer,
+//    revient à son point de départ en fin de boucle) et souris (temps de réaction, geste rapide qui dépasse souvent la cible, correction,
+//    suivi). Le tir est celui du jeu (automatique quand un zombie est dans la ligne de visée ; le cône s'élargit quand le joueur bouge).
 // 4. Capture de 800 × 450 autour du joueur dans une fenêtre de 1600 × 900 (personnages deux fois plus grands qu'à l'écran entier).
 // 5. Boucle : 255 images rendues ; les 15 dernières sont fondues dans les 15 premières (0,5 s), la vidéo commence à l'image 15 : la fin
 //    rejoint le début sans saut. Encodage ffmpeg (H.264 High, yuv420p, faststart, sans piste son, métadonnées retirées), léger
@@ -43,14 +43,18 @@ export const REGLAGES = Object.freeze({
   graine: 7,
   // Pilote (retour du propriétaire : « que le joueur se déplace et que la visée fasse moins automatique ») :
   pilote: {
-    // Déplacement : un huit autour d'un point proche du départ, en exactement 8 s (la durée de la boucle : le survivant revient à son
-    // point de départ, le raccord reste propre). Commande de joystick analogique (vitesse du jeu : 220 u/s à fond) qui suit le parcours
-    // et corrige l'écart (rappel, par seconde). ax, ay : demi-largeur et demi-hauteur du huit, en unités du jeu.
-    parcours: { ax: 110, ay: 35, periode: 8, rappel: 4 },
-    // Visée « humaine » : rotation amortie vers la cible (pulsation en rad/s, amortissement < 1 : léger dépassement ; vitesse maximale en
-    // rad/s), temps de réaction avant de changer de cible après un zombie abattu (en images, tiré au hasard dans l'intervalle), petit
-    // tremblement de la main (rad) ; sans cible, le regard suit la direction de marche, avec un tremblement plus large.
-    visee: { pulsation: 14, amortissement: 0.65, vitesseMax: 9, reaction: [6, 9], tremblement: 0.05, tremblementLibre: 0.15 },
+    // Retour du propriétaire : « la visée doit mimer des mouvements de souris : rapide mais pas toujours précise » ; déplacement d'un vrai
+    // joueur, pas au hasard.
+    // Déplacement au clavier (ZQSD) : 8 directions, pleine vitesse (220 u/s), appuis d'au moins `appuiMin` images. Le survivant recule
+    // quand un zombie est plus près que `recul` unités, sinon il reste immobile pour tirer. Il reste dans la zone dégagée autour de son
+    // point de départ (`zone` : x et y min/max, en unités) et y revient dans les `retour` dernières images (la boucle reste propre).
+    clavier: { appuiMin: 6, recul: 120, zone: { x: [-150, 50], y: [-60, 25] }, retour: 60, arrivee: 6 },
+    // Visée à la souris : temps de réaction (images, au hasard dans l'intervalle) souris immobile ; geste balistique vers la cible (durée
+    // en images selon l'angle à parcourir, profil de vitesse en cloche) qui s'arrête souvent au-delà de la cible (`depassement` : part de
+    // l'angle parcouru, au hasard dans l'intervalle ; `sousVisee` : chance de s'arrêter en deçà) avec une erreur (rad) ; correction courte ;
+    // puis suivi qui colle au zombie avec un léger retard (`suivi` : part de l'écart rattrapée par image) ; nouveau geste si l'écart
+    // dépasse `decroche` (rad). Sans cible : souris immobile.
+    souris: { reaction: [4, 7], geste: [4, 7], depassement: [0.06, 0.18], sousVisee: 0.3, erreur: 0.05, correction: 3, suivi: 0.4, decroche: 0.3 },
   },
   // Groupes de zombies : [image, [[dx, dy], …]] en unités du jeu autour du joueur (zones dégagées de la salle de départ).
   vagues: [
@@ -105,52 +109,105 @@ function hasard(graine) {
 const enrouler = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
 /**
- * Pilote du survivant : renvoie à chaque image la commande de déplacement (joystick, longueur ≤ 1) et l'angle de visée.
- * reglages : REGLAGES.pilote ; depart : position du joueur à l'image 0 (le huit commence et finit là).
+ * Pilote du survivant, comme un joueur au clavier et à la souris. À chaque image : commande de déplacement (8 directions, pleine vitesse ou
+ * arrêt) et angle de visée. reglages : REGLAGES.pilote ; depart : position du joueur à l'image 0 ; images : nombre d'images rendues.
  */
-export function creerPilote(reglages, graine, depart) {
-  const { parcours: P, visee: V } = reglages;
+export function creerPilote(reglages, graine, depart, images) {
+  const { clavier: C, souris: S } = reglages;
   const alea = hasard(graine * 7919 + 13);
-  const phases = [alea(), alea(), alea()].map((u) => u * Math.PI * 2);
-  const omega = (2 * Math.PI) / P.periode;
-  const point = (t) => ({ x: depart.x - P.ax * Math.sin(omega * t), y: depart.y - P.ay * Math.sin(2 * omega * t) });
-  const vitesse = (t) => ({ x: -P.ax * omega * Math.cos(omega * t), y: -2 * P.ay * omega * Math.cos(2 * omega * t) });
-  const tremble = (t, amplitude) => amplitude * (0.6 * Math.sin(1.7 * t + phases[0]) + 0.3 * Math.sin(4.3 * t + phases[1]) + 0.1 * Math.sin(9.1 * t + phases[2]));
+  const entre = ([a, b]) => a + alea() * (b - a);
+  const entier = ([a, b]) => a + Math.floor(alea() * (b - a + 1));
+  const cloche = (u) => u * u * u * (10 - 15 * u + 6 * u * u); // profil « minimum de secousse » : vitesse en cloche
+  const DIAG = Math.SQRT1_2;
+  const directions = [[1, 0], [DIAG, DIAG], [0, 1], [-DIAG, DIAG], [-1, 0], [-DIAG, -DIAG], [0, -1], [DIAG, -DIAG]];
+  const versTouches = (vx, vy) => {
+    if (Math.hypot(vx, vy) < 1e-6) return { x: 0, y: 0 };
+    const i = ((Math.round(Math.atan2(vy, vx) / (Math.PI / 4)) % 8) + 8) % 8;
+    return { x: directions[i][0], y: directions[i][1] };
+  };
+  // Clavier
+  let touches = { x: 0, y: 0 };
+  let tenue = 0;
+  // Souris
   let angle = null;
-  let rotation = 0;
   let cible = null;
-  let attente = null;
+  let phase = 'repos'; // repos → reaction → geste → correction → suivi
+  let compteur = 0;
+  let geste = null; // { de, vers, duree }
   return {
-    commande(t, dt, etat) {
-      // Déplacement : vitesse du parcours + rappel vers le point du parcours, ramenés à un joystick (220 u/s à fond).
-      const voulu = point(t + dt);
-      const v = vitesse(t + dt);
-      const vx = v.x + P.rappel * (voulu.x - etat.x);
-      const vy = v.y + P.rappel * (voulu.y - etat.y);
-      const norme = Math.hypot(vx, vy) / 220;
-      const move = norme > 1 ? { x: vx / 220 / norme, y: vy / 220 / norme } : { x: vx / 220, y: vy / 220 };
-
-      // Cible : gardée tant qu'elle vit ; après sa chute, un temps de réaction, puis le zombie le plus proche.
-      const vivante = etat.zombies.find((z) => z.id === cible);
-      if (!vivante && etat.zombies.length) {
-        if (cible === null) attente = 0;
-        else if (attente === null) attente = V.reaction[0] + Math.floor(alea() * (V.reaction[1] - V.reaction[0] + 1));
-        if (attente <= 0) {
-          const proche = [...etat.zombies].sort((a, b) => Math.hypot(a.x - etat.x, a.y - etat.y) - Math.hypot(b.x - etat.x, b.y - etat.y))[0];
-          cible = proche.id;
-          attente = null;
-        } else attente -= 1;
+    commande(t, dt, etat, k) {
+      const proches = [...etat.zombies].sort((a, b) => Math.hypot(a.x - etat.x, a.y - etat.y) - Math.hypot(b.x - etat.x, b.y - etat.y));
+      // ---- Clavier : une décision tenue au moins appuiMin images ----
+      const rx = etat.x - depart.x;
+      const ry = etat.y - depart.y;
+      tenue -= 1;
+      if (k >= images - C.retour) {
+        // Fin de boucle : retour au point de départ, puis immobile.
+        touches = Math.hypot(rx, ry) > C.arrivee ? versTouches(-rx, -ry) : { x: 0, y: 0 };
+      } else if (tenue <= 0) {
+        const z = proches[0];
+        let vx = 0;
+        let vy = 0;
+        if (z && Math.hypot(z.x - etat.x, z.y - etat.y) < C.recul) { vx = etat.x - z.x; vy = etat.y - z.y; }
+        // Bords de la zone dégagée : pas de recul vers un mur ou une caisse ; coincé, il esquive sur le côté (vers le centre de la zone).
+        const menace = vx !== 0 || vy !== 0;
+        if ((rx < C.zone.x[0] + 15 && vx < 0) || (rx > C.zone.x[1] - 15 && vx > 0)) vx = 0;
+        if ((ry < C.zone.y[0] + 15 && vy < 0) || (ry > C.zone.y[1] - 15 && vy > 0)) vy = 0;
+        if (menace && Math.hypot(vx, vy) < 1e-6) {
+          const cx = (C.zone.x[0] + C.zone.x[1]) / 2 - rx;
+          const cy = (C.zone.y[0] + C.zone.y[1]) / 2 - ry;
+          const [px, py] = [-(etat.y - z.y), etat.x - z.x]; // perpendiculaire à la menace
+          const signe = px * cx + py * cy >= 0 ? 1 : -1;
+          vx = signe * px;
+          vy = signe * py;
+        }
+        const nouvelles = versTouches(vx, vy);
+        if (nouvelles.x !== touches.x || nouvelles.y !== touches.y) { touches = nouvelles; tenue = C.appuiMin; }
       }
-      const z = etat.zombies.find((q) => q.id === cible);
-      const marche = Math.atan2(v.y, v.x);
-      const voulue = z ? Math.atan2(z.y - etat.y, z.x - etat.x) + tremble(t, V.tremblement) : marche + tremble(t, V.tremblementLibre);
-      if (angle === null) angle = voulue;
-      // Rotation amortie (ressort) : accélère, peut dépasser un peu la cible, vitesse limitée.
-      const ecart = enrouler(voulue - angle);
-      rotation += (V.pulsation * V.pulsation * ecart - 2 * V.amortissement * V.pulsation * rotation) * dt;
-      rotation = Math.max(-V.vitesseMax, Math.min(V.vitesseMax, rotation));
-      angle = enrouler(angle + rotation * dt);
-      return { move, angle };
+      // ---- Souris ----
+      const angleVers = (z) => Math.atan2(z.y - etat.y, z.x - etat.x);
+      if (angle === null) angle = proches[0] ? angleVers(proches[0]) + 0.5 : 0;
+      let z = etat.zombies.find((q) => q.id === cible);
+      if (!z && phase !== 'reaction') {
+        if (proches.length) { cible = proches[0].id; z = proches[0]; phase = 'reaction'; compteur = entier(S.reaction); }
+        else phase = 'repos';
+      }
+      if (phase === 'reaction') {
+        compteur -= 1;
+        if (!z) { // la cible visée au départ de la réaction est déjà tombée (un autre tir) : on reprend la plus proche
+          if (proches.length) { cible = proches[0].id; z = proches[0]; } else phase = 'repos';
+        }
+        if (phase === 'reaction' && compteur <= 0) phase = 'lancer';
+      }
+      if (phase === 'suivi' && z) {
+        const ecart = enrouler(angleVers(z) - angle);
+        if (Math.abs(ecart) > S.decroche) phase = 'lancer';
+        else angle = enrouler(angle + S.suivi * ecart);
+      }
+      if (phase === 'lancer' && z) {
+        // Geste balistique : durée selon l'angle à parcourir, arrêt au-delà (le plus souvent) ou en deçà de la cible, avec une erreur.
+        const ecart = enrouler(angleVers(z) - angle);
+        const duree = Math.round(S.geste[0] + (S.geste[1] - S.geste[0]) * Math.min(1, Math.abs(ecart) / Math.PI));
+        const part = (alea() < S.sousVisee ? -1 : 1) * entre(S.depassement);
+        geste = { de: angle, vers: angle + ecart * (1 + part) + (alea() * 2 - 1) * S.erreur, duree };
+        phase = 'geste';
+        compteur = 0;
+      }
+      if (phase === 'geste' && geste) {
+        compteur += 1;
+        angle = enrouler(geste.de + (geste.vers - geste.de) * cloche(Math.min(1, compteur / geste.duree)));
+        if (compteur >= geste.duree) {
+          phase = 'correction';
+          compteur = 0;
+          geste = { de: angle, vers: angle, duree: S.correction };
+        }
+      } else if (phase === 'correction' && z) {
+        compteur += 1;
+        if (compteur === 1) geste.vers = angle + enrouler(angleVers(z) - angle) + (alea() * 2 - 1) * S.erreur * 0.25;
+        angle = enrouler(geste.de + (geste.vers - geste.de) * cloche(Math.min(1, compteur / geste.duree)));
+        if (compteur >= geste.duree) phase = 'suivi';
+      }
+      return { move: touches, angle };
     },
   };
 }
@@ -178,7 +235,7 @@ async function rendre(dossierJeu, dossierImages) {
       ...R.cadre,
     };
     const debut = Date.now();
-    const pilote = creerPilote(R.pilote, R.graine, depart);
+    const pilote = creerPilote(R.pilote, R.graine, depart, R.images);
     for (let k = 0; k < R.images; k += 1) {
       for (const [image, groupe] of R.vagues) {
         if (image === k) await page.evaluate(([g, x, y]) => g.forEach(([dx, dy]) => window.__zs.spawnEnemy(x + dx, y + dy)), [groupe, depart.x, depart.y]);
@@ -187,7 +244,7 @@ async function rendre(dossierJeu, dossierImages) {
         const s = window.__zs.getState();
         return { x: s.player.x, y: s.player.y, zombies: s.enemies.filter((e) => e.health > 0).map((e, i) => ({ id: e.id ?? i, x: e.x, y: e.y })) };
       });
-      const { move, angle } = pilote.commande(k / R.ips, 1 / R.ips, etat);
+      const { move, angle } = pilote.commande(k / R.ips, 1 / R.ips, etat, k);
       await page.evaluate(([m, a]) => window.__zs.setInput({ move: m, aim: { angle: a } }), [move, angle]);
       await page.clock.runFor(1000 / R.ips);
       await page.screenshot({ path: join(dossierImages, `r${String(k).padStart(4, '0')}.png`), clip: cadre });
