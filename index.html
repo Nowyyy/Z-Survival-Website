@@ -9,7 +9,16 @@
   <meta name="color-scheme" content="dark">
   <link rel="icon" type="image/png" sizes="48x48" href="img/icone-48.png">
   <link rel="apple-touch-icon" sizes="180x180" href="img/icone-180.png">
-  <script>document.documentElement.classList.add('js');</script>
+  <script>
+    // js : la page a JavaScript. entree-accueil : l'entrée en scène de l'accueil démarre dès le premier affichage (sans attendre les
+    // modules) si la page s'ouvre sur l'accueil et sans « réduire les animations » (js/accueil-entree.js, css/accueil.css).
+    document.documentElement.classList.add('js');
+    try {
+      if (!/^#(news|characters|weapons|about)$/.test(location.hash) && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('entree-accueil');
+      }
+    } catch (e) { /* sans matchMedia : pas d'entrée */ }
+  </script>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/principal.css">
   <link rel="stylesheet" href="css/accueil.css">

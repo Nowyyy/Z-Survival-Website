@@ -7,6 +7,7 @@ import { ARMES } from './donnees.js';
 import { poserLogo } from './logo.js';
 import { installerFlashTir } from './accueil-tir.js';
 import { lancerEntree } from './accueil-entree.js';
+import { taperAccroche } from './accueil-accroche.js';
 
 document.documentElement.lang = langueInitiale();
 
@@ -299,7 +300,9 @@ if (depart > 0) sections[depart].scrollIntoView({ behavior: 'auto', block: 'star
 activer(Math.max(0, depart));
 
 // Entrée en scène de l'accueil (js/accueil-entree.js) : seulement si la page s'ouvre sur l'accueil.
-if (depart <= 0) lancerEntree(sections[0]);
+const entree = lancerEntree(depart <= 0);
+// Accroche « radio de survie » (js/accueil-accroche.js) : elle s'écrit pendant l'entrée, au moment où elle apparaît (1,3 s).
+if (entree) taperAccroche(document.querySelector('.accueil-sous-titre'), 1300);
 // Flash du cadre de l'accueil au coup de feu de l'image animée (js/accueil-tir.js).
 installerFlashTir(document.getElementById('accueil'));
 
