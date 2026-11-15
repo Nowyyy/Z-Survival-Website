@@ -69,8 +69,8 @@ Toutes respectent « réduire les animations » et restent légères (HTML, CSS,
   l'accroche et le bouton remontent de la hauteur du bandeau. Pendant l'entrée en scène, il glisse en place à 1,7 s.
 - **Bas resserré avec le bandeau** (retour du propriétaire) : la flèche est plus près du bouton et du bandeau (boîte de 24 px au lieu de
   36, environ 5 px de chaque côté) ; le titre et l'accroche descendent d'environ 35 px. Sans le bandeau, rien ne change.
-  Puis : flèche remontée de 2 px (elle rebondissait trop près du bandeau) et logo « Z-Survival » descendu de 10 px, plus près de
-  l'accroche (les coulures du Z restent à l'écart du texte).
+  Puis : flèche remontée de 2 px (elle rebondissait trop près du bandeau) et logo « Z-Survival » descendu de 10 px, puis 18 px, plus
+  près de l'accroche (les coulures du Z, à gauche, descendent au niveau de l'accroche sans la toucher).
 - **Code** : `js/accueil-bandeau.js` (activation par le paramètre, remplissage) ; `css/accueil.css` (« Bandeau d'alerte ») ;
   bloc `.accueil-bandeau` dans `index.html` (caché par défaut). L'aperçu transmet `?bandeau=1` au site.
 - **Textes** (`js/textes.js`, `accueil.bandeau`, français et anglais) : six messages fictifs, à valider ou remplacer par de vraies
