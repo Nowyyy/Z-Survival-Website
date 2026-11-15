@@ -168,6 +168,98 @@
 .news-plus[hidden] { display: none; }
 .news-plus:disabled { opacity: 0.6; cursor: progress; }
 
+/* ---------- Carrousel (téléphone) : position « 01 / 03 », barre de progression, flèches (js/actualites.js) ---------- */
+.news-carrousel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 2px;
+}
+.news-carrousel[hidden] { display: none; }
+.news-compteur {
+  font-family: var(--font-label);
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.news-position { color: var(--color-action-text); }
+.news-progression {
+  position: relative;
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--color-surface-raised);
+  overflow: hidden;
+}
+.news-progression-barre {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100%;
+  background: var(--color-action);
+  box-shadow: 0 0 8px var(--color-action-glow);
+  transform-origin: left;
+  transform: scaleX(var(--part, 0));
+  transition: transform 250ms var(--courbe);
+}
+.news-fleche {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color 200ms, color 200ms, opacity 200ms;
+}
+.news-fleche:hover:not(:disabled), .news-fleche:active:not(:disabled) { border-color: var(--color-action); color: var(--color-action-text); }
+.news-fleche:disabled { opacity: 0.35; cursor: default; }
+.news-fleche svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- Rejoindre le Discord : en bas de la section ---------- */
+.news-discord {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: auto;
+  padding: 14px 16px;
+  border: 1px solid rgb(216 20 20 / 45%);
+  border-radius: var(--radius-md);
+  background:
+    repeating-linear-gradient(135deg, transparent 0 14px, rgb(216 20 20 / 5%) 14px 28px),
+    rgb(19 19 19 / 85%);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: border-color 200ms, box-shadow 200ms;
+}
+.news-discord:hover, .news-discord:active { border-color: var(--color-action); box-shadow: 0 0 18px var(--color-action-glow); }
+.news-discord-logo { flex: none; width: 34px; height: 34px; fill: var(--color-text); }
+.news-discord-textes { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.news-discord-titre {
+  font-family: var(--font-label);
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-action-text);
+}
+.news-discord-texte { font-size: 0.85rem; line-height: 1.35; color: var(--color-text-muted); }
+.news-discord-fleche {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-left: auto;
+  fill: none;
+  stroke: var(--color-action-text);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* ---------- Article complet : fenêtre plein écran sur téléphone, panneau centré sur ordinateur ---------- */
 .actu-vue {
   width: 100%;
@@ -268,6 +360,8 @@
     padding: 0;
     overflow: visible;
   }
+  .news-carrousel { display: none; }
+  .news-discord { align-self: flex-start; margin-top: 12px; min-width: 26rem; }
   .news-carte { transition: transform 300ms var(--courbe), border-color 300ms, box-shadow 300ms; }
   .news-carte:hover { transform: translateY(-4px); border-color: var(--color-action); box-shadow: 0 0 18px var(--color-action-glow); }
 
@@ -286,6 +380,13 @@
   .actu-texte { font-size: 1.08rem; }
 }
 
+/* Téléphones peu hauts (375 × 667…) : bloc Discord sur une ligne, pour que la section tienne sans défiler. */
+@media (max-height: 740px) and (max-width: 899px) {
+  .news-discord { gap: 12px; padding: 9px 14px; }
+  .news-discord-logo { width: 26px; height: 26px; }
+  .news-discord-texte { display: none; }
+}
+
 /* Écrans bas (téléphone en paysage). */
 @media (max-height: 520px) and (max-width: 899px) {
   .news-liste { grid-auto-columns: 40%; }
@@ -296,4 +397,5 @@
 @media (prefers-reduced-motion: reduce) {
   .news-squelette .news-visuel, .squelette-ligne, .news-etat-titre::before, .actu-vue[open] { animation: none; }
   .news-carte, .news-carte:hover { transition: none; transform: none; }
+  .news-progression-barre, .news-fleche, .news-discord { transition: none; }
 }

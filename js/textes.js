@@ -71,6 +71,13 @@ export const TEXTES = {
       mentionFr: '(FR)',
       mentionFrTitre: 'Article disponible en français seulement',
       bandeau: 'Dernière transmission',
+      precedent: 'Article précédent',
+      suivant: 'Article suivant',
+      discord: {
+        titre: 'Rejoindre le Discord',
+        texte: 'Suivez le développement en direct : avancées, captures et échanges avec la communauté.',
+        nouvelOnglet: '(nouvel onglet)',
+      },
     },
     characters: {
       intro: 'Contenu provisoire : les personnages définitifs arriveront dans un prochain lot.',
@@ -185,6 +192,13 @@ export const TEXTES = {
       mentionFr: '(FR)',
       mentionFrTitre: 'Article available in French only',
       bandeau: 'Latest transmission',
+      precedent: 'Previous article',
+      suivant: 'Next article',
+      discord: {
+        titre: 'Join the Discord',
+        texte: 'Follow development live: progress, screenshots and chat with the community.',
+        nouvelOnglet: '(opens in a new tab)',
+      },
     },
     characters: {
       intro: 'Placeholder content: the final characters will arrive in a later update.',
