@@ -68,11 +68,11 @@ Toutes les réponses sont en JSON. Erreurs : `{ "erreur": "message en français"
 
 | Route publique | Réponse |
 |---|---|
-| `GET /api/pages/a-propos?lang=fr\|en` | texte de la page « À propos » (`titre` = ligne sous le logo du studio, `contenu` = texte) : `{ page: { cle, langue, titre, contenu, modifie_le } }`, ou **`{ page: null }`** tant que rien n'est enregistré (le site garde alors ses textes par défaut, `js/textes.js`) ; même règle de langue que les articles ; en cache 60 s ; 404 pour une autre clé |
+| `GET /api/pages/a-propos?lang=fr\|en`, `GET /api/pages/a-propos-jeu?lang=fr\|en` | textes de la section « À propos » : bloc du studio (`titre` = ligne sous le logo du studio, `contenu` = texte) et bloc du jeu (lot 3e, `titre` et `contenu` à côté de l'image du jeu) : `{ page: { cle, langue, titre, contenu, modifie_le } }`, ou **`{ page: null }`** tant que rien n'est enregistré (le site garde alors ses textes par défaut, `js/textes.js`) ; même règle de langue que les articles ; en cache 60 s ; 404 pour une autre clé |
 
 ### Administration (jeton obligatoire, jamais en cache)
 
-Pages du site (seule clé aujourd'hui : `a-propos`) : `GET /api/admin/pages/a-propos` → `{ page: null | { cle, titre_fr, titre_en,
+Pages du site (clés : `a-propos`, bloc du studio ; `a-propos-jeu`, bloc du jeu, lot 3e ; mêmes routes, même format) : `GET /api/admin/pages/a-propos` → `{ page: null | { cle, titre_fr, titre_en,
 contenu_fr, contenu_en, modifie_le } }` ; `PUT /api/admin/pages/a-propos` avec `{ titre_fr, contenu_fr, titre_en?, contenu_en? }`
 (titre et texte français obligatoires, titres 120 caractères, textes 20 000, aucun autre champ) → crée ou remplace, `{ page }`.
 
