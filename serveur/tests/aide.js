@@ -21,7 +21,9 @@ const cleSession = randomBytes(32).toString('base64');
 
 export const SECRETS_TEST = Object.freeze({ identifiant, motDePasse, empreinte, cleSession });
 
-export const ORIGINE = 'https://nowyyy.github.io';
+export const ORIGINE = 'https://www.zsurvival-game.com';
+/** Ancienne adresse GitHub Pages, encore acceptée pendant la transition vers le nom de domaine. */
+export const ORIGINE_ANCIENNE = 'https://nowyyy.github.io';
 
 /** Crée une application de test complète sur une base neuve. */
 export async function fabriquer({ env = {}, fetchGithub } = {}) {

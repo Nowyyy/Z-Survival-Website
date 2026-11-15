@@ -76,7 +76,7 @@ describe('images des articles', () => {
     const r = await envoyer(await photoAvecGps(), 'image/jpeg');
     assert.equal(r.statut, 201, r.texte);
     assert.match(r.json.image, /^img\/actus\/nouvelle-carte-[0-9a-f]{8}\.webp$/);
-    assert.equal(r.json.adresse, `https://nowyyy.github.io/Z-Survival-Website/${r.json.image}`);
+    assert.equal(r.json.adresse, `https://www.zsurvival-game.com/${r.json.image}`);
     assert.equal(r.json.largeur, 1600);
     assert.equal(r.json.hauteur, 1067);
 
