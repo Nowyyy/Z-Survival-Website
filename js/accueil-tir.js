@@ -1,5 +1,6 @@
 // Accueil : tir synchronisé avec la vidéo (lot 2b ; flash du cadre : idée « catchy » n° 1, après le lot 1). UN seul module suit le temps
-// de la vidéo et déclenche, une fois par tour de boucle, à TEMPS_TIR (js/accueil-boucle.js, 5,2 s) :
+// de la vidéo et déclenche, une fois par tour de boucle et par tir de TEMPS_TIRS (js/accueil-boucle.js : TEMPS_TIR, 5,2 s ; le tir du
+// personnage 2 s'y ajoutera quand les vidéos le montreront) :
 //  1. le flash du cadre rouge (css/accueil.css, « est-tir » : environ 200 ms, éclat rouge, jamais blanc ; un par tour de 8 s) ;
 //  2. le coup de feu du jeu (js/musique.js, jouerCoupDeFeu) : seulement si le son du site est activé, l'onglet visible et la vidéo en lecture.
 // Il repère aussi le retour au début de la boucle (« zs:tour », compté). Le HUD de jeu du lot 2b (manche, heure, munitions) est retiré
@@ -10,7 +11,7 @@
 // (scene/apercu.html, scène 3D en direct, site ouvert avec ?video=0) les envoie lui-même.
 // Mouvement réduit : pas de vidéo, donc aucun effet.
 // État pour les tests : window.__zsAccueil.etat().
-import { DUREE_BOUCLE, IMAGES_PAR_SECONDE, TEMPS_TIR } from './accueil-boucle.js';
+import { DUREE_BOUCLE, IMAGES_PAR_SECONDE, TEMPS_TIRS } from './accueil-boucle.js';
 import { mouvementReduit } from './i18n.js';
 import { jouerCoupDeFeu } from './musique.js';
 
@@ -21,31 +22,31 @@ const TOLERANCE = 0.5 / IMAGES_PAR_SECONDE; // une demi-image : l'image du tir c
 
 const etat = { tours: 0, tirs: 0, sons: 0, suivi: null, journal: [] };
 
-// Suivi du temps de la vidéo : appelle EVENEMENT_TIR au passage de TEMPS_TIR, EVENEMENT_TOUR au retour au début de la boucle.
-export function suivreVideo(video) {
+// Suivi du temps de la vidéo : appelle EVENEMENT_TIR au passage de chaque instant de TEMPS_TIRS, EVENEMENT_TOUR au retour au début.
+export function suivreVideo(video, instants = TEMPS_TIRS) {
   let avant = null;
-  let tirFait = false;
+  let faits = instants.map(() => false); // tirs déjà passés dans ce tour
   const envoyer = (nom, t) => {
     etat.journal.push({ evenement: nom, temps: Number(t.toFixed(3)) });
     if (etat.journal.length > 40) etat.journal.shift();
     document.dispatchEvent(new CustomEvent(nom, { detail: { temps: t, video } }));
   };
-  const tirer = (t, saut) => { tirFait = true; if (!saut) envoyer(EVENEMENT_TIR, t); };
+  const atteint = (x, i) => x >= instants[i] - TOLERANCE;
+  const tirer = (i, t, saut) => { faits[i] = true; if (!saut) envoyer(EVENEMENT_TIR, t); };
   function voir(t) {
     if (!Number.isFinite(t)) return;
-    if (avant === null) { avant = t; tirFait = t >= TEMPS_TIR - TOLERANCE; return; }
+    if (avant === null) { avant = t; faits = instants.map((_, i) => atteint(t, i)); return; }
     if (t === avant) return;
     const tour = t < avant - DUREE_BOUCLE / 2; // retour au début de la boucle
     const pas = tour ? t + DUREE_BOUCLE - avant : t - avant;
     const saut = pas < 0 || pas > SAUT_MAX;
-    const atteint = (x) => x >= TEMPS_TIR - TOLERANCE;
     if (tour) {
-      if (!tirFait && !atteint(avant)) tirer(t, saut); // tir de l'ancien tour sauté par la boucle (lecture très saccadée)
-      tirFait = false;
+      instants.forEach((_, i) => { if (!faits[i]) tirer(i, t, saut); }); // tir de l'ancien tour sauté par la boucle (lecture très saccadée)
+      faits = instants.map(() => false);
       envoyer(EVENEMENT_TOUR, t);
-      if (atteint(t)) tirer(t, saut);
-    } else if (t > avant && !tirFait && atteint(t)) {
-      tirer(t, saut);
+      instants.forEach((_, i) => { if (atteint(t, i)) tirer(i, t, saut); });
+    } else if (t > avant) {
+      instants.forEach((_, i) => { if (!faits[i] && atteint(t, i)) tirer(i, t, saut); });
     }
     avant = t;
   }

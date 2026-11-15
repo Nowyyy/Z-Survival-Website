@@ -82,11 +82,12 @@ function suivreTir() {
     if (avant !== null && t !== avant) {
       // La boucle peut repartir de 0 entre deux images (grand retour en arrière) ; un petit recul n'est pas un tour de boucle.
       const tour = avant - t > s.duree / 2;
-      const passe = tour ? avant < s.tir || s.tir <= t : avant < s.tir && s.tir <= t;
+      const passe = (x) => (tour ? avant < x || x <= t : avant < x && x <= t);
       // Un saut de plus d'une seconde (images perdues, premier rendu lent) n'est pas un vrai passage : pas de flash à contretemps.
       const pas = tour ? t + s.duree - avant : t - avant;
       if (tour && pas < 1) win.document.dispatchEvent(new win.CustomEvent('zs:tour'));
-      if (passe && pas < 1) win.document.dispatchEvent(new win.CustomEvent('zs:tir'));
+      // Chaque coup de feu de la scène (détails : aussi celui du personnage 2) fait flasher le cadre.
+      for (const x of s.tirs ?? [s.tir]) if (passe(x) && pas < 1) win.document.dispatchEvent(new win.CustomEvent('zs:tir'));
     }
     avant = t;
   }

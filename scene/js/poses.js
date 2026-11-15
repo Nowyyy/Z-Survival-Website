@@ -62,14 +62,44 @@ function fenetre(t, a, b, c, d) {
 }
 // Détails : personnage 1 qui regarde hors champ à sa droite au début ; personnage 2 qui lève la tête vers lui au même moment ;
 // impact de la balle du personnage 2 sur le zombie (secousse qui s'amortit).
-export const regardP1 = (t) => (DETAILS.actif ? fenetre(t, 0.15, 0.6, 1.5, 2.05) : 0);
-export const regardP2 = (t) => (DETAILS.actif ? fenetre(t, 0.25, 0.7, 1.55, 2.15) : 0);
-export function impactZombie(t) {
-  if (!DETAILS.actif) return 0;
-  const d = (((t - TIR_P2) % DUREE) + DUREE) % DUREE;
-  if (d > 0.7) return 0;
-  return Math.exp(-d * 6) * Math.min(1, d / 0.03);
+// Coup d'œil naturel (retour du propriétaire : « trop lisse ») : la tête part vite et dépasse un peu sa cible (aller en aA secondes,
+// dépassement amorti), se réajuste une fois pendant la tenue, puis revient vite, en dépassant à peine le point de départ.
+const sortieRessort = (k) => { const c = 1.7; return 1 + (c + 1) * (k - 1) ** 3 + c * (k - 1) ** 2; };
+function coupDoeil(t, debut, aller, fin, retour) {
+  if (t <= debut || t >= fin + retour + 0.25) return 0;
+  if (t < debut + aller) return sortieRessort((t - debut) / aller);
+  if (t < fin) {
+    const m = (debut + aller + fin) / 2; // petit réajustement au milieu de la tenue
+    return 1 + 0.12 * fenetre(t, m - 0.12, m, m + 0.05, m + 0.2);
+  }
+  if (t < fin + retour) return 1 - sortieRessort((t - fin) / retour);
+  return -0.04 * (1 - (t - fin - retour) / 0.25); // léger dépassement du retour, qui se résorbe
 }
+// Détails : le personnage 1 regarde hors champ après son tir (6,0 à 7,8 s : son retour à la normale relance la boucle) ; le personnage 2
+// tourne la tête vers lui pendant un moment calme (3,4 à 4,5 s : zombie inerte, aucun tir).
+export const regardP1 = (t, retard = 0) => (DETAILS.actif ? coupDoeil(t - retard, 6.0, 0.24, 7.4, 0.3) : 0);
+export const regardP2 = (t, retard = 0) => (DETAILS.actif ? coupDoeil(t - retard, 3.4, 0.28, 4.25, 0.32) : 0);
+// Zombie touché par la balle du personnage 2 (TIR_P2) : « vie » de 1 à 0 en 0,1 s (la tête tape le sol, les yeux se ferment), inerte,
+// puis il se ranime (yeux qui se rouvrent d'un coup à 6,5 s, tête qui se relève jusqu'à 7,5 s) avant la fin de la boucle.
+export function vieZombie(t) {
+  if (!DETAILS.actif) return 1;
+  const l = (k) => k * k * (3 - 2 * k);
+  if (t < TIR_P2) return 1;
+  if (t < TIR_P2 + 0.1) return 1 - (t - TIR_P2) / 0.1;
+  if (t < 6.5) return 0;
+  if (t < 7.5) return l((t - 6.5) / 1.0);
+  return 1;
+}
+// Rebond de la tête sur le sol juste après l'impact (amorti, 0,6 s).
+export function rebondZombie(t) {
+  if (!DETAILS.actif) return 0;
+  const d = t - TIR_P2 - 0.1;
+  if (d < 0 || d > 0.6) return 0;
+  return Math.exp(-d * 8) * Math.sin(d * 28);
+}
+// Rotations ajoutées à la tête quand il est au tapis (réglées pour que la joue touche le sol sans y entrer).
+export const MORT = { cou: 0.72, tete: 0.36, roulis: 0.3 };
+export const yeuxZombie = (t) => (DETAILS.actif ? (t >= TIR_P2 + 0.05 && t < 6.5 ? 0.06 : 1) : 1);
 
 // Appui du pied du personnage 2 (0 à 1) : il appuie un peu plus deux fois par boucle ; le zombie s'enfonce d'autant.
 export const appuiAt = (t) => 0.5 + 0.5 * onde(t, 2, 0.6);
@@ -169,8 +199,11 @@ export function poseP1(p, stage, t) {
   const aim = vise.clone().sub(at).normalize().add(V(0, 0.32 * r, 0));
   holdGun(p, at, aim, { elbowsOut: 5 });
   // Détails : au début de la boucle, il tourne la tête vers sa droite (notre gauche), comme pour regarder hors champ, puis revient à sa cible.
+  // La tête mène, le cou suit avec un léger retard (0,08 s) ; un peu d'inclinaison pendant le coup d'œil.
   const rp1 = regardP1(t);
-  look(p, rp1 > 0 ? vise.clone().lerp(toWorld(stage, V(-420, 70, 160)), rp1) : vise, 0.4 + 0.25 * rp1);
+  const cou1 = regardP1(t, 0.08);
+  look(p, rp1 !== 0 ? vise.clone().lerp(toWorld(stage, V(-420, 55, 160)), rp1) : vise, 0.4 + 0.25 * Math.max(0, cou1));
+  if (rp1 !== 0) p.bones.get('head').rotateZ(0.08 * rp1);
   // Œil gauche : fermé seulement pour le tir (js/tir.js).
   const lid = p.bones.get('paupiereL');
   if (lid) lid.scale.set(1, Math.max(0.001, oeilFerme(t)), 1);
@@ -181,22 +214,42 @@ export function poseZombie(z, stage, t, appui) {
   const P = PLACEMENT.zombie;
   z.reset();
   placeRoot(z, stage, P.x, P.z, P.cap);
-  const debat = bruit(t, 5, 2); // se débat (rythme irrégulier mais périodique)
+  const vie = vieZombie(t); // détails : 0 quand la balle du personnage 2 l'a mis au tapis
+  const debat = bruit(t, 5, 2) * (0.15 + 0.85 * vie); // se débat (rythme irrégulier mais périodique) ; à peine quand il est inerte
   const pelvis = z.bones.get('pelvis');
   // Couché : le bassin bascule de 90° vers l'avant (le ventre au sol, la tête vers +z du personnage).
   pelvis.position.set(0, 7.6 - 0.6 * appui, 0);
   euler(pelvis, Math.PI / 2 - 0.04, 0.04 * debat, 0.05 * debat);
   euler(z.bones.get('spine'), 0.08 + 0.04 * debat, 0.06 * debat, 0);
   const att = attrapeAt(t); // bras tendu vers le spectateur (0 à 1)
-  const imp = impactZombie(t); // balle du personnage 2 : la tête et le buste sont rabattus au sol
+  const mort = 1 - vie; // tête au sol
+  const rebond = rebondZombie(t);
   // Quand il tend le bras, il soulève un peu le haut du corps et tourne l'épaule vers le spectateur.
   euler(z.bones.get('chest'), 0.0 + 0.03 * appui + 0.025 * onde(t, 4) - 0.18 * att, 0.08 * debat + 0.15 * att, 0.04 * debat - 0.14 * att);
   // La tête se relève vers l'avant, tournée vers la caméra, et secouée.
-  euler(z.bones.get('neck'), -0.85 + 0.05 * onde(t, 4, 0.2) - 0.1 * att + 0.75 * imp, 0.25 + 0.08 * debat - 0.3 * imp, 0.25 * imp);
-  euler(z.bones.get('head'), -0.45 + 0.06 * onde(t, 8, 0.1), 0.2 + 0.1 * bruit(t, 9, 3), 0.1 * debat);
+  // Touché (détails) : la tête retombe, joue contre le sol, et rebondit une fois.
+  euler(z.bones.get('neck'), -0.85 + 0.05 * onde(t, 4, 0.2) * vie - 0.1 * att + MORT.cou * mort - 0.12 * rebond, 0.25 + 0.08 * debat - 0.15 * mort, 0.3 * mort);
+  euler(z.bones.get('head'), -0.45 + 0.06 * onde(t, 8, 0.1) * vie + MORT.tete * mort, 0.2 + 0.1 * bruit(t, 9, 3) * vie + 0.35 * mort, 0.1 * debat + MORT.roulis * mort);
+  // Au tapis : la joue reste posée au sol quels que soient les petits mouvements du corps (le soldat appuie plus ou moins) : le cou est
+  // corrigé pour que le centre de la tête soit à 5,12 au-dessus du sol (le bas de la tête est 5,09 sous son centre). Deux corrections de
+  // Newton, pondérées par « mort » (aucun effet quand il est vivant).
+  if (mort > 0) {
+    const neck = z.bones.get('neck');
+    const centre = () => { z.root.updateMatrixWorld(true); return z.bones.get('head').localToWorld(V(0, 4.6, 0.2)).y; };
+    for (let i = 0; i < 2; i += 1) {
+      const y0 = centre();
+      neck.rotateX(0.02);
+      const pente = (centre() - y0) / 0.02;
+      neck.rotateX(-0.02);
+      if (Math.abs(pente) < 1e-6) break;
+      neck.rotateX(Math.max(-0.4, Math.min(0.4, (-(y0 - 5.12 * K) / pente) * mort)));
+    }
+  }
+  const yeux = z.bones.get('yeuxZ');
+  if (yeux) yeux.scale.set(1, yeuxZombie(t), 1);
   z.root.updateMatrixWorld(true);
   // Jambes : allongées derrière, pointes de pied au sol, une jambe qui gigote.
-  const kick = onde(t, 4, 0.3);
+  const kick = onde(t, 4, 0.3) * vie;
   // Pointes de pied posées au sol, talons en l'air : chevilles à la hauteur du pied (7,4), genoux à peine fléchis vers le sol.
   const lAnkle = local(z, 7.5, 7.4 + 2.5 * Math.max(0, kick), -21 + 1.5 * Math.max(0, kick));
   const rAnkle = local(z, -8, 7.4, -22);
@@ -205,7 +258,7 @@ export function poseZombie(z, stage, t, appui) {
   leg(z, 'L', lAnkle, local(z, 9, -6, -11), toes, shinUp);
   leg(z, 'R', rAnkle, local(z, -9, -6, -11), toes, shinUp);
   // Bras gauche tendu loin devant (main à plat qui tâtonne) ; bras droit qui griffe : la main racle le sol vers le corps (4 fois par boucle).
-  const reach = onde(t, 2, 0.15);
+  const reach = onde(t, 2, 0.15) * vie;
   // Mains au-dessus du sol : poignet à 3,8, main à plat (doigts vers l'avant, paume vers le sol), coude relevé.
   // Par moment (attrapeAt), ce bras se lève et se tend vers le spectateur, doigts devant, comme pour l'attraper.
   const solMain = local(z, 11, 3.8, 36 + 1.5 * reach);
@@ -228,8 +281,8 @@ export function poseZombie(z, stage, t, appui) {
   // Le coude reste toujours du même côté, en dehors et au-dessus du bras (point de pliage qui suit la main) : avant, fixe, il faisait
   // basculer le coude d'un côté à l'autre à chaque coup (retour du propriétaire : « le bras se désaxe »).
   const rake = g < 0.25 ? g / 0.25 : 1 - (g - 0.25) / 0.75;
-  const lift = g < 0.25 ? Math.sin(Math.PI * (g / 0.25)) * 3.5 : 0;
-  const s = rake * rake * (3 - 2 * rake);
+  const lift = (g < 0.25 ? Math.sin(Math.PI * (g / 0.25)) * 3.5 : 0) * vie;
+  const s = rake * rake * (3 - 2 * rake) * vie + 0.5 * (1 - vie); // inerte : la main reste posée
   // La main va de l'aplomb de l'épaule (z 23, l'épaule est à z ≈ 21) à 14 unités devant ; le coude reste à peu près à hauteur d'épaule,
   // sur le côté : avant (retour du propriétaire, « l'articulation de l'épaule est étrange »), la main reculait derrière l'épaule et le
   // coude montait au-dessus, comme quelqu'un qui pousse sur ses bras.
@@ -271,5 +324,6 @@ export function poseP2(p, z, stage, t, appui) {
   const visee = tete.clone().sub(at).normalize().add(V(0, 0.35 * r2, 0));
   holdGun(p, at, visee, { elbowsOut: 7, up: V(0, 0, 1).transformDirection(p.root.matrixWorld) });
   const rp2 = regardP2(t);
-  look(p, rp2 > 0 ? tete.clone().lerp(worldPos(PLACEMENT.p1Tete ?? p.bones.get('head')), rp2) : tete, 0.5 + 0.3 * rp2);
+  const cou2 = regardP2(t, 0.08);
+  look(p, rp2 !== 0 ? tete.clone().lerp(worldPos(PLACEMENT.p1Tete ?? p.bones.get('head')), rp2) : tete, 0.5 + 0.3 * Math.max(0, cou2));
 }

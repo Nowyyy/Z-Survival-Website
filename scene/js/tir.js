@@ -3,7 +3,7 @@
 // Tout est fonction du temps de la boucle (js/boucle.js) : l'effet est terminé bien avant la fin de la boucle.
 import * as THREE from 'three';
 import { DUREE } from './boucle.js';
-import { TEMPS_TIR } from '../../js/accueil-boucle.js';
+import { TEMPS_TIR, TEMPS_TIR_P2 } from '../../js/accueil-boucle.js';
 
 export const TIR = TEMPS_TIR; // instant du coup de feu (5,2 s de la boucle) ; valeur partagée avec la vidéo et le site (js/accueil-boucle.js, lot 2b)
 const RECUL = 0.42; // durée du recul (secondes)
@@ -22,7 +22,7 @@ export function oeilFerme(t) {
   return 0;
 }
 // Prévisualisation des détails (?details=1, retours du propriétaire) : le personnage 2 tire sur le zombie quand il tend le bras.
-export const TIR_P2 = 2.6;
+export const TIR_P2 = TEMPS_TIR_P2; // 2,6 s, valeur partagée (js/accueil-boucle.js)
 // Temps écoulé depuis le coup de feu (0 à DUREE), périodique ; instant : celui du tir (personnage 1 par défaut).
 const depuis = (t, instant = TIR) => ((((t - instant) % DUREE) + DUREE) % DUREE);
 // Recul de 0 à 1 : coup sec (0,03 s) puis retour adouci ; 0 hors du recul.
