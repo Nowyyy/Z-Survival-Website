@@ -299,7 +299,7 @@ if (depart > 0) sections[depart].scrollIntoView({ behavior: 'auto', block: 'star
 activer(Math.max(0, depart));
 
 // Entrée en scène de l'accueil (js/accueil-entree.js) : seulement si la page s'ouvre sur l'accueil.
-if (depart <= 0) lancerEntree(sections[0]);
+const entree = lancerEntree(depart <= 0);
 // Flash du cadre de l'accueil au coup de feu de l'image animée (js/accueil-tir.js).
 installerFlashTir(document.getElementById('accueil'));
 

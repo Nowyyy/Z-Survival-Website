@@ -29,7 +29,10 @@ Toutes respectent « réduire les animations » et restent légères (HTML, CSS,
 ## 2 — Entrée en scène
 - **Quand** : une seule fois, à l'ouverture de la page **sur l'accueil**. Rien si on arrive directement sur une autre section (`#news`…),
   rien en mouvement réduit.
-- **Code** : `js/accueil-entree.js` pose la classe `est-entree` sur l'accueil, puis la retire après 4 s. Tout le reste est en CSS
+- **Démarrage sans délai** (retour du propriétaire) : la classe `entree-accueil` est posée sur `<html>` par un petit script en tête
+  d'`index.html`, dès le premier affichage. Avant, elle attendait le chargement des modules du site : léger délai. Le Z tombe dès que le
+  logo est posé.
+- **Code** : `js/accueil-entree.js` retire la classe après 4 s (ou tout de suite si la page ne s'ouvre pas sur l'accueil). Tout le reste est en CSS
   (`css/accueil.css`, « Entrée en scène ») ; un bloc `.accueil-vhs` est ajouté dans la zone de l'image animée (`index.html`).
 - **Déroulé** :
   - **0 à 1,4 s** : grain VHS (neige qui saute, lignes, barre claire qui descend, dernier sursaut) qui se dissipe sur l'image animée ;
