@@ -13,7 +13,7 @@ import { creerHelico } from './helico.js';
 import { creerTir } from './tir.js';
 import { chargerDonnees, construireMonde } from './monde.js';
 import { creerKit, posable } from './persos.js';
-import { ECHELLE_SCENE, appuiAt, poseP1, poseP2, poseZombie } from './poses.js';
+import { ECHELLE_SCENE, PLACEMENT, appuiAt, poseP1, poseP2, poseZombie } from './poses.js';
 
 const q = new URLSearchParams(location.search);
 const etat = document.getElementById('etat');
@@ -85,9 +85,15 @@ try {
   const brume = brumeEnBoucle(world, { vitesse: 3, force: 1.3 });
 
   const camera = new THREE.PerspectiveCamera(40, FORMATS[format], 2, 40000);
+  const PLACEMENT_BASE = { p1: { ...PLACEMENT.p1 }, zombie: { ...PLACEMENT.zombie } };
   function placerCamera() {
     if (plein) format = innerWidth < innerHeight ? 'portrait' : 'paysage';
     const c = CADRAGES[cadrage][format];
+    // Placement des personnages propre au format (ordinateur : écartés de part et d'autre du titre), sinon celui de poses.js.
+    const pl = c.placement ?? {};
+    const xz = (v, def) => (v ? (([x, z]) => ({ x, z }))(nums(v)) : def);
+    Object.assign(PLACEMENT.p1, PLACEMENT_BASE.p1, pl.p1 ?? {}, xz(q.get('p1'), {}));
+    Object.assign(PLACEMENT.zombie, PLACEMENT_BASE.zombie, pl.zombie ?? {}, xz(q.get('zb'), {}));
     const cam = nums(q.get('cam'), c.cam);
     const vise = nums(q.get('vise'), c.vise);
     camera.fov = Number(q.get('fov') ?? c.fov);

@@ -116,7 +116,7 @@ export function creerTir({ palette, laiton, echelle = 1 }) {
         etoile.material.rotation = 0.6;
         flamme.position.copy(tip);
         flamme.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), fwd);
-        flamme.scale.set(8 * k, (22 + 8 * f) * k, 8 * k);
+        flamme.scale.set(6 * k, (9 + 4 * f) * k, 6 * k); // courte : longue, elle passait pour un trait de laser
       }
       lumiere.position.copy(tip).addScaledVector(fwd, 4 * k);
       lumiere.intensity = d < 0.12 ? 3200 * (1 - d / 0.12) ** 2 : 0;

@@ -24,6 +24,14 @@ function visageSurvivant() {
   parts.push(sphere('menton', 'head', 'peau', [2.6, 1.6, 1.8], [0, 1.9, 2.9], { skin: true }));
   return parts;
 }
+// Œil gauche fermé du tireur (personnage 1, variante « riche ») : il vise de l'œil droit. La tête du jeu est une seule géométrie : on ne
+// peut pas réduire l'œil, une paupière couleur peau le recouvre (pupille comprise), avec un trait de cils.
+function oeilFerme() {
+  return [
+    sphere('paupiereL', 'head', 'peau', [1.08, 0.74, 0.62], [1.65, 5.12, 4.5], { skin: true }),
+    box('cilsL', 'head', 'sombre', [1.9, 0.24, 0.3], [1.65, 4.98, 5.06], [0, 0, 0.08]),
+  ];
+}
 // Visage d'un zombie : orbites creuses et sombres, yeux pâles, bouche ouverte, dents.
 function visageZombie() {
   const parts = [];
@@ -83,6 +91,7 @@ export function enrichirPersonnages(characters) {
     if (v.kind === 'player') {
       allongerBras(v);
       add(visageSurvivant());
+      if (v.id === 'riche') add(oeilFerme());
       add(pouce());
       if (ids.has('gunSlide')) add(pistolet());
     } else {

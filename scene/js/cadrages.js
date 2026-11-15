@@ -1,5 +1,7 @@
 // Cadrages de la planche (lot 1) : position de la caméra, point visé et champ vertical, dans le repère de la scène (stage : +z vers la
 // caméra, +x à droite de l'image, unités du jeu). Un réglage par format : paysage 16:9 (ordinateur), portrait 9:16 (téléphone).
+// placement (facultatif) : position du personnage 1 et du zombie pour ce format (le personnage 2 suit le zombie), à la place de
+// PLACEMENT (js/poses.js).
 export const CADRAGES = {
   A: {
     nom: 'Plan large de face',
@@ -8,8 +10,11 @@ export const CADRAGES = {
   },
   B: {
     nom: 'Contre-plongée rapprochée',
-    paysage: { cam: [-46, 8, 122], vise: [4, 50, -30], fov: 44 },
-    portrait: { cam: [-34, 8, 118], vise: [-2, 34, -20], fov: 62 },
+    // Angle d'origine du cadrage B ; sur ordinateur, les personnages s'écartent (placement) : le titre centré de l'accueil ne cache plus rien.
+    // Déplacements dans le repère de la caméra : personnage 1 (à genou) de 30 vers la gauche de l'image et 8 vers le fond (le pistolet reste dans le
+    // cadre pendant le tir) ; zombie (et personnage 2) de 36 vers la droite et 8 vers le fond.
+    paysage: { cam: [-46, 8, 122], vise: [4, 50, -30], fov: 44, placement: { p1: { x: -56, z: 17 }, zombie: { x: 58.7, z: -14.4 } } },
+    portrait: { cam: [-40, 8, 126], vise: [-8, 31, -20], fov: 62 },
   },
   C: {
     nom: 'Trois quarts',

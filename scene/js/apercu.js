@@ -5,6 +5,7 @@
 const q = new URLSearchParams(location.search);
 const sceneParams = new URLSearchParams({ cadrage: q.get('cadrage') ?? 'B', format: 'plein' });
 if (q.get('t') !== null) sceneParams.set('t', q.get('t'));
+for (const k of ['p1', 'zb']) if (q.get(k)) sceneParams.set(k, q.get(k)); // réglages d'atelier du placement
 document.getElementById('scene').src = `index.html?${sceneParams}`;
 const site = document.getElementById('site');
 site.src = `../index.html${q.get('lang') ? `?lang=${encodeURIComponent(q.get('lang'))}` : ''}#accueil`;
