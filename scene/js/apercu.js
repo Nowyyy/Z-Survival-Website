@@ -14,7 +14,11 @@ const sceneFrameAttente = document.getElementById('scene');
 (function attendreScene() {
   const w = sceneFrameAttente.contentWindow;
   if (w?.__scene?.ready || w?.__sceneError) {
-    site.src = `../index.html${q.get('lang') ? `?lang=${encodeURIComponent(q.get('lang'))}` : ''}#accueil`;
+    // ?lang= et ?bandeau=1 (bandeau d'alerte à l'essai) sont transmis au site.
+    const siteParams = new URLSearchParams();
+    if (q.get('lang')) siteParams.set('lang', q.get('lang'));
+    if (q.get('bandeau') === '1') siteParams.set('bandeau', '1');
+    site.src = `../index.html${siteParams.size ? `?${siteParams}` : ''}#accueil`;
     return;
   }
   setTimeout(attendreScene, 100);

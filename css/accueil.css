@@ -141,6 +141,84 @@
   95% { transform: none; text-shadow: none; }
 }
 
+/* ---------- Bandeau d'alerte qui défile (idée « catchy » n° 5, à l'essai : seulement avec ?bandeau=1, js/accueil-bandeau.js) ----------
+   Collé au bas du cadre rouge, à l'intérieur : étiquette « Alerte » rouge à gauche, messages qui défilent de droite à gauche, séparés par
+   un losange rouge. Le logo, l'accroche et le bouton remontent de la hauteur du bandeau. Pendant l'entrée, il glisse en place à 1,7 s.
+   Mouvement réduit : pas de défilement. */
+.accueil-bandeau {
+  --bandeau-h: 34px;
+  position: absolute;
+  z-index: 2;
+  left: 11px;
+  right: 11px;
+  bottom: calc(max(8px, env(safe-area-inset-bottom)) + 3px);
+  height: var(--bandeau-h);
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  border-top: 1px solid color-mix(in srgb, var(--color-action) 60%, transparent);
+  border-radius: 0 0 21px 21px;
+  background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+  font-family: var(--font-label);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+}
+.accueil-bandeau[hidden] { display: none; }
+.bandeau-titre {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 0 18px;
+  background: var(--color-action);
+  color: var(--color-text);
+}
+.bandeau-titre::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-text);
+  animation: bandeau-voyant 1s steps(1) infinite;
+}
+@keyframes bandeau-voyant { 50% { opacity: 0.25; } }
+.bandeau-fenetre {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+}
+.bandeau-piste {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  animation: bandeau-defile var(--bandeau-duree, 40s) linear infinite;
+}
+.accueil-bandeau:hover .bandeau-piste { animation-play-state: paused; }
+.bandeau-liste {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.bandeau-liste li { display: flex; align-items: center; }
+.bandeau-liste li::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin: 0 22px;
+  background: var(--color-action-text);
+  transform: rotate(45deg);
+}
+@keyframes bandeau-defile { to { transform: translateX(-50%); } }
+.avec-bandeau .section-accueil { padding-bottom: calc(max(8px, env(safe-area-inset-bottom)) + 18px + 38px); }
+.entree-accueil .accueil-bandeau { animation: bandeau-entre 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) 1.7s both; }
+@keyframes bandeau-entre { from { transform: translateY(100%); opacity: 0; } }
+
 /* Coup de feu de l'image animée (js/accueil-tir.js, événement « zs:tir ») : le cadre s'illumine d'un coup, son halo s'étend à
    l'intérieur comme à l'extérieur, puis tout revient en 0,5 s. Couleurs : jetons rouges (--color-action-hover, --color-action). */
 .section-accueil.est-tir .accueil-scene::after { animation: cadre-tir 520ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
@@ -286,6 +364,8 @@
 
 @media (min-width: 900px) {
   .section-accueil { padding-bottom: 48px; } /* juste au-dessus du cadre (inset 24 px) */
+  .avec-bandeau .section-accueil { padding-bottom: calc(48px + 40px); }
+  .accueil-bandeau { --bandeau-h: 38px; left: 27px; right: 27px; bottom: 27px; border-radius: 0 0 25px 25px; font-size: 0.9rem; }
   .accueil-scene::after { inset: 24px; border-radius: 28px; }
   .accueil-studio { top: 44px; left: 52px; width: 96px; }
   .accueil-mention { top: 48px; }
@@ -302,6 +382,7 @@
   .section-accueil.est-tir .accueil-scene::after { animation: none; }
   .entree-accueil .accueil-vhs, .entree-accueil .accueil-titre, .entree-accueil .accueil-titre * { animation: none !important; }
   .accueil-sous-titre, .accroche-curseur { animation: none; }
+  .bandeau-piste, .bandeau-titre::before, .entree-accueil .accueil-bandeau { animation: none; }
   .accueil-vhs { display: none; }
   .js .accueil-contenu > * { opacity: 1; transform: none; }
 }
