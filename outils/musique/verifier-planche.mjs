@@ -1,6 +1,6 @@
 // Contrôle Playwright de la planche d'écoute (lot 1b) : node outils/musique/verifier-planche.mjs [--captures=DOSSIER] [--en-ligne]
 // - Prépare une copie exacte de ce que publie .github/workflows/pages.yml (même commande cp) dans un dossier temporaire et la sert
-//   sous /Z-Survival-Website/ (comme GitHub Pages) ; avec --en-ligne, contrôle https://nowyyy.github.io/Z-Survival-Website/ à la place.
+//   à la racine (--sous-dossier : sous /Z-Survival-Website/) ; avec --en-ligne, contrôle https://zsurvival-game.com/ à la place.
 // - Planche (téléphone 375 × 667, puis ordinateur 1440 × 900, puis mouvement réduit) : aucune erreur console, aucun fichier manquant,
 //   noindex, trois morceaux ; Lecture, Pause et reprise ; un seul morceau à la fois ; « Écouter le raccord » (départ 5 s avant la fin,
 //   retour au début, arrêt seul 5 s après).
@@ -12,7 +12,7 @@ import { mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { servirCopiePubliee } from '../copie-publiee.mjs';
+import { servirCopiePubliee, simulerActualites } from '../copie-publiee.mjs';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
@@ -31,7 +31,7 @@ const verifier = (ok, texte) => {
 let base;
 let serveur;
 if (args['en-ligne']) {
-  base = 'https://nowyyy.github.io/Z-Survival-Website/';
+  base = 'https://zsurvival-game.com/';
 } else {
   const copie = await servirCopiePubliee();
   console.log(`Copie publiée (${copie.commande}) servie depuis ${copie.dossier}`);
@@ -51,6 +51,8 @@ async function ouvrir(url, options = {}) {
   page.on('pageerror', (e) => erreurs.push(String(e)));
   page.on('requestfailed', (r) => manquants.push(`${r.url()} (${r.failure()?.errorText})`));
   page.on('response', (r) => { if (r.status() >= 400) manquants.push(`${r.url()} (${r.status()})`); });
+  // Lot 4a : la page du site appelle le serveur des actualités (lot 3b) ; en local, réponse simulée (outils/copie-publiee.mjs).
+  if (!args['en-ligne']) await simulerActualites(page);
   await page.goto(url, { waitUntil: 'networkidle' });
   return { contexte, page, erreurs, manquants };
 }

@@ -1,0 +1,30 @@
+{
+  "img/icones/icone.svg": {
+    "octets": 7495,
+    "sha256": "058aa122872f3302620a052606955349a81d8a585da513b7e9d0865bc5854c6e"
+  },
+  "favicon.ico": {
+    "octets": 3152,
+    "sha256": "635b7e4afd37bbc8bc10d7b8fcdc700d07629e38b06033173905ad0ebb3f4f33"
+  },
+  "img/icones/icone-180.png": {
+    "octets": 4987,
+    "sha256": "57fb8c0018c98b10e7a03347ebbf3694b4d55a8e49d01d1ca1fb1609b87c2aa0"
+  },
+  "img/icones/icone-192.png": {
+    "octets": 5301,
+    "sha256": "1f733fa96c5ef0a83a2f0b154cf450cbb4418ef1ebe3fa8cbca27c4af01cb5bd"
+  },
+  "img/icones/icone-512.png": {
+    "octets": 16680,
+    "sha256": "da3c531958dc0354056aa58dbf0f7e3cf4a9ca68a9e717895c6d18d7fa9fcf40"
+  },
+  "img/icones/icone-masquable-512.png": {
+    "octets": 13449,
+    "sha256": "6afe8ba4f1fd237edb54ea236df979b21380fad79adb4bda238f364a5b12b484"
+  },
+  "img/no-way-studio.png": {
+    "octets": 34797,
+    "sha256": "b9935a43a13c3377ab37b18660dfebf8bcad0ae67cb7703d023aadce364aa396"
+  }
+}

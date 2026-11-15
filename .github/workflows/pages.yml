@@ -31,7 +31,9 @@ jobs:
       - name: Préparer le site (fichiers statiques, sans build)
         run: |
           mkdir -p _site
-          cp -r index.html main.html admin css js fonts img musique sons scene contenus .nojekyll _site/
+          cp -r index.html main.html favicon.ico site.webmanifest robots.txt sitemap.xml admin css js fonts img musique sons scene contenus .nojekyll _site/
+          # favicon.ico, site.webmanifest : icônes et manifeste (lot 4a, outils/icones/fabriquer.mjs), à la racine du site.
+          # robots.txt, sitemap.xml : référencement (lot 4a, Docs/ref/referencement.md), une seule page indexable.
           # img/accueil/ : vidéos et affiches de l'accueil (lot 2b) ; sons/ : coup de feu du jeu, copie figée (lot 2b).
           # admin/ : page d'administration des actualités (lot 3b), noindex, non reliée au site (Docs/ref/admin.md).
           # img/actus/ : images des articles, ajoutées par le serveur (commit sur main) ; ce workflow les republie.

@@ -4,9 +4,18 @@
 
 export const TEXTES = {
   fr: {
+    // Titre de l'onglet et description (lot 4a : soignés pour le référencement). Le HTML d'index.html porte la version française,
+    // identique (outils/verifier-lot-4a.mjs le vérifie) ; js/i18n.js pose la version de la langue affichée.
     meta: {
-      titre: 'Z-Survival',
-      description: 'Site officiel du jeu de survie zombies Z-Survival.',
+      titre: 'Z-Survival — jeu de survie zombies sur navigateur',
+      description: 'Z-Survival, jeu de survie zombies en vue de dessus par No Way Studio : tenez jusqu’à l’aube, directement dans le navigateur, sur téléphone comme sur ordinateur. Bientôt disponible.',
+    },
+    // Aperçu de partage (lot 4a) : balises Open Graph et Twitter Card d'index.html, en français (og:locale fr_FR), recopiées telles
+    // quelles dans le HTML (les réseaux sociaux ne lisent pas le JavaScript) ; outils/verifier-lot-4a.mjs vérifie qu'elles sont identiques.
+    partage: {
+      titre: 'Z-Survival — survie zombies sur navigateur',
+      description: 'La nuit tombe, les morts se relèvent. Tiendrez-vous jusqu’à l’aube ? Z-Survival, jeu de survie zombies en vue de dessus par No Way Studio, bientôt disponible sur navigateur.',
+      imageAlt: 'Le logo Z-Survival sur une scène du jeu : un survivant tire, la nuit, devant un hélicoptère en feu.',
     },
     commun: {
       provisoire: 'Provisoire',
@@ -95,9 +104,15 @@ export const TEXTES = {
       signature: 'Un jeu de No Way Studio',
       copyright: '© 2026 No Way Studio',
     },
-    // À propos : titre et texte par défaut, remplacés par ceux de la page d'administration dès qu'ils sont enregistrés (js/a-propos.js).
+    // À propos : deux blocs, le jeu (textes fixes, about.jeu) puis le studio. Pour le studio, titre (studio.signature) et texte (about.texte)
+    // par défaut, remplacés par ceux de la page d'administration dès qu'ils sont enregistrés (js/a-propos.js).
     about: {
-      texte: 'No Way Studio crée Z-Survival, un jeu de survie zombies en vue de dessus, jouable directement dans le navigateur, sur téléphone comme sur ordinateur.',
+      jeu: {
+        titre: 'Le jeu',
+        texte: 'Z-Survival est un jeu de survie zombies en vue de dessus, jouable directement dans le navigateur, sur téléphone comme sur ordinateur. Bientôt disponible.',
+        imageAlt: 'Une scène de Z-Survival : la nuit, un survivant tire devant un hélicoptère en feu.',
+      },
+      texte: 'No Way Studio crée Z-Survival. Rejoignez la communauté sur [Discord](https://discord.gg/4bBRJNzwwB) pour suivre le développement du jeu.',
       credits: [
         { titre: 'Création', noms: ['Nowy'] },
       ],
@@ -107,8 +122,13 @@ export const TEXTES = {
 
   en: {
     meta: {
-      titre: 'Z-Survival',
-      description: 'Official website of the zombie survival game Z-Survival.',
+      titre: 'Z-Survival — zombie survival browser game',
+      description: 'Z-Survival, a top-down zombie survival game by No Way Studio: hold out until dawn, right in your browser, on phone or computer. Coming soon.',
+    },
+    partage: {
+      titre: 'Z-Survival — zombie survival in your browser',
+      description: 'Night falls, the dead rise. Can you hold out until dawn? Z-Survival, a top-down zombie survival game by No Way Studio, coming soon to your browser.',
+      imageAlt: 'The Z-Survival logo over a scene from the game: a survivor shoots at night, in front of a burning helicopter.',
     },
     commun: {
       provisoire: 'Placeholder',
@@ -197,9 +217,14 @@ export const TEXTES = {
       signature: 'A No Way Studio game',
       copyright: '© 2026 No Way Studio',
     },
-    // About us: default title and text, replaced by the ones saved in the admin page (js/a-propos.js).
+    // About us: two blocks, the game (fixed texts, about.jeu) then the studio (default title and text, replaced by the admin page's).
     about: {
-      texte: 'No Way Studio makes Z-Survival, a top-down zombie survival game you can play right in your browser, on phone or computer.',
+      jeu: {
+        titre: 'The game',
+        texte: 'Z-Survival is a top-down zombie survival game you can play right in your browser, on phone or computer. Coming soon.',
+        imageAlt: 'A scene from Z-Survival: at night, a survivor shoots in front of a burning helicopter.',
+      },
+      texte: 'No Way Studio makes Z-Survival. Join the community on [Discord](https://discord.gg/4bBRJNzwwB) to follow the game’s development.',
       credits: [
         { titre: 'Created by', noms: ['Nowy'] },
       ],

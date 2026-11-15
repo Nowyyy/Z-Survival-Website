@@ -1,6 +1,6 @@
 // Vérification de l'accueil du lot 2b (Playwright, Chromium) : node outils/video/verifier-accueil.mjs [--en-ligne] [--captures=DOSSIER]
-// Sur une copie exacte de ce que publie .github/workflows/pages.yml, servie sous /Z-Survival-Website/ (ou, avec --en-ligne, sur
-// https://nowyyy.github.io/Z-Survival-Website/) : téléphone 375 × 667 et 320 × 568, téléphone en paysage 667 × 375, ordinateur 1440 × 900,
+// Sur une copie exacte de ce que publie .github/workflows/pages.yml, servie à la racine (--sous-dossier : sous /Z-Survival-Website/) ou, avec --en-ligne, sur
+// https://zsurvival-game.com/ : téléphone 375 × 667 et 320 × 568, téléphone en paysage 667 × 375, ordinateur 1440 × 900,
 // chacun avec et sans prefers-reduced-motion.
 // - la bonne vidéo selon la forme de l'écran, et le changement quand on tourne l'écran ; mouvement réduit : aucune requête vidéo ni son,
 //   affiche visible ; ni Three.js ni rien de scene/ ;
@@ -33,7 +33,7 @@ const verifier = (ok, texte) => {
   console.log(`${ok ? '  ok ' : 'ÉCHEC'} ${texte}`);
 };
 
-let base = 'https://nowyyy.github.io/Z-Survival-Website/';
+let base = 'https://zsurvival-game.com/';
 let copie = null;
 if (!args['en-ligne']) {
   copie = await servirCopiePubliee();

@@ -279,7 +279,7 @@
 /* Très petits téléphones (340 px et moins) : avec le lien Discord, les boutons ronds du coin passent à 40 px (le logo du studio
    garde sa taille ; le son et Discord gardent une zone de toucher de 44 px). */
 @media (max-width: 340px) {
-  .accueil-reglages { gap: 4px; right: 20px; }
+  .accueil-reglages { gap: 5px; right: 20px; } /* lot 4a : 4 → 5 px, zones de clic de 44 px sans chevauchement */
   .accueil-reglages .son-bouton, .accueil-reglages .discord-lien { width: 40px; height: 40px; }
   .langue-accueil .langue-bouton { min-width: 40px; min-height: 40px; }
 }
@@ -407,6 +407,11 @@
 }
 /* Téléphone en paysage (peu de hauteur) : dans le coin du bas, contre le cadre. */
 @media (orientation: landscape) and (max-height: 540px) {
+  /* Lot 4a : titre, accroche et bouton resserrés, et titre à la taille que permet la hauteur de l'écran : le Z ne touche plus
+     « Bientôt disponible » ni la rangée du haut (sans changement en portrait ni sur ordinateur). 250 px : rangée du haut, accroche,
+     bouton, flèche et marges ; 1,45 : hauteur du titre, Z incliné compris, rapportée à sa taille de police. */
+  .accueil-contenu { gap: 0.75rem; }
+  .accueil-titre { font-size: max(2.25rem, min(14vw, 6.5rem, calc((100vh - 250px) / 1.45), calc((100dvh - 250px) / 1.45))); }
   .accueil-plateforme { left: max(22px, calc(env(safe-area-inset-left) + 12px)); bottom: calc(max(8px, env(safe-area-inset-bottom)) + 14px); }
 }
 @media (min-width: 900px) {
