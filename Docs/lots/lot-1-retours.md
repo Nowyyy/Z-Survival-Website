@@ -273,3 +273,11 @@ les reprendront quand elles seront refaites, après validation).
   du propriétaire après un essai en olive et en brun cuir (le cuir n'existe pas chez les militaires). `?gilet=olive` : la variante olive
   sombre, pour comparer.
 - Vérifié : boucle parfaite avec les détails (jonction 0,548).
+
+## Dix-huitième retour : tôle de l'hélicoptère sans répétition de carrés (`?details=1`)
+- Avant : grille régulière de panneaux carrés (17 unités) bordés de rivets, répétée partout. Maintenant (`texturePeinteMetal`,
+  `scene/js/helico.js`) : bandes horizontales de hauteurs variées, découpées en panneaux de largeurs variées, décalés d'une bande à
+  l'autre ; joints fins, rivets sur quelques joints seulement, trappes et plaques de réparation ; grandes nuances de peinture passée,
+  écaillures, suie et rouille. Image raccordable, répétée tous les 240 unités (au lieu de 70) et décalée pour chaque pièce : deux pièces
+  voisines ne montrent pas le même morceau de tôle.
+- Vérifié : boucle parfaite avec les détails.

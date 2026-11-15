@@ -56,7 +56,11 @@ function mesh(tris, material, uvOf) {
 // Tôle peinte générée en code (aucune image, détails ?details=1 : « l'hélicoptère a l'air en bois ») : gris neutre multiplié par la teinte
 // de chaque pièce (jetons du jeu) ; panneaux rivetés, rayures claires, coulures de suie et de rouille. 512 px, répétée.
 function texturePeinteMetal() {
-  const n = 512;
+  // Retour du propriétaire : « trop de répétition de carrés ». Plus de grille régulière : bandes horizontales de hauteurs variées, chacune
+  // coupée en panneaux de largeurs variées et décalés d'une bande à l'autre (comme un revêtement d'appareil), joints fins, rivets sur
+  // quelques joints seulement ; grandes nuances de peinture passée, écaillures, suie et rouille. Image raccordable sur ses bords, répétée
+  // tous les TUILE (grand) et décalée par pièce (uvMetal) : la répétition ne se voit plus.
+  const n = 1024;
   const c = document.createElement('canvas');
   c.width = n;
   c.height = n;
@@ -68,52 +72,126 @@ function texturePeinteMetal() {
     h ^= h >>> 16;
     return (h >>> 0) / 4294967296;
   };
+  // Dessin répété aux bords (image raccordable).
+  const partout = (f) => { for (const dx of [-n, 0, n]) for (const dy of [-n, 0, n]) f(dx, dy); };
   g.fillStyle = '#c4c8cc';
   g.fillRect(0, 0, n, n);
+  // Grandes nuances de peinture passée (taches douces claires et sombres).
+  for (let i = 0; i < 70; i += 1) {
+    const x = rnd() * n;
+    const y = rnd() * n;
+    const r = 60 + rnd() * 220;
+    const clair = rnd() < 0.5;
+    const a = 0.05 + rnd() * 0.09;
+    partout((dx, dy) => {
+      const grd = g.createRadialGradient(x + dx, y + dy, 0, x + dx, y + dy, r);
+      grd.addColorStop(0, clair ? `rgba(255,255,255,${a})` : `rgba(0,0,0,${a})`);
+      grd.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = grd;
+      g.fillRect(x + dx - r, y + dy - r, 2 * r, 2 * r);
+    });
+  }
+  // Grain fin.
   const img = g.getImageData(0, 0, n, n);
   for (let i = 0; i < img.data.length; i += 4) {
-    const v = (rnd() - 0.5) * 18;
+    const v = (rnd() - 0.5) * 12;
     img.data[i] += v;
     img.data[i + 1] += v;
     img.data[i + 2] += v;
   }
   g.putImageData(img, 0, 0);
-  // Coulures de suie et de rouille (taches allongées vers le bas).
-  for (let i = 0; i < 26; i += 1) {
+  // Écaillures : petites plaques de métal à nu, plus claires, au bord sombre.
+  for (let i = 0; i < 40; i += 1) {
     const x = rnd() * n;
     const y = rnd() * n;
-    const w = 10 + rnd() * 40;
-    const grd = g.createLinearGradient(x, y, x, y + w * 3);
+    const pts = Array.from({ length: 7 }, (_, k) => { const a = (k / 7) * Math.PI * 2; const r = 3 + rnd() * 12; return [Math.cos(a) * r, Math.sin(a) * r * 0.7]; });
+    partout((dx, dy) => {
+      g.beginPath();
+      pts.forEach(([px, py], k) => (k ? g.lineTo(x + dx + px, y + dy + py) : g.moveTo(x + dx + px, y + dy + py)));
+      g.closePath();
+      g.fillStyle = 'rgba(232,234,236,0.55)';
+      g.fill();
+      g.strokeStyle = 'rgba(40,36,32,0.35)';
+      g.lineWidth = 1;
+      g.stroke();
+    });
+  }
+  // Coulures de suie et de rouille (taches allongées vers le bas).
+  for (let i = 0; i < 34; i += 1) {
+    const x = rnd() * n;
+    const y = rnd() * n;
+    const w = 8 + rnd() * 50;
     const rouille = rnd() < 0.4;
-    grd.addColorStop(0, rouille ? 'rgba(90,50,25,0.45)' : 'rgba(20,20,20,0.5)');
-    grd.addColorStop(1, 'rgba(0,0,0,0)');
-    g.fillStyle = grd;
-    g.fillRect(x - w / 2, y, w, w * 3);
+    const a = 0.2 + rnd() * 0.3;
+    partout((dx, dy) => {
+      const grd = g.createLinearGradient(x + dx, y + dy, x + dx, y + dy + w * 4);
+      grd.addColorStop(0, rouille ? `rgba(95,52,24,${a})` : `rgba(22,22,22,${a})`);
+      grd.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = grd;
+      g.fillRect(x + dx - w / 2, y + dy, w, w * 4);
+    });
   }
-  // Panneaux : joints sombres et rivets.
-  g.strokeStyle = 'rgba(30,30,30,0.85)';
-  g.lineWidth = 3;
-  for (let k = 0; k <= n; k += 128) {
-    g.beginPath(); g.moveTo(k, 0); g.lineTo(k, n); g.stroke();
-    g.beginPath(); g.moveTo(0, k); g.lineTo(n, k); g.stroke();
-  }
-  for (let k = 0; k <= n; k += 128) {
-    for (let j = 8; j < n; j += 16) {
-      for (const [x, y] of [[k + 7, j], [j, k + 7]]) {
-        g.fillStyle = 'rgba(40,40,40,0.9)'; g.beginPath(); g.arc(x, y, 2.2, 0, Math.PI * 2); g.fill();
-        g.fillStyle = 'rgba(235,235,235,0.6)'; g.beginPath(); g.arc(x - 0.6, y - 0.6, 1, 0, Math.PI * 2); g.fill();
-      }
+  // Panneaux : bandes de hauteurs variées, découpées en panneaux de largeurs variées, décalés d'une bande à l'autre.
+  const rivets = (x0, y0, x1, y1) => {
+    const l = Math.hypot(x1 - x0, y1 - y0);
+    for (let d = 6; d < l - 3; d += 14) {
+      const x = x0 + ((x1 - x0) * d) / l;
+      const y = y0 + ((y1 - y0) * d) / l;
+      partout((dx, dy) => {
+        g.fillStyle = 'rgba(45,45,45,0.7)'; g.beginPath(); g.arc(x + dx, y + dy, 1.8, 0, Math.PI * 2); g.fill();
+        g.fillStyle = 'rgba(235,235,235,0.45)'; g.beginPath(); g.arc(x + dx - 0.5, y + dy - 0.5, 0.8, 0, Math.PI * 2); g.fill();
+      });
     }
+  };
+  const joint = (x0, y0, x1, y1) => partout((dx, dy) => {
+    g.strokeStyle = 'rgba(28,28,28,0.55)';
+    g.lineWidth = 2;
+    g.beginPath(); g.moveTo(x0 + dx, y0 + dy); g.lineTo(x1 + dx, y1 + dy); g.stroke();
+    g.strokeStyle = 'rgba(240,240,240,0.18)'; // lèvre claire du panneau voisin
+    g.lineWidth = 1;
+    g.beginPath(); g.moveTo(x0 + dx + 1.5, y0 + dy + 1.5); g.lineTo(x1 + dx + 1.5, y1 + dy + 1.5); g.stroke();
+  });
+  const hauteurs = [];
+  for (let reste = n; reste > 0;) {
+    const hb = Math.min(reste, reste < 300 ? reste : 170 + Math.floor(rnd() * 200));
+    hauteurs.push(hb);
+    reste -= hb;
+  }
+  let y = 0;
+  for (const hb of hauteurs) {
+    joint(0, y, n, y);
+    if (rnd() < 0.6) rivets(0, y + 7, n, y + 7);
+    let x = rnd() * n; // départ décalé : les joints verticaux ne s'alignent pas d'une bande à l'autre
+    for (let fait = 0; fait < n;) {
+      const w = Math.min(n - fait, 190 + rnd() * 330);
+      joint(x, y, x, y + hb);
+      if (rnd() < 0.35) rivets(x + 7, y, x + 7, y + hb);
+      x = (x + w) % n;
+      fait += w;
+    }
+    // Trappe ou plaque de réparation de temps en temps.
+    if (rnd() < 0.5) {
+      const tw = 40 + rnd() * 70;
+      const th = 30 + rnd() * 50;
+      const tx = rnd() * (n - tw);
+      const ty = y + 20 + rnd() * Math.max(1, hb - th - 40);
+      g.strokeStyle = 'rgba(28,28,28,0.5)';
+      g.lineWidth = 1.5;
+      g.strokeRect(tx, ty, tw, th);
+      rivets(tx + 4, ty + 4, tx + tw - 4, ty + 4);
+      rivets(tx + 4, ty + th - 4, tx + tw - 4, ty + th - 4);
+    }
+    y += hb;
   }
   // Rayures claires (métal à nu).
-  g.strokeStyle = 'rgba(245,245,245,0.55)';
+  g.strokeStyle = 'rgba(245,245,245,0.45)';
   g.lineWidth = 1;
-  for (let i = 0; i < 60; i += 1) {
-    const x = rnd() * n;
-    const y = rnd() * n;
+  for (let i = 0; i < 110; i += 1) {
+    const x0 = rnd() * n;
+    const y0 = rnd() * n;
     const a = rnd() * Math.PI;
-    const l = 6 + rnd() * 30;
-    g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke();
+    const l = 6 + rnd() * 40;
+    g.beginPath(); g.moveTo(x0, y0); g.lineTo(x0 + Math.cos(a) * l, y0 + Math.sin(a) * l); g.stroke();
   }
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -190,12 +268,25 @@ export function creerHelico({ heli: heli0, floor, palette, textures, k = ECHELLE
   const rotorIds = new Set(['rotor-queue-1', 'rotor-queue-2']);
   const metal = details ? new THREE.MeshStandardMaterial({ map: texturePeinteMetal(), vertexColors: true, metalness: 0.7, roughness: 0.42, envMap: renderer ? environnementNuit(renderer, palette) : null, envMapIntensity: 1.1, side: THREE.DoubleSide }) : null;
   if (details) for (const t of all) if (t.region !== 'vitre') t.rgb = teinteAcier(t.rgb);
-  const TUILE = 70; // unités du monde par répétition de la tôle (panneaux d'environ 17 unités)
-  const uvMetal = (t) => t.p.map((p) => {
-    const n = t.n;
-    const ax = Math.abs(n[0]) >= Math.abs(n[1]) && Math.abs(n[0]) >= Math.abs(n[2]) ? [2, 1] : Math.abs(n[1]) >= Math.abs(n[2]) ? [0, 2] : [0, 1];
-    return [p[ax[0]] / TUILE, p[ax[1]] / TUILE];
-  });
+  const TUILE = 240; // unités du monde par répétition de la tôle (panneaux de 40 à 125 unités de large, bandes de 40 à 90 de haut)
+  // Décalage propre à chaque pièce (hachage de son nom) : deux pièces voisines ne montrent pas le même morceau de tôle.
+  const decalage = new Map();
+  const decalageDe = (id = '') => {
+    if (!decalage.has(id)) {
+      let x = 2166136261;
+      for (const ch of id) x = Math.imul(x ^ ch.charCodeAt(0), 16777619);
+      decalage.set(id, [((x >>> 0) % 997) / 997, ((x >>> 10) % 991) / 991]);
+    }
+    return decalage.get(id);
+  };
+  const uvMetal = (t) => {
+    const [du, dv] = decalageDe(t.part);
+    return t.p.map((p) => {
+      const n = t.n;
+      const ax = Math.abs(n[0]) >= Math.abs(n[1]) && Math.abs(n[0]) >= Math.abs(n[2]) ? [2, 1] : Math.abs(n[1]) >= Math.abs(n[2]) ? [0, 2] : [0, 1];
+      return [p[ax[0]] / TUILE + du, p[ax[1]] / TUILE + dv];
+    });
+  };
   const ajouter = (m) => {
     m.castShadow = true;
     m.receiveShadow = true;
