@@ -822,35 +822,47 @@ document.querySelectorAll('[data-apercu]').forEach((b) => b.addEventListener('cl
 $('apercu-fermer').addEventListener('click', fermerApercu);
 $('apercu').addEventListener('close', () => $('bouton-apercu').focus());
 
-// ---------- Page « À propos » du site (titre et texte, FR et EN) ----------
-// Sans page enregistrée, le formulaire part des textes par défaut du site (js/textes.js) ; « Enregistrer et publier »
-// met le texte en ligne (une minute au plus, le temps du cache du serveur).
+// ---------- Page « À propos » du site : deux blocs, le jeu puis le studio (titre et texte, FR et EN ; lot 3e) ----------
+// Bloc du jeu : page « a-propos-jeu » du serveur ; bloc du studio : page « a-propos » (titre = ligne sous le logo du studio).
+// Sans page enregistrée, chaque bloc part des textes par défaut du site (js/textes.js) ; « Enregistrer et publier » n'envoie que les
+// blocs modifiés et les met en ligne (une minute au plus, le temps du cache du serveur).
 
+const BLOCS_PAGE = Object.freeze({
+  jeu: { cle: 'a-propos-jeu', prefixe: 'jeu', nom: 'du jeu' },
+  studio: { cle: 'a-propos', prefixe: 'page', nom: 'du studio' },
+});
 let referencePage = '';
-let pageEnregistree = null;
+const pagesEnregistrees = { jeu: null, studio: null };
 
-function lireFormulairePage() {
+function lireBlocPage(bloc) {
+  const p = BLOCS_PAGE[bloc].prefixe;
   return {
-    titre_fr: $('page_titre_fr').value.trim(),
-    titre_en: $('page_titre_en').value.trim(),
-    contenu_fr: $('page_contenu_fr').value,
-    contenu_en: $('page_contenu_en').value,
+    titre_fr: $(`${p}_titre_fr`).value.trim(),
+    titre_en: $(`${p}_titre_en`).value.trim(),
+    contenu_fr: $(`${p}_contenu_fr`).value,
+    contenu_en: $(`${p}_contenu_en`).value,
   };
 }
-function remplirFormulairePage(p) {
-  $('page_titre_fr').value = p.titre_fr ?? '';
-  $('page_titre_en').value = p.titre_en ?? '';
-  $('page_contenu_fr').value = p.contenu_fr ?? '';
-  $('page_contenu_en').value = p.contenu_en ?? '';
+function lireFormulairePage() { return { jeu: lireBlocPage('jeu'), studio: lireBlocPage('studio') }; }
+function remplirBlocPage(bloc, valeurs) {
+  const p = BLOCS_PAGE[bloc].prefixe;
+  $(`${p}_titre_fr`).value = valeurs.titre_fr ?? '';
+  $(`${p}_titre_en`).value = valeurs.titre_en ?? '';
+  $(`${p}_contenu_fr`).value = valeurs.contenu_fr ?? '';
+  $(`${p}_contenu_en`).value = valeurs.contenu_en ?? '';
+}
+function remplirFormulairePage(f) {
+  if (f.jeu) remplirBlocPage('jeu', f.jeu);
+  if (f.studio) remplirBlocPage('studio', f.studio);
 }
 function pageModifiee() { return !ecrans.page.hidden && JSON.stringify(lireFormulairePage()) !== referencePage; }
-// Le titre de la page est la ligne sous le logo du studio (par défaut « Un jeu de No Way Studio ») ; le grand titre
-// « À propos » de la section reste fixe.
-const texteParDefaut = () => ({
-  titre_fr: TEXTES.fr.studio.signature, titre_en: TEXTES.en.studio.signature, contenu_fr: TEXTES.fr.about.texte, contenu_en: TEXTES.en.about.texte,
-});
-// Un enregistrement fait quand le titre désignait le grand titre de la section (« À propos » / « About us ») : le site affiche la
-// signature par défaut (js/a-propos.js), le formulaire aussi.
+// Le titre du studio est la ligne sous le logo (par défaut « Un jeu de No Way Studio ») ; le grand titre « À propos » reste fixe.
+const texteParDefaut = {
+  jeu: () => ({ titre_fr: TEXTES.fr.about.jeu.titre, titre_en: TEXTES.en.about.jeu.titre, contenu_fr: TEXTES.fr.about.jeu.texte, contenu_en: TEXTES.en.about.jeu.texte }),
+  studio: () => ({ titre_fr: TEXTES.fr.studio.signature, titre_en: TEXTES.en.studio.signature, contenu_fr: TEXTES.fr.about.texte, contenu_en: TEXTES.en.about.texte }),
+};
+// Un enregistrement fait quand le titre du studio désignait le grand titre de la section (« À propos » / « About us ») : le site affiche
+// la signature par défaut (js/a-propos.js), le formulaire aussi.
 const ANCIENS_TITRES = new Set([TEXTES.fr.sections.about, TEXTES.en.sections.about]);
 function corrigerAncienTitre(p) {
   if (!p) return p;
@@ -862,8 +874,9 @@ function corrigerAncienTitre(p) {
 
 function majStatutPage() {
   const s = $('page-statut');
-  s.dataset.statut = pageEnregistree ? 'publie' : 'nouveau';
-  s.textContent = pageEnregistree ? `En ligne · ${dateCourte(pageEnregistree.modifie_le)}` : 'Texte d’origine';
+  const dates = Object.values(pagesEnregistrees).filter(Boolean).map((p) => p.modifie_le).sort();
+  s.dataset.statut = dates.length ? 'publie' : 'nouveau';
+  s.textContent = dates.length ? `En ligne · ${dateCourte(dates.at(-1))}` : 'Texte d’origine';
 }
 
 function choisirOngletPage(langue) {
@@ -886,17 +899,26 @@ document.querySelectorAll('[data-onglet-page]').forEach((b) => {
 
 async function ouvrirPage({ formulaire = null } = {}) {
   try {
-    pageEnregistree = (await appel('GET', '/api/admin/pages/a-propos')).page;
+    const [jeu, studio] = await Promise.all([
+      appel('GET', `/api/admin/pages/${BLOCS_PAGE.jeu.cle}`),
+      appel('GET', `/api/admin/pages/${BLOCS_PAGE.studio.cle}`),
+    ]);
+    pagesEnregistrees.jeu = jeu.page;
+    pagesEnregistrees.studio = studio.page;
   } catch (err) {
     if (!(err instanceof ErreurSession)) annoncer(messageErreur(err), { type: 'erreur', duree: 0 });
     throw err;
   }
-  remplirFormulairePage(corrigerAncienTitre(pageEnregistree) ?? texteParDefaut());
+  remplirFormulairePage({
+    jeu: pagesEnregistrees.jeu ?? texteParDefaut.jeu(),
+    studio: corrigerAncienTitre(pagesEnregistrees.studio) ?? texteParDefaut.studio(),
+  });
   erreurDans('erreur-page', null);
   choisirOngletPage('fr');
   montrerEcran('page');
   referencePage = JSON.stringify(lireFormulairePage());
-  if (formulaire) remplirFormulairePage(formulaire); // texte gardé pendant une expiration de session
+  // Texte gardé pendant une expiration de session (ancien format : bloc du studio seul).
+  if (formulaire) remplirFormulairePage(formulaire.jeu || formulaire.studio ? formulaire : { studio: formulaire });
   majStatutPage();
 }
 
@@ -907,29 +929,51 @@ $('page-retour').addEventListener('click', () => {
   afficherListe();
 });
 
+/** Premier problème du formulaire : [message, id du champ, langue] ou null. */
+function problemePage(f) {
+  for (const bloc of ['jeu', 'studio']) {
+    const b = f[bloc];
+    const p = BLOCS_PAGE[bloc].prefixe;
+    const nom = BLOCS_PAGE[bloc].nom;
+    if (!b.titre_fr) return [`Le titre français ${nom} est obligatoire.`, `${p}_titre_fr`, 'fr'];
+    if (bloc === 'studio' && ANCIENS_TITRES.has(b.titre_fr)) return ['Ce titre est celui de la section (fixe) : écrivez la ligne qui s’affiche sous le logo du studio.', `${p}_titre_fr`, 'fr'];
+    if (!b.contenu_fr.trim()) return [`Le texte français ${nom} est obligatoire.`, `${p}_contenu_fr`, 'fr'];
+    if (b.contenu_en.trim() && !b.titre_en) return [`Texte anglais ${nom} sans titre anglais : ajoutez le titre anglais (sinon le texte anglais ne sera pas affiché).`, `${p}_titre_en`, 'en'];
+  }
+  return null;
+}
+
 $('page-enregistrer').addEventListener('click', async () => {
   const f = lireFormulairePage();
-  let probleme = null;
-  if (!f.titre_fr) probleme = ['Le titre français est obligatoire.', 'page_titre_fr', 'fr'];
-  else if (ANCIENS_TITRES.has(f.titre_fr)) probleme = ['Ce titre est celui de la section (fixe) : écrivez la ligne qui s’affiche sous le logo.', 'page_titre_fr', 'fr'];
-  else if (!f.contenu_fr.trim()) probleme = ['Le texte français est obligatoire.', 'page_contenu_fr', 'fr'];
-  else if (f.contenu_en.trim() && !f.titre_en) probleme = ['Texte anglais sans titre anglais : ajoutez le titre anglais (sinon le texte anglais ne sera pas affiché).', 'page_titre_en', 'en'];
+  const probleme = problemePage(f);
   if (probleme) {
     erreurDans('erreur-page', probleme[0]);
     choisirOngletPage(probleme[2]);
     $(probleme[1]).focus();
     return;
   }
+  const reference = JSON.parse(referencePage || '{}');
+  // Un bloc jamais enregistré et resté sur les textes d'origine n'est pas envoyé (le site les affiche déjà).
+  const aEnvoyer = ['jeu', 'studio'].filter((bloc) => JSON.stringify(f[bloc]) !== JSON.stringify(reference[bloc]));
+  if (!aEnvoyer.length) {
+    annoncer('Rien n’a changé : rien à enregistrer.');
+    return;
+  }
   const bouton = $('page-enregistrer');
   bouton.disabled = true;
   erreurDans('erreur-page', null);
   try {
-    pageEnregistree = (await appel('PUT', '/api/admin/pages/a-propos', { corps: f })).page;
-    remplirFormulairePage(pageEnregistree);
-    referencePage = JSON.stringify(lireFormulairePage());
+    for (const bloc of aEnvoyer) {
+      pagesEnregistrees[bloc] = (await appel('PUT', `/api/admin/pages/${BLOCS_PAGE[bloc].cle}`, { corps: f[bloc] })).page;
+      remplirBlocPage(bloc, pagesEnregistrees[bloc]);
+      reference[bloc] = lireBlocPage(bloc);
+      referencePage = JSON.stringify({ jeu: reference.jeu, studio: reference.studio });
+    }
     majStatutPage();
-    annoncer('Page « À propos » enregistrée : elle est sur le site (une minute au plus, le temps du cache).');
+    const quoi = aEnvoyer.length === 2 ? 'Blocs du jeu et du studio enregistrés' : `Bloc ${BLOCS_PAGE[aEnvoyer[0]].nom} enregistré`;
+    annoncer(`${quoi} : en ligne sur le site (une minute au plus, le temps du cache).`);
   } catch (err) {
+    majStatutPage();
     if (!(err instanceof ErreurSession)) erreurDans('erreur-page', `Enregistrement impossible : ${messageErreur(err)}`);
   } finally {
     bouton.disabled = false;
@@ -937,17 +981,14 @@ $('page-enregistrer').addEventListener('click', async () => {
 });
 
 let langueApercuPage = 'fr';
-function rendreApercuPage() {
-  const f = lireFormulairePage();
-  const lang = langueApercuPage;
-  const traduit = Boolean(f[`titre_${lang}`]);
-  const titre = traduit ? f[`titre_${lang}`] : f.titre_fr;
-  const contenu = (traduit ? f[`contenu_${lang}`] : '') || f.contenu_fr;
-  $('apercu-page-titre').textContent = TEXTES[lang].sections.about;
-  $('apercu-page-signature').textContent = (titre && !ANCIENS_TITRES.has(titre)) ? titre : TEXTES[lang].studio.signature;
-  const zone = $('apercu-page-texte');
+/** Titre et texte d'un bloc dans la langue demandée (règle du site : sans titre anglais, le français). */
+function versionBloc(b, lang) {
+  const traduit = Boolean(b[`titre_${lang}`]);
+  return { traduit, titre: traduit ? b[`titre_${lang}`] : b.titre_fr, contenu: (traduit ? b[`contenu_${lang}`] : '') || b.contenu_fr };
+}
+function rendreTexteApercu(zone, contenu, mentionFr, lang) {
   const fragment = document.createDocumentFragment();
-  if (!traduit && lang !== 'fr') {
+  if (mentionFr) {
     const mention = document.createElement('p');
     mention.className = 'about-mention';
     const badge = document.createElement('span');
@@ -958,8 +999,20 @@ function rendreApercuPage() {
   }
   fragment.append(rendreMarkdown(contenu, { niveauTitre: 3 }));
   zone.replaceChildren(fragment);
+}
+function rendreApercuPage() {
+  const f = lireFormulairePage();
+  const lang = langueApercuPage;
+  const jeu = versionBloc(f.jeu, lang);
+  const studio = versionBloc(f.studio, lang);
+  $('apercu-page-titre').textContent = TEXTES[lang].sections.about;
+  $('apercu-jeu-titre').textContent = jeu.titre || TEXTES[lang].about.jeu.titre;
+  rendreTexteApercu($('apercu-jeu-texte'), jeu.contenu, !jeu.traduit && lang !== 'fr', lang);
+  $('apercu-page-signature').textContent = (studio.titre && !ANCIENS_TITRES.has(studio.titre)) ? studio.titre : TEXTES[lang].studio.signature;
+  rendreTexteApercu($('apercu-page-texte'), studio.contenu, !studio.traduit && lang !== 'fr', lang);
   document.querySelectorAll('[data-apercu-page]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.apercuPage === lang)));
-  const note = (!traduit && lang !== 'fr') ? 'Pas de titre anglais : le site anglais montre la version française, avec la mention « (FR) ».' : '';
+  const sansAnglais = lang !== 'fr' ? ['jeu', 'studio'].filter((bloc) => !versionBloc(f[bloc], lang).traduit).map((bloc) => BLOCS_PAGE[bloc].nom) : [];
+  const note = sansAnglais.length ? `Pas de titre anglais pour le bloc ${sansAnglais.join(' ni pour le bloc ')} : le site anglais montre la version française, avec la mention « (FR) ».` : '';
   $('apercu-page-note').textContent = note;
   $('apercu-page-note').hidden = !note;
 }

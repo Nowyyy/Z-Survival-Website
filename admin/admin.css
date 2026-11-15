@@ -363,6 +363,10 @@ body.admin {
   text-shadow: 0 0 18px var(--color-action-glow);
   overflow-wrap: anywhere;
 }
+.admin-bloc-titre { margin-top: 4px; color: var(--color-action-text); }
+.admin-bloc-titre:not(:first-child) { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--color-surface-raised); }
+.admin-aide + .admin-bloc-titre { margin-top: 4px; padding-top: 0; border-top: 0; }
+.admin-apercu-separation { width: 100%; margin: 14px 0 6px; border: 0; border-top: 1px solid var(--color-surface-raised); }
 .admin-apercu-apropos-signature { font-family: var(--font-label); font-size: 1.05rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-action-text); }
 .about-mention { margin: 0; }
 

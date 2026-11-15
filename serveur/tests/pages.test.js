@@ -64,4 +64,15 @@ describe('pages (À propos)', () => {
     const admin = (await s.requete('GET', '/api/admin/pages/a-propos', { jeton })).json.page;
     assert.equal(admin.contenu_en, 'English text.');
   });
+
+  test('lot 3e : bloc du jeu (« a-propos-jeu »), indépendant du bloc du studio', async () => {
+    assert.deepEqual((await s.requete('GET', '/api/pages/a-propos-jeu?lang=fr')).json, { page: null });
+    const r = await s.requete('PUT', '/api/admin/pages/a-propos-jeu', { jeton, corps: { titre_fr: 'Le jeu', titre_en: 'The game', contenu_fr: 'Survie.', contenu_en: 'Survival.' } });
+    assert.equal(r.statut, 200);
+    assert.equal(r.json.page.cle, 'a-propos-jeu');
+    assert.equal((await s.requete('GET', '/api/pages/a-propos-jeu?lang=en')).json.page.titre, 'The game');
+    assert.equal((await s.requete('GET', '/api/pages/a-propos?lang=fr')).json.page.titre, 'À propos'); // le studio n'a pas bougé
+    assert.equal(Number((await s.db.execute('SELECT COUNT(*) AS n FROM pages')).rows[0].n), 2);
+    assert.equal((await s.requete('PUT', '/api/admin/pages/a-propos-jeu', { jeton: undefined, corps: { titre_fr: 'T', contenu_fr: 'x' } })).statut, 401);
+  });
 });

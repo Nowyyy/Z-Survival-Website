@@ -273,14 +273,15 @@
         </header>
         <!-- Deux blocs de même forme (image, titre, texte) : le jeu, puis le studio (demande du propriétaire, lot 4a). -->
         <div class="about-blocs">
-          <!-- Le jeu : textes fixes (about.jeu.* de js/textes.js), image : affiche de l'accueil (cadrage B). -->
+          <!-- Le jeu : titre et texte modifiables depuis la page d'administration (lot 3e, js/a-propos.js, page « a-propos-jeu ») ;
+               par défaut : about.jeu.* de js/textes.js. Image : affiche de l'accueil (cadrage B). -->
           <div class="about-corps about-corps-jeu">
             <div class="about-visuel about-jeu revele" style="--i:1">
               <img class="about-jeu-image" src="img/accueil/accueil-16x9.webp" alt="" data-t-alt="about.jeu.imageAlt" width="1920" height="1080" loading="lazy" decoding="async">
             </div>
             <div class="about-texte">
-              <p class="about-signature revele" style="--i:2" data-t="about.jeu.titre"></p>
-              <div class="about-paragraphe actu-texte revele" style="--i:3"><p data-t="about.jeu.texte"></p></div>
+              <p class="about-signature revele" style="--i:2" id="about-jeu-titre" data-t="about.jeu.titre"></p>
+              <div class="about-paragraphe actu-texte revele" style="--i:3" id="about-jeu-texte"></div>
             </div>
           </div>
           <!-- Le studio. -->

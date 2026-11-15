@@ -70,8 +70,9 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   Personnages et Armes :
   contenu provisoire atténué et inerte sous un encart « Prochainement » (« Coming soon » en anglais). Globe de langue aussi
   dans l'en-tête ; « Bientôt disponible », lien Discord (https://discord.gg/4bBRJNzwwB, logo en SVG, nouvel onglet), bouton de son et globe en haut à droite de l'accueil comme dans l'en-tête (About us : ligne sous le logo du studio et texte modifiables depuis l'admin, `js/a-propos.js` ; grand titre fixe ; logo animé du studio rejoué à chaque arrivée,
-  puis pied de page). À propos a **deux blocs de même forme** (image, titre, texte) : le jeu (textes fixes `about.jeu`, affiche de l'accueil)
-  au-dessus du studio. En-tête et navigation cachés sur l'accueil.
+  puis pied de page). À propos a **deux blocs de même forme** (image, titre, texte) : le jeu (affiche de l'accueil) au-dessus du studio ;
+  titres et textes des deux blocs modifiables depuis l'admin (lot 3e : pages `a-propos-jeu` et `a-propos` du serveur ; par défaut
+  `about.jeu.*`, `studio.signature`, `about.texte`). En-tête et navigation cachés sur l'accueil.
   Tête de page : titre et description français (= `meta.*`), aperçu de partage Open Graph / Twitter Card (= `partage.*` de `js/textes.js`,
   image `img/partage.jpg`), canonique, icônes, manifeste, JSON-LD (VideoGame, Organization, WebSite).
 - `main.html` : ancienne page principale, simple redirection vers `./#news` (garde l'ancre).
@@ -82,7 +83,7 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   français pour les visiteurs francophones, anglais pour les autres ; aucune géolocalisation) ;
   `js/logo.js` : logo du jeu ;
   `js/config.js` : **adresse du serveur, seul endroit côté site** (la CSP d'`admin/index.html` doit autoriser la même) ;
-  `js/a-propos.js` : ligne sous le logo (« Un jeu de No Way Studio » par défaut) et texte de la section À propos lus sur le serveur (`GET /api/pages/a-propos`), textes de `js/textes.js` par défaut ;
+  `js/a-propos.js` : titre et texte du bloc du jeu (`GET /api/pages/a-propos-jeu`), ligne sous le logo (« Un jeu de No Way Studio » par défaut) et texte du studio (`GET /api/pages/a-propos`), lus sur le serveur ; textes de `js/textes.js` par défaut ;
   `js/actualites.js` : section Actualités (lecture du serveur, cartes, squelettes, erreur, liste vide, fenêtre de l'article, `#actu/<slug>`) ;
   `js/article.js` : carte et article complet (site et aperçu de l'admin) ; `js/markdown.js` : Markdown sûr, liste blanche, aucun HTML ;
   `css/actualites.css` : styles des actualités ;

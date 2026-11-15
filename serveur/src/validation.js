@@ -79,7 +79,8 @@ export function validerArticle(corps, { creation }) {
 }
 
 // Pages du site modifiables depuis l'administration (lot « À propos ») : clés fixes.
-export const PAGES = Object.freeze(['a-propos']);
+// « a-propos » : bloc du studio (ligne sous le logo et texte) ; « a-propos-jeu » (lot 3e) : bloc du jeu, au-dessus (titre et texte).
+export const PAGES = Object.freeze(['a-propos', 'a-propos-jeu']);
 const CHAMPS_PAGE = ['titre_fr', 'titre_en', 'contenu_fr', 'contenu_en'];
 const LIMITE_TITRE_PAGE = 120;
 const LIMITE_CONTENU_PAGE = 20_000;

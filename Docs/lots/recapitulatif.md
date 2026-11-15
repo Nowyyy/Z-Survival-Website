@@ -18,6 +18,7 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
 | — | Nom de domaine **zsurvival-game.com** | #48, #49 | `nom-de-domaine.md` |
 | **3c** | Serveur : annonce Discord de chaque actualité publiée (webhook, une fois par article) | voir `lot-3c.md` | `lot-3c.md` |
 | **3d** | Admin : messages du bandeau d'alerte (sous « À propos »), écrits dans `contenus/bandeau.json` par le serveur | voir `lot-3d.md` | `lot-3d.md` |
+| **3e** | À propos : bloc du jeu (titre et texte) modifiable depuis l'admin, comme le studio | voir `lot-3e.md` | `lot-3e.md` |
 | **4a** | Finitions : aperçu de partage, icônes, référencement, titre en paysage, boutons à 44 px ; À propos en deux blocs (jeu, studio) | voir `lot-4a.md` | `lot-4a.md` |
 
 > Les lots ont été numérotés par thème, pas dans l'ordre : 1b avant 1, 3a avant 2b.

@@ -580,6 +580,8 @@ console.log('\n# Page « À propos »');
     const { page, contexte, erreursInattendues } = await ouvrirAbout('fr');
     verifier(await page.textContent('#titre-about') === 'À propos' && await page.textContent('#about-signature') === 'Un jeu de No Way Studio'
       && /^No Way Studio crée Z-Survival/.test(await page.textContent('#about-texte')), 'site, rien d’enregistré : titre sous le logo et texte par défaut');
+    verifier(await page.textContent('#about-jeu-titre') === 'Le jeu' && /^Z-Survival est un jeu de survie zombies/.test(await page.textContent('#about-jeu-texte')),
+      'site, rien d’enregistré : bloc du jeu avec ses textes par défaut (lot 3e)');
     verifier(await page.locator('#about .marque-provisoire').count() === 0, 'À propos : plus d’encart jaune « contenu provisoire »');
     verifier(erreursInattendues().length === 0, `aucune erreur console (${erreursInattendues().join(' | ')})`);
     await contexte.close();
@@ -596,10 +598,22 @@ console.log('\n# Page « À propos »');
   verifier(await page.inputValue('#page_titre_fr') === 'Un jeu de No Way Studio' && /^No Way Studio crée/.test(await page.inputValue('#page_contenu_fr'))
     && await page.inputValue('#page_titre_en') === 'A No Way Studio game' && /Texte d’origine/.test(await page.textContent('#page-statut')),
     'admin : la page part des textes actuels du site (FR et EN), statut « Texte d’origine »');
+  verifier(await page.inputValue('#jeu_titre_fr') === 'Le jeu' && /^Z-Survival est un jeu/.test(await page.inputValue('#jeu_contenu_fr'))
+    && await page.inputValue('#jeu_titre_en') === 'The game' && /^Z-Survival is a top-down/.test(await page.inputValue('#jeu_contenu_en')),
+    'admin (lot 3e) : bloc du jeu, titre et texte actuels du site (FR et EN)');
+  {
+    const ordre = await page.evaluate(() => [...document.querySelectorAll('#page-panneau-fr input, #page-panneau-fr textarea')].map((e) => e.id));
+    verifier(ordre.join() === 'jeu_titre_fr,jeu_contenu_fr,page_titre_fr,page_contenu_fr', `admin (lot 3e) : bloc du jeu au-dessus du bloc du studio (${ordre.join(', ')})`);
+  }
+  await page.fill('#jeu_titre_fr', 'Le jeu (essai)');
+  await page.fill('#jeu_contenu_fr', 'Survie');
+  await page.evaluate(() => document.getElementById('jeu_contenu_fr').setSelectionRange(0, 6));
+  await page.click('#page-panneau-fr [data-cible=jeu_contenu_fr] [data-format=gras]');
+  verifier(await page.inputValue('#jeu_contenu_fr') === '**Survie**', 'admin (lot 3e) : barre de mise en forme sur le texte du jeu');
   await page.fill('#page_titre_fr', 'Le studio');
   await page.fill('#page_contenu_fr', 'Intro');
   await page.evaluate(() => document.getElementById('page_contenu_fr').setSelectionRange(0, 5));
-  await page.click('#page-panneau-fr [data-format=gras]');
+  await page.click('#page-panneau-fr [data-cible=page_contenu_fr] [data-format=gras]');
   await page.evaluate(() => { const z = document.getElementById('page_contenu_fr'); z.setSelectionRange(z.value.length, z.value.length); });
   await page.keyboard.type('\n\n- Jeux de survie\n- Sur navigateur\n\n[Notre site](https://example.org) <script>window.__pirate=9</script>');
   verifier((await page.inputValue('#page_contenu_fr')).startsWith('**Intro**'), 'admin : barre de mise en forme sur le texte de la page');
@@ -614,13 +628,15 @@ console.log('\n# Page « À propos »');
   verifier(await page.textContent('#apercu-page-titre') === 'À propos' && await page.textContent('#apercu-page-signature') === 'Le studio'
     && await page.locator('#apercu-page-texte strong').count() === 1 && await page.locator('#apercu-page-texte li').count() === 2,
     'aperçu FR : grand titre fixe, titre sous le logo modifié, gras, liste');
+  verifier(await page.textContent('#apercu-jeu-titre') === 'Le jeu (essai)' && await page.locator('#apercu-jeu-texte strong').count() === 1,
+    'aperçu FR (lot 3e) : bloc du jeu modifié, au-dessus du studio');
   await page.click('[data-apercu-page=en]');
   verifier(await page.isVisible('#apercu-page-texte .actu-mention-fr') && !(await page.isHidden('#apercu-page-note')), 'aperçu EN sans anglais : version française avec « (FR) »');
   await page.screenshot({ path: join(CAPTURES, 'admin-apercu-a-propos-375.png') });
   await page.click('#apercu-page-fermer');
   await page.click('#page-enregistrer');
   await page.waitForFunction(() => /En ligne/.test(document.getElementById('page-statut').textContent));
-  verifier(/enregistrée/.test(await page.textContent('#message')), 'admin : page enregistrée et publiée');
+  verifier(/Blocs du jeu et du studio enregistrés/.test(await page.textContent('#message')), 'admin : les deux blocs enregistrés et publiés');
   await page.screenshot({ path: join(CAPTURES, 'admin-page-a-propos-375.png'), fullPage: true });
   verifier(erreursInattendues(HTTP_VOULU).length === 0, `admin : aucune erreur console (${erreursInattendues(HTTP_VOULU).join(' | ')})`);
 
@@ -636,7 +652,10 @@ console.log('\n# Page « À propos »');
       scripts: document.querySelectorAll('#about-texte script').length,
       pirate: window.__pirate ?? null,
       nav: document.querySelector('.nav-sections a[data-section=about] .nav-nom').textContent,
+      jeuTitre: document.getElementById('about-jeu-titre').textContent,
+      jeuGras: document.querySelectorAll('#about-jeu-texte strong').length,
     }));
+    verifier(etat.jeuTitre === 'Le jeu (essai)' && etat.jeuGras === 1, `site ${taille.join(' × ')} (lot 3e) : bloc du jeu publié (titre, gras)`);
     verifier(etat.titre === 'À propos' && etat.signature === 'Le studio' && etat.gras === 1 && etat.puces === 2 && etat.liens.join() === 'https://example.org/ noopener noreferrer' && etat.scripts === 0 && etat.pirate === null,
       `site ${taille.join(' × ')}${reduit ? ' (mouvement réduit)' : ''} : grand titre fixe, titre sous le logo et texte publiés, Markdown sûr`);
     verifier(etat.nav === 'À propos', 'menu : l’entrée « 05 À propos » garde son intitulé');
@@ -650,6 +669,8 @@ console.log('\n# Page « À propos »');
     verifier(await v.page.textContent('#titre-about') === 'About us' && await v.page.textContent('#about-signature') === 'Le studio'
       && await v.page.getAttribute('#about-signature', 'lang') === 'fr' && await v.page.isVisible('#about-texte .actu-mention-fr'),
       'site anglais sans version anglaise : texte français avec « (FR) »');
+    verifier(await v.page.textContent('#about-jeu-titre') === 'The game' && !(await v.page.isVisible('#about-jeu-texte .actu-mention-fr')),
+      'site anglais (lot 3e) : bloc du jeu en anglais (version anglaise gardée), sans « (FR) »');
     await v.contexte.close();
   }
   // Version anglaise ajoutée : le site anglais l'affiche ; le changement de langue suit.
@@ -657,7 +678,7 @@ console.log('\n# Page « À propos »');
   await page.fill('#page_titre_en', 'The studio');
   await page.fill('#page_contenu_en', 'We make *survival* games.');
   await page.click('#page-enregistrer');
-  await page.waitForFunction(() => /enregistrée/.test(document.getElementById('message').textContent));
+  await page.waitForFunction(() => /Bloc du studio enregistré/.test(document.getElementById('message').textContent));
   await contexte.close();
   {
     const v = await ouvrirAbout('fr');
@@ -674,7 +695,8 @@ console.log('\n# Page « À propos »');
     const v = await nouvellePage({ brancher: { coupe: () => true } });
     await v.page.goto(`${banc.base}?lang=fr#about`);
     await v.page.waitForTimeout(800);
-    verifier(await v.page.textContent('#about-signature') === 'Un jeu de No Way Studio' && /^No Way Studio crée/.test(await v.page.textContent('#about-texte')), 'serveur injoignable : textes par défaut de la page');
+    verifier(await v.page.textContent('#about-signature') === 'Un jeu de No Way Studio' && /^No Way Studio crée/.test(await v.page.textContent('#about-texte'))
+      && await v.page.textContent('#about-jeu-titre') === 'Le jeu', 'serveur injoignable : textes par défaut des deux blocs');
     await v.contexte.close();
   }
   // Ancien enregistrement (titre « À propos », quand le titre désignait la section) : la signature par défaut reste affichée.
