@@ -1,0 +1,100 @@
+{
+  "jeu": {
+    "depot": "https://github.com/Nowyyy/Z-Survival.git",
+    "branche": "dev",
+    "commit": "1057406"
+  },
+  "reglages": {
+    "adresse": "jeu.html?test=1&seed=7&nospawn=1&vhs=0&zoom=3",
+    "fenetre": {
+      "width": 1600,
+      "height": 900
+    },
+    "cadre": {
+      "x": 400,
+      "y": 225,
+      "width": 800,
+      "height": 450
+    },
+    "ips": 30,
+    "images": 255,
+    "fondu": 15,
+    "affiche": 112,
+    "vagues": [
+      [
+        0,
+        [
+          [
+            200,
+            -40
+          ],
+          [
+            180,
+            70
+          ],
+          [
+            -190,
+            -60
+          ]
+        ]
+      ],
+      [
+        60,
+        [
+          [
+            -200,
+            90
+          ],
+          [
+            150,
+            -170
+          ]
+        ]
+      ],
+      [
+        120,
+        [
+          [
+            -120,
+            -200
+          ],
+          [
+            210,
+            20
+          ],
+          [
+            -220,
+            10
+          ]
+        ]
+      ],
+      [
+        180,
+        [
+          [
+            190,
+            -110
+          ],
+          [
+            -170,
+            150
+          ]
+        ]
+      ]
+    ]
+  },
+  "rendu": {
+    "zombies_tues": 10,
+    "vie": 100
+  },
+  "fichiers": {
+    "img/a-propos/jeu-clip.mp4": {
+      "octets": 262005,
+      "sha256": "3910a6868e32d0762d55dd8eee3a45e093e2300b2570a193790614aaabd0ff7c"
+    },
+    "img/a-propos/jeu-clip.webp": {
+      "octets": 16786,
+      "sha256": "e40a1fda9dccc5f64e64def9e4e05666e8a1ce48a7c8ba8f9bf54f7e6a31f398"
+    }
+  }
+}
