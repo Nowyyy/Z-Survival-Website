@@ -18,7 +18,7 @@ const TYPES_IMAGE = ['image/jpeg', 'image/png', 'image/webp'];
 const MOTIF_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const $ = (id) => document.getElementById(id);
-const ecrans = { connexion: $('ecran-connexion'), liste: $('ecran-liste'), editeur: $('ecran-editeur'), page: $('ecran-page') };
+const ecrans = { connexion: $('ecran-connexion'), liste: $('ecran-liste'), editeur: $('ecran-editeur'), page: $('ecran-page'), bandeau: $('ecran-bandeau') };
 
 // ---------- Messages ----------
 
@@ -81,6 +81,7 @@ let travailGarde = null;
 function deconnecter(raison) {
   if (ecrans.editeur.hidden === false && estModifie()) travailGarde = { id: courant?.id ?? null, formulaire: lireFormulaire() };
   else if (pageModifiee()) travailGarde = { page: lireFormulairePage() };
+  else if (bandeauModifie()) travailGarde = { bandeau: structuredClone(bandeau) };
   effacerSession();
   fermerApercu();
   montrerEcran('connexion');
@@ -212,6 +213,7 @@ async function entrer() {
     travailGarde = null;
     try {
       if (garde.page) await ouvrirPage({ formulaire: garde.page });
+      else if (garde.bandeau) await ouvrirBandeau({ garde: garde.bandeau });
       else await ouvrirEditeur(garde.id, { formulaire: garde.formulaire });
       annoncer('Votre texte non enregistré a été rouvert. Pensez à l’enregistrer.', { duree: 8000 });
       return;
@@ -223,10 +225,11 @@ async function entrer() {
 }
 
 $('deconnexion').addEventListener('click', () => {
-  if ((estModifie() || pageModifiee()) && !window.confirm('Des modifications ne sont pas enregistrées. Se déconnecter quand même ?')) return;
+  if ((estModifie() || pageModifiee() || bandeauModifie()) && !window.confirm('Des modifications ne sont pas enregistrées. Se déconnecter quand même ?')) return;
   travailGarde = null;
   definirReference();
   referencePage = JSON.stringify(lireFormulairePage());
+  referenceBandeau = JSON.stringify(bandeau.messages);
   deconnecter('Vous êtes déconnecté.');
 });
 
@@ -422,7 +425,7 @@ $('retour-liste').addEventListener('click', () => {
 
 // Alerte du navigateur si on quitte la page avec des modifications non enregistrées.
 window.addEventListener('beforeunload', (e) => {
-  if (!estModifie() && !pageModifiee() && !travailGarde) return;
+  if (!estModifie() && !pageModifiee() && !bandeauModifie() && !travailGarde) return;
   e.preventDefault();
   e.returnValue = '';
 });
@@ -972,6 +975,213 @@ document.querySelectorAll('[data-apercu-page]').forEach((b) => b.addEventListene
 }));
 $('apercu-page-fermer').addEventListener('click', () => $('apercu-page').close());
 $('apercu-page').addEventListener('close', () => $('page-apercu').focus());
+
+// ---------- Bandeau d'alerte de l'accueil (lot 3d) ----------
+// Messages de contenus/bandeau.json (lus et réécrits dans le dépôt par le serveur, GET/PUT /api/admin/bandeau). L'empreinte (sha) du
+// fichier lu est renvoyée à l'enregistrement : si le fichier a changé ailleurs entre-temps, le serveur refuse (409) au lieu d'écraser.
+
+const MAX_MESSAGES = 30;
+let bandeau = { messages: [], sha: null };
+let referenceBandeau = '[]';
+let langueApercuBandeau = 'fr';
+function bandeauModifie() { return !ecrans.bandeau.hidden && JSON.stringify(bandeau.messages) !== referenceBandeau; }
+
+function majStatutBandeau() {
+  const n = bandeau.messages.length;
+  const affiches = bandeau.messages.filter((m) => m.actif).length;
+  const s = $('bandeau-statut');
+  s.dataset.statut = bandeauModifie() ? 'brouillon' : 'publie';
+  s.textContent = bandeauModifie() ? 'Non enregistré' : `${n} message${n > 1 ? 's' : ''} · ${affiches} affiché${affiches > 1 ? 's' : ''}`;
+  $('bandeau-ajouter').hidden = n >= MAX_MESSAGES;
+}
+
+function rendreApercuBandeau() {
+  const lang = langueApercuBandeau;
+  $('bandeau-apercu-titre').textContent = TEXTES[lang].accueil.bandeau.titre;
+  const liste = $('bandeau-apercu-liste');
+  const items = [];
+  const actu = document.createElement('li');
+  actu.className = 'admin-bandeau-actu';
+  actu.textContent = `${TEXTES[lang].news.bandeau} : (titre du dernier article publié)`;
+  items.push(actu);
+  for (const m of bandeau.messages) {
+    if (!m.actif || !m.fr.trim()) continue;
+    const li = document.createElement('li');
+    li.textContent = lang === 'en' && m.en.trim() ? m.en.trim() : m.fr.trim();
+    if (lang === 'en' && !m.en.trim()) li.lang = 'fr';
+    items.push(li);
+  }
+  liste.replaceChildren(...items);
+  $('bandeau-apercu-vide').hidden = items.length > 1;
+  document.querySelectorAll('[data-apercu-bandeau]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.apercuBandeau === lang)));
+}
+
+function bouton(texte, action, { etiquette, danger = false } = {}) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = `admin-bouton${danger ? ' admin-bouton-danger' : ''}`;
+  b.textContent = texte;
+  if (etiquette) b.setAttribute('aria-label', etiquette);
+  b.dataset.action = action;
+  return b;
+}
+
+function champ(etiquette, mention, valeur, lang, cle) {
+  const label = document.createElement('label');
+  label.className = 'admin-champ';
+  const span = document.createElement('span');
+  span.className = 'admin-etiquette';
+  span.append(`${etiquette} `);
+  const m = document.createElement('span');
+  m.className = mention === 'obligatoire' ? 'admin-requis' : 'admin-facultatif';
+  m.textContent = mention;
+  span.append(m);
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.maxLength = 160;
+  input.lang = lang;
+  input.autocomplete = 'off';
+  input.spellcheck = true;
+  input.value = valeur;
+  input.dataset.cle = cle;
+  label.append(span, input);
+  return label;
+}
+
+function rendreBandeau({ focus = null } = {}) {
+  const ol = $('bandeau-liste');
+  const n = bandeau.messages.length;
+  ol.replaceChildren(...bandeau.messages.map((m, i) => {
+    const li = document.createElement('li');
+    li.className = 'admin-carte admin-bandeau-message';
+    li.dataset.index = String(i);
+    li.dataset.cache = String(!m.actif);
+    const tete = document.createElement('div');
+    tete.className = 'admin-bandeau-tete';
+    const numero = document.createElement('span');
+    numero.className = 'admin-bandeau-numero';
+    numero.textContent = `Message ${i + 1}`;
+    const inter = document.createElement('label');
+    inter.className = 'admin-interrupteur';
+    const coche = document.createElement('input');
+    coche.type = 'checkbox';
+    coche.checked = m.actif;
+    coche.dataset.cle = 'actif';
+    inter.append(coche, ' Affiché');
+    tete.append(numero, inter);
+    const outils = document.createElement('div');
+    outils.className = 'admin-bandeau-outils';
+    const haut = bouton('↑ Monter', 'monter', { etiquette: `Monter le message ${i + 1}` });
+    const bas = bouton('↓ Descendre', 'descendre', { etiquette: `Descendre le message ${i + 1}` });
+    haut.disabled = i === 0;
+    bas.disabled = i === n - 1;
+    outils.append(haut, bas, bouton('Supprimer', 'supprimer', { etiquette: `Supprimer le message ${i + 1}`, danger: true }));
+    li.append(tete, champ('Français', 'obligatoire', m.fr, 'fr', 'fr'), champ('English', 'facultatif', m.en, 'en', 'en'), outils);
+    return li;
+  }));
+  if (focus) ol.querySelector(`li[data-index="${focus.index}"] ${focus.selecteur}`)?.focus();
+  rendreApercuBandeau();
+  majStatutBandeau();
+}
+
+$('bandeau-liste').addEventListener('input', (e) => {
+  const li = e.target.closest('li[data-index]');
+  const cle = e.target.dataset.cle;
+  if (!li || !cle) return;
+  const m = bandeau.messages[Number(li.dataset.index)];
+  if (cle === 'actif') {
+    m.actif = e.target.checked;
+    li.dataset.cache = String(!m.actif);
+  } else m[cle] = e.target.value;
+  rendreApercuBandeau();
+  majStatutBandeau();
+});
+$('bandeau-liste').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-action]');
+  const li = e.target.closest('li[data-index]');
+  if (!b || !li) return;
+  const i = Number(li.dataset.index);
+  const liste = bandeau.messages;
+  if (b.dataset.action === 'monter' && i > 0) {
+    [liste[i - 1], liste[i]] = [liste[i], liste[i - 1]];
+    rendreBandeau({ focus: { index: i - 1, selecteur: i - 1 === 0 ? '[data-action="descendre"]' : '[data-action="monter"]' } });
+  } else if (b.dataset.action === 'descendre' && i < liste.length - 1) {
+    [liste[i + 1], liste[i]] = [liste[i], liste[i + 1]];
+    rendreBandeau({ focus: { index: i + 1, selecteur: i + 1 === liste.length - 1 ? '[data-action="monter"]' : '[data-action="descendre"]' } });
+  } else if (b.dataset.action === 'supprimer') {
+    liste.splice(i, 1);
+    rendreBandeau();
+    (liste.length ? $('bandeau-liste').querySelector(`li[data-index="${Math.min(i, liste.length - 1)}"] input[data-cle="fr"]`) : $('bandeau-ajouter'))?.focus();
+    annoncer('Message retiré de la liste (« Annuler les changements » le remet tant que rien n’est enregistré).');
+  }
+});
+$('bandeau-ajouter').addEventListener('click', () => {
+  if (bandeau.messages.length >= MAX_MESSAGES) return;
+  bandeau.messages.push({ id: '', actif: true, fr: '', en: '' });
+  rendreBandeau({ focus: { index: bandeau.messages.length - 1, selecteur: 'input[data-cle="fr"]' } });
+});
+document.querySelectorAll('[data-apercu-bandeau]').forEach((b) => b.addEventListener('click', () => {
+  langueApercuBandeau = b.dataset.apercuBandeau;
+  rendreApercuBandeau();
+}));
+
+async function ouvrirBandeau({ garde = null } = {}) {
+  let lu;
+  try {
+    lu = await appel('GET', '/api/admin/bandeau');
+  } catch (err) {
+    if (!(err instanceof ErreurSession)) annoncer(messageErreur(err), { type: 'erreur', duree: 0 });
+    throw err;
+  }
+  const propres = (liste) => liste.map((m) => ({ id: m.id ?? '', actif: m.actif !== false, fr: m.fr ?? '', en: m.en ?? '' }));
+  bandeau = { messages: propres(lu.messages ?? []), sha: lu.sha ?? null };
+  referenceBandeau = JSON.stringify(bandeau.messages);
+  if (garde) bandeau.messages = propres(garde.messages); // liste gardée pendant une expiration de session (empreinte : celle relue)
+  erreurDans('erreur-bandeau', null);
+  langueApercuBandeau = 'fr';
+  montrerEcran('bandeau');
+  rendreBandeau();
+}
+
+$('ouvrir-bandeau').addEventListener('click', () => ouvrirBandeau().catch(() => {}));
+$('bandeau-retour').addEventListener('click', () => {
+  if (bandeauModifie() && !window.confirm('Des modifications ne sont pas enregistrées. Quitter quand même ?')) return;
+  referenceBandeau = JSON.stringify(bandeau.messages);
+  afficherListe();
+});
+$('bandeau-annuler').addEventListener('click', () => {
+  if (!bandeauModifie()) { annoncer('Aucun changement à annuler.'); return; }
+  if (!window.confirm('Revenir aux messages enregistrés ? Les changements en cours seront perdus.')) return;
+  bandeau.messages = JSON.parse(referenceBandeau);
+  erreurDans('erreur-bandeau', null);
+  rendreBandeau();
+});
+
+$('bandeau-enregistrer').addEventListener('click', async () => {
+  const vide = bandeau.messages.findIndex((m) => !m.fr.trim());
+  if (vide >= 0) {
+    erreurDans('erreur-bandeau', `Message ${vide + 1} : le texte français est obligatoire (ou supprimez le message).`);
+    $('bandeau-liste').querySelector(`li[data-index="${vide}"] input[data-cle="fr"]`)?.focus();
+    return;
+  }
+  const b = $('bandeau-enregistrer');
+  b.disabled = true;
+  erreurDans('erreur-bandeau', null);
+  try {
+    const r = await appel('PUT', '/api/admin/bandeau', { corps: { messages: bandeau.messages, sha: bandeau.sha } });
+    bandeau = { messages: r.messages.map((m) => ({ ...m })), sha: r.sha ?? null };
+    referenceBandeau = JSON.stringify(bandeau.messages);
+    rendreBandeau();
+    annoncer('Bandeau enregistré : il sera sur l’accueil dans une minute environ (le temps que le site soit republié).', { duree: 9000 });
+  } catch (err) {
+    if (err instanceof ErreurSession) return;
+    if (err instanceof ErreurApi && err.statut === 409) {
+      erreurDans('erreur-bandeau', `${messageErreur(err)} Touchez « ← Articles », puis rouvrez le bandeau.`);
+    } else erreurDans('erreur-bandeau', `Enregistrement impossible : ${messageErreur(err)}`);
+  } finally {
+    b.disabled = false;
+  }
+});
 
 // ---------- Démarrage ----------
 
