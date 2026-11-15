@@ -132,6 +132,25 @@ Le script ne touche à rien d'autre. Il vérifie le jeton auprès de GitHub, le 
 
 Message **« GitHub refuse le jeton des images »** dans l'admin : jeton expiré ou révoqué → en créer un nouveau et le ranger.
 
+## 9. Bandeau d'alerte de l'accueil (lot 3d)
+En haut de l'écran : **Pages du site** → **Modifier le bandeau d’alerte** (sous « À propos »).
+1. L'écran montre les **messages actuels**, dans l'ordre où ils défilent en bas de l'accueil, et un **aperçu** du bandeau (FR / EN).
+   Le titre du **dernier article publié** passe tout seul en tête (« Dernière transmission : … ») : rien à faire pour lui.
+2. Pour chaque message : texte **français** (obligatoire) et **anglais** (facultatif : sans lui, le site anglais affiche le français),
+   160 caractères au plus, texte simple sur une ligne.
+   - **Affiché** : décocher cache le message sans le supprimer (carte en pointillés) ;
+   - **↑ Monter** / **↓ Descendre** : change l'ordre ;
+   - **Supprimer** : retire le message de la liste.
+3. **+ Ajouter un message** (30 au plus).
+4. **Enregistrer et publier** : le serveur réécrit le fichier `contenus/bandeau.json` du dépôt (un commit « Z-Survival admin » sur
+   `main`) ; le site est republié et les nouveaux messages sont sur l'accueil **environ une minute plus tard**.
+   **Annuler les changements** revient aux messages enregistrés tant que vous n'avez pas enregistré.
+- Si le bandeau a été modifié ailleurs pendant ce temps (autre onglet, ou directement sur GitHub), l'enregistrement est refusé pour ne rien
+  écraser : revenez à **← Articles**, rouvrez le bandeau (il relit la dernière version) et refaites vos changements.
+- Il faut le **jeton GitHub** (le même que pour les images, voir plus bas) : sans lui, l'écran affiche « pas encore configurée ».
+- Aucun message affiché et aucun article publié : le bandeau disparaît de l'accueil.
+- On peut toujours modifier le fichier à la main sur GitHub (`Docs/ref/contenus.md`) : l'admin relit le fichier à chaque ouverture.
+
 ## Annonce Discord (lot 3c)
 Chaque article publié pour la première fois est annoncé dans un salon de votre serveur Discord, par un **webhook** (une adresse
 secrète qui permet d'écrire dans ce salon, et seulement dans lui). Comme le jeton GitHub, elle est rangée dans Google Secret Manager,
