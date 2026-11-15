@@ -50,21 +50,25 @@ unisson, seconde mineure, quinte, triton) ; **bruit rose qui enfle** pendant 3 s
 puis un **coup sourd** (sinus 55 → 45 Hz) et un claquement aigu ; réverbération courte, légère saturation.
 
 ## 2. Règles prévues pour l'intégration (lot 2)
+**Morceau retenu par le propriétaire (15/11/2026) : M2 — Ambiante** (`musique/M2.mp3`, boucle de 96 s, 60 à la noire,
+mi mineur ; points de boucle dans `musique/boucles.json`). M1 et M3 restent sur la planche et dans `outils/musique/`.
+
 - **Musique coupée au départ.** Aucun son avant un geste (règle des navigateurs, et choix du jeu).
 - **Bouton haut-parleur dans l'en-tête, à côté du globe** de langue (même taille, zone de toucher ≥ 44 px si possible,
   nom accessible traduit dans `js/textes.js`, état `aria-pressed`). Icône barrée quand la musique est coupée.
 - **Lancement seulement après un clic sur ce bouton**, puis **montée en douceur** (fondu d'entrée de 2 à 3 s, comme le jeu) ;
   coupure par un fondu court (≈ 0,3 s).
-- **Choix gardé dans le navigateur** (`localStorage`, lecture et écriture protégées par `try/catch`). Même gardé « activé »,
-  la musique attend un geste à la visite suivante : le bouton indique « activée » et la musique part au premier clic
-  ou toucher sur la page (à trancher : au premier geste quelconque, ou seulement au clic sur le bouton).
+- **Le son ne part que par ce bouton** (décision du propriétaire) : jamais au premier clic ou toucher ailleurs sur la page.
+- **Coupure mémorisée** (décision du propriétaire) : un visiteur qui coupe le son avec ce bouton le retrouve coupé aux visites
+  suivantes (`localStorage`, lecture et écriture protégées par `try/catch` ; sans stockage, simplement coupé à chaque visite).
 - **Pause quand l'onglet est caché** (`visibilitychange`), reprise au retour, avec fondus courts.
-- **Volume modéré** : gain de lecture ≈ 0,35 à 0,5 (fichiers normalisés vers −18 LUFS, voir `Docs/lots/lot-1b.md`).
+- **Volume modéré** : gain de lecture ≈ 0,4 au départ, à régler à l'oreille (fourchette 0,35 à 0,5) (fichiers normalisés vers −18 LUFS, voir `Docs/lots/lot-1b.md`).
 - **Lecture** : fichier MP3 pré-rendu (aucune musique générée dans la page), chargé seulement après le clic, décodé et
   joué par Web Audio (`AudioBufferSourceNode`, `loop = true`, `loopStart` / `loopEnd` lus dans `musique/boucles.json`) :
   c'est la seule lecture **sans blanc au raccord** partout (une balise `<audio loop>` laisse un petit trou avec le MP3).
   Chaque fichier contient 1 s de marge avant et après la boucle (contenu identique à la fin et au début de la boucle),
   si bien que le raccord reste parfait même si un navigateur décale le décodage de quelques millisecondes.
-- **iPhone** : Web Audio se tait quand le commutateur silencieux est enclenché (sauf `navigator.audioSession.type = 'playback'`,
-  Safari 17 et plus). Pour une musique de fond de site, respecter le commutateur paraît plus poli (à trancher).
+- **iPhone : commutateur silencieux respecté** (décision du propriétaire) : on ne touche pas à `navigator.audioSession`.
+  Commutateur enclenché, Web Audio se tait, même après un clic sur le bouton ; pour entendre la musique, il faut désactiver
+  le mode silencieux puis cliquer sur le bouton. (La planche d'écoute, elle, force la lecture : c'est un outil de travail.)
 - Mouvement réduit : sans objet pour le son ; l'icône du bouton ne s'anime pas.

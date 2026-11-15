@@ -23,7 +23,8 @@
       "dureeFichier": 98,
       "bpm": 60,
       "mesures": 24,
-      "octets": 1569186
+      "octets": 1569186,
+      "retenu": true
     },
     "M3": {
       "fichier": "M3.mp3",

@@ -50,6 +50,17 @@
   color: var(--color-action);
 }
 .morceau-nom { font-size: 1.1rem; font-weight: 700; }
+.morceau-retenu {
+  padding: 0.15em 0.6em;
+  border-radius: 999px;
+  background: var(--color-action);
+  color: var(--color-on-action);
+  font-family: var(--font-label);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+}
+.morceau[data-retenu] { border-color: var(--color-action-deep); }
 .morceau-description { color: var(--color-text); }
 .morceau-infos { color: var(--color-text-muted); font-size: 0.85rem; }
 

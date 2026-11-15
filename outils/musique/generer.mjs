@@ -54,7 +54,7 @@ for (const id of ids) {
   boucles[id] = {
     fichier: `${id}.mp3`, nom: piece.nom, description: piece.description,
     debutBoucle: r.debutBoucle, finBoucle: r.finBoucle, dureeBoucle: piece.duree, dureeFichier: r.G.length / SR,
-    bpm: piece.bpm, mesures: piece.mesures, octets,
+    bpm: piece.bpm, mesures: piece.mesures, octets, ...(piece.retenu ? { retenu: true } : {}),
   };
   console.log(`${id} : boucle ${piece.duree} s (${piece.mesures} mesures à ${piece.bpm}), ${piece.evenements.length} événements par tour, `
     + `écart de périodicité ${ecart.toExponential(1)}, crête ${(20 * Math.log10(crete)).toFixed(1)} dBFS, efficace ${efficace.toFixed(1)} dBFS, `

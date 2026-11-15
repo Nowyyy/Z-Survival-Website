@@ -298,6 +298,6 @@ const M3 = composer({
 
 export const PIECES = {
   M1: { ...M1, nom: 'M1 — Variation du menu', description: 'Mêmes timbres, même tonalité (mi mineur) et même tempo (96) que la musique du menu du jeu, avec de nouveaux motifs et une mélodie de cloche.' },
-  M2: { ...M2, nom: 'M2 — Ambiante', description: 'Version plus lente (60) et discrète, pensée comme fond sonore de navigation : nappes, cloches lointaines, battement de cœur sourd.' },
+  M2: { ...M2, retenu: true, nom: 'M2 — Ambiante', description: 'Version plus lente (60) et discrète, pensée comme fond sonore de navigation : nappes, cloches lointaines, battement de cœur sourd.' },
   M3: { ...M3, nom: 'M3 — Tension', description: 'Version plus tendue, côté horreur : figures de la mélodie de début de manche, cœur qui s’emballe, houles de bruit et coups sourds.' },
 };

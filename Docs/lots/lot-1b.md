@@ -76,7 +76,15 @@ Planche : https://nowyyy.github.io/Z-Survival-Website/musique/planche.html (noin
 - Tag `lot-1b` créé localement mais **refusé au push** (403 de l'environnement, comme le tag `lot-0`) ; la branche est poussée.
 - MP3 à 128 kb/s (pour tenir sous 2 Mo avec des boucles d'1 min 30) : fidélité correcte, pas transparente.
 
-## À choisir par le propriétaire
+## Décisions du propriétaire (15/11/2026, après la fusion)
+- **M2 — Ambiante est retenue** pour le site (marquée « Retenue » sur la planche ; M1 et M3 y restent pour mémoire).
+- **Coupure mémorisée** : un visiteur qui coupe le son avec le petit bouton à côté de la langue le retrouve coupé ensuite.
+- **Le son ne part que par ce bouton.**
+- **Commutateur silencieux de l'iPhone respecté** : pour avoir le son, on clique sur le bouton (mode silencieux désactivé).
+- Pas de retouche demandée sur M2 ; volume de départ proposé (≈ 0,4) à régler au lot 2.
+Ces règles sont reportées dans `Docs/ref/musique.md` (partie 2).
+
+## À choisir par le propriétaire (questions posées à la fin du lot ; réponses ci-dessus)
 1. **Quel morceau** garder pour le site : M1, M2 ou M3 (ou un mélange : par exemple la mélodie de M1 dans l'ambiance de M2).
 2. Ce qu'il faut **changer** dans le morceau gardé : tempo, place de la mélodie, force du bourdon ou du battement de cœur, durée de la boucle.
 3. **Au retour d'un visiteur** qui avait activé la musique : relancer au premier clic n'importe où sur la page, ou seulement au clic
