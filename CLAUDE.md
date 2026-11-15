@@ -36,6 +36,19 @@ publié sur https://nowyyy.github.io/Z-Survival/).
   polices du jeu dans `fonts/` (licences OFL à garder à côté). Pas de couleur en dur hors jetons
   quand un jeton existe.
 
+## Serveur (lot 3a : `serveur/`, référence `Docs/ref/serveur.md`)
+- **Aucun secret dans le dépôt** (public), ni dans les journaux, les messages d'erreur ou les résultats de tests :
+  jeton Turso, identifiant admin, empreinte du mot de passe, clé de session vivent dans **Google Secret Manager**
+  (rangés par `serveur/deploiement/installer-gcp.sh`, que le propriétaire lance lui-même dans Cloud Shell). L'agent ne les
+  voit jamais et ne les demande jamais. Les tests tournent sur une base SQLite en fichier, jamais sur Turso.
+- Google Cloud : projet `z-survival-website`, **région `europe-west3`** (Francfort) pour tout ; base Turso `z-survival-site` (Francfort).
+- Règles de coût : Cloud Run à **0 instance minimum**, 2 au maximum, processeur facturé seulement pendant les requêtes, 256 Mio ;
+  Artifact Registry ne garde que les 3 dernières images ; pas de Cloud Storage tant qu'un lot ne le décide pas.
+- **Le site et le serveur évoluent séparément** : `pages.yml` publie le site (jamais `serveur/`), `serveur.yml` déploie le serveur.
+  Un lot sur le site ne touche pas `serveur/`, un lot sur le serveur ne touche pas les fichiers du site.
+- Connexion admin sans cookie (domaines différents) : jeton signé dans `Authorization: Bearer`. Migrations versionnées
+  dans `serveur/migrations/` (nouveau fichier `NNN_…sql`, jamais modifier une migration déployée).
+
 ## Organisation
 - `index.html` : **page unique**. Accueil plein écran (image animée à venir, logo du studio, globe
   Français / English, « En savoir plus » + flèche qui descend vers News), puis les sections plein écran
@@ -68,3 +81,6 @@ publié sur https://nowyyy.github.io/Z-Survival/).
   (copie, captures, vérification de la boucle ; Node + Playwright, non publiés).
 - `Docs/ref/` : documents de référence ; `Docs/lots/` : bilans de lot.
 - `.github/workflows/pages.yml` : déploiement GitHub Pages à chaque push sur `main`.
+- `serveur/` (lot 3a) : serveur des actualités (Node.js, Hono, `@libsql/client`, Dockerfile ; mode d'emploi `serveur/LISEZMOI.md`) ;
+  `.github/workflows/serveur.yml` : tests et déploiement sur Cloud Run à chaque push sur `main` qui touche `serveur/`
+  (s'arrête proprement tant que l'installation Google Cloud n'est pas faite).
