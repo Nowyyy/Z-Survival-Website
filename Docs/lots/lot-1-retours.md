@@ -138,3 +138,7 @@ Suite du lot 1 (`Docs/lots/lot-1.md`). Branche `lot-1-retours`, PR fusionnée pa
   deux yeux ouverts.
 - Pour cela, la paupière est portée par une **articulation ajoutée** au squelette v2 (`paupiereL`, enfant de la tête, au ras du haut de
   l'œil ; copie en mémoire de `poses-v2.json`, fichier copié intact). Son échelle verticale ferme la paupière, du haut vers le bas.
+
+## Cinquième retour : clin d'œil plus tard
+- L'œil gauche du personnage 1 se ferme **à peine avant le tir** : il commence à se fermer 0,2 s avant le coup (au lieu de 0,6 s), en
+  0,1 s, donc il est fermé 0,1 s avant le coup ; il se rouvre comme avant, 0,75 s après le coup.
