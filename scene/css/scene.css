@@ -1,0 +1,8 @@
+/* Atelier de la scène de l'accueil (lot 1) : page hors du site, plein écran, cadre au format demandé. */
+:root { --scene-fond: var(--color-bg, #050505); --scene-texte: var(--color-text, #f4f1ec); }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--scene-fond); color: var(--scene-texte); overflow: hidden; font: 14px/1.4 system-ui, sans-serif; }
+.cadre { position: fixed; inset: 0; display: grid; place-items: center; }
+.toile { display: block; }
+.etat { position: fixed; left: 12px; bottom: 8px; margin: 0; opacity: 0.7; pointer-events: none; }
+.etat[hidden] { display: none; }
