@@ -18,7 +18,7 @@ const TYPES_IMAGE = ['image/jpeg', 'image/png', 'image/webp'];
 const MOTIF_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const $ = (id) => document.getElementById(id);
-const ecrans = { connexion: $('ecran-connexion'), liste: $('ecran-liste'), editeur: $('ecran-editeur'), page: $('ecran-page'), bandeau: $('ecran-bandeau') };
+const ecrans = { connexion: $('ecran-connexion'), liste: $('ecran-liste'), editeur: $('ecran-editeur'), page: $('ecran-page'), bandeau: $('ecran-bandeau'), partage: $('ecran-partage') };
 
 // ---------- Messages ----------
 
@@ -82,6 +82,7 @@ function deconnecter(raison) {
   if (ecrans.editeur.hidden === false && estModifie()) travailGarde = { id: courant?.id ?? null, formulaire: lireFormulaire() };
   else if (pageModifiee()) travailGarde = { page: lireFormulairePage() };
   else if (bandeauModifie()) travailGarde = { bandeau: structuredClone(bandeau) };
+  else if (partageModifie()) travailGarde = { partage: lireFormulairePartage() };
   effacerSession();
   fermerApercu();
   montrerEcran('connexion');
@@ -214,6 +215,7 @@ async function entrer() {
     try {
       if (garde.page) await ouvrirPage({ formulaire: garde.page });
       else if (garde.bandeau) await ouvrirBandeau({ garde: garde.bandeau });
+      else if (garde.partage) await ouvrirPartage({ garde: garde.partage });
       else await ouvrirEditeur(garde.id, { formulaire: garde.formulaire });
       annoncer('Votre texte non enregistré a été rouvert. Pensez à l’enregistrer.', { duree: 8000 });
       return;
@@ -225,11 +227,12 @@ async function entrer() {
 }
 
 $('deconnexion').addEventListener('click', () => {
-  if ((estModifie() || pageModifiee() || bandeauModifie()) && !window.confirm('Des modifications ne sont pas enregistrées. Se déconnecter quand même ?')) return;
+  if ((estModifie() || pageModifiee() || bandeauModifie() || partageModifie()) && !window.confirm('Des modifications ne sont pas enregistrées. Se déconnecter quand même ?')) return;
   travailGarde = null;
   definirReference();
   referencePage = JSON.stringify(lireFormulairePage());
   referenceBandeau = JSON.stringify(bandeau.messages);
+  referencePartage = JSON.stringify(lireFormulairePartage());
   deconnecter('Vous êtes déconnecté.');
 });
 
@@ -425,7 +428,7 @@ $('retour-liste').addEventListener('click', () => {
 
 // Alerte du navigateur si on quitte la page avec des modifications non enregistrées.
 window.addEventListener('beforeunload', (e) => {
-  if (!estModifie() && !pageModifiee() && !bandeauModifie() && !travailGarde) return;
+  if (!estModifie() && !pageModifiee() && !bandeauModifie() && !partageModifie() && !travailGarde) return;
   e.preventDefault();
   e.returnValue = '';
 });
@@ -1231,6 +1234,89 @@ $('bandeau-enregistrer').addEventListener('click', async () => {
     if (err instanceof ErreurApi && err.statut === 409) {
       erreurDans('erreur-bandeau', `${messageErreur(err)} Touchez « ← Articles », puis rouvrez le bandeau.`);
     } else erreurDans('erreur-bandeau', `Enregistrement impossible : ${messageErreur(err)}`);
+  } finally {
+    b.disabled = false;
+  }
+});
+
+// ---------- Aperçu de partage (lot 3f) : titre et description d'index.html (balises Open Graph / Twitter), réécrits par le serveur ----------
+
+let partageSha = null;
+let referencePartage = JSON.stringify({ titre: '', description: '' });
+const LIMITES_PARTAGE = { titre: 90, description: 300 };
+const surUneLigne = (t) => t.replace(/\s+/g, ' ').trim();
+
+function lireFormulairePartage() {
+  return { titre: surUneLigne($('partage_titre').value), description: surUneLigne($('partage_description').value) };
+}
+function partageModifie() { return !ecrans.partage.hidden && JSON.stringify(lireFormulairePartage()) !== referencePartage; }
+function rendrePartage() {
+  const f = lireFormulairePartage();
+  $('partage-apercu-titre').textContent = f.titre || '(titre)';
+  $('partage-apercu-description').textContent = f.description || '(description)';
+  $('partage-titre-compteur').textContent = `${f.titre.length} / ${LIMITES_PARTAGE.titre}`;
+  $('partage-description-compteur').textContent = `${f.description.length} / ${LIMITES_PARTAGE.description}`;
+  const s = $('partage-statut');
+  s.dataset.statut = partageModifie() ? 'brouillon' : 'publie';
+  s.textContent = partageModifie() ? 'Non enregistré' : 'En ligne';
+}
+['partage_titre', 'partage_description'].forEach((id) => $(id).addEventListener('input', rendrePartage));
+
+async function ouvrirPartage({ garde = null } = {}) {
+  let lu;
+  try {
+    lu = await appel('GET', '/api/admin/partage');
+  } catch (err) {
+    if (!(err instanceof ErreurSession)) annoncer(messageErreur(err), { type: 'erreur', duree: 0 });
+    throw err;
+  }
+  partageSha = lu.sha ?? null;
+  $('partage_titre').value = lu.titre ?? '';
+  $('partage_description').value = lu.description ?? '';
+  referencePartage = JSON.stringify(lireFormulairePartage());
+  if (garde) { $('partage_titre').value = garde.titre; $('partage_description').value = garde.description; } // texte gardé pendant une expiration de session
+  erreurDans('erreur-partage', null);
+  montrerEcran('partage');
+  rendrePartage();
+}
+
+$('ouvrir-partage').addEventListener('click', () => ouvrirPartage().catch(() => {}));
+$('partage-retour').addEventListener('click', () => {
+  if (partageModifie() && !window.confirm('Des modifications ne sont pas enregistrées. Quitter quand même ?')) return;
+  referencePartage = JSON.stringify(lireFormulairePartage());
+  afficherListe();
+});
+$('partage-annuler').addEventListener('click', () => {
+  if (!partageModifie()) { annoncer('Aucun changement à annuler.'); return; }
+  const r = JSON.parse(referencePartage);
+  $('partage_titre').value = r.titre;
+  $('partage_description').value = r.description;
+  erreurDans('erreur-partage', null);
+  rendrePartage();
+});
+$('partage-enregistrer').addEventListener('click', async () => {
+  const f = lireFormulairePartage();
+  if (!f.titre || !f.description) {
+    erreurDans('erreur-partage', 'Le titre et la description sont obligatoires.');
+    $(f.titre ? 'partage_description' : 'partage_titre').focus();
+    return;
+  }
+  if (!partageModifie()) { annoncer('Rien n’a changé : rien à enregistrer.'); return; }
+  const b = $('partage-enregistrer');
+  b.disabled = true;
+  erreurDans('erreur-partage', null);
+  try {
+    const r = await appel('PUT', '/api/admin/partage', { corps: { ...f, sha: partageSha } });
+    partageSha = r.sha ?? null;
+    $('partage_titre').value = r.titre;
+    $('partage_description').value = r.description;
+    referencePartage = JSON.stringify(lireFormulairePartage());
+    rendrePartage();
+    annoncer('Aperçu de partage enregistré : en ligne dans une minute environ. Discord et WhatsApp peuvent garder l’ancien quelques jours.', { duree: 9000 });
+  } catch (err) {
+    if (err instanceof ErreurSession) return;
+    if (err instanceof ErreurApi && err.statut === 409) erreurDans('erreur-partage', `${messageErreur(err)} Touchez « ← Articles », puis rouvrez l’aperçu.`);
+    else erreurDans('erreur-partage', `Enregistrement impossible : ${messageErreur(err)}`);
   } finally {
     b.disabled = false;
   }

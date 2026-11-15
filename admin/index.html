@@ -56,6 +56,7 @@
         <h2 class="admin-sous-titre">Pages du site</h2>
         <button class="admin-bouton" id="ouvrir-page-a-propos" type="button">Modifier la page « À propos »</button>
         <button class="admin-bouton" id="ouvrir-bandeau" type="button">Modifier le bandeau d’alerte</button>
+        <button class="admin-bouton" id="ouvrir-partage" type="button">Modifier l’aperçu de partage (Discord, WhatsApp…)</button>
       </div>
 
       <div class="admin-barre">
@@ -193,6 +194,43 @@
       <div class="admin-actions admin-actions-page">
         <button class="admin-bouton" id="bandeau-annuler" type="button">Annuler les changements</button>
         <button class="bouton bouton-principal" id="bandeau-enregistrer" type="button">Enregistrer et publier</button>
+      </div>
+    </section>
+
+    <!-- Écran 6 : aperçu de partage (lot 3f) : titre et description des balises Open Graph / Twitter d'index.html, réécrits par le serveur. -->
+    <section class="admin-ecran" id="ecran-partage" aria-labelledby="titre-partage" hidden>
+      <div class="admin-barre">
+        <button class="admin-bouton admin-bouton-discret" id="partage-retour" type="button">← Articles</button>
+        <span class="admin-statut" id="partage-statut" data-statut="publie">En ligne</span>
+      </div>
+      <h1 class="admin-titre" id="titre-partage">Aperçu de partage</h1>
+      <p class="admin-aide">Ce que montrent Discord, WhatsApp et les réseaux sociaux quand on partage <strong>zsurvival-game.com</strong> : un titre, une description et l’image de l’accueil. Texte simple, en français (les réseaux n’affichent qu’une version). En ligne <strong>environ une minute</strong> après l’enregistrement ; Discord et WhatsApp gardent parfois l’ancien aperçu en mémoire quelques jours.</p>
+
+      <form class="admin-carte admin-formulaire" id="formulaire-partage" novalidate>
+        <label class="admin-champ">
+          <span class="admin-etiquette">Titre <span class="admin-compteur" id="partage-titre-compteur"></span></span>
+          <input id="partage_titre" type="text" maxlength="90" lang="fr" autocomplete="off">
+        </label>
+        <label class="admin-champ">
+          <span class="admin-etiquette">Description <span class="admin-compteur" id="partage-description-compteur"></span></span>
+          <textarea id="partage_description" rows="4" maxlength="300" lang="fr" spellcheck="true"></textarea>
+        </label>
+      </form>
+
+      <div class="admin-carte">
+        <h2 class="admin-sous-titre">Aperçu (à la manière de Discord)</h2>
+        <div class="admin-partage-carte" aria-hidden="true">
+          <p class="admin-partage-site">Z-Survival</p>
+          <p class="admin-partage-titre" id="partage-apercu-titre"></p>
+          <p class="admin-partage-description" id="partage-apercu-description"></p>
+          <img class="admin-partage-image" src="../img/partage.jpg" alt="" width="1200" height="630">
+        </div>
+      </div>
+
+      <p class="admin-erreur" id="erreur-partage" role="alert" hidden></p>
+      <div class="admin-actions admin-actions-page">
+        <button class="admin-bouton" id="partage-annuler" type="button">Annuler les changements</button>
+        <button class="bouton bouton-principal" id="partage-enregistrer" type="button">Enregistrer et publier</button>
       </div>
     </section>
 
