@@ -37,7 +37,7 @@ publié sur https://nowyyy.github.io/Z-Survival/).
   quand un jeton existe.
 
 ## Organisation
-- `index.html` : **page unique**. Accueil plein écran (image animée à venir, logo du studio, globe
+- `index.html` : **page unique**. Accueil plein écran (vidéo en boucle de la scène sur son affiche, HUD de jeu, logo du studio, globe
   Français / English, « En savoir plus » + flèche qui descend vers News), puis les sections plein écran
   News / Characters / Weapons / About us. Navigation : 01 Accueil à 05 About us. Personnages et Armes :
   contenu provisoire atténué et inerte sous un encart « Prochainement » (« Coming soon » en anglais). Globe de langue aussi
@@ -49,18 +49,26 @@ publié sur https://nowyyy.github.io/Z-Survival/).
   français pour les visiteurs francophones, anglais pour les autres ; aucune géolocalisation) ;
   `js/logo.js` : logo du jeu ;
   `js/musique.js` : musique M2 et boutons de son à côté de chaque globe (règles : `Docs/ref/musique.md`, volume : constante `VOLUME`).
-  `js/accueil-entree.js` : entrée en scène de l'accueil (grain VHS, chute du Z) à l'ouverture sur l'accueil ;
+  `js/accueil-boucle.js` : **seules valeurs de temps** de la boucle (`DUREE_BOUCLE`, **`TEMPS_TIR` = 5,2 s**, `IMAGES_PAR_SECONDE`,
+  `TEMPS_AFFICHE`), partagées par la scène, la fabrication des vidéos et le site ;
+  `js/accueil-video.js` : vidéo de l'accueil (16:9 ou 9:16 selon la forme de l'écran, affiche seule en mouvement réduit, `?video=0` pour l'atelier) ;
+  `js/accueil-entree.js` : entrée en scène de l'accueil (chute du Z copiée du jeu dans `css/accueil-chute-z.css`, puis grain VHS ; 1,5 s,
+  première visite de la session, `?intro=1` la force) ;
   `js/accueil-accroche.js` : accroche « radio de survie » (écriture lettre par lettre pendant l'entrée ; grésillement en CSS) ;
   `js/accueil-bandeau.js` : bandeau d'alerte qui défile (affiché seulement avec `?bandeau=1` tant qu'il n'est pas mis en service) ;
-  `js/accueil-tir.js` : flash du cadre rouge de l'accueil à l'événement `zs:tir` (coup de feu de l'image animée ;
-  idées « catchy » suivies dans `Docs/ref/idees-accroche.md`).
+  `js/accueil-tir.js` : suit le temps de la vidéo et, à `TEMPS_TIR`, flash du cadre rouge, HUD (munitions 30 → 29 ; manche, heure de nuit)
+  et coup de feu du jeu si le son est activé (idées « catchy » suivies dans `Docs/ref/idees-accroche.md`).
 - `musique/` : propositions de musique (MP3 en boucle, points de boucle dans `boucles.json` ; **M2 retenue**, règles
   d'intégration dans `Docs/ref/musique.md`) et planche d'écoute
   `planche.html` (noindex, non reliée au site) ; `outils/musique/` : script qui génère la musique (`Docs/ref/musique.md`).
 - `contenus/` : contenus modifiables sans toucher au code, aujourd'hui sur GitHub, plus tard par une interface d'administration
   (`bandeau.json` : messages du bandeau d'alerte ; format et marche à suivre : `Docs/ref/contenus.md`). Exception assumée à la règle
   « textes dans `js/textes.js` », qui vaut pour les libellés fixes.
-- `fonts/` : polices du jeu (+ licences) ; `img/` : icônes et logos du studio (`no-way-studio.svg` fixe, `no-way-studio-anime.svg` animé).
+- `fonts/` : polices du jeu (+ licences) ; `img/` : icônes et logos du studio (`no-way-studio.svg` fixe, `no-way-studio-anime.svg` animé) ;
+  `img/accueil/` : vidéos de l'accueil (`accueil-16x9.mp4`, `accueil-9x16.mp4`) et leurs affiches WebP, fabriquées par
+  `outils/video/fabriquer.mjs` depuis la scène (méthode : `outils/video/LISEZMOI.md`, `Docs/ref/scene-accueil.md`) ; vérification de
+  l'accueil : `outils/video/verifier-accueil.mjs`.
+- `sons/` : coup de feu du jeu (copie figée, origine dans `sons/ORIGINE.json`, refaite par `outils/sons/copier-tir.mjs`).
 - `scene/` (lot 1) : atelier de la scène 3D de l'accueil, hors du site (noindex, aucun lien depuis l'accueil) :
   `scene/index.html` (la scène, `?cadrage=A|B|C&format=paysage|portrait|plein`, **B retenu**), `scene/planche.html` (planche),
   `scene/apercu.html` (la scène sous la vraie page d'accueil, pour juger le rendu),

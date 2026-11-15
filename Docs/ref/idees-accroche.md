@@ -6,15 +6,18 @@ Toutes respectent « réduire les animations » et restent légères (HTML, CSS,
 
 | N° | Idée | État |
 |---|---|---|
-| 1 | **Le cadre rouge réagit au tir** : au coup de feu de l'image animée (5,2 s de la boucle), le cadre et son halo flashent. | **Fait** |
-| 2 | **Entrée en scène** : grain VHS qui se dissipe sur l'image animée, chute du Z (écran de chargement du jeu), coulures. | **Fait** |
+| 1 | **Le cadre rouge réagit au tir** : au coup de feu de l'image animée (5,2 s de la boucle), le cadre et son halo flashent. | **Fait** (lot 2b : suit la vidéo, 220 ms, avec HUD et coup de feu) |
+| 2 | **Entrée en scène** : grain VHS qui se dissipe sur l'image animée, chute du Z (écran de chargement du jeu), coulures. | **Fait** (lot 2b : 1,5 s, première visite de la session, passable) |
 | 3 | Parallaxe : l'image animée bouge légèrement avec la souris ou l'inclinaison du téléphone. | Écartée (choix du propriétaire) |
 | 4 | **Accroche « radio de survie »** : elle s'écrit lettre par lettre (lettre brouillée puis la vraie) et grésille de temps en temps. | **Fait** |
 | 5 | **Bandeau d'alerte** qui défile en bas (flash d'urgence ; peut annoncer les actualités). | **À l'essai** : visible seulement avec `?bandeau=1` |
-| 6 | Bouton « En savoir plus » vivant au survol (coup de pinceau, coulure de sang). | À faire |
+| 6 | Bouton « En savoir plus » vivant au survol (coup de pinceau, coulure de sang). | **Fait** (lot 2b) |
 | 7 | Curseur viseur sur ordinateur, au-dessus de l'accueil. | À faire |
 
 ## 1 — Flash du cadre au tir
+> **Lot 2b** : remplacé par le tir synchronisé avec la vidéo (`js/accueil-tir.js` : flash de 220 ms, HUD, coup de feu) ; détails dans
+> `Docs/ref/scene-accueil.md` (« Coup de feu et accueil ») et `Docs/lots/lot-2b.md`. Le texte ci-dessous décrit l'état d'avant.
+
 - **Site** :
   - `js/accueil-tir.js` écoute l'événement **`zs:tir`** sur `document` et ajoute la classe `est-tir` à la section de l'accueil.
   - `css/accueil.css` (animation `cadre-tir`, 0,52 s) : le cadre passe à `--color-action-hover`, son halo s'étend dehors et dedans,
@@ -27,6 +30,10 @@ Toutes respectent « réduire les animations » et restent légères (HTML, CSS,
     aucun : aucun effet.
 
 ## 2 — Entrée en scène
+> **Lot 2b** : entrée ramenée à **1,5 s**, jouée à la **première visite de la session** seulement (`?intro=1` la force), passable d'un toucher ;
+> chute du Z copiée telle quelle du jeu (`css/accueil-chute-z.css`), puis grain VHS qui se dissipe ; plus de coulures animées. Détails :
+> `Docs/lots/lot-2b.md`. Le texte ci-dessous décrit l'état d'avant.
+
 - **Quand** : une seule fois, à l'ouverture de la page **sur l'accueil**. Rien si on arrive directement sur une autre section (`#news`…),
   rien en mouvement réduit.
 - **Démarrage sans délai** (retour du propriétaire) : la classe `entree-accueil` est posée sur `<html>` par un petit script en tête
