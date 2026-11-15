@@ -29,6 +29,9 @@ main() {
   set -Eeuo pipefail
   set +o history 2>/dev/null || true
   umask 077
+  # gcloud ne pose JAMAIS de question (une question cachée par « >/dev/null 2>&1 » bloquait le script) :
+  # sans réponse possible, il prend la réponse par défaut ou s'arrête avec un message visible.
+  export CLOUDSDK_CORE_DISABLE_PROMPTS=1
 
   # --- Réglages (non secrets) ------------------------------------------------
   local PROJET_ATTENDU="${PROJET:-z-survival-website}"
@@ -68,6 +71,26 @@ main() {
     IFS= read -r -s "$1" </dev/tty
     printf '\n' >/dev/tty
   }
+  # Vrai si la ressource existe. Commande silencieuse, sans clavier, coupée au bout de 60 s.
+  existe() {
+    timeout 60 "$@" >/dev/null 2>&1 </dev/null
+  }
+  # Valeur lue sans bruit (vide si absente), sans clavier, coupée au bout de 60 s.
+  lire() {
+    timeout 60 "$@" 2>/dev/null </dev/null || true
+  }
+  # Attend qu'une API tout juste activée réponde (cela peut prendre une à deux minutes chez Google).
+  attendre_api() {
+    local nom="$1" n
+    shift
+    for n in $(seq 1 18); do
+      if existe "$@"; then return 0; fi
+      info "… ${nom} pas encore prête, nouvel essai dans 10 s ($n/18)"
+      sleep 10
+    done
+    echo "✖ ${nom} ne répond toujours pas après 3 minutes. Attendez quelques minutes, puis relancez la même ligne." >&2
+    exit 1
+  }
   # Nouvel essai (les droits d'un compte tout juste créé mettent parfois quelques secondes à arriver).
   reessayer() {
     local n
@@ -82,8 +105,8 @@ main() {
   # --- 1. Projet ---------------------------------------------------------------
   titre "1. Projet Google Cloud"
   local projet compte
-  projet="$(gcloud config get-value project 2>/dev/null || true)"
-  compte="$(gcloud config get-value account 2>/dev/null || true)"
+  projet="$(lire gcloud config get-value project)"
+  compte="$(lire gcloud config get-value account)"
   info "Compte connecté : ${compte:-aucun}"
   if [[ -z "$compte" ]]; then
     echo "✖ Aucun compte connecté. Dans Cloud Shell, cela ne devrait pas arriver : rechargez la page." >&2
@@ -91,7 +114,7 @@ main() {
   fi
   if [[ "$projet" != "$PROJET_ATTENDU" ]]; then
     info "Projet actuel : ${projet:-aucun}. Projet attendu : ${PROJET_ATTENDU}."
-    if gcloud projects describe "$PROJET_ATTENDU" >/dev/null 2>&1 && oui_non "   Utiliser le projet ${PROJET_ATTENDU} ?" o; then
+    if existe gcloud projects describe "$PROJET_ATTENDU" && oui_non "   Utiliser le projet ${PROJET_ATTENDU} ?" o; then
       gcloud config set project "$PROJET_ATTENDU" >/dev/null 2>&1
       projet="$PROJET_ATTENDU"
     else
@@ -113,11 +136,14 @@ main() {
     run.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com \
     iam.googleapis.com iamcredentials.googleapis.com sts.googleapis.com \
     cloudresourcemanager.googleapis.com --quiet
+  attendre_api "Artifact Registry" gcloud artifacts repositories list --location="$REGION" --limit=1
+  attendre_api "Secret Manager" gcloud secrets list --limit=1
+  attendre_api "Cloud Run" gcloud run services list --region="$REGION" --limit=1
   fait "API actives"
 
   # --- 3. Artifact Registry ---------------------------------------------------
   titre "3. Dépôt d'images Artifact Registry (${REGION})"
-  if gcloud artifacts repositories describe "$DEPOT_IMAGES" --location="$REGION" >/dev/null 2>&1; then
+  if existe gcloud artifacts repositories describe "$DEPOT_IMAGES" --location="$REGION"; then
     fait "Dépôt « ${DEPOT_IMAGES} » déjà là"
   else
     gcloud artifacts repositories create "$DEPOT_IMAGES" --repository-format=docker --location="$REGION" \
@@ -140,7 +166,7 @@ JSON
   titre "4. Comptes de service"
   local sa
   for sa in "$SA_SERVEUR:Serveur du site Z-Survival (lecture de ses secrets)" "$SA_DEPLOIEMENT:Déploiement depuis GitHub Actions"; do
-    if gcloud iam service-accounts describe "${sa%%:*}@${projet}.iam.gserviceaccount.com" >/dev/null 2>&1; then
+    if existe gcloud iam service-accounts describe "${sa%%:*}@${projet}.iam.gserviceaccount.com"; then
       fait "Compte « ${sa%%:*} » déjà là"
     else
       gcloud iam service-accounts create "${sa%%:*}" --display-name="${sa#*:}" --quiet
@@ -162,7 +188,7 @@ JSON
   # --- 5. Fédération d'identité GitHub → Google Cloud (sans clé) ---------------
   titre "5. Liaison GitHub ↔ Google Cloud sans clé"
   local etat
-  etat="$(gcloud iam workload-identity-pools describe "$POOL" --location=global --format='value(state)' 2>/dev/null || true)"
+  etat="$(lire gcloud iam workload-identity-pools describe "$POOL" --location=global --format='value(state)')"
   if [[ -z "$etat" ]]; then
     gcloud iam workload-identity-pools create "$POOL" --location=global --display-name="GitHub Actions" --quiet
     fait "Groupe d'identités « ${POOL} » créé"
@@ -176,7 +202,7 @@ JSON
   # quand GitHub le donne (un dépôt supprimé puis recréé sous le même nom par quelqu'un d'autre serait refusé).
   local condition="assertion.repository == '${DEPOT_GITHUB}' && assertion.ref == 'refs/heads/${BRANCHE}'"
   local proprietaire_id
-  proprietaire_id="$(curl -fsS "https://api.github.com/repos/${DEPOT_GITHUB}" 2>/dev/null \
+  proprietaire_id="$(curl -fsS --max-time 15 "https://api.github.com/repos/${DEPOT_GITHUB}" 2>/dev/null \
     | python3 -c 'import json,sys; print(json.load(sys.stdin)["owner"]["id"])' 2>/dev/null || true)"
   if [[ "$proprietaire_id" =~ ^[0-9]+$ ]]; then
     condition="${condition} && assertion.repository_owner_id == '${proprietaire_id}'"
@@ -184,8 +210,8 @@ JSON
     info "(Identifiant du propriétaire GitHub non lu : condition sur le nom du dépôt et la branche seulement.)"
   fi
   local correspondance="google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.ref=assertion.ref,attribute.repository_owner_id=assertion.repository_owner_id"
-  etat="$(gcloud iam workload-identity-pools providers describe "$FOURNISSEUR" --location=global \
-    --workload-identity-pool="$POOL" --format='value(state)' 2>/dev/null || true)"
+  etat="$(lire gcloud iam workload-identity-pools providers describe "$FOURNISSEUR" --location=global \
+    --workload-identity-pool="$POOL" --format='value(state)')"
   if [[ "$etat" == "DELETED" ]]; then
     gcloud iam workload-identity-pools providers undelete "$FOURNISSEUR" --location=global --workload-identity-pool="$POOL" --quiet
     etat="ACTIVE"
@@ -211,13 +237,13 @@ JSON
   titre "6. Valeurs secrètes (saisie masquée : rien ne s'affiche quand vous tapez, c'est normal)"
 
   a_une_valeur() {
-    [[ -n "$(gcloud secrets versions list "$1" --filter='state=ENABLED' --limit=1 --format='value(name)' 2>/dev/null || true)" ]]
+    [[ -n "$(lire gcloud secrets versions list "$1" --filter='state=ENABLED' --limit=1 --format='value(name)')" ]]
   }
   # Ajoute une version au secret $1 avec la valeur lue sur l'entrée standard, puis détruit les anciennes
   # (une seule version utile : moins de risque, et Secret Manager facture chaque version gardée).
   ranger() {
     local nom="$1" derniere v
-    if ! gcloud secrets describe "$nom" >/dev/null 2>&1; then
+    if ! existe gcloud secrets describe "$nom"; then
       gcloud secrets create "$nom" --replication-policy=user-managed --locations="$REGION" \
         --labels=application=z-survival-serveur --quiet >/dev/null
     fi
@@ -306,7 +332,7 @@ sys.stdout.write("pbkdf2$600000$" + base64.b64encode(sel).decode() + "$" + base6
   # --- Service Cloud Run -------------------------------------------------------
   titre "Service Cloud Run « ${SERVICE} » (${REGION})"
   local image_actuelle
-  image_actuelle="$(gcloud run services describe "$SERVICE" --region="$REGION" --format='value(spec.template.spec.containers[0].image)' 2>/dev/null || true)"
+  image_actuelle="$(lire gcloud run services describe "$SERVICE" --region="$REGION" --format='value(spec.template.spec.containers[0].image)')"
   if [[ -z "$image_actuelle" ]]; then
     # Service d'attente (page « Hello » de Google), remplacé par le vrai serveur au premier déploiement GitHub.
     # Le créer ici permet de rendre le service public une fois pour toutes : le compte de déploiement n'a
@@ -330,7 +356,7 @@ sys.stdout.write("pbkdf2$600000$" + base64.b64encode(sel).decode() + "$" + base6
     fait "Service accessible publiquement"
   fi
   local adresse
-  adresse="$(gcloud run services describe "$SERVICE" --region="$REGION" --format='value(status.url)' 2>/dev/null || true)"
+  adresse="$(lire gcloud run services describe "$SERVICE" --region="$REGION" --format='value(status.url)')"
 
   # --- 8. Variables à recopier dans GitHub ---------------------------------------
   titre "8. Terminé. À recopier dans GitHub (valeurs NON secrètes)"
