@@ -7,7 +7,7 @@ Toutes respectent « réduire les animations » et restent légères (HTML, CSS,
 | N° | Idée | État |
 |---|---|---|
 | 1 | **Le cadre rouge réagit au tir** : au coup de feu de l'image animée (5,2 s de la boucle), le cadre et son halo flashent. | **Fait** |
-| 2 | Entrée en scène : chute du Z (écran de chargement du jeu), puis grain VHS qui se dissipe sur la scène. | À faire |
+| 2 | **Entrée en scène** : grain VHS qui se dissipe sur l'image animée, chute du Z (écran de chargement du jeu), coulures. | **Fait** |
 | 3 | Parallaxe : l'image animée bouge légèrement avec la souris ou l'inclinaison du téléphone. | À faire |
 | 4 | Accroche « radio de survie » qui s'écrit avec un grésillement, ou horloge de nuit jusqu'à l'aube. | À faire |
 | 5 | Bandeau d'alerte qui défile en bas (flash d'urgence ; peut annoncer les actualités). | À faire |
@@ -25,3 +25,15 @@ Toutes respectent « réduire les animations » et restent légères (HTML, CSS,
     du tir (`TIR` dans `scene/js/tir.js`) ; un saut de plus d'une seconde n'est pas compté ;
   - au lot 2, la vidéo de l'accueil enverra le même événement à 5,2 s de chaque boucle. Sans image animée, le site n'en reçoit
     aucun : aucun effet.
+
+## 2 — Entrée en scène
+- **Quand** : une seule fois, à l'ouverture de la page **sur l'accueil**. Rien si on arrive directement sur une autre section (`#news`…),
+  rien en mouvement réduit.
+- **Code** : `js/accueil-entree.js` pose la classe `est-entree` sur l'accueil, puis la retire après 4 s. Tout le reste est en CSS
+  (`css/accueil.css`, « Entrée en scène ») ; un bloc `.accueil-vhs` est ajouté dans la zone de l'image animée (`index.html`).
+- **Déroulé** :
+  - **0 à 1,4 s** : grain VHS (neige qui saute, lignes, barre claire qui descend, dernier sursaut) qui se dissipe sur l'image animée ;
+  - **0,45 s** : le Z tombe sur « -Survival », s'écrase, rebondit et bascule à 13° (même mouvement que l'écran de chargement du jeu,
+    `css/menu.css` du jeu, animations `e7-*`, branche `dev`) ; **1,05 s** : impact, le titre tremble ;
+  - **1,25 à 1,55 s** : l'accroche, le bouton et la flèche apparaissent ;
+  - **2 à 3,9 s** : les trois coulures du Z s'allongent, puis une goutte se détache de la plus longue.
