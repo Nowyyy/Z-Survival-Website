@@ -11,17 +11,25 @@
   <link rel="apple-touch-icon" sizes="180x180" href="img/icone-180.png">
   <script>
     // js : la page a JavaScript. entree-accueil : l'entrée en scène de l'accueil démarre dès le premier affichage (sans attendre les
-    // modules) si la page s'ouvre sur l'accueil et sans « réduire les animations » (js/accueil-entree.js, css/accueil.css).
+    // modules) si la page s'ouvre sur l'accueil, sans « réduire les animations », et seulement à la première visite de la session
+    // (?intro=1 la force) : js/accueil-entree.js, css/accueil.css.
     document.documentElement.classList.add('js');
     try {
-      if (!/^#(news|characters|weapons|about)$/.test(location.hash) && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      var cle = 'z-survival-site.entree';
+      var forcee = /[?&]intro=1(&|$)/.test(location.search);
+      var vue = false;
+      try { vue = sessionStorage.getItem(cle) === 'vue'; } catch (e) { /* stockage indisponible : entrée jouée */ }
+      if ((forcee || !vue) && !/^#(news|characters|weapons|about)$/.test(location.hash) && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
         document.documentElement.classList.add('entree-accueil');
+        document.documentElement.dataset.entreeDebut = String(Math.round(performance.now())); // la fin se compte depuis ici
+        try { sessionStorage.setItem(cle, 'vue'); } catch (e) { /* stockage indisponible */ }
       }
     } catch (e) { /* sans matchMedia : pas d'entrée */ }
   </script>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/principal.css">
   <link rel="stylesheet" href="css/accueil.css">
+  <link rel="stylesheet" href="css/accueil-chute-z.css">
   <script type="module" src="js/site.js"></script>
   <script type="module" src="js/musique.js"></script>
 </head>
@@ -67,16 +75,33 @@
   </nav>
 
   <main class="sections" id="sections">
-    <!-- Accueil : image animée plein écran (voir Docs/ref/scene-accueil.md), puis « Entrer » descend vers News. -->
+    <!-- Accueil : vidéo en boucle de la scène plein écran (lot 2b, Docs/ref/scene-accueil.md), puis « En savoir plus » descend vers News.
+         Affiche (image fixe) dessous, vidéo dessus : la source de la vidéo est posée par js/accueil-video.js (jamais en mouvement réduit). -->
     <section class="section section-accueil" id="accueil" data-t-aria="accueil.titre" aria-label="Z-Survival">
       <div class="accueil-scene" aria-hidden="true">
-        <div class="accueil-scene-brume"></div>
-        <div class="accueil-scene-grain"></div>
+        <picture class="accueil-affiche">
+          <source media="(orientation: portrait)" srcset="img/accueil/accueil-9x16.webp" width="1080" height="1920">
+          <img src="img/accueil/accueil-16x9.webp" alt="" width="1920" height="1080" decoding="async">
+        </picture>
+        <video class="accueil-video" autoplay muted loop playsinline preload="none" disablepictureinpicture disableremoteplayback tabindex="-1"></video>
         <div class="accueil-scene-vignette"></div>
         <div class="accueil-vhs"></div>
       </div>
       <img class="studio-logo accueil-studio" src="img/no-way-studio.svg" alt="No Way Studio" data-t-alt="studio.logoAlt" width="824" height="628">
-      <p class="marque-provisoire accueil-mention" data-t="accueil.imageAVenir">Image animée — à venir</p>
+
+      <!-- HUD de jeu le long du cadre (lot 2b, js/accueil-tir.js) : manche, heure de nuit (+ 1 min par tour), munitions (30 → 29 au tir). -->
+      <div class="accueil-hud" aria-hidden="true">
+        <div class="hud-colonne hud-gauche">
+          <p class="hud-bloc hud-manche"><span class="hud-libelle" data-t="accueil.hud.manche">Manche</span> <span class="hud-valeur">01</span></p>
+          <p class="hud-bloc hud-heure"><span class="hud-rec"></span><time class="hud-valeur" data-hud="heure" datetime="23:47">23:47</time></p>
+        </div>
+        <div class="hud-colonne hud-droite">
+          <p class="hud-bloc hud-munitions">
+            <svg class="hud-icone" viewBox="0 0 12 24" focusable="false"><path d="M6 1c2.2 2 3.2 4.6 3.2 7.6V19H2.8V8.6C2.8 5.6 3.8 3 6 1z"/><rect x="2" y="20" width="8" height="3" rx="0.6"/></svg>
+            <span class="hud-valeur" data-hud="munitions">30</span>
+          </p>
+        </div>
+      </div>
 
       <div class="accueil-reglages">
         <span class="bouton bouton-bientot" role="status" data-t="commun.bientot">Bientôt disponible</span>
@@ -104,7 +129,8 @@
       <div class="accueil-contenu">
         <h1 class="accueil-titre" data-t="accueil.titre">Z-Survival</h1>
         <p class="accueil-sous-titre" data-t="accueil.sousTitre"></p>
-        <a class="bouton bouton-principal accueil-entrer" href="#news" data-t="accueil.entrer">En savoir plus</a>
+        <!-- Bouton vivant (lot 2b) : coup de pinceau et coulure au survol ou au toucher, petite coulure de temps en temps (css/accueil.css). -->
+        <a class="bouton bouton-principal accueil-entrer" href="#news"><span class="entrer-pinceau" aria-hidden="true"></span><span class="entrer-texte" data-t="accueil.entrer">En savoir plus</span><span class="entrer-coulure" aria-hidden="true"><span class="entrer-goutte"></span></span></a>
         <a class="accueil-fleche" href="#news" tabindex="-1" aria-hidden="true">
           <svg viewBox="0 0 24 24" focusable="false"><path d="M5 9l7 7 7-7"/></svg>
         </a>

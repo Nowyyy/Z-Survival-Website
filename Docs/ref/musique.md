@@ -80,3 +80,11 @@ Code : `js/musique.js` (lot 2a).
 site, **à côté de chaque globe de langue** (accueil et en-tête), les deux boutons partageant le même état ; zone de clic d'au
 moins 44 × 44 px ; `aria-pressed` et intitulé traduit dans `js/textes.js` (« Activer la musique » / « Couper la musique »,
 « Turn music on » / « Turn music off ») ; petite animation des ondes pendant la lecture, coupée avec `prefers-reduced-motion`.
+
+**Coup de feu de l'accueil (lot 2b)** : au tir de la vidéo de l'accueil (5,2 s de chaque boucle), le bruit de tir du jeu
+(`sons/coup-de-feu.wav`, copie figée : `sons/ORIGINE.json`) est joué **par-dessus la musique**, avec les mêmes règles :
+- seulement si le son du site est activé par le bouton (musique en lecture) ; il ne déclenche jamais le son à lui seul ;
+- jamais si l'onglet est caché, si la vidéo ne joue pas, ni en mouvement réduit (pas de vidéo) ;
+- fichier (65 Kio) téléchargé **à l'activation du son seulement** (jamais en mouvement réduit) ;
+- volume réglable par une seule constante : **`VOLUME_TIR` = 0,3** en tête de `js/musique.js` (gain direct, hors des fondus
+  de la musique ; son du jeu à −0,3 dBFS de crête, soit environ −10,8 dBFS de crête une fois joué).

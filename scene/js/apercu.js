@@ -1,6 +1,6 @@
 // Aperçu de l'accueil (retours du lot 1) : scene/index.html (cadrage B, plein écran) dessous, ../index.html (le site, sans modification)
 // dessus. Le site est de la même origine : une feuille de style est ajoutée dans l'aperçu seulement pour rendre son fond transparent,
-// masquer l'emplacement provisoire de l'image animée et rester sur l'accueil.
+// masquer l'image animée du site (affiche ; la vidéo n'est pas chargée : ?video=0, lot 2b) et rester sur l'accueil.
 // Paramètres transmis : ?t= (image fixe de la scène), ?lang=fr|en (langue du site), ?capture=1 (sans la note).
 const q = new URLSearchParams(location.search);
 const sceneParams = new URLSearchParams({ cadrage: q.get('cadrage') ?? 'B', format: 'plein' });
@@ -11,7 +11,7 @@ document.getElementById('scene').src = `index.html?${sceneParams}`;
 const CSS = `
 html, body, .section-accueil { background: transparent !important; }
 .accueil-scene { background: none !important; }
-.accueil-scene-brume, .accueil-scene-grain, .accueil-mention { display: none !important; }
+.accueil-affiche, .accueil-video { display: none !important; }
 .sections { overflow: hidden !important; }
 `;
 const neige = document.getElementById('neige');
@@ -55,7 +55,7 @@ function relaisNeige() {
   const w = document.getElementById('scene').contentWindow;
   if (w?.__scene?.ready || w?.__sceneError) {
     // ?lang= et ?bandeau=1 (bandeau d'alerte à l'essai) sont transmis au site.
-    const siteParams = new URLSearchParams();
+    const siteParams = new URLSearchParams({ video: '0' }); // la scène 3D tient lieu de vidéo
     if (q.get('lang')) siteParams.set('lang', q.get('lang'));
     if (q.get('bandeau') === '1') siteParams.set('bandeau', '1');
     site = document.createElement('iframe');
@@ -70,8 +70,8 @@ function relaisNeige() {
   setTimeout(attendreScene, 100);
 }());
 
-// Coup de feu de la scène → événement « zs:tir » envoyé à l'accueil du site (js/accueil-tir.js : flash du cadre rouge), comme le fera la
-// vidéo du lot 2. On suit le temps de la boucle de la scène et on signale chaque passage de l'instant du tir.
+// Coup de feu de la scène → événement « zs:tir » envoyé à l'accueil du site (js/accueil-tir.js : flash du cadre rouge, munitions, son),
+// comme le fait la vidéo sur le site (lot 2b) ; retour au début de la boucle → « zs:tour » (munitions remises, heure + 1 min).
 const sceneFrame = document.getElementById('scene');
 let avant = null;
 function suivreTir() {
@@ -85,6 +85,7 @@ function suivreTir() {
       const passe = tour ? avant < s.tir || s.tir <= t : avant < s.tir && s.tir <= t;
       // Un saut de plus d'une seconde (images perdues, premier rendu lent) n'est pas un vrai passage : pas de flash à contretemps.
       const pas = tour ? t + s.duree - avant : t - avant;
+      if (tour && pas < 1) win.document.dispatchEvent(new win.CustomEvent('zs:tour'));
       if (passe && pas < 1) win.document.dispatchEvent(new win.CustomEvent('zs:tir'));
     }
     avant = t;

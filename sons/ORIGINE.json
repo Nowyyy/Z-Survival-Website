@@ -1,0 +1,24 @@
+{
+  "_note": "Copie figée du coup de feu du jeu Z-Survival (lot 2b). Refaire : node outils/sons/copier-tir.mjs <clone du jeu sur dev>.",
+  "fichier": "coup-de-feu.wav",
+  "role": "Coup de feu du personnage 1, joué par le site au tir de la vidéo de l’accueil (js/accueil-tir.js), seulement si le son du site est activé.",
+  "depot": "Nowyyy/Z-Survival",
+  "branche": "dev",
+  "commit": "10a9e6b90f3943f4062c4c42004f7c9f67a6804b",
+  "date": "2026-11-15T10:16:34+01:00",
+  "sujet": "Merge pull request #140 from Nowyyy/lot-8l",
+  "source": {
+    "recette": "data/game/sounds.json → sounds[id=\"tir\"]",
+    "moteur": "js/core/synth.js (renderSound)",
+    "version": 1,
+    "versions": 3
+  },
+  "format": {
+    "codage": "PCM 16 bits",
+    "canaux": 1,
+    "frequence": 44100,
+    "duree": 0.75,
+    "crete": 0.9643
+  },
+  "sha256": "f0fe983feecac21178638bd001dfb65fa52590c21cdc85c87d907dc6cf38a44e"
+}

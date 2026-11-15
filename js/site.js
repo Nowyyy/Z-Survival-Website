@@ -1,11 +1,12 @@
-// Page unique du site : accueil plein écran (image animée à venir), puis les sections News, Characters,
+// Page unique du site : accueil plein écran (vidéo en boucle de la scène, lot 2b), puis les sections News, Characters,
 // Weapons et About us. Défilement qui s'arrête sur chaque section (scroll-snap en CSS), « En savoir plus » qui
 // descend vers News (on peut remonter vers l'accueil), navigation qui suit la section affichée,
 // apparition du contenu à l'entrée de chaque section, menus de langue (Français / English) sur l'accueil et dans l'en-tête.
 import { appliquerTextes, changerLangue, langue, langueInitiale, mouvementReduit, t } from './i18n.js';
 import { ARMES } from './donnees.js';
 import { poserLogo } from './logo.js';
-import { installerFlashTir } from './accueil-tir.js';
+import { installerTir, suivreVideo } from './accueil-tir.js';
+import { installerVideo } from './accueil-video.js';
 import { lancerEntree } from './accueil-entree.js';
 import { taperAccroche } from './accueil-accroche.js';
 import { construireBandeau } from './accueil-bandeau.js';
@@ -268,6 +269,17 @@ document.querySelectorAll('.accueil-entrer, .accueil-fleche').forEach((a) => a.a
   e.preventDefault();
   allerA(indexDe('news'));
 }));
+// Bouton vivant (css/accueil.css) : au toucher (téléphone), coup de pinceau et coulure, comme au survol sur ordinateur.
+const boutonEntrer = document.querySelector('.accueil-entrer');
+let toucheMinuteur = 0;
+boutonEntrer.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'mouse' || mouvementReduit()) return;
+  boutonEntrer.classList.remove('est-touche');
+  void boutonEntrer.offsetWidth;
+  boutonEntrer.classList.add('est-touche');
+  clearTimeout(toucheMinuteur);
+  toucheMinuteur = setTimeout(() => boutonEntrer.classList.remove('est-touche'), 1200);
+});
 document.querySelector('.entete-logo').addEventListener('click', (e) => {
   e.preventDefault();
   allerA(indexDe('accueil'));
@@ -301,11 +313,16 @@ const depart = indexDe(window.location.hash.slice(1));
 if (depart > 0) sections[depart].scrollIntoView({ behavior: 'auto', block: 'start' });
 activer(Math.max(0, depart));
 
-// Entrée en scène de l'accueil (js/accueil-entree.js) : seulement si la page s'ouvre sur l'accueil.
-const entree = lancerEntree(depart <= 0);
-// Accroche « radio de survie » (js/accueil-accroche.js) : elle s'écrit pendant l'entrée, au moment où elle apparaît (1,3 s).
-if (entree) taperAccroche(document.querySelector('.accueil-sous-titre'), 1300);
-// Flash du cadre de l'accueil au coup de feu de l'image animée (js/accueil-tir.js).
-installerFlashTir(document.getElementById('accueil'));
+// Entrée en scène de l'accueil (js/accueil-entree.js) : première visite de la session, seulement si la page s'ouvre sur l'accueil.
+// Accroche « radio de survie » (js/accueil-accroche.js) : elle s'écrit pendant l'entrée, de son apparition (0,65 s) à la fin (1,45 s) ;
+// si le visiteur passe l'entrée, elle s'écrit d'un coup.
+let finirAccroche = () => {};
+const entree = lancerEntree(depart <= 0, () => finirAccroche());
+if (entree) finirAccroche = taperAccroche(document.querySelector('.accueil-sous-titre'), 650, 800);
+// Vidéo en boucle de l'accueil (js/accueil-video.js) et tir synchronisé : flash du cadre, HUD, coup de feu (js/accueil-tir.js).
+const accueil = document.getElementById('accueil');
+installerTir(accueil);
+const video = installerVideo(accueil.querySelector('.accueil-video'), accueil);
+if (video) suivreVideo(video);
 
 document.body.classList.add('est-pret');

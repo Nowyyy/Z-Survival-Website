@@ -91,8 +91,8 @@ async function zoneDeClic(page, selecteur) {
     return { ok: points.every(([x, y]) => document.elementFromPoint(x, y)?.closest('[data-son]') === b), taille: `${Math.round(r.width)} × ${Math.round(r.height)}` };
   }, selecteur);
 }
-// Rangée du haut de l'accueil (logo du studio, « Bientôt disponible », son, globe, mention) : aucun rectangle ne se recoupe.
-const RANGEE_ACCUEIL = ['.accueil-studio', '.accueil-reglages .bouton-bientot', '.accueil-reglages [data-son]', '.langue-accueil .langue-bouton', '.accueil-mention'];
+// Rangée du haut de l'accueil (logo du studio, « Bientôt disponible », son, globe ; la mention provisoire est retirée au lot 2b) : aucun rectangle ne se recoupe.
+const RANGEE_ACCUEIL = ['.accueil-studio', '.accueil-reglages .bouton-bientot', '.accueil-reglages [data-son]', '.langue-accueil .langue-bouton'];
 function chevauchements(page, selecteurs) {
   return page.evaluate((sels) => {
     const r = sels.map((s) => document.querySelector(s).getBoundingClientRect());

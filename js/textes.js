@@ -25,7 +25,10 @@ export const TEXTES = {
       titre: 'Z-Survival',
       sousTitre: 'Tenir jusqu’à l’aube.',
       entrer: 'En savoir plus',
-      imageAVenir: 'Image animée — à venir',
+      // HUD de jeu le long du cadre de l'accueil (lot 2b, js/accueil-tir.js) : manche affichée.
+      hud: {
+        manche: 'Manche',
+      },
       // Bandeau d'alerte (idée « catchy » n° 5, affiché avec ?bandeau=1) : étiquette et nom accessible ; les messages sont dans
       // contenus/bandeau.json (modifiables sans toucher au code, puis par l'interface d'administration).
       bandeau: {
@@ -128,7 +131,10 @@ export const TEXTES = {
       titre: 'Z-Survival',
       sousTitre: 'Hold out until dawn.',
       entrer: 'Learn more',
-      imageAVenir: 'Animated scene — coming soon',
+      // In-game HUD along the home frame (lot 2b, js/accueil-tir.js): round shown.
+      hud: {
+        manche: 'Round',
+      },
       // Alert ticker ("catchy" idea no. 5, shown with ?bandeau=1): label and accessible name; the messages live in
       // contenus/bandeau.json (editable without touching the code, later through the admin interface).
       bandeau: {

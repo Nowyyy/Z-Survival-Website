@@ -27,3 +27,4 @@ outils de développement du navigateur → mode appareil (375 px).
 - `Docs/lots/` : bilan de chaque lot.
 - `outils/musique/` : génération de la musique du site (voir `outils/musique/LISEZMOI.md`) ;
   planche d'écoute : https://nowyyy.github.io/Z-Survival-Website/musique/planche.html
+- `outils/video/` : fabrication des vidéos de l'accueil depuis la scène 3D (voir `outils/video/LISEZMOI.md`).

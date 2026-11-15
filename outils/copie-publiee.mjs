@@ -11,7 +11,7 @@ const RACINE = join(dirname(fileURLToPath(import.meta.url)), '..');
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json',
   '.mp3': 'audio/mpeg', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.woff2': 'font/woff2',
-  '.txt': 'text/plain', '.glb': 'model/gltf-binary', '.mp4': 'video/mp4', '.webm': 'video/webm',
+  '.txt': 'text/plain', '.wav': 'audio/wav', '.glb': 'model/gltf-binary', '.mp4': 'video/mp4', '.webm': 'video/webm',
 };
 
 // Retour : { base (adresse de la racine du site, finit par « / »), commande (cp du workflow), fermer() }.
@@ -26,7 +26,19 @@ export async function servirCopiePubliee() {
     if (chemin.endsWith('/')) chemin += 'index.html';
     const fichier = normalize(join(site, chemin));
     if (!fichier.startsWith(site) || !existsSync(fichier) || statSync(fichier).isDirectory()) { res.writeHead(404); res.end(); return; }
-    res.writeHead(200, { 'content-type': TYPES[extname(fichier)] ?? 'application/octet-stream', 'content-length': statSync(fichier).size });
+    const taille = statSync(fichier).size;
+    const type = TYPES[extname(fichier)] ?? 'application/octet-stream';
+    // Requêtes partielles (Range), comme GitHub Pages : les vidéos de l'accueil (lot 2b) se lisent par morceaux.
+    const plage = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range ?? '');
+    if (plage && (plage[1] || plage[2])) {
+      const debut = plage[1] ? Number(plage[1]) : Math.max(0, taille - Number(plage[2]));
+      const fin = plage[1] && plage[2] ? Math.min(Number(plage[2]), taille - 1) : taille - 1;
+      if (debut > fin || debut >= taille) { res.writeHead(416, { 'content-range': `bytes */${taille}` }); res.end(); return; }
+      res.writeHead(206, { 'content-type': type, 'content-length': fin - debut + 1, 'content-range': `bytes ${debut}-${fin}/${taille}`, 'accept-ranges': 'bytes' });
+      createReadStream(fichier, { start: debut, end: fin }).pipe(res);
+      return;
+    }
+    res.writeHead(200, { 'content-type': type, 'content-length': taille, 'accept-ranges': 'bytes' });
     createReadStream(fichier).pipe(res);
   });
   await new Promise((ok) => { serveur.listen(0, '127.0.0.1', ok); });

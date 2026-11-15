@@ -1,9 +1,9 @@
 # Scène de l'accueil — description validée
 
-Image animée plein écran de la page d'accueil. **Réalisée dans un lot futur** : construite
-en 3D avec les éléments du jeu Z-Survival (personnages, zombie, carte, hélicoptère écrasé),
-puis transformée en **vidéo en boucle**. Au lot 0, la zone est un emplacement provisoire
-(fond sombre + mention « Image animée — à venir »).
+Image animée plein écran de la page d'accueil : construite en 3D avec les éléments du jeu Z-Survival
+(personnages, zombie, carte, hélicoptère écrasé) au lot 1 (`scene/`), puis transformée en **vidéo en boucle**
+au lot 2b (`img/accueil/`, voir « Vidéos de l'accueil » plus bas). La page d'accueil ne charge pas Three.js :
+la scène sert uniquement à fabriquer la vidéo.
 
 ## Composition
 - **Personnage 1** — au premier plan, **de face**, il **vise au loin** (arme épaulée,
@@ -92,5 +92,55 @@ La scène 3D (`scene/`) ne charge rien depuis le jeu en ligne : les fichiers du 
 - Accueil du site : vignette sombre en bas (`.accueil-scene-vignette`), logo, accroche et bouton au plus bas, juste au-dessus du cadre.
 
 ## Coup de feu et accueil
-- L'accueil du site fait flasher son cadre rouge à l'événement `zs:tir` (`js/accueil-tir.js`). L'aperçu (`scene/apercu.html`) l'envoie
-  à chaque coup de feu de la scène ; **la vidéo du lot 2 devra l'envoyer à 5,2 s de chaque boucle** (`TIR` dans `scene/js/tir.js`).
+- **`TEMPS_TIR = 5.2` s** : UNE seule constante, dans `js/accueil-boucle.js` (avec `DUREE_BOUCLE = 8`, `IMAGES_PAR_SECONDE = 30`,
+  `TEMPS_AFFICHE = 2.4`). Elle est lue par la scène (`scene/js/tir.js` : `TIR = TEMPS_TIR` ; `scene/js/boucle.js` : `DUREE = DUREE_BOUCLE`),
+  par la fabrication des vidéos (`outils/video/fabriquer.mjs`) et par le site (`js/accueil-video.js`, `js/accueil-tir.js`). Module pur, sans
+  DOM : Node le lit aussi.
+- Sur le site, `js/accueil-tir.js` suit le temps de la vidéo (`requestVideoFrameCallback`, sinon `currentTime`) et, une fois par tour, à
+  `TEMPS_TIR` (à une demi-image près), envoie `zs:tir` : flash du cadre rouge (220 ms), munitions du HUD 30 → 29, coup de feu du jeu si le son
+  du site est activé. Au retour au début de la boucle, `zs:tour` : munitions à 30, heure de nuit + 1 minute. Un saut de plus d'une seconde
+  (rotation, reprise) recale le suivi sans effet.
+- L'aperçu de l'atelier (`scene/apercu.html`) ouvre le site avec `?video=0` (pas de vidéo, la scène 3D en direct dessous) et envoie lui-même
+  `zs:tir` et `zs:tour` au rythme de la scène.
+
+## Vidéos de l'accueil (lot 2b)
+
+**Méthode** (`outils/video/fabriquer.mjs`, détails dans `outils/video/LISEZMOI.md`) :
+1. la scène est servie comme sur GitHub Pages (copie exacte de ce que publie le workflow) et ouverte dans **Chromium sans écran** (Playwright,
+   rendu logiciel SwiftShader), au cadrage **B**, à la taille exacte de la vidéo (`?capture=1&w=…&h=…`) ;
+2. rendu **image par image, pas de temps fixe** : l'image k montre l'instant k / 30 s (`window.__scene.rendre(t)`), quel que soit le temps
+   de calcul ; **exactement un tour** : 240 images de 0 à 8 s − 1/30 s (la dernière n'est pas la copie de la première) ;
+3. encodage **ffmpeg** : MP4 **H.264 High 4.0**, `yuv420p`, BT.709, deux passes à 2,6 Mbit/s, une image clé toutes les 2 s, **sans piste son**,
+   **faststart**, encodage déterministe ;
+4. **affiche** WebP (qualité 78) : l'image de `TEMPS_AFFICHE` = 2,4 s (bras du zombie tendu, loin de l'éclair du tir). Le site démarre la vidéo
+   à cet instant : le passage de l'affiche à la vidéo ne se voit pas.
+
+**Reproductible** : la scène est une fonction du temps (aucune horloge, aucun hasard) ; une nouvelle exécution redonne les mêmes images (vérifié
+au bit près, même rendues dans le désordre) et les mêmes fichiers (empreintes SHA-256 dans `img/accueil/fabrication.json`).
+
+| Fichier (`img/accueil/`) | Taille | Format | Usage |
+|---|---|---|---|
+| `accueil-16x9.mp4` | 2,47 Mo | 1920 × 1080, cadrage B paysage | écran en paysage (ordinateur, téléphone tourné) |
+| `accueil-9x16.mp4` | 2,48 Mo | 1080 × 1920, cadrage B portrait | écran en portrait (téléphone, tablette debout) |
+| `accueil-16x9.webp`, `accueil-9x16.webp` | 44 et 37 Kio | mêmes tailles | affiches : chargement, lecture bloquée, mouvement réduit |
+
+Qualité mesurée contre les images rendues : PSNR ≈ 47 dB, SSIM 0,995 (flammes et brume sans dégradation visible).
+Raccord de la boucle (vidéos décodées) : écart dernière → première image 0,70 (16:9) et 0,81 (9:16), pour des écarts entre images voisines de
+0,35 et 0,46 en moyenne, 0,73 et 0,93 au plus : le raccord est une image voisine comme les autres.
+
+**Intégration** (`index.html`, `js/accueil-video.js`, `css/accueil.css`) : `<picture>` de l'affiche (portrait / paysage) sous un `<video autoplay
+muted loop playsinline>` sans source dans le HTML. La source est posée par le script après les polices du titre (1,5 s au plus), selon
+`(orientation: portrait)`, et changée quand on tourne l'écran (reprise au même instant). La vidéo reste invisible tant qu'elle ne joue pas (aucun
+bouton de lecture du navigateur si la lecture automatique est refusée) ; pause hors de l'accueil et onglet caché. **Mouvement réduit : aucune
+vidéo téléchargée, affiche seule.**
+
+## Fichiers repris du jeu au lot 2b (copies figées)
+
+Origine : dépôt `Nowyyy/Z-Survival`, branche **`dev`**, commit **`10a9e6b90f3943f4062c4c42004f7c9f67a6804b`** (2026-11-15, « Merge pull request
+#140 from Nowyyy/lot-8l »), lu en lecture seule dans un clone temporaire hors de ce dépôt.
+
+| Fichier du site | Repris de | Rôle |
+|---|---|---|
+| `sons/coup-de-feu.wav` (64,6 Kio, PCM 16 bits mono 44,1 kHz, 0,75 s) | son `tir` de `data/game/sounds.json` (version 1 sur 3), calculé par `js/core/synth.js` du jeu (le jeu n'a aucun fichier audio) ; origine et empreinte : `sons/ORIGINE.json` ; refaire : `node outils/sons/copier-tir.mjs <clone>` | coup de feu joué au tir de la vidéo si le son du site est activé (`VOLUME_TIR` = 0,3 dans `js/musique.js`) |
+| `css/accueil-chute-z.css` | images clés `e7-chute` et `e7-secousse` de `css/menu.css` (écran de chargement ; dernier changement du fichier : `b73e6f4`), telles quelles | chute du Z de l'entrée en scène de l'accueil |
+| `css/base.css` (jetons `--hud-bg`, `--hud-bg-alpha`, `--hud-border`, `--hud-radius`, `--hud-gap`) | `css/tokens.css` (mêmes noms, mêmes valeurs) | puces du HUD de l'accueil |
