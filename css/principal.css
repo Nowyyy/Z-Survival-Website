@@ -294,7 +294,7 @@
 .js .section:not(.est-visible) .arme-stat-remplissage { transform: scaleX(0); }
 .arme-stat-valeur { width: 2.2em; text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 0.9rem; }
 
-/* ---------- Sections à venir (Personnages, Armes) : contenu provisoire atténué + encart « Coming soon » ---------- */
+/* ---------- Sections à venir (Personnages, Armes) : contenu provisoire atténué + encart « Prochainement » / « Coming soon » ---------- */
 .est-a-venir .section-interieur { position: relative; }
 .a-venir-contenu {
   display: flex;

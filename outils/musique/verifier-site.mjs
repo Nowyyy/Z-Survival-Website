@@ -174,6 +174,7 @@ for (const [k, cas] of CAS.entries()) {
   await changerLangue(page, '.langue-accueil', 'en');
   verifier(await synchro(page, 'lecture', 'Turn music off') && (await etat(page)).etat === 'lecture', 'anglais : « Turn music off » sur les deux boutons, la musique continue');
   verifier(await page.textContent('.accueil-reglages .bouton-bientot') === 'Coming soon', 'anglais : « Coming soon » sur l’accueil');
+  verifier((await page.$$eval('.a-venir-encart', (els) => els.map((e) => e.textContent))).every((x) => x === 'Coming soon'), 'anglais : encarts « Coming soon » (Personnages, Armes)');
 
   // En-tête (section News) : second clic → descente, puis contexte suspendu.
   verifier(await allerA(page, 'news') === 'news', 'passage à la section News');
@@ -221,6 +222,8 @@ for (const [k, cas] of CAS.entries()) {
   await page.waitForTimeout(900);
   verifier(await page.evaluate(() => document.body.dataset.section) === 'weapons', 'clavier : flèche haut → Armes');
   verifier(await page.textContent('#titre-news') === 'Actualités', 'titres de section en français');
+  const encarts = await page.$$eval('.a-venir-encart', (els) => els.map((e) => e.textContent));
+  verifier(encarts.length === 2 && encarts.every((x) => x === 'Prochainement'), `Personnages et Armes : encart « Prochainement » en français (${encarts.join(', ')})`);
   verifier((await etat(page)).etat === 'lecture', 'la musique continue pendant la navigation');
 
   // En-tête sans chevauchement.
