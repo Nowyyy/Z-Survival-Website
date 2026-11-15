@@ -58,13 +58,6 @@
   --color-ground: #1c1c1e;          /* fond autour de l'écran */
   --color-ground-light: #3d3d40;
 
-  /* HUD de jeu (accueil, lot 2b) : mêmes noms et valeurs que css/tokens.css du jeu (interface intégrée, lot 3l du jeu) */
-  --hud-bg: #050505;                /* fond des puces (noir du thème) */
-  --hud-bg-alpha: 0.78;             /* opacité du fond (nombre, pas une couleur) */
-  --hud-border: #6a6a6e;            /* contour des puces */
-  --hud-radius: 6px;                /* rayon des puces */
-  --hud-gap: 4px;                   /* espace entre les puces */
-
   /* Logo (Z incliné et ses coulures) */
   --menu-rouge: #a50f0d;            /* coulures */
   --menu-coulure-sombre: #4a0505;   /* coulures : bord dans l'ombre */

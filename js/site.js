@@ -319,7 +319,7 @@ activer(Math.max(0, depart));
 let finirAccroche = () => {};
 const entree = lancerEntree(depart <= 0, () => finirAccroche());
 if (entree) finirAccroche = taperAccroche(document.querySelector('.accueil-sous-titre'), 650, 800);
-// Vidéo en boucle de l'accueil (js/accueil-video.js) et tir synchronisé : flash du cadre, HUD, coup de feu (js/accueil-tir.js).
+// Vidéo en boucle de l'accueil (js/accueil-video.js) et tir synchronisé : flash du cadre, coup de feu (js/accueil-tir.js).
 const accueil = document.getElementById('accueil');
 installerTir(accueil);
 const video = installerVideo(accueil.querySelector('.accueil-video'), accueil);

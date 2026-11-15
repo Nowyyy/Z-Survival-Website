@@ -15,7 +15,7 @@ Toutes respectent « réduire les animations » et restent légères (HTML, CSS,
 | 7 | Curseur viseur sur ordinateur, au-dessus de l'accueil. | À faire |
 
 ## 1 — Flash du cadre au tir
-> **Lot 2b** : remplacé par le tir synchronisé avec la vidéo (`js/accueil-tir.js` : flash de 220 ms, HUD, coup de feu) ; détails dans
+> **Lot 2b** : remplacé par le tir synchronisé avec la vidéo (`js/accueil-tir.js` : flash de 220 ms, coup de feu ; le HUD de jeu ajouté au lot 2b a été retiré ensuite) ; détails dans
 > `Docs/ref/scene-accueil.md` (« Coup de feu et accueil ») et `Docs/lots/lot-2b.md`. Le texte ci-dessous décrit l'état d'avant.
 
 - **Site** :

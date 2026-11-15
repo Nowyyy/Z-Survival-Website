@@ -70,8 +70,8 @@ function relaisNeige() {
   setTimeout(attendreScene, 100);
 }());
 
-// Coup de feu de la scène → événement « zs:tir » envoyé à l'accueil du site (js/accueil-tir.js : flash du cadre rouge, munitions, son),
-// comme le fait la vidéo sur le site (lot 2b) ; retour au début de la boucle → « zs:tour » (munitions remises, heure + 1 min).
+// Coup de feu de la scène → événement « zs:tir » envoyé à l'accueil du site (js/accueil-tir.js : flash du cadre rouge, son),
+// comme le fait la vidéo sur le site (lot 2b) ; retour au début de la boucle → « zs:tour ».
 const sceneFrame = document.getElementById('scene');
 let avant = null;
 function suivreTir() {
