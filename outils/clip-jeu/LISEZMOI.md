@@ -29,12 +29,14 @@ node outils/clip-jeu/fabriquer.mjs
 3. **Horloge contrôlée** (`page.clock` de Playwright) : chaque image avance le jeu d'exactement 1/30 s, quel que soit le temps de rendu.
 4. **Action** : des groupes de zombies apparaissent à des instants fixes autour du point de départ (`REGLAGES.vagues`). Le survivant est
    piloté **comme par un joueur au clavier et à la souris** (`creerPilote`, réglages `REGLAGES.pilote`) :
-   - **clavier** : 8 directions à pleine vitesse, appuis d'au moins 0,2 s ; il recule quand un zombie s'approche à moins de 120 unités,
-     reste immobile pour tirer le reste du temps, ne sort pas de la zone dégagée autour de son point de départ, et y revient dans les 2
-     dernières secondes (la boucle reste propre) ;
+   - **déplacement** : 8 directions à allure modérée (60 % de la vitesse du jeu, environ 130 u/s), chaque direction **tenue** 0,8 à 1,2 s ;
+     à chaque décision, la direction qui l'éloigne le plus des zombies (là où il n'y en a pas) sans sortir de la zone dégagée autour de
+     son point de départ ; il change plus tôt si un zombie se met en travers ou s'il arrive au bord ; dans les 2,3 dernières secondes, il
+     revient à son point de départ et s'y arrête pile (la boucle reste propre) ;
    - **souris** : temps de réaction de 0,13 à 0,23 s (souris immobile) après chaque zombie abattu ; geste rapide vers la cible (0,13 à 0,23 s,
      vitesse en cloche) qui la dépasse le plus souvent (6 à 18 % de l'angle parcouru) ou s'arrête un peu avant ; courte correction ; puis
-     suivi du zombie avec un léger retard ; nouveau geste s'il décroche. Sans cible, la souris ne bouge pas.
+     suivi du zombie avec un léger retard ; nouveau geste s'il décroche. Toujours le zombie le plus proche : il change de cible si un autre
+     devient nettement plus proche. Sans cible, la souris ne bouge pas.
    Le tir est celui du jeu (automatique quand un zombie est dans la ligne de visée ; le cône s'élargit quand le joueur bouge).
 5. **Cadrage** : 800 × 450 autour du joueur dans une fenêtre de 1600 × 900 (personnages deux fois plus grands qu'en plein écran au zoom maximal du jeu, sans perte de netteté).
 6. **Boucle** : 255 images rendues ; la vidéo commence à l'image 15 et ses 15 dernières images sont fondues dans les 15 premières (0,5 s) :

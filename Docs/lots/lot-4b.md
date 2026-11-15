@@ -118,6 +118,20 @@ maintenant piloté comme par un joueur au clavier et à la souris :
 - Vérifications : `outils/verifier-lot-4b.mjs` **26/26** ; raccord de la boucle 1,86, plus doux qu'un passage d'image ordinaire du clip
   (médiane 3,25), parce que le survivant est revenu à son point de départ.
 
+## Troisième retour (15/11/2026, branche `lot-4b-retours-3`) : déplacement plus posé, vers là où il n'y a pas de zombie
+Retour : « ça va presque trop vite ; il faut qu'il tienne sa direction, dans une direction où il n'y a pas de zombie, comme pour les éviter,
+et il tire sur le plus proche à chaque fois ; la manière dont se déplace le curseur est bien meilleure » (la souris ne change pas).
+- **Allure modérée** : 60 % de la vitesse du jeu (environ 130 u/s au lieu de 220).
+- **Direction tenue** 0,8 à 1,2 s. À chaque décision, parmi les 8 directions, celle qui l'**éloigne le plus des zombies** (distance au plus proche
+  depuis le point atteint 0,8 s plus tard), sans sortir de la zone dégagée autour du départ. La zone est agrandie : la bande de départ, plus
+  l'espace libre au-dessus entre les palettes et la caisse. Bonus pour garder la même direction ; changement plus tôt seulement si un zombie se
+  met en travers ou au bord de la zone.
+- **Toujours le plus proche** : la souris change aussi de cible pendant le suivi si un autre zombie devient nettement plus proche (15 %).
+- **Fin de boucle** : retour au point de départ, puis approche fine (joystick relâché peu à peu), qui l'arrête pile dessus.
+- Résultat : 9 zombies tués, survivant touché une fois ; clip de **406 Kio**, affiche de 12 Kio ; 2 images éteintes réparées (87, 88).
+- Vérifications : `outils/verifier-lot-4b.mjs` **26/26** ; raccord de la boucle 8,50, sous le plus grand passage d'image ordinaire du clip
+  (8,93 ; médiane 5,50, le décor bouge presque tout le temps).
+
 ## État git
 - Commits `lot-4b A` à `lot-4b C` sur la branche `lot-4b`, PR vers `main` fusionnée par l'agent (règle de `CLAUDE.md`).
 - Tag `lot-4b` créé en local ; son envoi sur GitHub est refusé par l'environnement de l'agent, comme pour les lots précédents.
