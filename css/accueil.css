@@ -67,78 +67,15 @@
   white-space: nowrap;
 }
 
-/* ---------- Menu de langue : globe dans le coin haut droit ---------- */
-.langue {
+/* Menu de langue : globe dans le coin haut droit (styles communs : css/base.css). */
+.langue-accueil {
   position: absolute;
   z-index: 5;
   top: calc(26px + env(safe-area-inset-top));
   right: 26px;
 }
-.langue-bouton {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-width: var(--touch-target);
-  min-height: var(--touch-target);
-  padding: 0 10px;
-  border: 1px solid rgb(244 241 236 / 35%);
-  border-radius: 999px;
-  background: rgb(5 5 5 / 55%);
-  color: var(--color-text);
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-  backdrop-filter: blur(6px);
-  transition: border-color 150ms, color 150ms;
-}
-.langue-bouton:hover,
-.langue-bouton[aria-expanded="true"] { border-color: var(--color-action); color: var(--color-action-text); }
-.globe-icone {
-  width: 20px;
-  height: 20px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-}
-.langue-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  min-width: 9.5rem;
-  padding: 6px;
-  border: 1px solid var(--color-surface-raised);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  box-shadow: 0 10px 30px rgb(0 0 0 / 60%);
-  transform-origin: top right;
-  animation: langue-ouvre 160ms var(--courbe);
-}
-.langue-menu[hidden] { display: none; }
-@keyframes langue-ouvre {
-  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
-}
-.langue-choix {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  min-height: var(--touch-target);
-  padding: 0 12px;
-  border: 0;
-  border-left: 3px solid transparent;
-  border-radius: var(--radius-sm);
-  background: none;
-  color: var(--color-text);
-  font-weight: 700;
-  text-align: left;
-  cursor: pointer;
-}
-.langue-choix:hover,
-.langue-choix:focus-visible { background: var(--color-surface-raised); }
-.langue-choix[aria-current="true"] { border-left-color: var(--color-action); color: var(--color-action-text); }
 
-/* ---------- Logo, sous-titre, « Entrer » ---------- */
+/* ---------- Logo, sous-titre, « En savoir plus » ---------- */
 .accueil-contenu {
   display: flex;
   flex-direction: column;
@@ -203,7 +140,7 @@
   .accueil-scene::after { inset: 24px; border-radius: 28px; }
   .accueil-studio { top: 44px; left: 52px; width: 96px; }
   .accueil-mention { top: 48px; }
-  .langue { top: 48px; right: 52px; }
+  .langue-accueil { top: 48px; right: 52px; }
   .accueil-sous-titre { font-size: 1rem; }
 }
 

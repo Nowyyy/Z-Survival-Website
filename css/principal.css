@@ -27,6 +27,10 @@
   .entete-separateur { display: block; width: 1px; height: 36px; background: var(--color-border); opacity: 0.6; }
 }
 
+/* À droite : « Bientôt disponible » et le globe de langue. */
+.entete-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+.langue-entete .langue-bouton { min-height: 40px; min-width: 40px; padding: 0 9px; }
+
 /* « Bientôt disponible » : pas cliquable, aspect atténué. */
 .bouton-bientot {
   min-height: 40px;
@@ -42,6 +46,16 @@
   user-select: none;
 }
 
+/* Téléphone : logo, « Bientôt disponible » et globe tiennent sur une ligne (globe sans le code de langue). */
+@media (max-width: 599px) {
+  .entete { gap: 8px; }
+  .entete-logo { font-size: 1.4rem; }
+  .entete-actions { gap: 6px; }
+  .bouton-bientot { min-height: 38px; padding: 0 0.55em; font-size: 0.68rem; letter-spacing: 0.02em; }
+  .langue-entete .langue-bouton { min-height: 38px; min-width: 38px; padding: 0; justify-content: center; }
+  .langue-entete .langue-code { display: none; }
+}
+
 /* ---------- Navigation des sections ---------- */
 /* Téléphone : barre d'onglets en bas de l'écran. */
 .nav-sections {
@@ -54,7 +68,8 @@
   border-top: 1px solid rgb(216 20 20 / 45%);
   backdrop-filter: blur(8px);
 }
-.nav-sections ol { display: grid; grid-template-columns: repeat(4, 1fr); height: 100%; }
+.nav-sections ol { display: flex; height: 100%; padding: 0 4px; }
+.nav-sections li { flex: 1 1 auto; min-width: 0; }
 .nav-sections a {
   position: relative;
   z-index: 0;
@@ -160,7 +175,7 @@
 .section-titre {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(2.5rem, 12vw, 5.5rem);
+  font-size: clamp(2.2rem, 10.8vw, 5.5rem);
   line-height: 1.05;
   color: var(--color-action);
   text-shadow: 0 0 18px var(--color-action-glow);
@@ -315,7 +330,7 @@
     backdrop-filter: none;
     transform: translateY(-50%);
   }
-  .nav-sections ol { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+  .nav-sections ol { flex-direction: column; align-items: flex-end; gap: 8px; padding: 0; }
   .nav-sections a {
     flex-direction: row;
     justify-content: flex-end;
@@ -394,4 +409,8 @@
 @media (max-width: 360px) {
   .arme-bouton { font-size: 0.72rem; padding: 0 5px; letter-spacing: 0; }
   .arme-choix { gap: 6px; }
+  /* En-tête et navigation à cinq entrées : on resserre encore. */
+  .entete-logo { font-size: 1.2rem; }
+  .bouton-bientot { padding: 0 0.4em; font-size: 0.6rem; letter-spacing: 0; }
+  .nav-sections a { font-size: 0.62rem; letter-spacing: 0; }
 }

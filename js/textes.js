@@ -1,13 +1,6 @@
 // Tous les textes du site, regroupés par langue (fr, en) avec exactement les mêmes clés.
 // Le HTML ne contient que des clés (data-t="…", data-t-aria, data-t-alt) ; js/i18n.js les applique.
-// Les intitulés de section restent en anglais dans toutes les langues : « News », « Characters », « Weapons », « About us ».
-
-const SECTIONS = {
-  news: 'News',
-  characters: 'Characters',
-  weapons: 'Weapons',
-  about: 'About us',
-};
+// Les identifiants des sections (#news, #characters…) ne changent pas avec la langue : seuls les intitulés sont traduits.
 
 export const TEXTES = {
   fr: {
@@ -29,7 +22,13 @@ export const TEXTES = {
       entrer: 'En savoir plus',
       imageAVenir: 'Image animée — à venir',
     },
-    sections: SECTIONS,
+    sections: {
+      accueil: 'Accueil',
+      news: 'Actualités',
+      characters: 'Personnages',
+      weapons: 'Armes',
+      about: 'À propos',
+    },
     news: {
       intro: 'Contenu provisoire : les actualités ci-dessous sont fictives.',
       cartes: [
@@ -115,7 +114,13 @@ export const TEXTES = {
       entrer: 'Learn more',
       imageAVenir: 'Animated scene — coming soon',
     },
-    sections: SECTIONS,
+    sections: {
+      accueil: 'Home',
+      news: 'News',
+      characters: 'Characters',
+      weapons: 'Weapons',
+      about: 'About us',
+    },
     news: {
       intro: 'Placeholder content: the news below is fictional.',
       cartes: [
