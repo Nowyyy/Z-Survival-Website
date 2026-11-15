@@ -75,7 +75,9 @@ plus** (le serveur garde la liste en mémoire 60 secondes). Pour le voir : https
 - Modifier un article publié : changer le texte, puis **Enregistrer (reste publié)**.
 - Si le bandeau d'alerte de l'accueil est un jour mis en service, il annonce le dernier article publié.
 - **Annonce Discord** (lot 3c, une fois le webhook rangé : voir « Annonce Discord » plus bas) : à la **première** publication d'un
-  article, un message part dans le salon Discord choisi (titre, début du texte, image, lien vers l'article). **Une seule fois par
+  article, un message part dans le salon Discord choisi : « 📰 Nouvelle actualité · New post », puis une carte avec le titre
+  « 🇫🇷 titre français — 🇬🇧 titre anglais » (le drapeau anglais seulement si le titre anglais est rempli), le début du texte français,
+  l'image et le lien vers l'article. **Une seule fois par
   article** : modifier, dépublier puis republier n'envoie rien de plus. Pour éviter une annonce : préparer l'article en brouillon et ne
   le publier que lorsqu'il est prêt.
 
