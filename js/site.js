@@ -10,6 +10,7 @@ import { installerVideo } from './accueil-video.js';
 import { lancerEntree } from './accueil-entree.js';
 import { taperAccroche } from './accueil-accroche.js';
 import { construireBandeau } from './accueil-bandeau.js';
+import { ouvrirArticle, rendreActualites, slugDeLAdresse } from './actualites.js';
 
 document.documentElement.lang = langueInitiale();
 
@@ -25,26 +26,9 @@ function element(balise, classe, texte) {
   return el;
 }
 
-// ---------- Contenus provisoires (reconstruits à chaque changement de langue) ----------
+// ---------- Contenus provisoires (reconstruits à chaque changement de langue) ; les actualités : js/actualites.js ----------
 
 const choix = { perso: 0, arme: 0 };
-
-function construireNews() {
-  const liste = document.getElementById('news-liste');
-  liste.replaceChildren();
-  t('news.cartes').forEach((carte, i) => {
-    const li = element('li', 'news-carte revele');
-    li.style.setProperty('--i', String(2 + i));
-    const visuel = element('div', 'news-visuel emplacement');
-    visuel.append(element('span', 'marque-provisoire', t('commun.provisoire')));
-    const corps = element('div', 'news-corps');
-    const meta = element('p', 'news-meta');
-    meta.append(element('span', 'news-categorie', carte.categorie), element('time', 'news-date', carte.date));
-    corps.append(meta, element('h3', 'news-titre', carte.titre), element('p', 'news-resume', carte.resume));
-    li.append(visuel, corps);
-    liste.append(li);
-  });
-}
 
 function construirePersonnages() {
   const liste = document.getElementById('perso-miniatures');
@@ -176,7 +160,7 @@ function rendre() {
   const logo = document.querySelector('.entete-logo');
   poserLogo(logo, t('accueil.titre'));
   logo.setAttribute('aria-label', t('commun.accueilAria'));
-  construireNews();
+  rendreActualites();
   construirePersonnages();
   construireArmes();
   construireCredits();
@@ -236,9 +220,9 @@ function activer(index) {
   });
   document.body.dataset.section = id;
   fermerMenusLangue();
-  // Adresse partageable : #news, #weapons… ; rien pour l'accueil.
+  // Adresse partageable : #news, #weapons… ; rien pour l'accueil. Article ouvert (#actu/<slug>, js/actualites.js) : adresse gardée.
   const voulu = id === 'accueil' ? '' : `#${id}`;
-  if (window.location.hash !== voulu) history.replaceState(null, '', `${window.location.pathname}${window.location.search}${voulu}`);
+  if (window.location.hash !== voulu && !slugDeLAdresse()) history.replaceState(null, '', `${window.location.pathname}${window.location.search}${voulu}`);
 }
 
 // Une section est « affichée » quand elle occupe plus de la moitié du conteneur.
@@ -301,6 +285,8 @@ document.addEventListener('keydown', (e) => {
   }
   const cible = e.target;
   if (cible instanceof HTMLElement && cible.closest('input, textarea, select, [contenteditable="true"]')) return;
+  // Article ouvert : les flèches font défiler l'article, pas les sections.
+  if (document.getElementById('actu-vue').open) return;
   const actuel = Math.max(0, indexActif);
   const pas = { ArrowDown: 1, PageDown: 1, ArrowUp: -1, PageUp: -1 }[e.key];
   if (pas) { e.preventDefault(); allerA(actuel + pas); }
@@ -309,9 +295,12 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Arrivée avec une ancre (#weapons…) : aller directement à la section ; sinon l'accueil.
-const depart = indexDe(window.location.hash.slice(1));
+// Adresse d'un article (#actu/<slug>) : section Actualités, article ouvert par-dessus.
+const slugDepart = slugDeLAdresse();
+const depart = slugDepart ? indexDe('news') : indexDe(window.location.hash.slice(1));
 if (depart > 0) sections[depart].scrollIntoView({ behavior: 'auto', block: 'start' });
 activer(Math.max(0, depart));
+if (slugDepart) ouvrirArticle(slugDepart, { pousser: false });
 
 // Entrée en scène de l'accueil (js/accueil-entree.js) : première visite de la session, seulement si la page s'ouvre sur l'accueil.
 // Accroche « radio de survie » (js/accueil-accroche.js) : elle s'écrit pendant l'entrée, de son apparition (0,65 s) à la fin (1,45 s) ;

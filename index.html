@@ -12,14 +12,14 @@
   <script>
     // js : la page a JavaScript. entree-accueil : l'entrée en scène de l'accueil démarre dès le premier affichage (sans attendre les
     // modules) si la page s'ouvre sur l'accueil, sans « réduire les animations », et seulement à la première visite de la session
-    // (?intro=1 la force) : js/accueil-entree.js, css/accueil.css.
+    // (?intro=1 la force) : js/accueil-entree.js, css/accueil.css. Une adresse d'article (#actu/<slug>, lot 3b) ouvre sur Actualités.
     document.documentElement.classList.add('js');
     try {
       var cle = 'z-survival-site.entree';
       var forcee = /[?&]intro=1(&|$)/.test(location.search);
       var vue = false;
       try { vue = sessionStorage.getItem(cle) === 'vue'; } catch (e) { /* stockage indisponible : entrée jouée */ }
-      if ((forcee || !vue) && !/^#(news|characters|weapons|about)$/.test(location.hash) && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if ((forcee || !vue) && !/^#(news|characters|weapons|about|actu\/.+)$/.test(location.hash) && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
         document.documentElement.classList.add('entree-accueil');
         document.documentElement.dataset.entreeDebut = String(Math.round(performance.now())); // la fin se compte depuis ici
         try { sessionStorage.setItem(cle, 'vue'); } catch (e) { /* stockage indisponible */ }
@@ -30,6 +30,7 @@
   <link rel="stylesheet" href="css/principal.css">
   <link rel="stylesheet" href="css/accueil.css">
   <link rel="stylesheet" href="css/accueil-chute-z.css">
+  <link rel="stylesheet" href="css/actualites.css">
   <script type="module" src="js/site.js"></script>
   <script type="module" src="js/musique.js"></script>
 </head>
@@ -136,8 +137,10 @@
           <span class="section-num" aria-hidden="true">02</span>
           <h2 class="section-titre" id="titre-news" data-t="sections.news">Actualités</h2>
         </header>
-        <p class="section-intro marque-provisoire revele" style="--i:1" data-t="news.intro"></p>
-        <ul class="news-liste" id="news-liste"></ul>
+        <!-- Articles publiés, lus sur le serveur (lot 3b, js/actualites.js) : cartes squelettes, puis cartes, ou un message. -->
+        <ul class="news-liste" id="news-liste" data-t-aria="sections.news"></ul>
+        <p class="news-etat revele" id="news-etat" style="--i:2" role="status" hidden></p>
+        <button class="news-plus" id="news-plus" type="button" hidden></button>
       </div>
     </section>
 
@@ -210,5 +213,15 @@
       </div>
     </section>
   </main>
+
+  <!-- Article complet (lot 3b) : ouvert par une carte ou l'adresse #actu/<slug> ; Échap, ✕ ou retour le referment (js/actualites.js). -->
+  <dialog class="actu-vue" id="actu-vue" aria-labelledby="actu-titre">
+    <div class="actu-panneau">
+      <button class="actu-fermer" type="button" data-t-aria="news.fermer" aria-label="Fermer l’article">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <article class="actu-article" id="actu-article"></article>
+    </div>
+  </dialog>
 </body>
 </html>

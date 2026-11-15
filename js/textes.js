@@ -60,27 +60,6 @@ export const TEXTES = {
       mentionFr: '(FR)',
       mentionFrTitre: 'Article disponible en français seulement',
       bandeau: 'Dernière transmission',
-      intro: 'Contenu provisoire : les actualités ci-dessous sont fictives.',
-      cartes: [
-        {
-          date: '12/11/2026',
-          categorie: 'Mise à jour',
-          titre: 'Nouvelle vague de zombies',
-          resume: 'Exemple d’actualité : les nuits deviennent plus longues et les zombies plus nombreux.',
-        },
-        {
-          date: '05/11/2026',
-          categorie: 'Carte',
-          titre: 'L’hélicoptère écrasé',
-          resume: 'Exemple d’actualité : une épave fumante apparaît près du bâtiment.',
-        },
-        {
-          date: '28/10/2026',
-          categorie: 'Communauté',
-          titre: 'Le site ouvre ses portes',
-          resume: 'Exemple d’actualité : bienvenue sur le site de Z-Survival.',
-        },
-      ],
     },
     characters: {
       intro: 'Contenu provisoire : les personnages définitifs arriveront dans un prochain lot.',
@@ -182,27 +161,6 @@ export const TEXTES = {
       mentionFr: '(FR)',
       mentionFrTitre: 'Article available in French only',
       bandeau: 'Latest transmission',
-      intro: 'Placeholder content: the news below is fictional.',
-      cartes: [
-        {
-          date: 'Nov 12, 2026',
-          categorie: 'Update',
-          titre: 'A new zombie wave',
-          resume: 'Sample news: nights are getting longer and the zombies more numerous.',
-        },
-        {
-          date: 'Nov 5, 2026',
-          categorie: 'Map',
-          titre: 'The crashed helicopter',
-          resume: 'Sample news: a smoking wreck appears near the building.',
-        },
-        {
-          date: 'Oct 28, 2026',
-          categorie: 'Community',
-          titre: 'The website is open',
-          resume: 'Sample news: welcome to the Z-Survival website.',
-        },
-      ],
     },
     characters: {
       intro: 'Placeholder content: the final characters will arrive in a later update.',
