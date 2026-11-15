@@ -15,6 +15,7 @@ export const TEXTES = {
       navigation: 'Sections de la page',
       aVenir: 'à venir',
       langue: 'Langue',
+      comingSoon: 'Coming soon',   // volontairement en anglais dans les deux langues
     },
     accueil: {
       titre: 'Z-Survival',
@@ -107,6 +108,7 @@ export const TEXTES = {
       navigation: 'Page sections',
       aVenir: 'coming soon',
       langue: 'Language',
+      comingSoon: 'Coming soon',
     },
     accueil: {
       titre: 'Z-Survival',
@@ -188,5 +190,6 @@ export const TEXTES = {
   },
 };
 
+// Langue de secours pour une clé manquante. La langue affichée au premier passage dépend du navigateur (js/i18n.js).
 export const LANGUE_PAR_DEFAUT = 'fr';
 export const LANGUES = ['fr', 'en'];

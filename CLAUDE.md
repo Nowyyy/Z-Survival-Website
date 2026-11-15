@@ -39,12 +39,14 @@ publié sur https://nowyyy.github.io/Z-Survival/).
 ## Organisation
 - `index.html` : **page unique**. Accueil plein écran (image animée à venir, logo du studio, globe
   Français / English, « En savoir plus » + flèche qui descend vers News), puis les sections plein écran
-  News / Characters / Weapons / About us. Navigation : 01 Accueil à 05 About us. Globe de langue aussi
+  News / Characters / Weapons / About us. Navigation : 01 Accueil à 05 About us. Personnages et Armes :
+  contenu provisoire atténué et inerte sous un encart « Coming soon » (en anglais dans les deux langues). Globe de langue aussi
   dans l'en-tête, à côté de « Bientôt disponible » (About us : logo animé du studio rejoué à chaque arrivée,
   puis pied de page). En-tête et navigation cachés sur l'accueil.
 - `main.html` : ancienne page principale, simple redirection vers `./#news` (garde l'ancre).
 - `css/`, `js/` : styles et scripts ; `js/site.js` : script de la page ; `js/textes.js` : tous les textes
-  (blocs `fr` et `en`, mêmes clés) ; `js/i18n.js` : langue (choix gardé dans le navigateur, `?lang=en`) ;
+  (blocs `fr` et `en`, mêmes clés) ; `js/i18n.js` : langue (priorité : `?lang=`, puis choix gardé du globe, puis langue du navigateur :
+  français pour les visiteurs francophones, anglais pour les autres ; aucune géolocalisation) ;
   `js/logo.js` : logo du jeu.
 - `fonts/` : polices du jeu (+ licences) ; `img/` : icônes et logos du studio (`no-way-studio.svg` fixe, `no-way-studio-anime.svg` animé).
 - `Docs/ref/` : documents de référence ; `Docs/lots/` : bilans de lot.
