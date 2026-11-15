@@ -48,6 +48,8 @@ publié sur https://nowyyy.github.io/Z-Survival/).
   (blocs `fr` et `en`, mêmes clés) ; `js/i18n.js` : langue (priorité : `?lang=`, puis choix gardé du globe, puis langue du navigateur :
   français pour les visiteurs francophones, anglais pour les autres ; aucune géolocalisation) ;
   `js/logo.js` : logo du jeu.
+- `musique/` : propositions de musique (MP3 en boucle, points de boucle dans `boucles.json`) et planche d'écoute
+  `planche.html` (noindex, non reliée au site) ; `outils/musique/` : script qui génère la musique (`Docs/ref/musique.md`).
 - `fonts/` : polices du jeu (+ licences) ; `img/` : icônes et logos du studio (`no-way-studio.svg` fixe, `no-way-studio-anime.svg` animé).
 - `Docs/ref/` : documents de référence ; `Docs/lots/` : bilans de lot.
 - `.github/workflows/pages.yml` : déploiement GitHub Pages à chaque push sur `main`.
