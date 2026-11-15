@@ -39,7 +39,8 @@ Suite du lot 1 (`Docs/lots/lot-1.md`). Branche `lot-1-retours`, PR fusionnée pa
   **variante B du jeu, « civil débrouillard »** : capuche, sac de sport, sweat gris clair à accent orange, et **lampe frontale
   allumée**, qui éclaire faiblement le zombie. Les enrichissements (visage, bras, pistolet, textures 512 px) valent aussi pour cette
   variante.
-- **Aperçu avec le site** : `scene/apercu.html`.
+- **Aperçu avec le site** : `scene/apercu.html` (accueil actuel : cadre rouge, logo du studio, « Bientôt disponible », bouton du son,
+  globe, logo Z-Survival, accroche, bouton, flèche).
   - La scène tourne en fond, plein écran, et la **vraie page d'accueil du site** est chargée par-dessus, telle quelle.
   - Dans l'aperçu seulement, une feuille de style rend le fond de l'accueil transparent et masque la mention « Image animée — à venir ».
     Le site lui-même n'est pas modifié.
