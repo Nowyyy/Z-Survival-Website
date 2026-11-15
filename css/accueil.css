@@ -402,7 +402,9 @@
    de place à côté de la flèche. L'encart reste en bas à gauche, mais juste au-dessus du titre : le haut du bloc (titre, accroche, bouton,
    flèche), ancré en bas, est à environ 170 px + 20 vw du bas, au plus 317 px (taille maximale du titre ; mesuré de 320 à 820 px de large). */
 @media (orientation: portrait) and (max-width: 899px) {
-  .avec-bandeau .accueil-plateforme { bottom: calc(min(170px + 20vw, 317px) + 10px); }
+  /* + la part de la marge basse de l'écran au-delà de 8 px (iPhone en mode application : barre d'accueil, environ 34 px) : le bas de
+     l'accueil remonte d'autant (padding-bottom de .avec-bandeau .section-accueil), l'encart aussi (retour du propriétaire). */
+  .avec-bandeau .accueil-plateforme { bottom: calc(min(170px + 20vw, 317px) + 10px + max(8px, env(safe-area-inset-bottom)) - 8px); }
 }
 }
 /* Petits téléphones : un peu plus compact (place entre le bord et la flèche). */

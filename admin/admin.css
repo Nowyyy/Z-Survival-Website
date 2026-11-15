@@ -418,3 +418,21 @@ body.admin {
 @media (prefers-reduced-motion: reduce) {
   .admin-reveil-point { animation: none; }
 }
+
+/* ---------- Aperçu de partage (lot 3f) : carte à la manière de Discord (couleurs en jetons du site) ---------- */
+.admin-compteur { float: right; font-weight: 400; color: var(--color-text-muted); font-size: 0.8rem; }
+.admin-partage-carte {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 440px;
+  margin-top: 10px;
+  padding: 10px 14px 14px 12px;
+  border-left: 4px solid var(--color-action);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+}
+.admin-partage-site { font-size: 0.75rem; color: var(--color-text-muted); }
+.admin-partage-titre { font-weight: 700; color: var(--color-focus); overflow-wrap: anywhere; }
+.admin-partage-description { font-size: 0.875rem; overflow-wrap: anywhere; }
+.admin-partage-image { display: block; width: 100%; height: auto; margin-top: 6px; border-radius: var(--radius-sm); }

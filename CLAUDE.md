@@ -60,6 +60,9 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
 - Bandeau d'alerte (lot 3d, `serveur/src/bandeau.js`) : l'admin modifie `contenus/bandeau.json`, que le serveur relit et réécrit dans le
   dépôt par l'API GitHub (même jeton que les images, commit « Z-Survival admin » sur `main`, refus 409 si le fichier a changé entre-temps) ;
   le site lit toujours le fichier.
+- Aperçu de partage (lot 3f, `serveur/src/partage.js`) : l'admin modifie le titre et la description des balises Open Graph / Twitter
+  d'`index.html` (seule source de ces textes) ; le serveur ne réécrit que ces quatre valeurs `content`, par l'API GitHub (même jeton, 409 si
+  la page a changé entre-temps).
 - Connexion admin sans cookie (domaines différents) : jeton signé dans `Authorization: Bearer`. Migrations versionnées
   dans `serveur/migrations/` (nouveau fichier `NNN_…sql`, jamais modifier une migration déployée).
 
@@ -73,11 +76,12 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   puis pied de page). À propos a **deux blocs de même forme** (image, titre, texte) : le jeu (clip du vrai jeu en boucle, lot 4b) au-dessus du studio ;
   titres et textes des deux blocs modifiables depuis l'admin (lot 3e : pages `a-propos-jeu` et `a-propos` du serveur ; par défaut
   `about.jeu.*`, `studio.signature`, `about.texte`). En-tête et navigation cachés sur l'accueil.
-  Tête de page : titre et description français (= `meta.*`), aperçu de partage Open Graph / Twitter Card (= `partage.*` de `js/textes.js`,
-  image `img/partage.jpg`), canonique, icônes, manifeste, JSON-LD (VideoGame, Organization, WebSite).
+  Tête de page : titre et description français (= `meta.*`), aperçu de partage Open Graph / Twitter Card (titre et description modifiables
+  depuis l'admin, lot 3f ; image `img/partage.jpg`), canonique, icônes, manifeste, JSON-LD (VideoGame, Organization avec l'e-mail, WebSite).
+  Pied de page : © No Way Studio, licences des polices, contact `contact@zsurvival-game.com` (lien mailto).
 - `main.html` : ancienne page principale, simple redirection vers `./#news` (garde l'ancre).
 - `admin/` (lot 3b) : page d'administration des actualités (noindex, non reliée au site, français seulement, CSP stricte),
-  mode d'emploi `Docs/ref/admin.md` ; « Pages du site » : page « À propos », puis bandeau d'alerte (lot 3d).
+  mode d'emploi `Docs/ref/admin.md` ; « Pages du site » : page « À propos », bandeau d'alerte (lot 3d), aperçu de partage (lot 3f).
 - `css/`, `js/` : styles et scripts ; `js/site.js` : script de la page ; `js/textes.js` : tous les textes
   (blocs `fr` et `en`, mêmes clés) ; `js/i18n.js` : langue (priorité : `?lang=`, puis choix gardé du globe, puis langue du navigateur :
   français pour les visiteurs francophones, anglais pour les autres ; aucune géolocalisation) ;

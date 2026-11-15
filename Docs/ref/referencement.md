@@ -38,6 +38,7 @@
   `aggregateRating`) : c'est normal tant que le jeu n'est pas sorti.
 
 ### Aperçu de partage et icônes
+- Lot 3f : le **titre et la description de partage** (balises Open Graph et Twitter d'`index.html`) se modifient depuis l'admin (`Docs/ref/admin.md`, section 10) ; `index.html` en est la seule source.
 - Balises Open Graph et Twitter Card, image `img/partage.jpg` (1200 × 630) : voir `Docs/lots/lot-4a.md` (partie A).
 - Favicon, icônes Apple et Android, manifeste `site.webmanifest` : voir `Docs/ref/direction-artistique.md` (« Icônes »).
 

@@ -1,7 +1,7 @@
 // Vérification du lot 4a (Playwright, Chromium) : node outils/verifier-lot-4a.mjs [--en-ligne] [--sous-dossier]
 // Sur une copie exacte de ce que publie .github/workflows/pages.yml, servie à la racine comme sur le domaine (outils/copie-publiee.mjs),
 // ou, avec --en-ligne, sur https://zsurvival-game.com/. Contrôles :
-// - aperçu de partage : balises Open Graph et Twitter Card (textes identiques à partage.* de js/textes.js), image JPEG 1200 × 630 ;
+// - aperçu de partage : balises Open Graph et Twitter Card (og et twitter identiques ; textes modifiables depuis l'admin, lot 3f), image JPEG 1200 × 630 ;
 // - icônes : favicon SVG et ICO, icône Apple, manifeste valide et ses icônes, aux bonnes tailles ; mêmes icônes sur l'admin ;
 // - référencement : robots.txt, sitemap.xml, une seule page indexable, canonique identique quelle que soit l'adresse (?lang=…, #…),
 //   pas de hreflang, noindex sur toutes les pages de travail, titre et description français (= meta.* de js/textes.js), JSON-LD valide ;
@@ -73,14 +73,16 @@ async function lire(adresse) {
 console.log('A. Aperçu de partage');
 const html = (await lire(base)).corps.toString();
 const meta = (attr, nom) => new RegExp(`<meta ${attr}="${nom.replace(/[:.]/g, '\\$&')}" content="([^"]*)">`).exec(html)?.[1];
-const P = TEXTES.fr.partage;
+// Lot 3f : titre et description vivent seulement dans index.html (modifiables depuis l'admin) : og et twitter doivent être identiques.
+const P = { titre: meta('property', 'og:title'), description: meta('property', 'og:description'), imageAlt: meta('property', 'og:image:alt') };
 verifier(meta('property', 'og:type') === 'website' && meta('property', 'og:site_name') === 'Z-Survival' && meta('property', 'og:locale') === 'fr_FR',
   'og:type website, og:site_name Z-Survival, og:locale fr_FR');
 verifier(meta('property', 'og:url') === DOMAINE, `og:url = ${DOMAINE}`);
-verifier(meta('property', 'og:title') === P.titre && meta('name', 'twitter:title') === P.titre, 'og:title et twitter:title = partage.titre (js/textes.js)');
+verifier(meta('property', 'og:title') === P.titre && meta('name', 'twitter:title') === P.titre, `og:title = twitter:title (« ${P.titre} »)`);
 verifier(meta('property', 'og:description') === P.description && meta('name', 'twitter:description') === P.description,
-  `og:description et twitter:description = partage.description (${P.description.length} caractères)`);
-verifier(meta('property', 'og:image:alt') === P.imageAlt && meta('name', 'twitter:image:alt') === P.imageAlt, 'textes de remplacement de l’image = partage.imageAlt');
+  `og:description = twitter:description (${P.description?.length} caractères)`);
+verifier(P.titre?.length > 0 && P.description?.length > 0 && P.titre.length <= 90 && P.description.length <= 300, 'titre et description de partage présents (90 et 300 caractères au plus)');
+verifier(meta('property', 'og:image:alt') === P.imageAlt && meta('name', 'twitter:image:alt') === P.imageAlt, 'texte de remplacement de l’image identique (og et twitter)');
 verifier(meta('name', 'twitter:card') === 'summary_large_image', 'twitter:card summary_large_image');
 const ogImage = meta('property', 'og:image');
 verifier(ogImage === `${DOMAINE}img/partage.jpg` && meta('name', 'twitter:image') === ogImage && meta('property', 'og:image:secure_url') === ogImage,

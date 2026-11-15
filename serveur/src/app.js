@@ -14,6 +14,7 @@ import { creerJeton, verifierJeton } from './jeton.js';
 import { hacherIp, reserverTentative, effacerTentatives, nettoyerTentatives } from './limite.js';
 import { annoncerArticle } from './discord.js';
 import { ecrireBandeau, lireBandeau, validerBandeau } from './bandeau.js';
+import { ecrirePartage, lirePartage, validerPartage } from './partage.js';
 import { ErreurValidation, LANGUES, PAGES, entierPositif, slugValide, validerArticle, validerConnexion, validerPage } from './validation.js';
 import {
   ErreurImage, TAILLE_MAX_IMAGE, COTE_MAX, cheminImage, enregistrerSurGithub, listerSurGithub, nomDansDossier, nomImageValide, preparerImage,
@@ -580,6 +581,25 @@ export function creerApp({ config, db, journal, maintenant = () => Date.now(), f
     const r = await ecrireBandeau({ config, fetchGithub, messages, sha });
     journal.info('Bandeau modifié', { messages: messages.length, affiches: messages.filter((m) => m.actif).length });
     return c.json({ messages: r.messages, sha: r.sha });
+  });
+
+  // --- Aperçu de partage (lot 3f) : titre et description des balises Open Graph / Twitter d'index.html, lus et réécrits dans le dépôt
+  // par l'API GitHub (même jeton que les images). Sans jeton : 503 clair.
+  const partageConfigure = () => {
+    if (!config.jetonGithubImages) {
+      throw new ErreurHttp(503, 'Modification de l’aperçu de partage pas encore configurée (jeton GitHub absent : voir Docs/ref/admin.md, « Jeton GitHub »).');
+    }
+  };
+  app.get('/api/admin/partage', async (c) => {
+    partageConfigure();
+    return c.json(await lirePartage({ config, fetchGithub }), 200, { 'Cache-Control': 'no-store' });
+  });
+  app.put('/api/admin/partage', limiteCorps(8 * 1024), async (c) => {
+    partageConfigure();
+    const { titre, description, sha } = validerPartage(await lireJson(c));
+    const r = await ecrirePartage({ config, fetchGithub, titre, description, sha });
+    journal.info('Aperçu de partage modifié', { titre: titre.length, description: description.length });
+    return c.json(r);
   });
 
   app.notFound((c) => c.json({ erreur: 'Introuvable.' }, 404));

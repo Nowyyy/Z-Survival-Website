@@ -10,13 +10,8 @@ export const TEXTES = {
       titre: 'Z-Survival — jeu de survie zombies sur navigateur',
       description: 'Z-Survival, jeu de survie zombies en vue de dessus par No Way Studio : tenez jusqu’à l’aube, directement dans le navigateur, sur téléphone comme sur ordinateur. Bientôt disponible.',
     },
-    // Aperçu de partage (lot 4a) : balises Open Graph et Twitter Card d'index.html, en français (og:locale fr_FR), recopiées telles
-    // quelles dans le HTML (les réseaux sociaux ne lisent pas le JavaScript) ; outils/verifier-lot-4a.mjs vérifie qu'elles sont identiques.
-    partage: {
-      titre: 'Z-Survival — survie zombies sur navigateur',
-      description: 'La nuit tombe, les morts se relèvent. Tiendrez-vous jusqu’à l’aube ? Z-Survival, jeu de survie zombies en vue de dessus par No Way Studio, bientôt disponible sur navigateur.',
-      imageAlt: 'Le logo Z-Survival sur une scène du jeu : un survivant tire, la nuit, devant un hélicoptère en feu.',
-    },
+    // Aperçu de partage (Discord, WhatsApp…) : titre et description dans les balises Open Graph / Twitter d'index.html, seule source,
+    // modifiables depuis l'admin (lot 3f ; les réseaux ne lisent pas le JavaScript).
     commun: {
       provisoire: 'Provisoire',
       bientot: 'Bientôt disponible',
@@ -111,6 +106,7 @@ export const TEXTES = {
       logoAlt: 'No Way Studio',
       signature: 'Un jeu de No Way Studio',
       copyright: '© 2026 No Way Studio',
+      contact: 'Contact :', // pied de page, devant l'adresse contact@zsurvival-game.com (lien mailto dans index.html)
     },
     // À propos : deux blocs, le jeu (textes fixes, about.jeu) puis le studio. Pour le studio, titre (studio.signature) et texte (about.texte)
     // par défaut, remplacés par ceux de la page d'administration dès qu'ils sont enregistrés (js/a-propos.js).
@@ -132,11 +128,6 @@ export const TEXTES = {
     meta: {
       titre: 'Z-Survival — zombie survival browser game',
       description: 'Z-Survival, a top-down zombie survival game by No Way Studio: hold out until dawn, right in your browser, on phone or computer. Coming soon.',
-    },
-    partage: {
-      titre: 'Z-Survival — zombie survival in your browser',
-      description: 'Night falls, the dead rise. Can you hold out until dawn? Z-Survival, a top-down zombie survival game by No Way Studio, coming soon to your browser.',
-      imageAlt: 'The Z-Survival logo over a scene from the game: a survivor shoots at night, in front of a burning helicopter.',
     },
     commun: {
       provisoire: 'Placeholder',
@@ -232,6 +223,7 @@ export const TEXTES = {
       logoAlt: 'No Way Studio',
       signature: 'A No Way Studio game',
       copyright: '© 2026 No Way Studio',
+      contact: 'Contact:',
     },
     // About us: two blocks, the game (fixed texts, about.jeu) then the studio (default title and text, replaced by the admin page's).
     about: {
