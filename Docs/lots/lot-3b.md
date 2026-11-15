@@ -196,3 +196,24 @@ Vérifications :
   sans commit, photo renvoyée reprise, image gardée car partagée, image inutilisée supprimée, image supprimée avec l'article).
 - Le site lui-même n'a pas changé (seuls `admin/`, `serveur/`, `outils/admin/` et la documentation).
 - Rien à refaire de votre côté : le jeton GitHub déjà rangé (permission *Contents* en lecture et écriture) suffit pour supprimer.
+
+## Retour du propriétaire (15/11/2026, branche `admin-a-propos`)
+Demande : « Sur la page admin : une option pour changer le texte de la page À propos (le titre, le texte sont modifiables) ; retirer
+l'encart jaune « contenu provisoire ». »
+
+1. **Serveur** : table `pages` (nouvelle migration `002_pages.sql`, appliquée au démarrage) ; `GET /api/pages/a-propos?lang=` (public,
+   `{ page: null }` tant que rien n'est enregistré, cache 60 s) ; `GET` et `PUT /api/admin/pages/a-propos` (jeton, titre et texte
+   français obligatoires, anglais facultatif).
+2. **Admin** : « Pages du site → Modifier la page « À propos » » sous la liste des articles : titre et texte FR / EN partant des
+   textes actuels du site, barre de mise en forme, aperçu FR / EN, « Enregistrer et publier », confirmation avant de quitter avec des
+   modifications, texte gardé si la session expire.
+3. **Site** (`js/a-propos.js`) : le titre de la section et le texte (Markdown sûr) viennent du serveur ; textes de `js/textes.js` par
+   défaut ou si le serveur ne répond pas ; repli « (FR) » sur le site anglais sans version anglaise ; l'entrée « 05 À propos » du menu
+   garde son intitulé fixe. **Encart jaune « contenu provisoire » retiré** (clé `about.intro` supprimée).
+
+Vérifications :
+- `npm test` → **52/52** (5 nouveaux : page vide, jeton obligatoire, contrôle des entrées, repli français, FR + EN et remplacement).
+- `outils/video/verifier-accueil.mjs` → **172/172** et `outils/musique/verifier-site.mjs` → **158/158** (reste du site inchangé).
+- `outils/admin/verifier-actus.mjs` → **234/234** (27 nouveaux contrôles : textes par défaut et plus d'encart, admin pré-rempli,
+  mise en forme, confirmation, aperçu FR / EN, enregistrement, site à 375 × 667, 320 × 568 en mouvement réduit et 1440 × 900, Markdown
+  sûr, menu inchangé, repli « (FR) », changement de langue, serveur injoignable).

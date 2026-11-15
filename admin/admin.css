@@ -312,6 +312,25 @@ body.admin {
 .admin-apercu-article .actu-image { margin: 12px 0 0; }
 .admin-apercu-article .actu-article > .actu-entete:first-child { padding-top: 12px; }
 
+/* ---------- Pages du site ---------- */
+.admin-pages { margin-top: 10px; }
+.admin-actions-page { grid-template-columns: 1fr 1fr; }
+.admin-actions-page > :first-child { grid-column: auto; }
+/* Aperçu de la page « À propos » : mêmes polices et couleurs que la section du site. */
+.admin-apercu-apropos { display: flex; flex-direction: column; gap: 10px; padding-top: 6px; }
+.admin-apercu-apropos-num { font-family: var(--font-label); color: var(--color-action-text); letter-spacing: 0.06em; }
+.admin-apercu-apropos-titre {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.2rem, 10.8vw, 4.5rem);
+  line-height: 1.05;
+  color: var(--color-action);
+  text-shadow: 0 0 18px var(--color-action-glow);
+  overflow-wrap: anywhere;
+}
+.admin-apercu-apropos-signature { font-family: var(--font-label); font-size: 1.05rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-action-text); }
+.about-mention { margin: 0; }
+
 /* ---------- Bibliothèque des images ---------- */
 .admin-galerie { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .admin-vignette {
@@ -348,6 +367,7 @@ body.admin {
   .admin-actions { grid-template-columns: repeat(4, auto); justify-content: end; margin: 0; padding: 12px 0; border-radius: 0; }
   .admin-actions > :first-child { grid-column: auto; }
   .admin-galerie { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .admin-actions-page { grid-template-columns: repeat(2, auto); }
   .admin-apercu { width: min(820px, calc(100% - 64px)); height: auto; max-height: calc(100% - 64px); margin: auto; padding: 0 32px 32px; border: 1px solid rgb(216 20 20 / 55%); border-radius: var(--radius-lg); }
 }
 

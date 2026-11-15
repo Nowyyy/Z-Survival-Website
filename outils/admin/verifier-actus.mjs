@@ -565,6 +565,117 @@ console.log('\n# Admin : suppression des images');
   await contexte.close();
 }
 
+// ---------- Page « À propos » : modifiable depuis l'admin, affichée par le site ----------
+console.log('\n# Page « À propos »');
+{
+  const ouvrirAbout = async (lang, taille = [375, 667], reduit = false) => {
+    const p = await nouvellePage({ largeur: taille[0], hauteur: taille[1], reduit });
+    await p.page.goto(`${banc.base}?lang=${lang}#about`);
+    await p.page.waitForSelector('body.est-pret');
+    await p.page.waitForTimeout(700);
+    return p;
+  };
+  // Avant tout enregistrement : textes par défaut, plus d'encart « contenu provisoire ».
+  {
+    const { page, contexte, erreursInattendues } = await ouvrirAbout('fr');
+    verifier(await page.textContent('#titre-about') === 'À propos' && /^No Way Studio crée Z-Survival/.test(await page.textContent('#about-texte')), 'site, rien d’enregistré : titre et texte par défaut');
+    verifier(await page.locator('#about .marque-provisoire').count() === 0, 'À propos : plus d’encart jaune « contenu provisoire »');
+    verifier(erreursInattendues().length === 0, `aucune erreur console (${erreursInattendues().join(' | ')})`);
+    await contexte.close();
+  }
+  // Admin : modifier et publier.
+  const { page, contexte, suivi, erreursInattendues } = await nouvellePage();
+  await page.goto(`${banc.base}admin/`);
+  await page.fill('#identifiant', banc.identifiant);
+  await page.fill('#mot-de-passe', banc.motDePasse);
+  await page.click('#bouton-connexion');
+  await page.waitForSelector('#ecran-liste:not([hidden])');
+  await page.click('#ouvrir-page-a-propos');
+  await page.waitForSelector('#ecran-page:not([hidden])');
+  verifier(await page.inputValue('#page_titre_fr') === 'À propos' && /^No Way Studio crée/.test(await page.inputValue('#page_contenu_fr'))
+    && await page.inputValue('#page_titre_en') === 'About us' && /Texte d’origine/.test(await page.textContent('#page-statut')),
+    'admin : la page part des textes actuels du site (FR et EN), statut « Texte d’origine »');
+  await page.fill('#page_titre_fr', 'Le studio');
+  await page.fill('#page_contenu_fr', 'Intro');
+  await page.evaluate(() => document.getElementById('page_contenu_fr').setSelectionRange(0, 5));
+  await page.click('#page-panneau-fr [data-format=gras]');
+  await page.evaluate(() => { const z = document.getElementById('page_contenu_fr'); z.setSelectionRange(z.value.length, z.value.length); });
+  await page.keyboard.type('\n\n- Jeux de survie\n- Sur navigateur\n\n[Notre site](https://example.org) <script>window.__pirate=9</script>');
+  verifier((await page.inputValue('#page_contenu_fr')).startsWith('**Intro**'), 'admin : barre de mise en forme sur le texte de la page');
+  await page.click('#page-onglet-en');
+  await page.fill('#page_titre_en', '');
+  await page.fill('#page_contenu_en', '');
+  suivi.reponses.push(false);
+  await page.click('#page-retour');
+  verifier(suivi.dialogues.at(-1)?.type === 'confirm' && await page.isVisible('#ecran-page'), 'admin : confirmation avant de quitter la page modifiée');
+  await page.click('#page-apercu');
+  await page.waitForSelector('#apercu-page[open]');
+  verifier(await page.textContent('#apercu-page-titre') === 'Le studio' && await page.locator('#apercu-page-texte strong').count() === 1 && await page.locator('#apercu-page-texte li').count() === 2,
+    'aperçu FR : titre, gras, liste');
+  await page.click('[data-apercu-page=en]');
+  verifier(await page.isVisible('#apercu-page-texte .actu-mention-fr') && !(await page.isHidden('#apercu-page-note')), 'aperçu EN sans anglais : version française avec « (FR) »');
+  await page.screenshot({ path: join(CAPTURES, 'admin-apercu-a-propos-375.png') });
+  await page.click('#apercu-page-fermer');
+  await page.click('#page-enregistrer');
+  await page.waitForFunction(() => /En ligne/.test(document.getElementById('page-statut').textContent));
+  verifier(/enregistrée/.test(await page.textContent('#message')), 'admin : page enregistrée et publiée');
+  await page.screenshot({ path: join(CAPTURES, 'admin-page-a-propos-375.png'), fullPage: true });
+  verifier(erreursInattendues(HTTP_VOULU).length === 0, `admin : aucune erreur console (${erreursInattendues(HTTP_VOULU).join(' | ')})`);
+
+  // Site : texte publié (FR), repli FR sur le site anglais, article piégé inerte, menu inchangé.
+  for (const [taille, reduit] of [[[375, 667], false], [[320, 568], true], [[1440, 900], false]]) {
+    const v = await ouvrirAbout('fr', taille, reduit);
+    const etat = await v.page.evaluate(() => ({
+      titre: document.getElementById('titre-about').textContent,
+      gras: document.querySelectorAll('#about-texte strong').length,
+      puces: document.querySelectorAll('#about-texte li').length,
+      liens: [...document.querySelectorAll('#about-texte a')].map((a) => `${a.href} ${a.rel}`),
+      scripts: document.querySelectorAll('#about-texte script').length,
+      pirate: window.__pirate ?? null,
+      nav: document.querySelector('.nav-sections a[data-section=about] .nav-nom').textContent,
+    }));
+    verifier(etat.titre === 'Le studio' && etat.gras === 1 && etat.puces === 2 && etat.liens.join() === 'https://example.org/ noopener noreferrer' && etat.scripts === 0 && etat.pirate === null,
+      `site ${taille.join(' × ')}${reduit ? ' (mouvement réduit)' : ''} : titre et texte publiés, Markdown sûr`);
+    verifier(etat.nav === 'À propos', 'menu : l’entrée « 05 À propos » garde son intitulé');
+    verifier(!(await debordement(v.page)), 'section À propos sans débordement horizontal');
+    await v.page.screenshot({ path: join(CAPTURES, `site-a-propos-${taille[0]}${reduit ? '-reduit' : ''}.png`) });
+    verifier(v.erreursInattendues().length === 0, `aucune erreur console (${v.erreursInattendues().join(' | ')})`);
+    await v.contexte.close();
+  }
+  {
+    const v = await ouvrirAbout('en');
+    verifier(await v.page.textContent('#titre-about') === 'Le studio' && await v.page.getAttribute('#titre-about', 'lang') === 'fr' && await v.page.isVisible('#about-texte .actu-mention-fr'),
+      'site anglais sans version anglaise : texte français avec « (FR) »');
+    await v.contexte.close();
+  }
+  // Version anglaise ajoutée : le site anglais l'affiche ; le changement de langue suit.
+  await page.click('#page-onglet-en');
+  await page.fill('#page_titre_en', 'The studio');
+  await page.fill('#page_contenu_en', 'We make *survival* games.');
+  await page.click('#page-enregistrer');
+  await page.waitForFunction(() => /enregistrée/.test(document.getElementById('message').textContent));
+  await contexte.close();
+  {
+    const v = await ouvrirAbout('fr');
+    await v.page.click('.entete .langue-bouton');
+    await v.page.click('.entete .langue-choix[data-langue=en]');
+    await v.page.waitForFunction(() => document.getElementById('titre-about').textContent === 'The studio', null, { timeout: 8000 }).catch(() => {});
+    verifier(await v.page.textContent('#titre-about') === 'The studio' && await v.page.locator('#about-texte em').count() === 1 && !(await v.page.isVisible('#about-texte .actu-mention-fr')),
+      'site : changement de langue → version anglaise de la page');
+    verifier(v.erreursInattendues().length === 0, `aucune erreur console (${v.erreursInattendues().join(' | ')})`);
+    await v.contexte.close();
+  }
+  // Serveur injoignable : textes par défaut, rien de cassé.
+  {
+    const v = await nouvellePage({ brancher: { coupe: () => true } });
+    await v.page.goto(`${banc.base}?lang=fr#about`);
+    await v.page.waitForTimeout(800);
+    verifier(await v.page.textContent('#titre-about') === 'À propos' && /^No Way Studio crée/.test(await v.page.textContent('#about-texte')), 'serveur injoignable : textes par défaut de la page');
+    verifier(v.erreursInattendues(RESEAU_COUPE).length === 0, 'aucune autre erreur console');
+    await v.contexte.close();
+  }
+}
+
 // ---------- Blocage après 5 essais (en dernier : il bloque l'adresse locale 15 minutes) ----------
 console.log('\n# Admin : blocage');
 {

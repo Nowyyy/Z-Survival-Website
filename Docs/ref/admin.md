@@ -87,6 +87,19 @@ plus** (le serveur garde la liste en mémoire 60 secondes). Pour le voir : https
 Tous les articles, du plus récent au plus ancien, avec leur statut (**Publié** en rouge, **Brouillon** en pointillés jaunes) et
 « FR seulement » s'il n'y a pas de version anglaise. Toucher un article pour l'ouvrir.
 
+## 8. Page « À propos »
+En bas de la liste des articles : **Pages du site** → **Modifier la page « À propos »**.
+1. La page s'ouvre avec le **titre** et le **texte actuels** du site (au premier passage, les textes d'origine).
+2. Onglet **Français** (obligatoire) et **English** (facultatif) : titre et texte, avec la même barre de mise en forme que les
+   articles (gras, italique, intertitre, liste, lien). Sans titre anglais, le site anglais affiche le français avec « (FR) ».
+   Si vous changez le français, pensez à l'anglais (il garde sinon l'ancien texte anglais).
+3. **Aperçu** : la section telle qu'elle apparaîtra, en FR et en EN.
+4. **Enregistrer et publier** : en ligne sur le site en **une minute au plus**. Le statut passe à « En ligne · date ».
+
+- Seuls le **titre de la section** et le **texte** changent : le logo du studio, la signature « Un jeu de No Way Studio », les
+  crédits, le pied de page et l'entrée « 05 À propos » du menu restent tels quels.
+- Si le serveur ne répond pas, le site affiche les textes d'origine (rien n'est cassé).
+
 ---
 
 ## Jeton GitHub (pour les images)

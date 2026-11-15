@@ -55,6 +55,72 @@
       <p class="admin-aide" id="liste-vide" hidden>Aucun article pour l’instant. Touchez « Nouvel article » pour écrire le premier.</p>
       <ul class="admin-liste" id="liste-articles"></ul>
       <button class="admin-bouton admin-bouton-discret" id="actualiser" type="button">Actualiser la liste</button>
+
+      <div class="admin-carte admin-groupe admin-pages">
+        <h2 class="admin-sous-titre">Pages du site</h2>
+        <button class="admin-bouton" id="ouvrir-page-a-propos" type="button">Modifier la page « À propos »</button>
+      </div>
+    </section>
+
+    <!-- Écran 4 : page « À propos » du site (titre et texte, français et anglais). -->
+    <section class="admin-ecran" id="ecran-page" aria-labelledby="titre-page" hidden>
+      <div class="admin-barre">
+        <button class="admin-bouton admin-bouton-discret" id="page-retour" type="button">← Articles</button>
+        <span class="admin-statut" id="page-statut" data-statut="nouveau">Texte d’origine</span>
+      </div>
+      <h1 class="admin-titre" id="titre-page">Page « À propos »</h1>
+      <p class="admin-aide">Titre et texte de la section « À propos » du site. Le logo du studio, la signature, les crédits et l’entrée « 05 À propos » du menu ne changent pas.</p>
+
+      <form class="admin-formulaire" id="formulaire-page" novalidate>
+        <div class="admin-onglets" role="tablist" aria-label="Langue du texte de la page">
+          <button class="admin-onglet" id="page-onglet-fr" type="button" role="tab" aria-selected="true" aria-controls="page-panneau-fr" data-onglet-page="fr">Français <span class="admin-requis">obligatoire</span></button>
+          <button class="admin-onglet" id="page-onglet-en" type="button" role="tab" aria-selected="false" aria-controls="page-panneau-en" data-onglet-page="en" tabindex="-1">English <span class="admin-facultatif">facultatif</span></button>
+        </div>
+
+        <div class="admin-panneau admin-carte" id="page-panneau-fr" role="tabpanel" aria-labelledby="page-onglet-fr">
+          <label class="admin-champ">
+            <span class="admin-etiquette">Titre (français)</span>
+            <input id="page_titre_fr" type="text" maxlength="120" lang="fr" autocomplete="off">
+          </label>
+          <div class="admin-champ">
+            <label class="admin-etiquette" for="page_contenu_fr">Texte (français)</label>
+            <div class="admin-outils" role="toolbar" aria-label="Mise en forme du texte français de la page" data-cible="page_contenu_fr">
+              <button type="button" data-format="gras" aria-label="Gras"><b>G</b></button>
+              <button type="button" data-format="italique" aria-label="Italique"><i>I</i></button>
+              <button type="button" data-format="titre" aria-label="Intertitre">T</button>
+              <button type="button" data-format="liste" aria-label="Liste à puces">•≡</button>
+              <button type="button" data-format="lien" aria-label="Lien">Lien</button>
+            </div>
+            <textarea id="page_contenu_fr" rows="12" maxlength="20000" lang="fr" spellcheck="true"></textarea>
+          </div>
+        </div>
+
+        <div class="admin-panneau admin-carte" id="page-panneau-en" role="tabpanel" aria-labelledby="page-onglet-en" hidden>
+          <p class="admin-aide">Facultatif. Si vous changez le français, pensez à l’anglais. Sans titre anglais, le site anglais affiche la version française avec la mention « (FR) ».</p>
+          <label class="admin-champ">
+            <span class="admin-etiquette">Title (English)</span>
+            <input id="page_titre_en" type="text" maxlength="120" lang="en" autocomplete="off">
+          </label>
+          <div class="admin-champ">
+            <label class="admin-etiquette" for="page_contenu_en">Text (English)</label>
+            <div class="admin-outils" role="toolbar" aria-label="Mise en forme du texte anglais de la page" data-cible="page_contenu_en">
+              <button type="button" data-format="gras" aria-label="Gras"><b>G</b></button>
+              <button type="button" data-format="italique" aria-label="Italique"><i>I</i></button>
+              <button type="button" data-format="titre" aria-label="Intertitre">T</button>
+              <button type="button" data-format="liste" aria-label="Liste à puces">•≡</button>
+              <button type="button" data-format="lien" aria-label="Lien">Lien</button>
+            </div>
+            <textarea id="page_contenu_en" rows="12" maxlength="20000" lang="en" spellcheck="true"></textarea>
+          </div>
+        </div>
+
+        <p class="admin-erreur" id="erreur-page" role="alert" hidden></p>
+
+        <div class="admin-actions admin-actions-page">
+          <button class="admin-bouton" id="page-apercu" type="button">Aperçu</button>
+          <button class="bouton bouton-principal" id="page-enregistrer" type="button">Enregistrer et publier</button>
+        </div>
+      </form>
     </section>
 
     <!-- Écran 3 : éditeur -->
@@ -154,6 +220,25 @@
       </form>
     </section>
   </main>
+
+  <!-- Aperçu de la page « À propos » telle qu'elle apparaîtra sur le site, en français et en anglais. -->
+  <dialog class="admin-apercu" id="apercu-page" aria-labelledby="apercu-page-barre-titre">
+    <div class="admin-apercu-barre">
+      <h2 class="admin-sous-titre" id="apercu-page-barre-titre">Aperçu</h2>
+      <div class="admin-onglets admin-onglets-petits" role="group" aria-label="Langue de l’aperçu">
+        <button class="admin-onglet" type="button" data-apercu-page="fr" aria-pressed="true">FR</button>
+        <button class="admin-onglet" type="button" data-apercu-page="en" aria-pressed="false">EN</button>
+      </div>
+      <button class="admin-bouton admin-bouton-discret" id="apercu-page-fermer" type="button">Fermer</button>
+    </div>
+    <p class="admin-aide admin-apercu-note" id="apercu-page-note" hidden></p>
+    <div class="admin-apercu-apropos">
+      <p class="admin-apercu-apropos-num" aria-hidden="true">05</p>
+      <h2 class="admin-apercu-apropos-titre" id="apercu-page-titre"></h2>
+      <p class="admin-apercu-apropos-signature" id="apercu-page-signature"></p>
+      <div class="about-paragraphe actu-texte" id="apercu-page-texte"></div>
+    </div>
+  </dialog>
 
   <!-- Bibliothèque : images déjà envoyées (img/actus/ du dépôt), à réutiliser sans les republier ; les inutilisées peuvent être supprimées. -->
   <dialog class="admin-apercu admin-bibliotheque" id="bibliotheque" aria-labelledby="bibliotheque-titre">

@@ -94,8 +94,8 @@ export const TEXTES = {
       signature: 'Un jeu de No Way Studio',
       copyright: '© 2026 No Way Studio',
     },
+    // À propos : titre et texte par défaut, remplacés par ceux de la page d'administration dès qu'ils sont enregistrés (js/a-propos.js).
     about: {
-      intro: 'Contenu provisoire : texte de présentation du studio à écrire.',
       texte: 'No Way Studio crée Z-Survival, un jeu de survie zombies en vue de dessus, jouable directement dans le navigateur, sur téléphone comme sur ordinateur.',
       credits: [
         { titre: 'Création', noms: ['Nowy'] },
@@ -195,8 +195,8 @@ export const TEXTES = {
       signature: 'A No Way Studio game',
       copyright: '© 2026 No Way Studio',
     },
+    // About us: default title and text, replaced by the ones saved in the admin page (js/a-propos.js).
     about: {
-      intro: 'Placeholder content: studio introduction to be written.',
       texte: 'No Way Studio makes Z-Survival, a top-down zombie survival game you can play right in your browser, on phone or computer.',
       credits: [
         { titre: 'Created by', noms: ['Nowy'] },
