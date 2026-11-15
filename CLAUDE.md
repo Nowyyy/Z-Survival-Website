@@ -70,7 +70,7 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   Personnages et Armes :
   contenu provisoire atténué et inerte sous un encart « Prochainement » (« Coming soon » en anglais). Globe de langue aussi
   dans l'en-tête ; « Bientôt disponible », lien Discord (https://discord.gg/4bBRJNzwwB, logo en SVG, nouvel onglet), bouton de son et globe en haut à droite de l'accueil comme dans l'en-tête (About us : ligne sous le logo du studio et texte modifiables depuis l'admin, `js/a-propos.js` ; grand titre fixe ; logo animé du studio rejoué à chaque arrivée,
-  puis pied de page). À propos a **deux blocs de même forme** (image, titre, texte) : le jeu (affiche de l'accueil) au-dessus du studio ;
+  puis pied de page). À propos a **deux blocs de même forme** (image, titre, texte) : le jeu (clip du vrai jeu en boucle, lot 4b) au-dessus du studio ;
   titres et textes des deux blocs modifiables depuis l'admin (lot 3e : pages `a-propos-jeu` et `a-propos` du serveur ; par défaut
   `about.jeu.*`, `studio.signature`, `about.texte`). En-tête et navigation cachés sur l'accueil.
   Tête de page : titre et description français (= `meta.*`), aperçu de partage Open Graph / Twitter Card (= `partage.*` de `js/textes.js`,
@@ -84,6 +84,8 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   `js/logo.js` : logo du jeu ;
   `js/config.js` : **adresse du serveur, seul endroit côté site** (la CSP d'`admin/index.html` doit autoriser la même) ;
   `js/a-propos.js` : titre et texte du bloc du jeu (`GET /api/pages/a-propos-jeu`), ligne sous le logo (« Un jeu de No Way Studio » par défaut) et texte du studio (`GET /api/pages/a-propos`), lus sur le serveur ; textes de `js/textes.js` par défaut ;
+  `js/a-propos-clip.js` : clip du jeu du bloc « Le jeu » (lot 4b : source posée seulement quand le bloc est visible, pause hors de l'écran,
+  affiche seule en mouvement réduit) ;
   `js/actualites.js` : section Actualités (lecture du serveur, cartes, squelettes, erreur, liste vide, fenêtre de l'article, `#actu/<slug>`) ;
   `js/article.js` : carte et article complet (site et aperçu de l'admin) ; `js/markdown.js` : Markdown sûr, liste blanche, aucun HTML ;
   `css/actualites.css` : styles des actualités ;
@@ -107,6 +109,9 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
 - `img/icones/` (lot 4a) : favicon SVG, icônes 180 / 192 / 512 px et masquable, fabriquées par `outils/icones/fabriquer.mjs` (après `npm ci`
   dans ce dossier : opentype.js et wawoff2 lisent le Z de la police) ; `img/partage.jpg` : image de partage 1200 × 630, fabriquée par
   `outils/partage/fabriquer.mjs` ; vérification du lot : `outils/verifier-lot-4a.mjs`.
+- `img/a-propos/` (lot 4b) : clip du jeu (`jeu-clip.mp4`, 8 s en boucle, 800 × 450, sans son) et son affiche, fabriqués depuis le **vrai jeu**
+  (branche `dev`, copie en lecture seule hors du dépôt) par `outils/clip-jeu/fabriquer.mjs` (méthode : `outils/clip-jeu/LISEZMOI.md`) ;
+  vérification : `outils/verifier-lot-4b.mjs`.
 - `fonts/` : polices du jeu (+ licences) ; `img/` : logos du studio (`no-way-studio.svg` fixe, `no-way-studio-anime.svg` animé,
   `no-way-studio.png` pour le JSON-LD) ;
   `img/accueil/` : vidéos de l'accueil (`accueil-16x9.mp4`, `accueil-9x16.mp4`) et leurs affiches WebP, fabriquées par
