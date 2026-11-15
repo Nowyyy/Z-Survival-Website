@@ -8,6 +8,13 @@ export const TEXTES = {
       titre: 'Z-Survival',
       description: 'Site officiel du jeu de survie zombies Z-Survival.',
     },
+    // Aperçu de partage (lot 4a) : balises Open Graph et Twitter Card d'index.html, en français (og:locale fr_FR), recopiées telles
+    // quelles dans le HTML (les réseaux sociaux ne lisent pas le JavaScript) ; outils/verifier-lot-4a.mjs vérifie qu'elles sont identiques.
+    partage: {
+      titre: 'Z-Survival — survie zombies sur navigateur',
+      description: 'La nuit tombe, les morts se relèvent. Tiendrez-vous jusqu’à l’aube ? Z-Survival, jeu de survie zombies en vue de dessus par No Way Studio, bientôt disponible sur navigateur.',
+      imageAlt: 'Le logo Z-Survival sur une scène du jeu : un survivant tire, la nuit, devant un hélicoptère en feu.',
+    },
     commun: {
       provisoire: 'Provisoire',
       bientot: 'Bientôt disponible',
@@ -109,6 +116,11 @@ export const TEXTES = {
     meta: {
       titre: 'Z-Survival',
       description: 'Official website of the zombie survival game Z-Survival.',
+    },
+    partage: {
+      titre: 'Z-Survival — zombie survival in your browser',
+      description: 'Night falls, the dead rise. Can you hold out until dawn? Z-Survival, a top-down zombie survival game by No Way Studio, coming soon to your browser.',
+      imageAlt: 'The Z-Survival logo over a scene from the game: a survivor shoots at night, in front of a burning helicopter.',
     },
     commun: {
       provisoire: 'Placeholder',

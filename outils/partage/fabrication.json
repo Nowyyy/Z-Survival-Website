@@ -1,0 +1,28 @@
+{
+  "sortie": "img/partage.jpg",
+  "largeur": 1200,
+  "hauteur": 630,
+  "format": "jpeg",
+  "qualite": 84,
+  "octets": 74167,
+  "sha256": "2c4ca803810f928e04e62264da9049e9640ab57cbbc2c24b08c747d7a3efc855",
+  "chromium": "chromium-1243/chrome-linux64/chrome",
+  "entrees": [
+    {
+      "fichier": "img/accueil/accueil-16x9.webp",
+      "sha256": "2ccb699e2cd422fcdabcb097ce1540dd7683c5ead1852f5c164a97b0969baff6"
+    },
+    {
+      "fichier": "img/no-way-studio.svg",
+      "sha256": "d8244715dbf08381c329a8f8cc4f22612f4ce6c4ddcd8fc91c6cfe990666fd6b"
+    },
+    {
+      "fichier": "js/logo.js",
+      "sha256": "d467f9af124e21f2110fb25608d6683e761ca410f64ab55d0c6533186185407d"
+    },
+    {
+      "fichier": "css/base.css",
+      "sha256": "c990dabdd50b6b8f74e2dd4247019402ff4d3ac4161d011337f6c585a20e3181"
+    }
+  ]
+}
