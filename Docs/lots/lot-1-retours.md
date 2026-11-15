@@ -159,3 +159,7 @@ Suite du lot 1 (`Docs/lots/lot-1.md`). Branche `lot-1-retours`, PR fusionnée pa
   (fini à 3,2 s, loin du coup de feu de 5,2 s) : le geste dure 2,2 s au lieu de 1,1 s (`ATTRAPE` dans `scene/js/poses.js`).
 - **Bras moins haut** : il se tend vers le spectateur à peu près à hauteur d'épaule, sans se dresser (point visé `PLACEMENT.spectateur`
   abaissé de 62 à 42).
+
+## Neuvième retour : bras encore plus bas
+- Le zombie tend le bras vers le spectateur **presque à l'horizontale**, main à environ 9 unités du sol au plus fort (au lieu de 12) :
+  `PLACEMENT.spectateur` abaissé de 42 à 24 dans `scene/js/poses.js`. Pied du personnage 2 toujours posé sans entrer dans le dos.
