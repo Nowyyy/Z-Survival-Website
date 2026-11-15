@@ -104,9 +104,15 @@ export const TEXTES = {
       signature: 'Un jeu de No Way Studio',
       copyright: '© 2026 No Way Studio',
     },
-    // À propos : titre et texte par défaut, remplacés par ceux de la page d'administration dès qu'ils sont enregistrés (js/a-propos.js).
+    // À propos : deux blocs, le jeu (textes fixes, about.jeu) puis le studio. Pour le studio, titre (studio.signature) et texte (about.texte)
+    // par défaut, remplacés par ceux de la page d'administration dès qu'ils sont enregistrés (js/a-propos.js).
     about: {
-      texte: 'No Way Studio crée Z-Survival, un jeu de survie zombies en vue de dessus, jouable directement dans le navigateur, sur téléphone comme sur ordinateur.',
+      jeu: {
+        titre: 'Le jeu',
+        texte: 'Z-Survival est un jeu de survie zombies en vue de dessus, jouable directement dans le navigateur, sur téléphone comme sur ordinateur. Bientôt disponible.',
+        imageAlt: 'Une scène de Z-Survival : la nuit, un survivant tire devant un hélicoptère en feu.',
+      },
+      texte: 'No Way Studio crée Z-Survival. Rejoignez la communauté sur [Discord](https://discord.gg/4bBRJNzwwB) pour suivre le développement du jeu.',
       credits: [
         { titre: 'Création', noms: ['Nowy'] },
       ],
@@ -211,9 +217,14 @@ export const TEXTES = {
       signature: 'A No Way Studio game',
       copyright: '© 2026 No Way Studio',
     },
-    // About us: default title and text, replaced by the ones saved in the admin page (js/a-propos.js).
+    // About us: two blocks, the game (fixed texts, about.jeu) then the studio (default title and text, replaced by the admin page's).
     about: {
-      texte: 'No Way Studio makes Z-Survival, a top-down zombie survival game you can play right in your browser, on phone or computer.',
+      jeu: {
+        titre: 'The game',
+        texte: 'Z-Survival is a top-down zombie survival game you can play right in your browser, on phone or computer. Coming soon.',
+        imageAlt: 'A scene from Z-Survival: at night, a survivor shoots in front of a burning helicopter.',
+      },
+      texte: 'No Way Studio makes Z-Survival. Join the community on [Discord](https://discord.gg/4bBRJNzwwB) to follow the game’s development.',
       credits: [
         { titre: 'Created by', noms: ['Nowy'] },
       ],

@@ -271,19 +271,33 @@
           <span class="section-num" aria-hidden="true">05</span>
           <h2 class="section-titre" id="titre-about" data-t="sections.about">À propos</h2>
         </header>
-        <div class="about-corps">
-          <div class="about-studio revele" style="--i:1">
-            <img class="studio-logo about-logo" src="img/no-way-studio.svg" alt="No Way Studio" data-t-alt="studio.logoAlt" width="824" height="628">
+        <!-- Deux blocs de même forme (image, titre, texte) : le jeu, puis le studio (demande du propriétaire, lot 4a). -->
+        <div class="about-blocs">
+          <!-- Le jeu : textes fixes (about.jeu.* de js/textes.js), image : affiche de l'accueil (cadrage B). -->
+          <div class="about-corps about-corps-jeu">
+            <div class="about-visuel about-jeu revele" style="--i:1">
+              <img class="about-jeu-image" src="img/accueil/accueil-16x9.webp" alt="" data-t-alt="about.jeu.imageAlt" width="1920" height="1080" loading="lazy" decoding="async">
+            </div>
+            <div class="about-texte">
+              <p class="about-signature revele" style="--i:2" data-t="about.jeu.titre"></p>
+              <div class="about-paragraphe actu-texte revele" style="--i:3"><p data-t="about.jeu.texte"></p></div>
+            </div>
           </div>
-          <div class="about-texte">
-            <!-- Titre modifiable depuis la page d'administration (js/a-propos.js) ; par défaut : studio.signature de js/textes.js. -->
-            <p class="about-signature revele" style="--i:2" id="about-signature" data-t="studio.signature"></p>
-            <!-- Texte modifiable depuis la page d'administration (js/a-propos.js) ; par défaut : about.texte de js/textes.js. -->
-            <div class="about-paragraphe actu-texte revele" style="--i:3" id="about-texte"></div>
-            <dl class="about-credits revele" style="--i:4" id="about-credits"></dl>
+          <!-- Le studio. -->
+          <div class="about-corps about-corps-studio">
+            <div class="about-visuel about-studio revele" style="--i:4">
+              <img class="studio-logo about-logo" src="img/no-way-studio.svg" alt="No Way Studio" data-t-alt="studio.logoAlt" width="824" height="628">
+            </div>
+            <div class="about-texte">
+              <!-- Titre modifiable depuis la page d'administration (js/a-propos.js) ; par défaut : studio.signature de js/textes.js. -->
+              <p class="about-signature revele" style="--i:5" id="about-signature" data-t="studio.signature"></p>
+              <!-- Texte modifiable depuis la page d'administration (js/a-propos.js) ; par défaut : about.texte de js/textes.js. -->
+              <div class="about-paragraphe actu-texte revele" style="--i:6" id="about-texte"></div>
+              <dl class="about-credits revele" style="--i:7" id="about-credits"></dl>
+            </div>
           </div>
         </div>
-        <footer class="pied revele" style="--i:6">
+        <footer class="pied revele" style="--i:8">
           <img class="studio-logo pied-studio" src="img/no-way-studio.svg" alt="" width="824" height="628">
           <div class="pied-texte">
             <p class="pied-copyright" data-t="studio.copyright"></p>

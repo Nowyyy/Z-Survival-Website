@@ -331,10 +331,22 @@
 }
 .js .est-a-venir.est-visible .a-venir-encart { opacity: 1; transform: translate(-50%, -50%) rotate(-4deg); }
 
-/* ---------- About us ---------- */
+/* ---------- About us ----------
+   Deux blocs de même forme (lot 4a) : le jeu (affiche de l'accueil), puis le studio (logo animé). Téléphone : l'un sous l'autre. */
+.about-blocs { display: flex; flex-direction: column; gap: 32px; }
 .about-corps { display: flex; flex-direction: column; gap: 16px; }
-.about-studio { align-self: center; }
+.about-visuel { align-self: center; }
 .about-logo { width: min(48vw, 190px); filter: drop-shadow(0 6px 24px rgb(0 0 0 / 70%)); }
+.about-jeu-image {
+  display: block;
+  width: min(64vw, 240px);
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border: 2px solid var(--color-action);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 18px var(--color-action-glow), 0 6px 24px rgb(0 0 0 / 70%);
+}
 .about-texte { display: flex; flex-direction: column; gap: 10px; }
 .about-signature { font-family: var(--font-label); font-size: 1.05rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-action-text); }
 .about-paragraphe { color: var(--color-text); }
@@ -411,8 +423,12 @@
   .arme-stats { flex: 1; align-content: center; gap: 18px; }
 
   .section-about .section-interieur { justify-content: center; }
-  .about-corps { flex-direction: row; align-items: center; gap: 56px; margin-block: auto; }
-  .about-logo { width: clamp(240px, 26vw, 380px); }
+  .about-blocs { gap: 36px; margin-block: auto; }
+  .about-corps { flex-direction: row; align-items: center; gap: 56px; }
+  /* Même colonne pour l'image du jeu et le logo du studio : les deux textes s'alignent. */
+  .about-visuel { flex: none; display: flex; justify-content: center; width: clamp(240px, 24vw, 340px); }
+  .about-logo { width: clamp(180px, 17vw, 250px); }
+  .about-jeu-image { width: 100%; }
   .about-texte { max-width: 34rem; gap: 14px; }
   .about-signature { font-size: 1.4rem; }
   .about-paragraphe, .about-paragraphe.actu-texte { font-size: 1.1rem; }
@@ -432,8 +448,11 @@
   .arme-corps { flex-direction: row; }
   .arme-scene { flex: 1; }
   .arme-stats { flex: 1; align-content: center; }
+  .about-blocs { gap: 16px; }
   .about-corps { flex-direction: row; align-items: center; }
-  .about-logo { width: 140px; }
+  .about-visuel { flex: none; display: flex; justify-content: center; width: 180px; }
+  .about-logo { width: 120px; }
+  .about-jeu-image { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
