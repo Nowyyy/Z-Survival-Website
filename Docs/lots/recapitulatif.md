@@ -16,6 +16,7 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
 | **2b** | Accueil : vidéo en boucle de la scène, tir synchronisé, entrée VHS, encart « Disponible sur navigateur » | #39 → #41, #44 | `lot-2b.md` |
 | **3b** | Page admin + vraies actualités + images des articles, puis bibliothèque d'images et page « À propos » modifiable | #45 → #47, #50, #51 | `lot-3b.md` |
 | — | Nom de domaine **zsurvival-game.com** | #48, #49 | `nom-de-domaine.md` |
+| **4a** | Finitions : aperçu de partage, icônes, référencement, titre en paysage, boutons à 44 px ; À propos en deux blocs (jeu, studio) | voir `lot-4a.md` | `lot-4a.md` |
 
 > Les lots ont été numérotés par thème, pas dans l'ordre : 1b avant 1, 3a avant 2b.
 
@@ -85,6 +86,14 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
   redirigent. Le serveur accepte les trois adresses.
 
 ---
+
+## Lot 4a — Finitions (après le nom de domaine)
+- **Aperçu de partage** (Discord, WhatsApp…) : titre, description et image 1200 × 630 tirée de l'accueil.
+- **Icônes** : favicon, icône d'iPhone et d'Android, manifeste, tirées du Z rouge du logo ; mêmes icônes sur l'admin.
+- **Référencement** : une seule page indexée (la page d'accueil), `robots.txt`, `sitemap.xml`, canonique, données structurées ; mode d'emploi
+  Google Search Console dans `Docs/ref/referencement.md`.
+- **Téléphone en paysage** : le titre ne touche plus la rangée du haut. **Boutons de l'en-tête** : zone de clic de 44 × 44 px.
+- **À propos** (demande du propriétaire pendant le lot) : bloc du jeu au-dessus du bloc du studio.
 
 ## Ce qui est en place aujourd'hui
 - Accueil : vidéo en boucle, tir, entrée VHS, musique M2 au clic, encart « Disponible sur navigateur ».

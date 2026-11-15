@@ -1,6 +1,6 @@
 // Contrôle Playwright de la musique du site (lot 2a) : node outils/musique/verifier-site.mjs [--captures=DOSSIER] [--en-ligne]
-// Sur une copie exacte de ce que publie .github/workflows/pages.yml, servie sous /Z-Survival-Website/ (ou, avec --en-ligne, sur
-// https://nowyyy.github.io/Z-Survival-Website/), au téléphone (375 × 667) et à l'ordinateur (1440 × 900), avec et sans
+// Sur une copie exacte de ce que publie .github/workflows/pages.yml, servie à la racine (--sous-dossier : sous /Z-Survival-Website/) ou, avec --en-ligne, sur
+// https://zsurvival-game.com/, au téléphone (375 × 667) et à l'ordinateur (1440 × 900), avec et sans
 // prefers-reduced-motion. Règles vérifiées : Docs/ref/musique.md (partie 2).
 // - aucune requête vers musique/ (M2.mp3, boucles.json) avant le premier clic ; au chargement : coupée, icône barrée, aucun contexte audio ;
 // - clic : état « chargement » (téléchargement ralenti exprès), puis lecture (contexte en marche, gain qui monte jusqu'au volume) ;
@@ -31,7 +31,7 @@ const verifier = (ok, texte) => {
   console.log(`${ok ? '  ok ' : 'ÉCHEC'} ${texte}`);
 };
 
-let base = 'https://nowyyy.github.io/Z-Survival-Website/';
+let base = 'https://zsurvival-game.com/';
 let copie = null;
 if (!args['en-ligne']) {
   copie = await servirCopiePubliee();

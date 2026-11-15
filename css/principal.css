@@ -19,7 +19,9 @@
 }
 .entete > * { pointer-events: auto; }
 .entete-marques { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.entete-logo { font-size: 1.6rem; padding-bottom: 0.2em; }
+.entete-logo { position: relative; font-size: 1.6rem; padding-bottom: 0.2em; }
+/* Lot 4a : zone de clic du logo d'au moins 44 px de haut (le logo, dessiné plus bas, ne change pas). */
+.entete-logo::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: max(100%, var(--touch-target)); transform: translateY(-50%); }
 /* Logo du studio à gauche du logo du jeu : à partir de 600 px (trop serré sur téléphone). */
 .entete-studio, .entete-separateur { display: none; }
 @media (min-width: 600px) {
@@ -51,7 +53,7 @@
 @media (max-width: 599px) {
   .entete { gap: 8px; }
   .entete-logo { font-size: 1.4rem; }
-  .entete-actions { gap: 6px; }
+  .entete-actions { gap: 7px; } /* lot 4a : 6 → 7 px, zones de clic de 44 px sans chevauchement */
   .bouton-bientot { min-height: 38px; padding: 0 0.55em; font-size: 0.68rem; letter-spacing: 0.02em; }
   .langue-entete .langue-bouton { min-height: 38px; min-width: 38px; padding: 0; justify-content: center; }
   .langue-entete .langue-code { display: none; }
@@ -62,13 +64,18 @@
    « Bientôt disponible » passe sur deux lignes (en-tête et accueil). */
 @media (max-width: 420px) {
   .entete-logo { font-size: 1.25rem; }
-  .entete-actions { gap: 5px; }
+  .entete-actions { gap: 7px; } /* lot 4a : 7 px entre boutons de 38 px, leurs zones de clic de 44 px ne se chevauchent pas */
   .bouton-bientot { padding: 0 0.45em; font-size: 0.62rem; }
   .bouton-bientot { max-width: 6.4em; white-space: normal; line-height: 1.1; text-align: center; }
 }
 /* Très petits téléphones (340 px et moins) : boutons ronds de l'en-tête un peu plus petits (zone de toucher gardée à 44 px). */
 @media (max-width: 340px) {
-  .entete-actions { gap: 4px; }
+  /* Lot 4a : 11 px entre boutons de 34 px (zones de clic de 44 px côte à côte, sans se chevaucher) ; on gagne la place sur les marges,
+     l'écart logo / actions et la taille du logo. */
+  .entete { gap: 6px; padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+  .entete .entete-logo { font-size: 1.1rem; } /* plus spécifique : la règle « 360 px et moins », plus bas, ne la remplace pas */
+  .entete-actions { gap: 11px; }
+  .entete-actions .bouton-bientot { margin-right: -5px; }
   .entete-actions .son-bouton, .entete-actions .discord-lien { width: 34px; height: 34px; }
   .langue-entete .langue-bouton { min-height: 34px; min-width: 34px; }
   .entete-actions .son-icone, .entete-actions .discord-icone, .langue-entete .globe-icone { width: 18px; height: 18px; }
@@ -324,10 +331,22 @@
 }
 .js .est-a-venir.est-visible .a-venir-encart { opacity: 1; transform: translate(-50%, -50%) rotate(-4deg); }
 
-/* ---------- About us ---------- */
+/* ---------- About us ----------
+   Deux blocs de même forme (lot 4a) : le jeu (affiche de l'accueil), puis le studio (logo animé). Téléphone : l'un sous l'autre. */
+.about-blocs { display: flex; flex-direction: column; gap: 32px; }
 .about-corps { display: flex; flex-direction: column; gap: 16px; }
-.about-studio { align-self: center; }
+.about-visuel { align-self: center; }
 .about-logo { width: min(48vw, 190px); filter: drop-shadow(0 6px 24px rgb(0 0 0 / 70%)); }
+.about-jeu-image {
+  display: block;
+  width: min(64vw, 240px);
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border: 2px solid var(--color-action);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 18px var(--color-action-glow), 0 6px 24px rgb(0 0 0 / 70%);
+}
 .about-texte { display: flex; flex-direction: column; gap: 10px; }
 .about-signature { font-family: var(--font-label); font-size: 1.05rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-action-text); }
 .about-paragraphe { color: var(--color-text); }
@@ -404,8 +423,12 @@
   .arme-stats { flex: 1; align-content: center; gap: 18px; }
 
   .section-about .section-interieur { justify-content: center; }
-  .about-corps { flex-direction: row; align-items: center; gap: 56px; margin-block: auto; }
-  .about-logo { width: clamp(240px, 26vw, 380px); }
+  .about-blocs { gap: 36px; margin-block: auto; }
+  .about-corps { flex-direction: row; align-items: center; gap: 56px; }
+  /* Même colonne pour l'image du jeu et le logo du studio : les deux textes s'alignent. */
+  .about-visuel { flex: none; display: flex; justify-content: center; width: clamp(240px, 24vw, 340px); }
+  .about-logo { width: clamp(180px, 17vw, 250px); }
+  .about-jeu-image { width: 100%; }
   .about-texte { max-width: 34rem; gap: 14px; }
   .about-signature { font-size: 1.4rem; }
   .about-paragraphe, .about-paragraphe.actu-texte { font-size: 1.1rem; }
@@ -425,8 +448,11 @@
   .arme-corps { flex-direction: row; }
   .arme-scene { flex: 1; }
   .arme-stats { flex: 1; align-content: center; }
+  .about-blocs { gap: 16px; }
   .about-corps { flex-direction: row; align-items: center; }
-  .about-logo { width: 140px; }
+  .about-visuel { flex: none; display: flex; justify-content: center; width: 180px; }
+  .about-logo { width: 120px; }
+  .about-jeu-image { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -31,7 +31,11 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   À propos en français, Home / News / Characters / Weapons / About us en anglais (identifiants #news, #characters,
   #weapons, #about inchangés).
 - **Aucun chemin ne commence par « / »** (chemins relatifs uniquement) : le site doit marcher à la racine du domaine comme
-  sous un sous-dossier (copies de vérification servies sous `/Z-Survival-Website/`, ancienne adresse GitHub Pages).
+  sous un sous-dossier (copies de vérification servies à la racine, ou sous `/Z-Survival-Website/` avec `--sous-dossier`).
+  Exceptions : `robots.txt` (syntaxe imposée) ; les **adresses publiques** (aperçu de partage, canonique, sitemap, JSON-LD) sont
+  absolues, en `https://zsurvival-game.com/`.
+- **Référencement** (lot 4a, `Docs/ref/referencement.md`) : une seule page indexable, `https://zsurvival-game.com/`, canonique fixe ;
+  toute nouvelle page de travail porte `<meta name="robots" content="noindex, nofollow">` et une ligne `Disallow` dans `robots.txt`.
 - Les contenus provisoires sont clairement marqués comme tels à l'écran.
 - **Direction artistique = celle du jeu** (`Docs/ref/direction-artistique.md`) : couleurs en jetons
   dans `css/base.css` (mêmes noms que `css/tokens.css` du jeu), logo au Z incliné (`js/logo.js`),
@@ -60,7 +64,10 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   Personnages et Armes :
   contenu provisoire atténué et inerte sous un encart « Prochainement » (« Coming soon » en anglais). Globe de langue aussi
   dans l'en-tête ; « Bientôt disponible », lien Discord (https://discord.gg/4bBRJNzwwB, logo en SVG, nouvel onglet), bouton de son et globe en haut à droite de l'accueil comme dans l'en-tête (About us : ligne sous le logo du studio et texte modifiables depuis l'admin, `js/a-propos.js` ; grand titre fixe ; logo animé du studio rejoué à chaque arrivée,
-  puis pied de page). En-tête et navigation cachés sur l'accueil.
+  puis pied de page). À propos a **deux blocs de même forme** (image, titre, texte) : le jeu (textes fixes `about.jeu`, affiche de l'accueil)
+  au-dessus du studio. En-tête et navigation cachés sur l'accueil.
+  Tête de page : titre et description français (= `meta.*`), aperçu de partage Open Graph / Twitter Card (= `partage.*` de `js/textes.js`,
+  image `img/partage.jpg`), canonique, icônes, manifeste, JSON-LD (VideoGame, Organization, WebSite).
 - `main.html` : ancienne page principale, simple redirection vers `./#news` (garde l'ancre).
 - `admin/` (lot 3b) : page d'administration des actualités (noindex, non reliée au site, français seulement, CSP stricte),
   mode d'emploi `Docs/ref/admin.md`.
@@ -89,7 +96,12 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   (`bandeau.json` : messages du bandeau d'alerte ; format et marche à suivre : `Docs/ref/contenus.md`). Exception assumée à la règle
   « textes dans `js/textes.js` », qui vaut pour les libellés fixes.
 - `img/actus/` (lot 3b) : images des articles, ajoutées par le serveur (commit « Z-Survival admin » sur `main`) : ne pas les retoucher à la main.
-- `fonts/` : polices du jeu (+ licences) ; `img/` : icônes et logos du studio (`no-way-studio.svg` fixe, `no-way-studio-anime.svg` animé) ;
+- Racine : `favicon.ico`, `site.webmanifest`, `robots.txt`, `sitemap.xml` (lot 4a, publiés par `pages.yml`).
+- `img/icones/` (lot 4a) : favicon SVG, icônes 180 / 192 / 512 px et masquable, fabriquées par `outils/icones/fabriquer.mjs` (après `npm ci`
+  dans ce dossier : opentype.js et wawoff2 lisent le Z de la police) ; `img/partage.jpg` : image de partage 1200 × 630, fabriquée par
+  `outils/partage/fabriquer.mjs` ; vérification du lot : `outils/verifier-lot-4a.mjs`.
+- `fonts/` : polices du jeu (+ licences) ; `img/` : logos du studio (`no-way-studio.svg` fixe, `no-way-studio-anime.svg` animé,
+  `no-way-studio.png` pour le JSON-LD) ;
   `img/accueil/` : vidéos de l'accueil (`accueil-16x9.mp4`, `accueil-9x16.mp4`) et leurs affiches WebP, fabriquées par
   `outils/video/fabriquer.mjs` depuis la scène (méthode : `outils/video/LISEZMOI.md`, `Docs/ref/scene-accueil.md`) ; vérification de
   l'accueil : `outils/video/verifier-accueil.mjs`.
