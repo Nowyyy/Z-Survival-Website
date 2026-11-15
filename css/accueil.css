@@ -398,6 +398,13 @@
 }
 .plateforme-grand { font-size: 0.9375rem; font-weight: 700; letter-spacing: 0.02em; }
 .avec-bandeau .accueil-plateforme { bottom: calc(max(8px, env(safe-area-inset-bottom)) + 3px + var(--bandeau-h, 34px) + 10px); }
+/* Téléphone (et tablette) en portrait avec le bandeau : le bas est resserré (bouton juste au-dessus de la flèche et du bandeau), il n'y a plus
+   de place à côté de la flèche. L'encart reste en bas à gauche, mais juste au-dessus du titre : le haut du bloc (titre, accroche, bouton,
+   flèche), ancré en bas, est à environ 170 px + 20 vw du bas, au plus 317 px (taille maximale du titre ; mesuré de 320 à 820 px de large). */
+@media (orientation: portrait) and (max-width: 899px) {
+  .avec-bandeau .accueil-plateforme { bottom: calc(min(170px + 20vw, 317px) + 10px); }
+}
+}
 /* Petits téléphones : un peu plus compact (place entre le bord et la flèche). */
 @media (max-width: 360px) {
   .accueil-plateforme { left: 14px; gap: 6px; padding: 4px 9px 4px 7px; }

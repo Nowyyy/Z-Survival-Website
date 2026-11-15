@@ -211,3 +211,6 @@ Suite du lot 1 (`Docs/lots/lot-1.md`). Branche `lot-1-retours`, PR fusionnée pa
 - **Vidéos de l'accueil refaites** (`outils/video/fabriquer.mjs`) : elles reprennent aussi le personnage 2 militaire, la bouche, les épaules
   et le bras corrigés des retours précédents (les vidéos dataient d'avant).
 - Contacts mesurés : main qui griffe à 4,3 unités au moins de la jambe d'appui du soldat ; pied du soldat sur le dos sans y entrer.
+- **Encart « Disponible sur Navigateur »** (téléphone et tablette en portrait) : depuis que le bas de l'accueil est resserré avec le
+  bandeau, le bouton descendait au niveau de l'encart et le chevauchait (8 échecs de `outils/video/verifier-accueil.mjs`). L'encart reste
+  en bas à gauche, mais juste au-dessus du titre (`css/accueil.css`). Paysage et ordinateur inchangés.
