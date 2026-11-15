@@ -17,6 +17,7 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
 | **3b** | Page admin + vraies actualités + images des articles, puis bibliothèque d'images et page « À propos » modifiable | #45 → #47, #50, #51 | `lot-3b.md` |
 | — | Nom de domaine **zsurvival-game.com** | #48, #49 | `nom-de-domaine.md` |
 | **3c** | Serveur : annonce Discord de chaque actualité publiée (webhook, une fois par article) | voir `lot-3c.md` | `lot-3c.md` |
+| **3d** | Admin : messages du bandeau d'alerte (sous « À propos »), écrits dans `contenus/bandeau.json` par le serveur | voir `lot-3d.md` | `lot-3d.md` |
 | **4a** | Finitions : aperçu de partage, icônes, référencement, titre en paysage, boutons à 44 px ; À propos en deux blocs (jeu, studio) | voir `lot-4a.md` | `lot-4a.md` |
 
 > Les lots ont été numérotés par thème, pas dans l'ordre : 1b avant 1, 3a avant 2b.
@@ -100,6 +101,10 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
 - À la **première** publication d'un article, le serveur poste un message dans un salon Discord (titre, début du texte, image, lien),
   par un webhook rangé dans Secret Manager (`installer-gcp.sh --discord`). Un échec de Discord n'empêche jamais la publication.
 - **À activer** par le propriétaire : créer le webhook dans Discord et le ranger (`Docs/ref/admin.md`, « Annonce Discord »).
+
+## Lot 3d — Bandeau d'alerte depuis l'admin
+- **Pages du site → Modifier le bandeau d’alerte** : textes FR / EN, affiché ou caché, ordre, ajout, suppression, aperçu.
+- Le serveur réécrit `contenus/bandeau.json` dans le dépôt (commit « Z-Survival admin ») ; l'accueil est à jour une minute plus tard.
 
 ## Ce qui est en place aujourd'hui
 - Accueil : vidéo en boucle, tir, entrée VHS, musique M2 au clic, encart « Disponible sur navigateur ».
