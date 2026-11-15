@@ -10,6 +10,7 @@ import { CADRAGES, FORMATS } from './cadrages.js';
 import { enrichirPersonnages, texturesFines } from './enrichissements.js';
 import { creerFeu } from './feu.js';
 import { creerHelico } from './helico.js';
+import { creerTir } from './tir.js';
 import { chargerDonnees, construireMonde } from './monde.js';
 import { creerKit, posable } from './persos.js';
 import { ECHELLE_SCENE, appuiAt, poseP1, poseP2, poseZombie } from './poses.js';
@@ -18,8 +19,11 @@ const q = new URLSearchParams(location.search);
 const etat = document.getElementById('etat');
 const toile = document.getElementById('toile');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const cadrage = CADRAGES[(q.get('cadrage') ?? 'A').toUpperCase()] ? (q.get('cadrage') ?? 'A').toUpperCase() : 'A';
-const format = FORMATS[q.get('format')] ? q.get('format') : 'paysage';
+const cadrage = CADRAGES[(q.get('cadrage') ?? 'B').toUpperCase()] ? (q.get('cadrage') ?? 'B').toUpperCase() : 'B'; // B : cadrage retenu (retours du lot 1)
+// format=plein : la fenêtre entière, comme le serait la vidéo plein écran de l'accueil (réglage paysage ou portrait selon la fenêtre,
+// même champ horizontal que l'image de référence 16:9 ou 9:16, jamais de bande noire). Sert à l'aperçu (apercu.html).
+const plein = q.get('format') === 'plein';
+let format = FORMATS[q.get('format')] ? q.get('format') : 'paysage';
 const capture = q.get('capture') === '1';
 const nums = (s, def) => (s ? s.split(',').map(Number) : def);
 
@@ -58,22 +62,40 @@ try {
 
   // Personnages : ceux du jeu, enrichis pour le plan rapproché (js/enrichissements.js).
   const kit = creerKit(d, m.lookup, enrichirPersonnages(d.characters));
-  texturesFines(kit, [['joueur', 'riche'], ['marcheur', 'riche']]);
+  texturesFines(kit, [['joueur', 'riche'], ['joueur', 'B'], ['marcheur', 'riche']]);
   const p1 = posable(kit.create('player', 0, { outfit: 0 }), ECHELLE_SCENE);
-  const p2 = posable(kit.create('player', 0, { outfit: 1 }), ECHELLE_SCENE);
+  // Personnage 2 : une autre tenue du jeu (variante B « civil débrouillard » : capuche, sac de sport, lampe frontale ; sweat gris clair).
+  const p2 = posable(kit.create('player', 0, { choice: 'B', outfit: 0 }), ECHELLE_SCENE);
   const zb = posable(kit.create('zombie', 0, { outfit: 3, wear: 2 }), ECHELLE_SCENE);
   zb.char.setWound(1);
   for (const p of [p1, p2, zb]) scene.add(p.root);
+  // Outil de retouche (?isoler=p1|p2|zb) : un seul personnage visible.
+  if (q.get('isoler')) for (const [id, p] of Object.entries({ p1, p2, zb })) p.root.visible = q.get('isoler').split(',').includes(id);
+
+  // Coup de feu du personnage 1 (un par boucle).
+  const laiton = new THREE.Color().setRGB(...m.lookup('--perso-casque').map((c) => c / 255), THREE.SRGBColorSpace);
+  const tir = creerTir({ palette, laiton, echelle: ECHELLE_SCENE });
+  scene.add(tir.group);
+
+  // Lampe frontale du personnage 2 (variante B du jeu) : un faisceau faible vers la tête du zombie.
+  const frontale = new THREE.SpotLight(new THREE.Color().setRGB(...m.lookup('--perso-lampe').map((c) => c / 255), THREE.SRGBColorSpace), 900, 420, 0.38, 0.6, 1.2);
+  scene.add(frontale, frontale.target);
 
   const ambiance = creerAmbiance({ world, palette, textures, stage, heli, lampes: [{ x: -96, z: -64, cap: 30 }, { x: 104, z: -118, cap: -35 }], fenetres: d.world.windows ?? [], render: m.render });
   const brume = brumeEnBoucle(world, { vitesse: 3, force: 1.3 });
 
   const camera = new THREE.PerspectiveCamera(40, FORMATS[format], 2, 40000);
   function placerCamera() {
+    if (plein) format = innerWidth < innerHeight ? 'portrait' : 'paysage';
     const c = CADRAGES[cadrage][format];
     const cam = nums(q.get('cam'), c.cam);
     const vise = nums(q.get('vise'), c.vise);
     camera.fov = Number(q.get('fov') ?? c.fov);
+    // Plein écran : on garde toujours le champ horizontal du cadrage (personnages entiers en largeur) ; une fenêtre plus étroite que
+    // l'image de référence (téléphones récents, environ 9:19,5) montre plus de ciel et de sol, une fenêtre plus large en montre moins.
+    const ref = FORMATS[format];
+    const asp = innerWidth / innerHeight;
+    if (plein) camera.fov = (2 * Math.atan(Math.tan((camera.fov * Math.PI) / 360) * (ref / asp)) * 180) / Math.PI;
     camera.position.copy(stage.localToWorld(new THREE.Vector3(...cam)));
     camera.lookAt(stage.localToWorld(new THREE.Vector3(...vise)));
     camera.updateProjectionMatrix();
@@ -89,6 +111,10 @@ try {
       w = Number(q.get('w'));
       h = Number(q.get('h') ?? Math.round(w / ratio));
       renderer.setPixelRatio(1);
+    } else if (plein) {
+      w = innerWidth;
+      h = innerHeight;
+      renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
     } else {
       w = innerWidth;
       h = innerHeight;
@@ -112,6 +138,9 @@ try {
     const u = ((t % DUREE) + DUREE) % DUREE;
     poser(u);
     feuHelico.update(u);
+    tir.update(u, p1.bones.get('prop'), ECHELLE_SCENE);
+    p2.bones.get('head').localToWorld(frontale.position.set(0, 7, 5));
+    zb.bones.get('head').getWorldPosition(frontale.target.position);
     ambiance.update(u);
     brume.update(u);
     renderer.render(scene, window.__plan ?? camera);
@@ -137,6 +166,7 @@ try {
     window.__plan = ortho;
   }
   addEventListener('resize', () => {
+    placerCamera();
     taille();
     dessiner(tNow);
   });
@@ -182,6 +212,7 @@ try {
       dessiner(t);
     },
     fps: () => fps.value,
+    atelier: { p1, p2, zb, stage, THREE },
     info: () => ({ cadrage, format, duree: DUREE, taille: [toile.width, toile.height], triangles: renderer.info.render.triangles, appels: renderer.info.render.calls }),
   };
 } catch (e) {

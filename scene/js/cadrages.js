@@ -9,7 +9,7 @@ export const CADRAGES = {
   B: {
     nom: 'Contre-plongée rapprochée',
     paysage: { cam: [-46, 8, 122], vise: [4, 50, -30], fov: 44 },
-    portrait: { cam: [-34, 8, 118], vise: [0, 50, -20], fov: 62 },
+    portrait: { cam: [-34, 8, 118], vise: [-2, 34, -20], fov: 62 },
   },
   C: {
     nom: 'Trois quarts',

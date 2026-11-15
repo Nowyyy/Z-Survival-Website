@@ -48,9 +48,19 @@ function pistolet() {
     box('gunDetente', 'prop', 'sombre', [0.6, 1.4, 0.5], [0, -1.4, -0.9], [0.3, 0, 0]),
     box('gunGuidon', 'prop', 'sombre', [0.6, 0.9, 0.8], [0, 2.75, 7.2]),
     box('gunHausse', 'prop', 'sombre', [2.4, 0.9, 0.8], [0, 2.75, -5.3]),
-    box('gunTalon', 'prop', 'sombre', [3.4, 0.9, 3.8], [0, -6.6, -3.6], [-0.12, 0, 0]),
+    box('gunTalon', 'prop', 'sombre', [3.2, 0.7, 3.6], [0, -6.3, -3.5]),
     box('gunStries', 'prop', 'sombre', [3.36, 1.6, 2.6], [0, 0.9, -4.2]),
   ];
+}
+
+// Bras allongés (survivants) : le jeu a des bras de 19 unités (10 + 9) pour une carrure de 23 ; tenir l'arme à deux mains devant les yeux
+// obligeait les bras à rentrer en biais à travers le gilet. Proportions humaines : bras de 22 (11,5 + 10,5), pièces allongées d'autant.
+function allongerBras(v) {
+  v.joints = { ...(v.joints ?? {}), elbowL: [0, -11.5, 0], elbowR: [0, -11.5, 0], wristL: [0, -10.5, 0], wristR: [0, -10.5, 0] };
+  for (const p of v.parts) {
+    if (p.id === 'upperL') Object.assign(p, { dims: { ...p.dims, h: 12.5 }, offset: [p.offset[0], -5.75, p.offset[2]] });
+    if (p.id === 'foreL') Object.assign(p, { dims: { ...p.dims, h: 11.5 }, offset: [p.offset[0], -5.25, p.offset[2]] });
+  }
 }
 
 // Sphères plus fines (tête, mains, bottes…) : 20 × 14 facettes au lieu de 10 × 7 ; capsules à 16 côtés.
@@ -64,13 +74,14 @@ function lisser(parts) {
 // Copie des données des personnages, enrichie (variantes « riche » du joueur et des zombies).
 export function enrichirPersonnages(characters) {
   const c = structuredClone(characters);
-  for (const slot of c.slots) {
-    const v = slot.variants.find((x) => x.id === 'riche');
-    if (!v) continue;
+  // Joueur : toutes ses variantes (la scène habille le personnage 2 en variante B) ; zombies : la variante « riche ».
+  const cibles = c.slots.flatMap((slot) => slot.variants.filter((x) => x.id === 'riche' || (x.kind === 'player' && ['A', 'B', 'C'].includes(x.id))));
+  for (const v of cibles) {
     const ids = new Set(v.parts.map((p) => p.id));
     const add = (list) => v.parts.push(...list.filter((p) => !ids.has(p.id)));
     lisser(v.parts);
     if (v.kind === 'player') {
+      allongerBras(v);
       add(visageSurvivant());
       add(pouce());
       if (ids.has('gunSlide')) add(pistolet());
