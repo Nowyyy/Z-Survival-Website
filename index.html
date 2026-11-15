@@ -274,10 +274,14 @@
         <!-- Deux blocs de même forme (image, titre, texte) : le jeu, puis le studio (demande du propriétaire, lot 4a). -->
         <div class="about-blocs">
           <!-- Le jeu : titre et texte modifiables depuis la page d'administration (lot 3e, js/a-propos.js, page « a-propos-jeu ») ;
-               par défaut : about.jeu.* de js/textes.js. Image : affiche de l'accueil (cadrage B). -->
+               par défaut : about.jeu.* de js/textes.js. Image : clip du jeu (lot 4b, 8 s en boucle, img/a-propos/, outils/clip-jeu/) posé sur son
+               affiche ; la source de la vidéo est posée par js/a-propos-clip.js quand la section est visible (jamais en mouvement réduit). -->
           <div class="about-corps about-corps-jeu">
             <div class="about-visuel about-jeu revele" style="--i:1">
-              <img class="about-jeu-image" src="img/accueil/accueil-16x9.webp" alt="" data-t-alt="about.jeu.imageAlt" width="1920" height="1080" loading="lazy" decoding="async">
+              <div class="about-jeu-media">
+                <img class="about-jeu-image" src="img/a-propos/jeu-clip.webp" alt="" data-t-alt="about.jeu.imageAlt" width="800" height="450" loading="lazy" decoding="async">
+                <video class="about-jeu-clip" muted loop playsinline preload="none" disablepictureinpicture disableremoteplayback tabindex="-1" aria-hidden="true"></video>
+              </div>
             </div>
             <div class="about-texte">
               <p class="about-signature revele" style="--i:2" id="about-jeu-titre" data-t="about.jeu.titre"></p>
