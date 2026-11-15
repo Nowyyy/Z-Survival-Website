@@ -78,7 +78,9 @@ try {
     const brun = lin('--perso-sombre').lerp(lin('--perso-cuir'), 0.25).multiplyScalar(0.7);
     peindreBarbe(p1.char, [brun.r, brun.g, brun.b]);
     // Gilets : texture de tissu à part (toile matelassée pour le personnage 1, nylon à sangles pour le personnage 2), plus celle des vêtements.
-    texturerGilet(p1.char, kit.slotKit('joueur', 'riche').shared.get(0), ['vestA'], { style: 'toile', teinte: 0.8 });
+    // Personnage 1 : gilet d'une couleur à lui (il avait celle de la chemise sable) ; ?gilet=olive|cuir pour comparer.
+    const couleurGilet = q.get('gilet') === 'cuir' ? lin('--perso-cuir').multiplyScalar(0.8) : lin('--perso-tissu-olive').lerp(lin('--perso-sombre'), 0.45);
+    texturerGilet(p1.char, kit.slotKit('joueur', 'riche').shared.get(0), ['vestA'], { style: 'toile', couleur: [couleurGilet.r, couleurGilet.g, couleurGilet.b] });
     if (q.get('p2') !== 'civil') texturerGilet(p2.char, kit.slotKit('joueur', MILITAIRE).shared.get(0), ['gilet'], { style: 'cordura', teinte: 1 });
   }
   const zb = posable(kit.create('zombie', 0, { outfit: 3, wear: 2 }), ECHELLE_SCENE);

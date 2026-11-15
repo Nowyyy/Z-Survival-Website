@@ -77,9 +77,9 @@ function coupDoeil(t, debut, aller, fin, retour) {
   return v * (0.94 + 0.08 * Math.sin(Math.PI * u));
 }
 // Détails : le personnage 1 regarde hors champ après son tir (5,95 à 7,8 s : son retour à la normale relance la boucle) ; le personnage 2
-// tourne la tête vers lui pendant un moment calme (3,35 à 4,8 s : zombie inerte, aucun tir).
+// tourne la tête vers lui pendant un moment calme (4,35 à 6,6 s : zombie inerte ; il regarde encore le personnage 1 quand celui-ci tire).
 export const regardP1 = (t, retard = 0) => (DETAILS.actif ? coupDoeil(t - retard, 5.95, 0.6, 7.1, 0.7) : 0);
-export const regardP2 = (t, retard = 0) => (DETAILS.actif ? coupDoeil(t - retard, 3.35, 0.5, 4.2, 0.6) : 0);
+export const regardP2 = (t, retard = 0) => (DETAILS.actif ? coupDoeil(t - retard, 4.35, 0.5, 6.0, 0.6) : 0);
 // Zombie touché par la balle du personnage 2 (TIR_P2) : « vie » de 1 à 0 en 0,1 s (la tête tape le sol, les yeux se ferment), inerte,
 // puis il se ranime (yeux qui se rouvrent d'un coup à 6,5 s, tête qui se relève jusqu'à 7,5 s) avant la fin de la boucle.
 export function vieZombie(t) {

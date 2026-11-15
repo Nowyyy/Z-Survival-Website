@@ -265,3 +265,10 @@ les reprendront quand elles seront refaites, après validation).
   toile matelassée à coutures piquées, un peu plus foncée que la chemise (elles avaient la même couleur). Personnage 2 : nylon épais à
   sangles horizontales cousues (gilet pare-balles).
 - Vérifié : boucle parfaite avec et sans détails (jonctions 0,548 et 0,406).
+
+## Dix-septième retour : regard du personnage 2 plus tard et plus long, gilet du personnage 1 en olive (`?details=1`)
+- **Personnage 2** : son coup d'œil vers le personnage 1 part une seconde plus tard (4,35 s) et dure plus longtemps (tête tournée
+  jusqu'à 6,0 s, revenue à 6,6 s) : il regarde encore le personnage 1 quand celui-ci tire (5,2 s).
+- **Gilet du personnage 1** d'une couleur à lui : olive sombre (`--perso-tissu-olive` mêlé de `--perso-sombre`), assorti à la
+  casquette ; il avait la couleur sable de la chemise. `?gilet=cuir` : variante brun cuir, pour comparer.
+- Vérifié : boucle parfaite avec les détails (jonction 0,548).
