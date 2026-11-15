@@ -3,7 +3,7 @@
 // fonction du temps t de la boucle (js/boucle.js) : respiration, armes qui bougent un peu, appui du pied, zombie qui se débat.
 // Repère de mise en scène (groupe `stage`) : y vers le haut, +z vers la caméra, +x vers la droite de l'image ; unités du jeu (60 par mètre).
 import * as THREE from 'three';
-import { DUREE, bosse, bruit, cycle, onde } from './boucle.js';
+import { DUREE, bruit, cycle, onde } from './boucle.js';
 import { V, euler, lookQuat, placeBone, pointBone, twoBone, worldPos } from './rig.js';
 import { oeilFerme, recul } from './tir.js';
 
@@ -32,14 +32,21 @@ export const PLACEMENT = {
   p1: { x: -30, z: 34, cap: 12 }, // personnage 1 : au premier plan à gauche ; cap en degrés (0 = face à la caméra, + = vers la droite de l'image)
   p1Vise: V(330, 64, 900), // point visé par le personnage 1 : au loin, à droite de la caméra
   zombie: { x: 22, z: -18, cap: -30 }, // bassin du zombie ; cap = direction de sa tête (0 : vers la caméra)
-  spectateur: V(-40, 62, 125), // point vers lequel le zombie tend le bras pour attraper (vers la caméra du cadrage B, nettement au-dessus : le bras se lève)
+  spectateur: V(-40, 42, 125), // point vers lequel le zombie tend le bras pour attraper (vers la caméra du cadrage B, un peu au-dessus : le bras se tend vers nous sans se dresser)
   p2: { dx: -12, dz: 3, cap: 28 }, // personnage 2, dans le repère du zombie : à son flanc droit, à hauteur de la taille ; cap ajouté à celui du zombie
 };
 
-// Le zombie tend le bras gauche vers le spectateur pour l'attraper, deux fois par boucle (retours du lot 1) : 0 = main au sol, 1 = bras
-// tendu. Vers 1,6 s et 7,0 s (loin du coup de feu de 5,2 s), 0,55 s pour tendre, autant pour revenir.
-export const ATTRAPE = { instants: [1.6, 7.0], demiDuree: 0.55 };
-export const attrapeAt = (t) => Math.max(...ATTRAPE.instants.map((at) => bosse(cycle(t, 1), at / DUREE, ATTRAPE.demiDuree / DUREE)));
+// Le zombie tend le bras gauche vers le spectateur pour l'attraper, une seule fois par boucle (retours du lot 1) : 0 = main au sol, 1 = bras
+// tendu. Il tend le bras en 0,55 s à partir de 1,0 s, le garde tendu 1,1 s, le ramène en 0,55 s (fini à 3,2 s, loin du coup de feu de 5,2 s).
+export const ATTRAPE = { debut: 1.0, tendre: 0.55, tenir: 1.1, revenir: 0.55 };
+export function attrapeAt(t) {
+  const d = (((t - ATTRAPE.debut) % DUREE) + DUREE) % DUREE;
+  const { tendre, tenir, revenir } = ATTRAPE;
+  if (d < tendre) return d / tendre;
+  if (d < tendre + tenir) return 1;
+  if (d < tendre + tenir + revenir) return 1 - (d - tendre - tenir) / revenir;
+  return 0;
+}
 
 // Appui du pied du personnage 2 (0 à 1) : il appuie un peu plus deux fois par boucle ; le zombie s'enfonce d'autant.
 export const appuiAt = (t) => 0.5 + 0.5 * onde(t, 2, 0.6);
