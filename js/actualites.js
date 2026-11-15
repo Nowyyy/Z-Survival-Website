@@ -7,7 +7,7 @@
 // - Le serveur s'endort quand personne ne l'appelle : le premier appel peut prendre quelques secondes (cartes squelettes).
 // Adresse du serveur : js/config.js (un seul endroit). Textes : js/textes.js (news.*).
 import { ADRESSE_SERVEUR } from './config.js';
-import { langue, t } from './i18n.js';
+import { langue, mouvementReduit, t } from './i18n.js';
 import { construireArticle, construireCarte } from './article.js';
 import { poserDerniereActu } from './accueil-bandeau.js';
 
@@ -154,6 +154,58 @@ boutonPlus.addEventListener('click', async () => {
     boutonPlus.disabled = false;
   }
 });
+
+// ---------- Carrousel (téléphone) : position, barre de progression, flèches ----------
+// Montré quand il y a plus d'une vraie carte et qu'elles dépassent de la largeur (sur ordinateur, la grille montre tout).
+
+const carrousel = document.getElementById('news-carrousel');
+const position = document.getElementById('news-position');
+const total = document.getElementById('news-total');
+const barre = document.getElementById('news-progression-barre');
+const fleches = [...carrousel.querySelectorAll('.news-fleche')];
+const deuxChiffres = (n) => String(n).padStart(2, '0');
+let carrouselDemande = 0;
+
+function cartesReelles() {
+  return [...liste.children].filter((li) => !li.classList.contains('news-squelette'));
+}
+// Carte « courante » : la plus proche du bord gauche ; la dernière quand on est au bout (elle ne peut pas venir au bord).
+function indexCourant(cs) {
+  const max = liste.scrollWidth - liste.clientWidth;
+  if (liste.scrollLeft >= max - 2) return cs.length - 1;
+  const gauche = liste.getBoundingClientRect().left + parseFloat(getComputedStyle(liste).paddingLeft);
+  let meilleur = 0;
+  cs.forEach((c, i) => {
+    if (Math.abs(c.getBoundingClientRect().left - gauche) < Math.abs(cs[meilleur].getBoundingClientRect().left - gauche)) meilleur = i;
+  });
+  return meilleur;
+}
+function majCarrousel() {
+  carrouselDemande = 0;
+  const cs = cartesReelles();
+  const utile = cs.length > 1 && liste.scrollWidth > liste.clientWidth + 2;
+  carrousel.hidden = !utile;
+  if (!utile) return;
+  const i = indexCourant(cs);
+  position.textContent = deuxChiffres(i + 1);
+  total.textContent = deuxChiffres(cs.length);
+  barre.style.setProperty('--part', String((i + 1) / cs.length));
+  fleches[0].disabled = liste.scrollLeft <= 2;
+  fleches[1].disabled = liste.scrollLeft >= liste.scrollWidth - liste.clientWidth - 2;
+}
+function demanderCarrousel() {
+  if (!carrouselDemande) carrouselDemande = requestAnimationFrame(majCarrousel);
+}
+liste.addEventListener('scroll', demanderCarrousel, { passive: true });
+window.addEventListener('resize', demanderCarrousel);
+new MutationObserver(demanderCarrousel).observe(liste, { childList: true });
+fleches.forEach((b) => b.addEventListener('click', () => {
+  const cs = cartesReelles();
+  const cible = cs[Math.max(0, Math.min(cs.length - 1, indexCourant(cs) + Number(b.dataset.sens)))];
+  if (!cible) return;
+  const decalage = cible.getBoundingClientRect().left - liste.getBoundingClientRect().left - parseFloat(getComputedStyle(liste).paddingLeft);
+  liste.scrollBy({ left: decalage, behavior: mouvementReduit() ? 'auto' : 'smooth' });
+}));
 
 // ---------- Article complet (fenêtre) ----------
 
