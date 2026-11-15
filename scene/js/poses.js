@@ -184,7 +184,9 @@ export function poseZombie(z, stage, t, appui) {
   // Par moment (attrapeAt), ce bras se lève et se tend vers le spectateur, doigts devant, comme pour l'attraper.
   const solMain = local(z, 11, 3.8, 36 + 1.5 * reach);
   const sh = worldPos(z.bones.get('shoulderL'));
-  const versSpect = toWorld(stage, PLACEMENT.spectateur).sub(sh).normalize();
+  // Vers le spectateur (point de PLACEMENT.spectateur), ou, zombie tourné vers le personnage 1 (PLACEMENT.attrapeDevant), droit devant lui,
+  // un peu en dehors et presque à l'horizontale (bras qui rampe vers lui, pas levé) : le bras ne passe pas devant son visage.
+  const versSpect = PLACEMENT.attrapeDevant ? dirWorld(z.root, V(0.3, 0.02, 1)).normalize() : toWorld(stage, PLACEMENT.spectateur).sub(sh).normalize();
   const tendue = sh.clone().add(versSpect.clone().multiplyScalar(20.5 * K)); // bras presque tendu (22 au plus)
   const lisse = att * att * (3 - 2 * att);
   const mainL = solMain.clone().lerp(tendue, lisse);
@@ -202,8 +204,11 @@ export function poseZombie(z, stage, t, appui) {
   const rake = g < 0.25 ? g / 0.25 : 1 - (g - 0.25) / 0.75;
   const lift = g < 0.25 ? Math.sin(Math.PI * (g / 0.25)) * 3.5 : 0;
   const s = rake * rake * (3 - 2 * rake);
-  const mainZ = 14 + 13 * s;
-  arm(z, 'R', local(z, -17, 3.8 + lift, mainZ), local(z, -30, 18, mainZ - 7), dirWorld(z.root, V(-0.15, -0.12 - 0.25 * s, 1)), dirWorld(z.root, V(0, -1, 0)));
+  // La main va de l'aplomb de l'épaule (z 23, l'épaule est à z ≈ 21) à 14 unités devant ; le coude reste à peu près à hauteur d'épaule,
+  // sur le côté : avant (retour du propriétaire, « l'articulation de l'épaule est étrange »), la main reculait derrière l'épaule et le
+  // coude montait au-dessus, comme quelqu'un qui pousse sur ses bras.
+  const mainZ = 23 + 13 * s;
+  arm(z, 'R', local(z, -17, 3.8 + lift, mainZ), local(z, -29, 9, mainZ - 5), dirWorld(z.root, V(-0.15, -0.12 - 0.25 * s, 1)), dirWorld(z.root, V(0, -1, 0)));
 }
 
 // --- Personnage 2 : un pied sur le dos du zombie, le vise vers le bas ---------------------------------------------------------------

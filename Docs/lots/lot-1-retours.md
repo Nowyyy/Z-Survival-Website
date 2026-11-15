@@ -198,3 +198,16 @@ Suite du lot 1 (`Docs/lots/lot-1.md`). Branche `lot-1-retours`, PR fusionnée pa
   que bouche ouverte.
 - **Bandeau d'alerte en service** sur le site public, avec les messages par défaut de `contenus/bandeau.json` ; `?bandeau=0` le cache.
   Le titre du dernier article publié passe en tête (travail déjà fait par le lot 3b, gardé).
+
+## Treizième retour : épaule du bras qui griffe, zombie tourné vers le personnage 1
+- **Épaule** : la main qui griffe reculait jusqu'à 7 unités derrière l'épaule, coude au-dessus (le haut du bras pivotait vers le haut et
+  le bas à chaque coup, comme quelqu'un qui pousse sur ses bras). Elle va maintenant de l'aplomb de l'épaule à 14 unités devant, coude sur
+  le côté, à peu près à hauteur d'épaule (6 à 11 de haut).
+- **Zombie tourné vers le personnage 1, par défaut** (`?zombie=face` : ancienne orientation, pour comparer) : lui et le personnage 2 qui le
+  cloue au sol sont tournés vers le personnage 1, comme s'il rampait vers lui. Il tend le bras droit devant lui, un peu en dehors, presque
+  à l'horizontale (il ne passe pas devant son visage, et ne se lève pas).
+- **Ordinateur** : zombie et personnage 2 décalés un peu plus à droite (placement du cadrage B paysage) : la tête, qui passait plus à
+  gauche en se tournant, n'est pas sous le titre.
+- **Vidéos de l'accueil refaites** (`outils/video/fabriquer.mjs`) : elles reprennent aussi le personnage 2 militaire, la bouche, les épaules
+  et le bras corrigés des retours précédents (les vidéos dataient d'avant).
+- Contacts mesurés : main qui griffe à 4,3 unités au moins de la jambe d'appui du soldat ; pied du soldat sur le dos sans y entrer.
