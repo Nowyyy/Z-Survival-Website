@@ -543,6 +543,10 @@
   .indice-defiler-bouton svg { animation: none; }
 }
 
+/* Pied de page : adresse de contact du studio (lot 3f), lien mailto. */
+.pied-contact a { color: var(--color-action-text); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+.pied-contact a:hover, .pied-contact a:focus-visible { color: var(--color-text); }
+
 /* Très petits téléphones (320 px) : les trois armes tiennent sur une ligne. */
 @media (max-width: 360px) {
   .arme-bouton { font-size: 0.72rem; padding: 0 5px; letter-spacing: 0; }

@@ -12,14 +12,14 @@
   <meta name="theme-color" content="#050505">
   <meta name="color-scheme" content="dark">
   <!-- Aperçu de partage (lot 4a) : Discord, WhatsApp, réseaux sociaux. Adresses absolues (les réseaux ne suivent pas les chemins relatifs) ;
-       textes : partage.* de js/textes.js (français). Les adresses #actu/… partagent cet aperçu général (les réseaux ignorent ce qui suit le #).
+       titre et description : modifiables depuis l'admin (lot 3f : le serveur réécrit ces balises dans ce fichier ; seule source de ces textes). Les adresses #actu/… partagent cet aperçu général (les réseaux ignorent ce qui suit le #).
        Image : img/partage.jpg, fabriquée par outils/partage/fabriquer.mjs. -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Z-Survival">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:url" content="https://zsurvival-game.com/">
   <meta property="og:title" content="Z-Survival — survie zombies sur navigateur">
-  <meta property="og:description" content="La nuit tombe, les morts se relèvent. Tiendrez-vous jusqu’à l’aube ? Z-Survival, jeu de survie zombies en vue de dessus par No Way Studio, bientôt disponible sur navigateur.">
+  <meta property="og:description" content="La nuit tombe, les morts se relèvent. Serez-vous en mesure de survivre ? Z-Survival, Top-Down Shooter avec une dose de gacha par No Way Studio, bientôt disponible sur navigateur.">
   <meta property="og:image" content="https://zsurvival-game.com/img/partage.jpg">
   <meta property="og:image:secure_url" content="https://zsurvival-game.com/img/partage.jpg">
   <meta property="og:image:type" content="image/jpeg">
@@ -28,7 +28,7 @@
   <meta property="og:image:alt" content="Le logo Z-Survival sur une scène du jeu : un survivant tire, la nuit, devant un hélicoptère en feu.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Z-Survival — survie zombies sur navigateur">
-  <meta name="twitter:description" content="La nuit tombe, les morts se relèvent. Tiendrez-vous jusqu’à l’aube ? Z-Survival, jeu de survie zombies en vue de dessus par No Way Studio, bientôt disponible sur navigateur.">
+  <meta name="twitter:description" content="La nuit tombe, les morts se relèvent. Serez-vous en mesure de survivre ? Z-Survival, Top-Down Shooter avec une dose de gacha par No Way Studio, bientôt disponible sur navigateur.">
   <meta name="twitter:image" content="https://zsurvival-game.com/img/partage.jpg">
   <meta name="twitter:image:alt" content="Le logo Z-Survival sur une scène du jeu : un survivant tire, la nuit, devant un hélicoptère en feu.">
   <!-- Icônes (lot 4a) : Z rouge du logo du jeu (js/logo.js), fabriquées par outils/icones/fabriquer.mjs ; manifeste site.webmanifest. -->
@@ -53,6 +53,7 @@
           "width": 600,
           "height": 457
         },
+        "email": "contact@zsurvival-game.com",
         "sameAs": ["https://discord.gg/4bBRJNzwwB"]
       },
       {
@@ -328,6 +329,7 @@
           <div class="pied-texte">
             <p class="pied-copyright" data-t="studio.copyright"></p>
             <p class="pied-licences" data-t="about.licences"></p>
+            <p class="pied-contact"><span data-t="studio.contact">Contact :</span> <a href="mailto:contact@zsurvival-game.com">contact@zsurvival-game.com</a></p>
           </div>
         </footer>
       </div>
