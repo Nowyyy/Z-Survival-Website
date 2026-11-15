@@ -48,6 +48,12 @@
 
     <!-- Écran 2 : liste des articles -->
     <section class="admin-ecran" id="ecran-liste" aria-labelledby="titre-liste" hidden>
+      <!-- Pages du site en haut : la liste des articles, qui peut être longue, vient dessous (demande du propriétaire). -->
+      <div class="admin-carte admin-groupe admin-pages">
+        <h2 class="admin-sous-titre">Pages du site</h2>
+        <button class="admin-bouton" id="ouvrir-page-a-propos" type="button">Modifier la page « À propos »</button>
+      </div>
+
       <div class="admin-barre">
         <h1 class="admin-titre" id="titre-liste">Articles</h1>
         <button class="bouton bouton-principal" id="nouvel-article" type="button">Nouvel article</button>
@@ -55,11 +61,6 @@
       <p class="admin-aide" id="liste-vide" hidden>Aucun article pour l’instant. Touchez « Nouvel article » pour écrire le premier.</p>
       <ul class="admin-liste" id="liste-articles"></ul>
       <button class="admin-bouton admin-bouton-discret" id="actualiser" type="button">Actualiser la liste</button>
-
-      <div class="admin-carte admin-groupe admin-pages">
-        <h2 class="admin-sous-titre">Pages du site</h2>
-        <button class="admin-bouton" id="ouvrir-page-a-propos" type="button">Modifier la page « À propos »</button>
-      </div>
     </section>
 
     <!-- Écran 4 : page « À propos » du site (titre et texte, français et anglais). -->

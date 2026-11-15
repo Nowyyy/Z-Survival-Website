@@ -313,7 +313,7 @@ body.admin {
 .admin-apercu-article .actu-article > .actu-entete:first-child { padding-top: 12px; }
 
 /* ---------- Pages du site ---------- */
-.admin-pages { margin-top: 10px; }
+.admin-pages { margin-bottom: 6px; }
 .admin-actions-page { grid-template-columns: 1fr 1fr; }
 .admin-actions-page > :first-child { grid-column: auto; }
 /* Aperçu de la page « À propos » : mêmes polices et couleurs que la section du site. */

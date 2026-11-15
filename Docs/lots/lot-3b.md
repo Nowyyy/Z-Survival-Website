@@ -226,3 +226,7 @@ Précision du propriétaire : le titre à modifier n'est pas « À propos » mai
 - Un enregistrement éventuel fait avant la correction avec le titre « À propos » / « About us » est ignoré pour la ligne sous le logo
   (signature par défaut affichée, et proposée dans l'admin) ; l'admin refuse ce titre.
 - Vérifications : `verifier-actus.mjs` → **236/236** ; `verifier-site.mjs` → 158/158 ; `verifier-accueil.mjs` → 172/172 ; `npm test` inchangé (52/52).
+
+### Retour (même jour) : « Pages du site » au-dessus des articles
+Sur l'écran d'accueil de l'admin, le cadre **Pages du site** (« Modifier la page « À propos » ») passe **en haut**, au-dessus de la
+liste des articles, pour rester à portée quand il y a beaucoup d'articles. Rien d'autre ne change. Vérification : `verifier-actus.mjs` → 236/236.

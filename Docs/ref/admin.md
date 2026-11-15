@@ -88,7 +88,7 @@ Tous les articles, du plus récent au plus ancien, avec leur statut (**Publié**
 « FR seulement » s'il n'y a pas de version anglaise. Toucher un article pour l'ouvrir.
 
 ## 8. Page « À propos »
-En bas de la liste des articles : **Pages du site** → **Modifier la page « À propos »**.
+En haut de l'écran, au-dessus de la liste des articles : **Pages du site** → **Modifier la page « À propos »**.
 1. La page s'ouvre avec le **titre** et le **texte actuels** du site (au premier passage, les textes d'origine). Le **titre** est
    la ligne en rouge sous le logo du studio (à l'origine « Un jeu de No Way Studio ») ; le texte vient dessous.
 2. Onglet **Français** (obligatoire) et **English** (facultatif) : titre et texte, avec la même barre de mise en forme que les
