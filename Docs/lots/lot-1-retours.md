@@ -142,3 +142,7 @@ Suite du lot 1 (`Docs/lots/lot-1.md`). Branche `lot-1-retours`, PR fusionnée pa
 ## Cinquième retour : clin d'œil plus tard
 - L'œil gauche du personnage 1 se ferme **à peine avant le tir** : il commence à se fermer 0,2 s avant le coup (au lieu de 0,6 s), en
   0,1 s, donc il est fermé 0,1 s avant le coup ; il se rouvre comme avant, 0,75 s après le coup.
+
+## Sixième retour : durées du clin d'œil
+- Réglages du propriétaire : l'œil gauche commence à se fermer **0,4 s avant** le coup (en 0,1 s) et commence à se rouvrir **0,4 s après**
+  le coup (en 0,15 s) : `FERME = { avant: 0.4, apres: 0.4, … }` dans `scene/js/tir.js`.

@@ -8,9 +8,9 @@ export const TIR = 5.2; // instant du coup de feu (secondes de la boucle)
 const RECUL = 0.42; // durée du recul (secondes)
 const ECLAIR = 0.075; // durée de l'éclair : 2 images à 25 ou 30 images/s
 
-// Œil gauche du tireur : fermé (1) juste avant le coup et pendant le recul, ouvert (0) le reste de la boucle. Il se ferme en 0,1 s,
-// 0,2 s avant le coup (à peine avant le tir : retours du lot 1), se rouvre en 0,15 s une fois le recul et la fumée passés.
-const FERME = { avant: 0.2, apres: 0.75, fermer: 0.1, ouvrir: 0.15 };
+// Œil gauche du tireur : fermé (1) autour du coup, ouvert (0) le reste de la boucle. Il commence à se fermer 0,4 s avant le coup (en 0,1 s)
+// et commence à se rouvrir 0,4 s après le coup (en 0,15 s) : réglages du propriétaire (retours du lot 1).
+const FERME = { avant: 0.4, apres: 0.4, fermer: 0.1, ouvrir: 0.15 };
 export function oeilFerme(t) {
   const d = ((((t - TIR + FERME.avant) % DUREE) + DUREE) % DUREE); // 0 au début de la fermeture
   const total = FERME.avant + FERME.apres;
