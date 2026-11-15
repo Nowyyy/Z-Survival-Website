@@ -337,16 +337,31 @@
 .about-corps { display: flex; flex-direction: column; gap: 16px; }
 .about-visuel { align-self: center; }
 .about-logo { width: min(60vw, 225px); filter: drop-shadow(0 6px 24px rgb(0 0 0 / 70%)); }
-.about-jeu-image {
-  display: block;
+/* Lot 4b : clip du jeu (vidéo en boucle) posé sur son affiche, dans le cadre rouge. La vidéo reste invisible tant qu'elle ne joue pas
+   (classe est-lue, js/a-propos-clip.js) : sans lecture automatique, seule l'affiche se voit, sans bouton de lecture du navigateur. */
+.about-jeu-media {
+  position: relative;
   width: min(64vw, 240px);
-  height: auto;
   aspect-ratio: 16 / 9;
-  object-fit: cover;
+  overflow: hidden;
   border: 2px solid var(--color-action);
   border-radius: var(--radius-md);
+  background: var(--color-bg);
   box-shadow: 0 0 18px var(--color-action-glow), 0 6px 24px rgb(0 0 0 / 70%);
 }
+.about-jeu-image, .about-jeu-clip {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.about-jeu-clip { opacity: 0; pointer-events: none; transition: opacity 300ms linear; }
+.about-jeu-clip.est-lue { opacity: 1; }
+.about-jeu-clip::-webkit-media-controls,
+.about-jeu-clip::-webkit-media-controls-overlay-play-button,
+.about-jeu-clip::-webkit-media-controls-start-playback-button { display: none !important; -webkit-appearance: none; }
 .about-texte { display: flex; flex-direction: column; gap: 10px; }
 .about-signature { font-family: var(--font-label); font-size: 1.05rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-action-text); }
 .about-paragraphe { color: var(--color-text); }
@@ -428,7 +443,7 @@
   /* Même colonne pour l'image du jeu et le logo du studio : les deux textes s'alignent. */
   .about-visuel { flex: none; display: flex; justify-content: center; width: clamp(240px, 24vw, 340px); }
   .about-logo { width: 90%; } /* presque la largeur de la photo du jeu (retour du propriétaire) */
-  .about-jeu-image { width: 100%; }
+  .about-jeu-media { width: 100%; }
   .about-texte { max-width: 34rem; gap: 14px; }
   .about-signature { font-size: 1.4rem; }
   .about-paragraphe, .about-paragraphe.actu-texte { font-size: 1.1rem; }
@@ -452,7 +467,7 @@
   .about-corps { flex-direction: row; align-items: center; }
   .about-visuel { flex: none; display: flex; justify-content: center; width: 180px; }
   .about-logo { width: 160px; }
-  .about-jeu-image { width: 100%; }
+  .about-jeu-media { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

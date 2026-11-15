@@ -110,7 +110,7 @@ export const TEXTES = {
       jeu: {
         titre: 'Le jeu',
         texte: 'Z-Survival est un jeu de survie zombies en vue de dessus, jouable directement dans le navigateur, sur téléphone comme sur ordinateur. Bientôt disponible.',
-        imageAlt: 'Une scène de Z-Survival : la nuit, un survivant tire devant un hélicoptère en feu.',
+        imageAlt: 'Z-Survival en jeu, vu de dessus : le survivant tire sur des zombies qui l’encerclent.',
       },
       texte: 'No Way Studio crée Z-Survival. Rejoignez la communauté sur [Discord](https://discord.gg/4bBRJNzwwB) pour suivre le développement du jeu.',
       credits: [
@@ -222,7 +222,7 @@ export const TEXTES = {
       jeu: {
         titre: 'The game',
         texte: 'Z-Survival is a top-down zombie survival game you can play right in your browser, on phone or computer. Coming soon.',
-        imageAlt: 'A scene from Z-Survival: at night, a survivor shoots in front of a burning helicopter.',
+        imageAlt: 'Z-Survival gameplay, seen from above: the survivor shoots the zombies closing in.',
       },
       texte: 'No Way Studio makes Z-Survival. Join the community on [Discord](https://discord.gg/4bBRJNzwwB) to follow the game’s development.',
       credits: [

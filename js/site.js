@@ -12,6 +12,7 @@ import { taperAccroche } from './accueil-accroche.js';
 import { construireBandeau } from './accueil-bandeau.js';
 import { ouvrirArticle, rendreActualites, slugDeLAdresse } from './actualites.js';
 import { rendreAPropos } from './a-propos.js';
+import { installerClipJeu } from './a-propos-clip.js';
 
 document.documentElement.lang = langueInitiale();
 
@@ -207,6 +208,7 @@ new IntersectionObserver(([e]) => {
   else if (e.intersectionRatio < 0.05) dansAbout = false;
 }, { root: conteneur, threshold: [0, 0.05, 0.3] }).observe(document.getElementById('about'));
 chargerLogoAnime();
+installerClipJeu({ racine: conteneur }); // lot 4b : clip du jeu dans le bloc du jeu d’À propos
 
 // ---------- Section affichée : navigation + apparition ----------
 
