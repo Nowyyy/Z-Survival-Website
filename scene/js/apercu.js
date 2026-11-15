@@ -25,6 +25,29 @@ site.addEventListener('load', () => {
   doc.documentElement.style.colorScheme = 'normal'; // un iframe en « dark » recevrait un fond opaque
 });
 
+// Coup de feu de la scène → événement « zs:tir » envoyé à l'accueil du site (js/accueil-tir.js : flash du cadre rouge), comme le fera la
+// vidéo du lot 2. On suit le temps de la boucle de la scène et on signale chaque passage de l'instant du tir.
+const sceneFrame = document.getElementById('scene');
+let avant = null;
+function suivreTir() {
+  const s = sceneFrame.contentWindow?.__scene;
+  const win = site.contentWindow;
+  if (s?.ready && typeof s.temps === 'function' && win?.document?.readyState === 'complete') {
+    const t = s.temps();
+    if (avant !== null && t !== avant) {
+      // La boucle peut repartir de 0 entre deux images (grand retour en arrière) ; un petit recul n'est pas un tour de boucle.
+      const tour = avant - t > s.duree / 2;
+      const passe = tour ? avant < s.tir || s.tir <= t : avant < s.tir && s.tir <= t;
+      // Un saut de plus d'une seconde (images perdues, premier rendu lent) n'est pas un vrai passage : pas de flash à contretemps.
+      const pas = tour ? t + s.duree - avant : t - avant;
+      if (passe && pas < 1) win.document.dispatchEvent(new win.CustomEvent('zs:tir'));
+    }
+    avant = t;
+  }
+  requestAnimationFrame(suivreTir);
+}
+requestAnimationFrame(suivreTir);
+
 const note = document.getElementById('note');
 if (q.get('capture') === '1') note.remove();
 else setTimeout(() => note.classList.add('cachee'), 4000);

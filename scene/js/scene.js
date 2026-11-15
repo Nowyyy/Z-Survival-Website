@@ -10,7 +10,7 @@ import { CADRAGES, FORMATS } from './cadrages.js';
 import { enrichirPersonnages, enrichirPoses, texturesFines } from './enrichissements.js';
 import { creerFeu } from './feu.js';
 import { creerHelico } from './helico.js';
-import { creerTir } from './tir.js';
+import { TIR, creerTir } from './tir.js';
 import { chargerDonnees, construireMonde } from './monde.js';
 import { creerKit, posable } from './persos.js';
 import { ECHELLE_SCENE, PLACEMENT, appuiAt, poseP1, poseP2, poseZombie } from './poses.js';
@@ -187,7 +187,7 @@ try {
   if (fixe === null && !capture) {
     const t0 = performance.now();
     const loop = (now) => {
-      tNow = ((now - t0) / 1000) % DUREE;
+      tNow = ((((now - t0) / 1000) % DUREE) + DUREE) % DUREE; // l'horodatage de la 1re image peut précéder t0 : jamais négatif
       dessiner(tNow);
       fps.frames += 1;
       if (now - fps.since >= 1000) {
@@ -217,6 +217,9 @@ try {
       tNow = t;
       dessiner(t);
     },
+    // Temps de la boucle de l'image affichée, et instant du coup de feu (aperçu : flash du cadre de l'accueil).
+    temps: () => tNow,
+    tir: TIR,
     fps: () => fps.value,
     atelier: { p1, p2, zb, stage, THREE },
     info: () => ({ cadrage, format, duree: DUREE, taille: [toile.width, toile.height], triangles: renderer.info.render.triangles, appels: renderer.info.render.calls }),
