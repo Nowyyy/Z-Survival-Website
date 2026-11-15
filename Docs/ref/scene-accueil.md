@@ -72,7 +72,7 @@ La scène 3D (`scene/`) ne charge rien depuis le jeu en ligne : les fichiers du 
 - Toute la scène est une **fonction du temps** t (0 à 8 s) : aucune horloge, aucun hasard, aucun état qui s'accumule.
   Chaque mouvement fait un **nombre entier de cycles par boucle** :
   respiration 2 cycles (4 s) ; appui du pied du personnage 2 : 2 cycles ; zombie qui se débat : ondes de 2, 5 et 8 cycles ;
-  griffe sur le sol : 4 coups (2 s chacun) ; bras gauche du zombie tendu vers le spectateur une fois, de 1,0 à 3,2 s ; bras tendu qui tâtonne : 2 cycles ; jambe qui gigote : 4 cycles ;
+  griffe sur le sol : 4 coups (2 s chacun) ; bras du zombie tendu vers le personnage 1 une fois, de 1,0 s jusqu'au tir du personnage 2 (2,6 s), où il retombe ; bras tendu qui tâtonne : 2 cycles ; jambe qui gigote : 4 cycles ;
   visée qui dérive : ondes de 1, 3 et 5 cycles ; vacillement des lumières : ondes de 3 à 23 cycles.
 - **Flammes et fumée** (`scene/js/feu.js`, shaders du feu du jeu) : chaque particule vit 8/k secondes (k entier : 9 à 15
   pour les flammes, 1 ou 2 pour la fumée) et naît en fondu ; son point de départ dépend de son numéro de vie modulo k.
@@ -80,6 +80,10 @@ La scène 3D (`scene/`) ne charge rien depuis le jeu en ligne : les fichiers du 
   fondus l'un dans l'autre ; au début et à la fin de la boucle, c'est le même tirage.
 - **Coup de feu du personnage 1** (retours du lot 1, `scene/js/tir.js`) : un tir par boucle à 5,2 s (recul 0,4 s, éclair 2 images,
   douille, fumée 1,4 s), terminé bien avant la fin de la boucle.
+- **Détails** (retours 14 à 18 de `Docs/lots/lot-1-retours.md`, validés ; `?details=0` : l'ancienne scène) : **coup de feu du personnage 2** à
+  2,6 s sur le zombie bras tendu (bras qui retombe, tête qui tape le sol, yeux fermés, relève de 6,5 à 7,5 s) ; coups d'œil du personnage 2
+  (4,35 à 6,6 s) et du personnage 1 (5,8 à 7,65 s) ; rotor de queue (un tour par boucle) ; tôle métal irrégulière de l'hélicoptère ; flamme des
+  lampes qui vacille ; barbe peinte et gilet noir matelassé du personnage 1 ; gilet à sangles du personnage 2.
 - Vérification : `node scene/outils/verifier-boucle.mjs` (écart entre images voisines et à la jonction 8 s → 0 s ; le coup de feu
   donne un pic d'écart, attendu).
 
@@ -92,12 +96,12 @@ La scène 3D (`scene/`) ne charge rien depuis le jeu en ligne : les fichiers du 
 - Accueil du site : vignette sombre en bas (`.accueil-scene-vignette`), logo, accroche et bouton au plus bas, juste au-dessus du cadre.
 
 ## Coup de feu et accueil
-- **`TEMPS_TIR = 5.2` s** : UNE seule constante, dans `js/accueil-boucle.js` (avec `DUREE_BOUCLE = 8`, `IMAGES_PAR_SECONDE = 30`,
-  `TEMPS_AFFICHE = 2.4`). Elle est lue par la scène (`scene/js/tir.js` : `TIR = TEMPS_TIR` ; `scene/js/boucle.js` : `DUREE = DUREE_BOUCLE`),
+- **`TEMPS_TIR = 5.2` s** (personnage 1) et **`TEMPS_TIR_P2 = 2.6` s** (personnage 2), réunis dans `TEMPS_TIRS` : constantes uniques, dans
+  `js/accueil-boucle.js` (avec `DUREE_BOUCLE = 8`, `IMAGES_PAR_SECONDE = 30`, `TEMPS_AFFICHE = 1.9`). Elle est lue par la scène (`scene/js/tir.js` : `TIR = TEMPS_TIR` ; `scene/js/boucle.js` : `DUREE = DUREE_BOUCLE`),
   par la fabrication des vidéos (`outils/video/fabriquer.mjs`) et par le site (`js/accueil-video.js`, `js/accueil-tir.js`). Module pur, sans
   DOM : Node le lit aussi.
-- Sur le site, `js/accueil-tir.js` suit le temps de la vidéo (`requestVideoFrameCallback`, sinon `currentTime`) et, une fois par tour, à
-  `TEMPS_TIR` (à une demi-image près), envoie `zs:tir` : flash du cadre rouge (220 ms) et coup de feu du jeu si le son du site est activé. Au retour au
+- Sur le site, `js/accueil-tir.js` suit le temps de la vidéo (`requestVideoFrameCallback`, sinon `currentTime`) et, une fois par tour et par
+  instant de `TEMPS_TIRS` (à une demi-image près), envoie `zs:tir` : flash du cadre rouge (220 ms) et coup de feu du jeu si le son du site est activé. Au retour au
   début de la boucle, `zs:tour` (compté ; le HUD de jeu qui s'en servait a été retiré après le lot 2b, à la demande du propriétaire). Un saut de plus d'une seconde
   (rotation, reprise) recale le suivi sans effet.
 - L'aperçu de l'atelier (`scene/apercu.html`) ouvre le site avec `?video=0` (pas de vidéo, la scène 3D en direct dessous) et envoie lui-même
@@ -112,7 +116,7 @@ La scène 3D (`scene/`) ne charge rien depuis le jeu en ligne : les fichiers du 
    de calcul ; **exactement un tour** : 240 images de 0 à 8 s − 1/30 s (la dernière n'est pas la copie de la première) ;
 3. encodage **ffmpeg** : MP4 **H.264 High 4.0**, `yuv420p`, BT.709, deux passes à 2,6 Mbit/s, une image clé toutes les 2 s, **sans piste son**,
    **faststart**, encodage déterministe ;
-4. **affiche** WebP (qualité 78) : l'image de `TEMPS_AFFICHE` = 2,4 s (bras du zombie tendu, loin de l'éclair du tir). Le site démarre la vidéo
+4. **affiche** WebP (qualité 78) : l'image de `TEMPS_AFFICHE` = 1,9 s (bras du zombie tendu, bouche ouverte, loin des éclairs des tirs). Le site démarre la vidéo
    à cet instant : le passage de l'affiche à la vidéo ne se voit pas.
 
 **Reproductible** : la scène est une fonction du temps (aucune horloge, aucun hasard) ; une nouvelle exécution redonne les mêmes images (vérifié

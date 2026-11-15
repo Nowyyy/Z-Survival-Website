@@ -281,3 +281,26 @@ les reprendront quand elles seront refaites, après validation).
   écaillures, suie et rouille. Image raccordable, répétée tous les 240 unités (au lieu de 70) et décalée pour chaque pièce : deux pièces
   voisines ne montrent pas le même morceau de tôle.
 - Vérifié : boucle parfaite avec les détails.
+
+## Dix-neuvième retour : détails validés, mis en ligne
+« C'est parfait, tu peux pousser cette version qui devrait être finale. »
+- **Détails activés par défaut** dans la scène (`scene/js/scene.js` ; `?details=0` : l'ancienne scène, pour comparer) : tous ceux des
+  retours 14 à 18.
+- **Vidéos de l'accueil refaites** (`node outils/video/fabriquer.mjs`) depuis cette scène, avec leurs affiches.
+- **Flash du cadre rouge (et coup de feu, son activé) aux deux tirs** sur le site : `TEMPS_TIRS = [TEMPS_TIR_P2, TEMPS_TIR]` (2,6 et 5,2 s,
+  `js/accueil-boucle.js`).
+- **Affiche** à 1,9 s (au lieu de 2,4 s, qui tombait 0,2 s avant le tir du personnage 2) : bras du zombie tendu, bouche ouverte. La vidéo
+  part de cet instant : le tir du personnage 2 arrive 0,7 s après.
+- **Coup d'œil du personnage 1 avancé de 0,15 s** (5,8 à 7,65 s) : il finit un peu avant la jonction ; le retour de la tête relance toujours
+  la boucle.
+- **Jonction des vidéos** : sur les images rendues, la boucle est parfaite (16:9 : jonction 0,39 pour 0,35 en moyenne entre images voisines).
+  Une fois encodée, la jonction passe forcément de la fin d'un groupe d'images compressées à une image clé (la première image), comme toutes
+  les 2 s dans la vidéo : 0,81 (16:9), alors que ces passages internes donnent déjà 0,64 à 0,70 et que le plus grand écart entre images
+  voisines n'est plus que de 0,73 (les deux tirs sont exclus du calcul). Plusieurs réglages de x264 ont été essayés (ipratio, pbratio,
+  mbtree, qcomp, sans images B) : aucun ne change ce passage sensiblement ; l'encodage reste celui du lot 2b. `verifier-accueil.mjs` admet
+  donc la jonction jusqu'à 1,25 fois le plus grand passage à une image clé interne, toujours sous 2,5 fois l'écart moyen.
+- Vérifié : `outils/video/verifier-accueil.mjs` 174/174 ; boucle parfaite en paysage et en portrait (jonctions 0,534 et 0,563) ;
+  `outils/verifier-lot-4a.mjs` 79/79 ; atelier sur la copie publiée sans erreur ; aperçu : deux flashs par tour.
+- `outils/video/fabriquer.mjs` refuse une affiche à moins de 0,6 s d'un des tirs ; `outils/video/verifier-accueil.mjs` attend les deux tirs
+  du tour (personnage 2 puis personnage 1), le retour au début, puis le premier tir du tour suivant, et exclut les deux tirs du calcul du
+  raccord.

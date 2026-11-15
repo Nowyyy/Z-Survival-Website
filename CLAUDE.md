@@ -90,14 +90,14 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   `js/article.js` : carte et article complet (site et aperçu de l'admin) ; `js/markdown.js` : Markdown sûr, liste blanche, aucun HTML ;
   `css/actualites.css` : styles des actualités ;
   `js/musique.js` : musique M2 et boutons de son à côté de chaque globe (règles : `Docs/ref/musique.md`, volume : constante `VOLUME`).
-  `js/accueil-boucle.js` : **seules valeurs de temps** de la boucle (`DUREE_BOUCLE`, **`TEMPS_TIR` = 5,2 s**, `IMAGES_PAR_SECONDE`,
-  `TEMPS_AFFICHE`), partagées par la scène, la fabrication des vidéos et le site ;
+  `js/accueil-boucle.js` : **seules valeurs de temps** de la boucle (`DUREE_BOUCLE`, **`TEMPS_TIR` = 5,2 s**, **`TEMPS_TIR_P2` = 2,6 s**,
+  `TEMPS_TIRS`, `IMAGES_PAR_SECONDE`, `TEMPS_AFFICHE`), partagées par la scène, la fabrication des vidéos et le site ;
   `js/accueil-video.js` : vidéo de l'accueil (16:9 ou 9:16 selon la forme de l'écran, affiche seule en mouvement réduit, `?video=0` pour l'atelier) ;
   `js/accueil-entree.js` : entrée en scène de l'accueil (chute du Z copiée du jeu dans `css/accueil-chute-z.css`, puis grain VHS ; 1,5 s,
   première visite de la session, `?intro=1` la force) ;
   `js/accueil-accroche.js` : accroche « radio de survie » (écriture lettre par lettre pendant l'entrée ; grésillement en CSS) ;
   `js/accueil-bandeau.js` : bandeau d'alerte qui défile en bas de l'accueil (en service ; `?bandeau=0` le cache) ;
-  `js/accueil-tir.js` : suit le temps de la vidéo et, à `TEMPS_TIR`, flash du cadre rouge et coup de feu du jeu si le son est activé (idées « catchy » suivies dans `Docs/ref/idees-accroche.md`).
+  `js/accueil-tir.js` : suit le temps de la vidéo et, à chaque instant de `TEMPS_TIRS` (tir du personnage 2 puis du personnage 1), flash du cadre rouge et coup de feu du jeu si le son est activé (idées « catchy » suivies dans `Docs/ref/idees-accroche.md`).
 - `musique/` : propositions de musique (MP3 en boucle, points de boucle dans `boucles.json` ; **M2 retenue**, règles
   d'intégration dans `Docs/ref/musique.md`) et planche d'écoute
   `planche.html` (noindex, non reliée au site) ; `outils/musique/` : script qui génère la musique (`Docs/ref/musique.md`).

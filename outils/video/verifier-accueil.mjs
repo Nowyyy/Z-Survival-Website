@@ -4,7 +4,7 @@
 // chacun avec et sans prefers-reduced-motion.
 // - la bonne vidéo selon la forme de l'écran, et le changement quand on tourne l'écran ; mouvement réduit : aucune requête vidéo ni son,
 //   affiche visible ; ni Three.js ni rien de scene/ ;
-// - tir à 5,2 s (tolérance 0,1 s) : flash du cadre (220 ms) ; retour au début repéré ; aucun double ;
+// - tirs de TEMPS_TIRS (2,6 s : personnage 2, 5,2 s : personnage 1 ; tolérance 0,1 s), chacun : flash du cadre (220 ms) ; retour au début repéré ; aucun double ;
 // - coup de feu : jamais sans le son activé, présent avec le son activé, absent onglet caché ;
 // - entrée : première visite de la session seulement, 1,5 s au plus, passable d'un clic, forcée par ?intro=1 ;
 // - encart « Disponible sur navigateur » en bas à gauche, traduit, sans chevauchement ; HUD du lot 2b retiré ; logo du studio agrandi ;
@@ -17,7 +17,13 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { servirCopiePubliee, simulerActualites } from '../copie-publiee.mjs';
-import { DUREE_BOUCLE, IMAGES_PAR_SECONDE, TEMPS_AFFICHE, TEMPS_TIR } from '../../js/accueil-boucle.js';
+import { DUREE_BOUCLE, IMAGES_PAR_SECONDE, TEMPS_AFFICHE, TEMPS_TIR, TEMPS_TIRS } from '../../js/accueil-boucle.js';
+
+// Tirs attendus en partant de l'affiche : ceux de la fin du premier tour (après TEMPS_AFFICHE), puis le premier du tour suivant.
+const TIRS_APRES_AFFICHE = TEMPS_TIRS.filter((t) => t > TEMPS_AFFICHE);
+const TIRS_ATTENDUS = [...TIRS_APRES_AFFICHE, TEMPS_TIRS[0]];
+const ORDRE_ATTENDU = [...TIRS_APRES_AFFICHE.map(() => 'tir'), 'tour', 'tir'].join(' → ');
+const fmt = (t) => String(t).replace('.', ',');
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
@@ -173,23 +179,23 @@ for (const cas of CAS) {
       // Premier tir.
       let r = await attendre(page, releve, (x) => x.some((e) => e.nom === 'tir'), 9000);
       const tir1 = r.find((e) => e.nom === 'tir');
-      verifier(Boolean(tir1) && Math.abs(tir1.temps - TEMPS_TIR) <= 0.1, `tir à ${tir1 ? tir1.temps.toFixed(3) : '?'} s (attendu ${TEMPS_TIR} s ± 0,1)`);
+      verifier(Boolean(tir1) && Math.abs(tir1.temps - TIRS_ATTENDUS[0]) <= 0.1, `tir à ${tir1 ? tir1.temps.toFixed(3) : '?'} s (attendu ${fmt(TIRS_ATTENDUS[0])} s ± 0,1)`);
       verifier(tir1?.flash && tir1.animFlash === 'cadre-tir' && tir1.dureeFlash === '0.22s', `flash du cadre au tir (animation ${tir1?.animFlash}, ${tir1?.dureeFlash})`);
       await page.screenshot({ path: join(CAPTURES, `${cas.court}-tir.png`) });
       const m0 = await musique(page);
       verifier(m0.tirsJoues === 0 && sons().length === 0, `son coupé : aucun coup de feu joué, aucun fichier son téléchargé (${m0.tirsJoues}, ${sons().length})`);
 
       if (cas.complet) {
-        // Tour suivant (retour au début repéré) ; second tir, aucun double.
-        r = await attendre(page, releve, (x) => x.filter((e) => e.nom === 'tir').length >= 2, 10000);
+        // Tous les tirs du tour (personnage 2 puis personnage 1), retour au début repéré, premier tir du tour suivant ; aucun double.
+        r = await attendre(page, releve, (x) => x.filter((e) => e.nom === 'tir').length >= TIRS_ATTENDUS.length, 11000);
         const tour = r.find((e) => e.nom === 'tour');
         verifier(Boolean(tour) && tour.temps < 0.5, `retour au début de la boucle repéré (${tour?.temps?.toFixed(3)} s)`);
         const ordre = r.map((e) => e.nom).join(' → ');
-        verifier(ordre === 'tir → tour → tir', `un seul tir par tour : ${ordre}`);
-        const tir2 = r.filter((e) => e.nom === 'tir')[1];
-        verifier(Boolean(tir2) && Math.abs(tir2.temps - TEMPS_TIR) <= 0.1 && tir2.flash, `second tir à ${tir2?.temps.toFixed(3)} s, avec flash`);
+        verifier(ordre === ORDRE_ATTENDU, `${TEMPS_TIRS.length} tirs par tour, aucun double : ${ordre}`);
+        const tirs = r.filter((e) => e.nom === 'tir');
+        tirs.forEach((x, i) => { if (i > 0) verifier(Math.abs(x.temps - TIRS_ATTENDUS[i]) <= 0.1 && x.flash, `tir suivant à ${x.temps.toFixed(3)} s (attendu ${fmt(TIRS_ATTENDUS[i])} s), avec flash`); });
         const a = await accueil(page);
-        verifier(a.tirs === 2 && a.tours === 1, `compteurs : ${a.tirs} tirs, ${a.tours} tour (suivi : ${a.suivi})`);
+        verifier(a.tirs === TIRS_ATTENDUS.length && a.tours === 1, `compteurs : ${a.tirs} tirs, ${a.tours} tour (suivi : ${a.suivi})`);
 
         // Son activé : coup de feu au tir suivant (fichier chargé à l'activation seulement).
         await page.click('.accueil-reglages [data-son]');
@@ -323,7 +329,10 @@ await navigateur.close();
 copie?.fermer();
 
 // Raccord de la boucle : sur chaque vidéo décodée (ffmpeg, 480 px de large), écart moyen entre la dernière et la première image, comparé
-// aux écarts entre images voisines (tir exclu : il donne un pic attendu).
+// aux écarts entre images voisines (tirs exclus : ils donnent un pic attendu). La première image est forcément une image clé : à la jonction,
+// on passe de la fin d'un groupe d'images compressées à une image clé, comme toutes les 2 s dans la vidéo, ce qui ajoute un écart de
+// compression (la scène, elle, boucle parfaitement : scene/outils/verifier-boucle.mjs). La jonction est donc aussi admise jusqu'à 1,25 fois
+// le plus grand écart à une image clé interne ; jamais au-delà de 2,5 fois l'écart moyen.
 if (!args['en-ligne']) {
   console.log('\nRaccord de la boucle (vidéos décodées)');
   for (const [nom, l, h] of [['accueil-16x9', 480, 270], ['accueil-9x16', 270, 480]]) {
@@ -334,8 +343,8 @@ if (!args['en-ligne']) {
     const image = (k) => brut.subarray(k * taille, (k + 1) * taille);
     const ecart = (a, b) => { let s = 0; for (let i = 0; i < a.length; i += 1) s += Math.abs(a[i] - b[i]); return s / a.length; };
     const pas = [];
-    const kTir = Math.round(TEMPS_TIR * IMAGES_PAR_SECONDE);
-    for (let k = 1; k < n; k += 1) if (k < kTir - 1 || k > kTir + 4) pas.push(ecart(image(k - 1), image(k)));
+    const kTirs = TEMPS_TIRS.map((t) => Math.round(t * IMAGES_PAR_SECONDE));
+    for (let k = 1; k < n; k += 1) if (kTirs.every((kt) => k < kt - 1 || k > kt + 4)) pas.push(ecart(image(k - 1), image(k)));
     const jonction = ecart(image(n - 1), image(0));
     const tri = [...pas].sort((a, b) => a - b);
     const moyenne = pas.reduce((a, b) => a + b, 0) / pas.length;
@@ -348,7 +357,10 @@ if (!args['en-ligne']) {
     verifier(pistes.length === 1 && pistes[0] === 'video', `${nom} : une seule piste, vidéo (aucun son)`);
     const tete = execFileSync('sh', ['-c', `head -c 4096 "${fichier}" | od -A n -c | tr -d ' \\n' | grep -o moov | head -1`], { encoding: 'utf8' }).trim();
     verifier(tete === 'moov', `${nom} : faststart (index moov en tête de fichier)`);
-    verifier(jonction <= max && jonction <= moyenne * 2.5, `${nom} : raccord ${jonction.toFixed(2)} (images voisines : moyenne ${moyenne.toFixed(2)}, max ${max.toFixed(2)})`);
+    const imagesCles = [];
+    for (let k = IMAGES_PAR_SECONDE * 2; k < n; k += IMAGES_PAR_SECONDE * 2) imagesCles.push(ecart(image(k - 1), image(k)));
+    const cle = Math.max(...imagesCles);
+    verifier(jonction <= Math.max(max, cle * 1.25) && jonction <= moyenne * 2.5, `${nom} : raccord ${jonction.toFixed(2)} (images voisines : moyenne ${moyenne.toFixed(2)}, max ${max.toFixed(2)} ; passage à une image clé : ${cle.toFixed(2)})`);
     console.log(`       ${nom}.mp4 : ${(octets / 1024 / 1024).toFixed(2)} Mo`);
   }
 }
