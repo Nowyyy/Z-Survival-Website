@@ -115,4 +115,5 @@ site : le lot 2 en fera une vidéo.
 4. **Tenues** : sable / olive pour les survivants, blouse pour le zombie — ou d'autres (skins de la V0.8 plus tard).
 
 ## État git
-- Commits `lot-1 A` à `lot-1 E`, tag `lot-1`.
+- Commits `lot-1 A` à `lot-1 E` sur la branche `lot-1` (poussée), PR vers `main` fusionnée par l'agent.
+- Tag `lot-1` créé en local ; **son push a été refusé (HTTP 403)** par l'environnement, comme celui de `lot-0`.
