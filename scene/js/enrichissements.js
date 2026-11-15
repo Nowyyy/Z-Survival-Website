@@ -234,3 +234,128 @@ export function peindreBarbe(char, rgb) {
   }
   g.setAttribute('color', new THREE.BufferAttribute(nouvelle, 3));
 }
+
+// Détails (retour du propriétaire : « une texture différente aux gilets qu'aux vêtements ») : les triangles du gilet sont sortis du corps
+// et rendus par un second maillage articulé sur le même squelette, avec sa propre texture de tissu générée en code (le corps garde la
+// texture du jeu). style : 'toile' (personnage 1 : toile de coton serrée, coutures piquées) ou 'cordura' (personnage 2 : nylon épais à
+// sangles horizontales du gilet pare-balles). shared : géométrie partagée de la tenue (kit.slotKit(...).shared.get(tenue)) ; ids : débuts
+// des identifiants des pièces du gilet ; teinte : facteur sur leur couleur.
+function textureGilet(style) {
+  const n = 256;
+  const toile = document.createElement('canvas');
+  toile.width = n;
+  toile.height = n;
+  const g = toile.getContext('2d');
+  let graine = style === 'toile' ? 7 : 19;
+  const hasard = () => { graine = (graine * 16807) % 2147483647; return graine / 2147483647; };
+  g.fillStyle = '#e6e6e6';
+  g.fillRect(0, 0, n, n);
+  // Trame : fils fins croisés, légèrement irréguliers.
+  const pas = style === 'toile' ? 3 : 4;
+  for (let i = 0; i < n; i += pas) {
+    g.fillStyle = `rgba(0,0,0,${0.05 + 0.06 * hasard()})`;
+    g.fillRect(0, i, n, 1);
+    g.fillStyle = `rgba(255,255,255,${0.04 + 0.05 * hasard()})`;
+    g.fillRect(i, 0, 1, n);
+  }
+  // Grain : petites taches claires et sombres.
+  for (let i = 0; i < 2600; i += 1) {
+    g.fillStyle = hasard() < 0.5 ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.06)';
+    g.fillRect(hasard() * n, hasard() * n, 1 + hasard() * 2, 1 + hasard() * 2);
+  }
+  const piqure = (x0, y0, x1, y1) => {
+    g.strokeStyle = 'rgba(30,24,16,0.6)';
+    g.lineWidth = 1.5;
+    g.setLineDash([5, 4]);
+    g.beginPath();
+    g.moveTo(x0, y0);
+    g.lineTo(x1, y1);
+    g.stroke();
+    g.setLineDash([]);
+  };
+  if (style === 'toile') {
+    // Panneaux matelassés : coutures piquées et léger relief entre elles.
+    for (let y = 0; y < n; y += 64) {
+      const d = g.createLinearGradient(0, y, 0, y + 64);
+      d.addColorStop(0, 'rgba(0,0,0,0.16)');
+      d.addColorStop(0.25, 'rgba(255,255,255,0.05)');
+      d.addColorStop(0.8, 'rgba(0,0,0,0)');
+      d.addColorStop(1, 'rgba(0,0,0,0.12)');
+      g.fillStyle = d;
+      g.fillRect(0, y, n, 64);
+      piqure(0, y + 3, n, y + 3);
+    }
+    piqure(n / 2, 0, n / 2, n);
+  } else {
+    // Sangles horizontales (porte-équipement), cousues par des points d'arrêt réguliers.
+    for (let y = 16; y < n; y += 64) {
+      g.fillStyle = 'rgba(0,0,0,0.28)';
+      g.fillRect(0, y, n, 22);
+      g.fillStyle = 'rgba(255,255,255,0.08)';
+      g.fillRect(0, y, n, 2);
+      g.fillStyle = 'rgba(0,0,0,0.3)';
+      g.fillRect(0, y + 22, n, 2);
+      for (let x = 0; x < n; x += 32) {
+        g.fillStyle = 'rgba(0,0,0,0.35)';
+        g.fillRect(x, y, 3, 22);
+      }
+    }
+  }
+  const tex = new THREE.CanvasTexture(toile);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.anisotropy = 4;
+  return tex;
+}
+
+export function texturerGilet(char, shared, ids, { style = 'toile', teinte = 1, tuile = 9 } = {}) {
+  const corps = char.body;
+  const g = corps.geometry;
+  if (!shared || g.index) return null;
+  const tris = [];
+  shared.triParts.forEach((pi, t) => { const id = shared.parts[pi]?.id ?? ''; if (ids.some((x) => id.startsWith(x))) tris.push(t); });
+  if (!tris.length) return null;
+  const geo = new THREE.BufferGeometry();
+  for (const nom of ['position', 'normal', 'color', 'skinIndex', 'skinWeight']) {
+    const a = g.getAttribute(nom);
+    const out = new a.array.constructor(tris.length * 3 * a.itemSize);
+    tris.forEach((t, j) => out.set(a.array.subarray(t * 3 * a.itemSize, (t + 1) * 3 * a.itemSize), j * 3 * a.itemSize));
+    if (nom === 'color') for (let i = 0; i < out.length; i += 1) out[i] *= teinte;
+    geo.setAttribute(nom, new THREE.BufferAttribute(out, a.itemSize));
+  }
+  // Coordonnées de texture planes, face par face (axe dominant de la normale), en unités du personnage : bandes horizontales sur les côtés.
+  const p = geo.attributes.position.array;
+  const nrm = geo.attributes.normal.array;
+  const uv = new Float32Array(tris.length * 3 * 2);
+  for (let j = 0; j < tris.length; j += 1) {
+    const b = j * 9;
+    const nx = Math.abs(nrm[b] + nrm[b + 3] + nrm[b + 6]);
+    const ny = Math.abs(nrm[b + 1] + nrm[b + 4] + nrm[b + 7]);
+    const nz = Math.abs(nrm[b + 2] + nrm[b + 5] + nrm[b + 8]);
+    for (let v = 0; v < 3; v += 1) {
+      const [x, y, z] = [p[b + v * 3], p[b + v * 3 + 1], p[b + v * 3 + 2]];
+      const [u, w] = ny >= nx && ny >= nz ? [x, z] : nx >= nz ? [z, y] : [x, y];
+      uv[(j * 3 + v) * 2] = u / tuile;
+      uv[(j * 3 + v) * 2 + 1] = w / tuile;
+    }
+  }
+  geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  geo.computeBoundingSphere();
+  // Le corps ne dessine plus ces triangles (ramenés à un point).
+  const pos = g.getAttribute('position').clone();
+  for (const t of tris) for (let v = 1; v < 3; v += 1) for (let c = 0; c < 3; c += 1) pos.array[(t * 3 + v) * 3 + c] = pos.array[t * 9 + c];
+  g.setAttribute('position', pos);
+  const gilet = new THREE.SkinnedMesh(geo, new THREE.MeshLambertMaterial({ map: textureGilet(style), vertexColors: true }));
+  gilet.name = 'gilet-detail';
+  gilet.bindMode = corps.bindMode;
+  gilet.position.copy(corps.position);
+  gilet.quaternion.copy(corps.quaternion);
+  gilet.scale.copy(corps.scale);
+  corps.parent.add(gilet);
+  gilet.bind(corps.skeleton, corps.bindMatrix);
+  gilet.castShadow = corps.castShadow;
+  gilet.receiveShadow = corps.receiveShadow;
+  gilet.frustumCulled = false;
+  return gilet;
+}

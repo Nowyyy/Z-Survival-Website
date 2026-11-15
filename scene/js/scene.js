@@ -7,7 +7,7 @@ import { creerAmbiance } from './ambiance.js';
 import { DUREE } from './boucle.js';
 import { brumeEnBoucle } from './brume.js';
 import { CADRAGES, FORMATS } from './cadrages.js';
-import { MILITAIRE, enrichirPersonnages, enrichirPoses, peindreBarbe, texturesFines } from './enrichissements.js';
+import { MILITAIRE, enrichirPersonnages, enrichirPoses, peindreBarbe, texturerGilet, texturesFines } from './enrichissements.js';
 import { creerFeu } from './feu.js';
 import { creerHelico } from './helico.js';
 import { TIR, TIR_P2, creerTir } from './tir.js';
@@ -77,6 +77,9 @@ try {
     const lin = (tok) => new THREE.Color().setRGB(...m.lookup(tok).map((c) => c / 255), THREE.SRGBColorSpace);
     const brun = lin('--perso-sombre').lerp(lin('--perso-cuir'), 0.25).multiplyScalar(0.7);
     peindreBarbe(p1.char, [brun.r, brun.g, brun.b]);
+    // Gilets : texture de tissu à part (toile matelassée pour le personnage 1, nylon à sangles pour le personnage 2), plus celle des vêtements.
+    texturerGilet(p1.char, kit.slotKit('joueur', 'riche').shared.get(0), ['vestA'], { style: 'toile', teinte: 0.8 });
+    if (q.get('p2') !== 'civil') texturerGilet(p2.char, kit.slotKit('joueur', MILITAIRE).shared.get(0), ['gilet'], { style: 'cordura', teinte: 1 });
   }
   const zb = posable(kit.create('zombie', 0, { outfit: 3, wear: 2 }), ECHELLE_SCENE);
   zb.char.setWound(1);
