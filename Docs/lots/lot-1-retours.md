@@ -146,3 +146,10 @@ Suite du lot 1 (`Docs/lots/lot-1.md`). Branche `lot-1-retours`, PR fusionnée pa
 ## Sixième retour : durées du clin d'œil
 - Réglages du propriétaire : l'œil gauche commence à se fermer **0,4 s avant** le coup (en 0,1 s) et commence à se rouvrir **0,4 s après**
   le coup (en 0,15 s) : `FERME = { avant: 0.4, apres: 0.4, … }` dans `scene/js/tir.js`.
+
+## Septième retour : le zombie tend le bras pour nous attraper
+- Deux fois par boucle (vers **1,6 s** et **7,0 s**, loin du coup de feu de 5,2 s), le zombie **lève son bras gauche (à droite pour
+  nous) et le tend vers le spectateur**, doigts devant, comme pour l'attraper : 0,55 s pour tendre, autant pour revenir à la main qui
+  tâtonne au sol. Il soulève un peu le haut du corps et tourne l'épaule pendant le geste (`attrapeAt(t)`, `ATTRAPE` et
+  `PLACEMENT.spectateur` dans `scene/js/poses.js`).
+- Contacts mesurés pendant le geste : le pied du personnage 2 reste posé sur le dos sans y entrer (écart de 0,09 à 0,39).

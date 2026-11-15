@@ -72,7 +72,7 @@ La scène 3D (`scene/`) ne charge rien depuis le jeu en ligne : les fichiers du 
 - Toute la scène est une **fonction du temps** t (0 à 8 s) : aucune horloge, aucun hasard, aucun état qui s'accumule.
   Chaque mouvement fait un **nombre entier de cycles par boucle** :
   respiration 2 cycles (4 s) ; appui du pied du personnage 2 : 2 cycles ; zombie qui se débat : ondes de 2, 5 et 8 cycles ;
-  griffe sur le sol : 4 coups (2 s chacun) ; bras tendu qui tâtonne : 2 cycles ; jambe qui gigote : 4 cycles ;
+  griffe sur le sol : 4 coups (2 s chacun) ; bras gauche du zombie tendu vers le spectateur à 1,6 s et 7,0 s ; bras tendu qui tâtonne : 2 cycles ; jambe qui gigote : 4 cycles ;
   visée qui dérive : ondes de 1, 3 et 5 cycles ; vacillement des lumières : ondes de 3 à 23 cycles.
 - **Flammes et fumée** (`scene/js/feu.js`, shaders du feu du jeu) : chaque particule vit 8/k secondes (k entier : 9 à 15
   pour les flammes, 1 ou 2 pour la fumée) et naît en fondu ; son point de départ dépend de son numéro de vie modulo k.

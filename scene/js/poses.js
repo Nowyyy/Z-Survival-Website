@@ -3,7 +3,7 @@
 // fonction du temps t de la boucle (js/boucle.js) : respiration, armes qui bougent un peu, appui du pied, zombie qui se débat.
 // Repère de mise en scène (groupe `stage`) : y vers le haut, +z vers la caméra, +x vers la droite de l'image ; unités du jeu (60 par mètre).
 import * as THREE from 'three';
-import { bosse, bruit, cycle, onde } from './boucle.js';
+import { DUREE, bosse, bruit, cycle, onde } from './boucle.js';
 import { V, euler, lookQuat, placeBone, pointBone, twoBone, worldPos } from './rig.js';
 import { oeilFerme, recul } from './tir.js';
 
@@ -32,8 +32,14 @@ export const PLACEMENT = {
   p1: { x: -30, z: 34, cap: 12 }, // personnage 1 : au premier plan à gauche ; cap en degrés (0 = face à la caméra, + = vers la droite de l'image)
   p1Vise: V(330, 64, 900), // point visé par le personnage 1 : au loin, à droite de la caméra
   zombie: { x: 22, z: -18, cap: -30 }, // bassin du zombie ; cap = direction de sa tête (0 : vers la caméra)
+  spectateur: V(-40, 62, 125), // point vers lequel le zombie tend le bras pour attraper (vers la caméra du cadrage B, nettement au-dessus : le bras se lève)
   p2: { dx: -12, dz: 3, cap: 28 }, // personnage 2, dans le repère du zombie : à son flanc droit, à hauteur de la taille ; cap ajouté à celui du zombie
 };
+
+// Le zombie tend le bras gauche vers le spectateur pour l'attraper, deux fois par boucle (retours du lot 1) : 0 = main au sol, 1 = bras
+// tendu. Vers 1,6 s et 7,0 s (loin du coup de feu de 5,2 s), 0,55 s pour tendre, autant pour revenir.
+export const ATTRAPE = { instants: [1.6, 7.0], demiDuree: 0.55 };
+export const attrapeAt = (t) => Math.max(...ATTRAPE.instants.map((at) => bosse(cycle(t, 1), at / DUREE, ATTRAPE.demiDuree / DUREE)));
 
 // Appui du pied du personnage 2 (0 à 1) : il appuie un peu plus deux fois par boucle ; le zombie s'enfonce d'autant.
 export const appuiAt = (t) => 0.5 + 0.5 * onde(t, 2, 0.6);
@@ -149,9 +155,11 @@ export function poseZombie(z, stage, t, appui) {
   pelvis.position.set(0, 7.6 - 0.6 * appui, 0);
   euler(pelvis, Math.PI / 2 - 0.04, 0.04 * debat, 0.05 * debat);
   euler(z.bones.get('spine'), 0.08 + 0.04 * debat, 0.06 * debat, 0);
-  euler(z.bones.get('chest'), 0.0 + 0.03 * appui + 0.025 * onde(t, 4), 0.08 * debat, 0.04 * debat);
+  const att = attrapeAt(t); // bras tendu vers le spectateur (0 à 1)
+  // Quand il tend le bras, il soulève un peu le haut du corps et tourne l'épaule vers le spectateur.
+  euler(z.bones.get('chest'), 0.0 + 0.03 * appui + 0.025 * onde(t, 4) - 0.18 * att, 0.08 * debat + 0.15 * att, 0.04 * debat - 0.14 * att);
   // La tête se relève vers l'avant, tournée vers la caméra, et secouée.
-  euler(z.bones.get('neck'), -0.85 + 0.05 * onde(t, 4, 0.2), 0.25 + 0.08 * debat, 0);
+  euler(z.bones.get('neck'), -0.85 + 0.05 * onde(t, 4, 0.2) - 0.1 * att, 0.25 + 0.08 * debat, 0);
   euler(z.bones.get('head'), -0.45 + 0.06 * onde(t, 8, 0.1), 0.2 + 0.1 * bruit(t, 9, 3), 0.1 * debat);
   z.root.updateMatrixWorld(true);
   // Jambes : allongées derrière, pointes de pied au sol, une jambe qui gigote.
@@ -166,7 +174,16 @@ export function poseZombie(z, stage, t, appui) {
   // Bras gauche tendu loin devant (main à plat qui tâtonne) ; bras droit qui griffe : la main racle le sol vers le corps (4 fois par boucle).
   const reach = onde(t, 2, 0.15);
   // Mains au-dessus du sol : poignet à 3,8, main à plat (doigts vers l'avant, paume vers le sol), coude relevé.
-  arm(z, 'L', local(z, 11, 3.8, 36 + 1.5 * reach), local(z, 20, 16, 26), dirWorld(z.root, V(0.08, -0.06, 1)), dirWorld(z.root, V(0, -1, 0)));
+  // Par moment (attrapeAt), ce bras se lève et se tend vers le spectateur, doigts devant, comme pour l'attraper.
+  const solMain = local(z, 11, 3.8, 36 + 1.5 * reach);
+  const sh = worldPos(z.bones.get('shoulderL'));
+  const versSpect = toWorld(stage, PLACEMENT.spectateur).sub(sh).normalize();
+  const tendue = sh.clone().add(versSpect.clone().multiplyScalar(20.5 * K)); // bras presque tendu (22 au plus)
+  const lisse = att * att * (3 - 2 * att);
+  const mainL = solMain.clone().lerp(tendue, lisse);
+  const coudeL = local(z, 20, 16, 26).lerp(sh.clone().add(versSpect.clone().multiplyScalar(10 * K)).add(V(0, 6 * K, 0)), lisse);
+  const doigts = dirWorld(z.root, V(0.08, -0.06, 1)).lerp(versSpect, lisse).normalize();
+  arm(z, 'L', mainL, coudeL, doigts, dirWorld(z.root, V(0, -1, 0)));
   const g = cycle(t, 4);
   // Griffe : la main avance au-dessus du sol (25 % du cycle), se pose, puis racle vers l'arrière (75 %).
   const rake = g < 0.25 ? g / 0.25 : 1 - (g - 0.25) / 0.75;
