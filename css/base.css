@@ -202,6 +202,13 @@ button { font: inherit; color: inherit; }
   backdrop-filter: blur(6px);
   transition: border-color 150ms, color 150ms;
 }
+/* Lot 4a : zone de clic d'au moins 44 × 44 px (carré invisible), même quand le globe est dessiné plus petit (en-tête, petits téléphones). */
+.langue-bouton { position: relative; }
+.langue-bouton::after {
+  content: "";
+  position: absolute;
+  inset: min(0px, calc((100% - var(--touch-target)) / 2));
+}
 .langue-bouton:hover,
 .langue-bouton[aria-expanded="true"] { border-color: var(--color-action); color: var(--color-action-text); }
 .globe-icone {
@@ -268,7 +275,7 @@ button { font: inherit; color: inherit; }
   content: "";
   position: absolute;
   inset: min(0px, calc((100% - var(--touch-target)) / 2));
-  border-radius: 999px;
+  border-radius: 0; /* lot 4a : carré invisible (un rond de 44 px ne couvre pas les coins du carré de 44 × 44) */
 }
 .discord-lien:hover { border-color: var(--color-action); color: var(--color-action-text); }
 .discord-icone { width: 22px; height: 22px; fill: currentColor; }
@@ -291,12 +298,12 @@ button { font: inherit; color: inherit; }
   backdrop-filter: blur(6px);
   transition: border-color 150ms, color 150ms, box-shadow 150ms;
 }
-/* Zone de clic d'au moins 44 × 44 px, même quand le bouton est dessiné plus petit (en-tête). */
+/* Zone de clic d'au moins 44 × 44 px, même quand le bouton est dessiné plus petit (en-tête) : carré invisible (lot 4a). */
 .son-bouton::after {
   content: "";
   position: absolute;
   inset: min(0px, calc((100% - var(--touch-target)) / 2));
-  border-radius: 999px;
+  border-radius: 0;
 }
 .son-bouton:hover { border-color: var(--color-action); color: var(--color-action-text); }
 .son-bouton[aria-pressed="true"] { border-color: var(--color-action); box-shadow: 0 0 12px var(--color-action-glow); }
