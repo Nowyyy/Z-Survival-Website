@@ -1,6 +1,6 @@
 # Administration des actualités — mode d'emploi (téléphone)
 
-Adresse : **https://www.zsurvival-game.com/admin/** (l'ancienne adresse https://nowyyy.github.io/Z-Survival-Website/admin/ y redirige)
+Adresse : **https://zsurvival-game.com/admin/** (l'ancienne adresse https://nowyyy.github.io/Z-Survival-Website/admin/ y redirige)
 (page non reliée au site et invisible pour les moteurs de recherche : ajoutez-la à vos favoris ou à l'écran d'accueil du téléphone).
 
 Ce que vous écrivez ici apparaît dans la section **Actualités** du site, en français et, si vous le voulez, en anglais.
@@ -70,7 +70,7 @@ montrent les deux versions (EN sans traduction : version française avec « (FR)
 
 ## 5. Publier
 Toucher **Publier**. L'article est enregistré puis mis en ligne : il apparaît dans la section Actualités **en une minute au
-plus** (le serveur garde la liste en mémoire 60 secondes). Pour le voir : https://www.zsurvival-game.com/#news
+plus** (le serveur garde la liste en mémoire 60 secondes). Pour le voir : https://zsurvival-game.com/#news
 
 - Modifier un article publié : changer le texte, puis **Enregistrer (reste publié)**.
 - Si le bandeau d'alerte de l'accueil est un jour mis en service, il annonce le dernier article publié.

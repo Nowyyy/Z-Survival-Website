@@ -41,3 +41,11 @@ Branche `nom-de-domaine`, depuis `main` (`9354453`, lot 3b fusionné). Référen
 3. Cocher **Enforce HTTPS** dès que la case est disponible (quelques minutes, jusqu'à 24 heures).
 4. Ouvrir https://www.zsurvival-game.com/ (accueil, actualités), https://zsurvival-game.com/ (doit mener à `www`),
    https://nowyyy.github.io/Z-Survival-Website/ (doit mener au domaine) et https://www.zsurvival-game.com/admin/ (connexion).
+
+## Suite (15/11/2026) : adresse principale sans `www`
+- Le domaine a été déclaré en `www.zsurvival-game.com`, le certificat HTTPS est arrivé et le site fonctionnait (constaté par le propriétaire).
+- À la demande du propriétaire, l'adresse principale devient **https://zsurvival-game.com/** (branche `domaine-sans-www`) :
+  `ORIGINES_SITE` = domaine sans `www` + `www` + `nowyyy.github.io` ; `ADRESSE_SITE` = `https://zsurvival-game.com/` ; tests 47/47 ;
+  documentation mise à jour. Zone DNS inchangée.
+- Étape du propriétaire après le déploiement du serveur : Settings → Pages → *Custom domain* = `zsurvival-game.com` → Save, puis
+  Enforce HTTPS dès que possible (nouveau certificat).

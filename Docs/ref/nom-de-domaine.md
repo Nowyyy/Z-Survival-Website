@@ -1,6 +1,7 @@
 # Nom de domaine du site — zsurvival-game.com
 
-- Adresse du site : **https://www.zsurvival-game.com/**, toujours servi par **GitHub Pages** (workflow `pages.yml`, inchangé).
+- Adresse du site : **https://zsurvival-game.com/** (sans `www`, choix du propriétaire le 15/11/2026 ; `www.zsurvival-game.com`
+  y redirige), toujours servi par **GitHub Pages** (workflow `pages.yml`, inchangé).
 - Domaine acheté chez **OVH** (compte particulier, novembre 2026, renouvellement automatique activé). Zone DNS gérée par OVH
   (« serveurs DNS par défaut »).
 - Boîte mail du studio sur le même domaine (Zimbra Starter, incluse avec le domaine) : ses lignes DNS ne doivent jamais être touchées.
@@ -10,9 +11,9 @@
 ## Comment c'est branché
 
 ```
- www.zsurvival-game.com ──CNAME──▶ nowyyy.github.io ──▶ GitHub Pages ──▶ site du dépôt Nowyyy/Z-Survival-Website
- zsurvival-game.com ──A/AAAA (GitHub Pages)──▶ GitHub redirige vers https://www.zsurvival-game.com/
- nowyyy.github.io/Z-Survival-Website/… ──▶ GitHub redirige vers https://www.zsurvival-game.com/…
+ zsurvival-game.com ──A/AAAA (GitHub Pages)──▶ GitHub Pages ──▶ site du dépôt Nowyyy/Z-Survival-Website
+ www.zsurvival-game.com ──CNAME──▶ nowyyy.github.io ──▶ GitHub redirige vers https://zsurvival-game.com/
+ nowyyy.github.io/Z-Survival-Website/… ──▶ GitHub redirige vers https://zsurvival-game.com/…
 ```
 
 1. **Domaine vérifié chez GitHub** (réglages du compte Nowyyy → Pages → Verified domains) : personne d'autre ne peut l'utiliser
@@ -36,21 +37,24 @@
    **À ne jamais toucher** : `@` NS (serveurs DNS d'OVH), `@` MX, `@` SPF, `ovhmo-selector-1/2._domainkey` (DKIM),
    `_autodiscover._tcp` (SRV) : la boîte mail.
    Lignes d'OVH retirées (page d'attente de l'hébergement OVH, non utilisé) : `@` A et TXT, `www` A et TXT, `ftp` CNAME.
-3. **Réglages Pages du dépôt** (Settings → Pages) : *Custom domain* = `www.zsurvival-game.com`, **Enforce HTTPS** coché.
+3. **Réglages Pages du dépôt** (Settings → Pages) : *Custom domain* = `zsurvival-game.com` (sans `www`), **Enforce HTTPS** coché.
+   Les lignes A/AAAA servent le site ; le CNAME `www` reste nécessaire pour que GitHub redirige `www` vers le domaine sans `www`.
+   (GitHub conseille plutôt `www` en adresse principale, plus souple si ses adresses changeaient ; les deux marchent.)
    Avec le déploiement par GitHub Actions, aucun fichier `CNAME` n'est nécessaire dans le dépôt : le domaine est gardé dans ces réglages.
    Certificat HTTPS fourni et renouvelé automatiquement par GitHub (Let's Encrypt).
 
 ## Ce qui en dépend dans le code
 - **Site** : rien. Tous les chemins sont relatifs (règle de `CLAUDE.md`) : le site marche à la racine du domaine comme sous
   `/Z-Survival-Website/` (copies de vérification des outils, ancienne adresse).
-- **Serveur** (`serveur/src/app.js`) : `ORIGINES_SITE` (CORS) contient `https://www.zsurvival-game.com` et, pendant la transition,
-  `https://nowyyy.github.io` ; `ADRESSE_SITE` (adresse publique des images envoyées) = `https://www.zsurvival-game.com/`.
-  Le domaine nu `https://zsurvival-game.com` n'est pas autorisé : GitHub le redirige vers `www` avant que la page ne s'exécute.
+- **Serveur** (`serveur/src/app.js`) : `ORIGINES_SITE` (CORS) contient `https://zsurvival-game.com` et, pendant la transition,
+  `https://www.zsurvival-game.com` (ancienne adresse principale) et `https://nowyyy.github.io` ; `ADRESSE_SITE` (adresse publique
+  des images envoyées) = `https://zsurvival-game.com/`.
 - **Page admin** : sa règle de sécurité (CSP) n'autorise que l'adresse du serveur (`js/config.js`), qui ne change pas.
 - Les choix gardés par les visiteurs (langue, musique : `localStorage`) dépendent de l'adresse : chacun les refait une fois.
 
 ## Plus tard
-- Retirer `https://nowyyy.github.io` de `ORIGINES_SITE` quand plus personne n'utilise l'ancienne adresse (elle redirige de toute façon).
+- Retirer `https://www.zsurvival-game.com` et `https://nowyyy.github.io` de `ORIGINES_SITE` quand plus personne ne les utilise
+  (elles redirigent de toute façon).
 - Serveur sur `api.zsurvival-game.com` : facultatif. Il permettrait un cookie `HttpOnly` pour la connexion admin au lieu du jeton.
   Le branchement direct d'un domaine sur Cloud Run n'est, à notre connaissance, pas proposé en `europe-west3` : passer alors par
   Firebase Hosting ou Cloudflare (gratuits), pas par un équilibreur de charge Google (environ 18 € par mois).

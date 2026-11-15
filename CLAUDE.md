@@ -2,7 +2,7 @@
 
 Site vitrine du jeu **Z-Survival** (jeu web de survie zombies en Three.js, vue de dessus,
 publié sur https://nowyyy.github.io/Z-Survival/).
-Adresse du site : **https://www.zsurvival-game.com/** (GitHub Pages, domaine chez OVH ; réglages et zone DNS :
+Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; GitHub Pages, domaine chez OVH ; réglages et zone DNS :
 `Docs/ref/nom-de-domaine.md`). L'ancienne adresse https://nowyyy.github.io/Z-Survival-Website/ y redirige.
 
 ## Fonctionnement par lots
