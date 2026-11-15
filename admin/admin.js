@@ -841,9 +841,21 @@ function remplirFormulairePage(p) {
   $('page_contenu_en').value = p.contenu_en ?? '';
 }
 function pageModifiee() { return !ecrans.page.hidden && JSON.stringify(lireFormulairePage()) !== referencePage; }
+// Le titre de la page est la ligne sous le logo du studio (par défaut « Un jeu de No Way Studio ») ; le grand titre
+// « À propos » de la section reste fixe.
 const texteParDefaut = () => ({
-  titre_fr: TEXTES.fr.sections.about, titre_en: TEXTES.en.sections.about, contenu_fr: TEXTES.fr.about.texte, contenu_en: TEXTES.en.about.texte,
+  titre_fr: TEXTES.fr.studio.signature, titre_en: TEXTES.en.studio.signature, contenu_fr: TEXTES.fr.about.texte, contenu_en: TEXTES.en.about.texte,
 });
+// Un enregistrement fait quand le titre désignait le grand titre de la section (« À propos » / « About us ») : le site affiche la
+// signature par défaut (js/a-propos.js), le formulaire aussi.
+const ANCIENS_TITRES = new Set([TEXTES.fr.sections.about, TEXTES.en.sections.about]);
+function corrigerAncienTitre(p) {
+  if (!p) return p;
+  const c = { ...p };
+  if (ANCIENS_TITRES.has(c.titre_fr)) c.titre_fr = TEXTES.fr.studio.signature;
+  if (ANCIENS_TITRES.has(c.titre_en)) c.titre_en = TEXTES.en.studio.signature;
+  return c;
+}
 
 function majStatutPage() {
   const s = $('page-statut');
@@ -876,7 +888,7 @@ async function ouvrirPage({ formulaire = null } = {}) {
     if (!(err instanceof ErreurSession)) annoncer(messageErreur(err), { type: 'erreur', duree: 0 });
     throw err;
   }
-  remplirFormulairePage(pageEnregistree ?? texteParDefaut());
+  remplirFormulairePage(corrigerAncienTitre(pageEnregistree) ?? texteParDefaut());
   erreurDans('erreur-page', null);
   choisirOngletPage('fr');
   montrerEcran('page');
@@ -896,6 +908,7 @@ $('page-enregistrer').addEventListener('click', async () => {
   const f = lireFormulairePage();
   let probleme = null;
   if (!f.titre_fr) probleme = ['Le titre français est obligatoire.', 'page_titre_fr', 'fr'];
+  else if (ANCIENS_TITRES.has(f.titre_fr)) probleme = ['Ce titre est celui de la section (fixe) : écrivez la ligne qui s’affiche sous le logo.', 'page_titre_fr', 'fr'];
   else if (!f.contenu_fr.trim()) probleme = ['Le texte français est obligatoire.', 'page_contenu_fr', 'fr'];
   else if (f.contenu_en.trim() && !f.titre_en) probleme = ['Texte anglais sans titre anglais : ajoutez le titre anglais (sinon le texte anglais ne sera pas affiché).', 'page_titre_en', 'en'];
   if (probleme) {
@@ -927,8 +940,8 @@ function rendreApercuPage() {
   const traduit = Boolean(f[`titre_${lang}`]);
   const titre = traduit ? f[`titre_${lang}`] : f.titre_fr;
   const contenu = (traduit ? f[`contenu_${lang}`] : '') || f.contenu_fr;
-  $('apercu-page-titre').textContent = titre || TEXTES[lang].sections.about;
-  $('apercu-page-signature').textContent = TEXTES[lang].studio.signature;
+  $('apercu-page-titre').textContent = TEXTES[lang].sections.about;
+  $('apercu-page-signature').textContent = (titre && !ANCIENS_TITRES.has(titre)) ? titre : TEXTES[lang].studio.signature;
   const zone = $('apercu-page-texte');
   const fragment = document.createDocumentFragment();
   if (!traduit && lang !== 'fr') {
