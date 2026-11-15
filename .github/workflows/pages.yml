@@ -27,10 +27,11 @@ jobs:
       - name: Récupérer le code
         uses: actions/checkout@v4
 
+      # musique/ : planche d'écoute du lot 1b (noindex, non reliée au site) et fichiers de musique.
       - name: Préparer le site (fichiers statiques, sans build)
         run: |
           mkdir -p _site
-          cp -r index.html main.html css js fonts img .nojekyll _site/
+          cp -r index.html main.html css js fonts img musique .nojekyll _site/
 
       - name: Configurer Pages
         uses: actions/configure-pages@v5

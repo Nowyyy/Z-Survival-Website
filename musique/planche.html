@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Planche d'écoute — musique</title>
+  <meta name="theme-color" content="#050505">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" type="image/png" sizes="48x48" href="../img/icone-48.png">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="planche.css">
+  <script type="module" src="planche.js"></script>
+</head>
+<body>
+  <!-- Page de travail du lot 1b, non reliée au site : textes dans planche.js. -->
+  <main class="planche">
+    <header class="planche-entete">
+      <p class="planche-surtitre" data-texte="surtitre"></p>
+      <h1 class="planche-titre" data-texte="titre"></h1>
+      <p class="marque-provisoire" data-texte="provisoire"></p>
+      <p class="planche-intro" data-texte="intro"></p>
+      <ul class="planche-conseils" data-liste="conseils"></ul>
+    </header>
+    <div class="planche-morceaux" id="morceaux" aria-live="off"></div>
+    <p class="planche-erreur" id="erreur" role="alert" hidden></p>
+    <footer class="planche-pied">
+      <p data-texte="pied"></p>
+    </footer>
+  </main>
+</body>
+</html>
