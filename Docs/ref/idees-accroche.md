@@ -10,7 +10,7 @@ Toutes respectent « réduire les animations » et restent légères (HTML, CSS,
 | 2 | **Entrée en scène** : grain VHS qui se dissipe sur l'image animée, chute du Z (écran de chargement du jeu), coulures. | **Fait** (lot 2b : 1,5 s, première visite de la session, passable) |
 | 3 | Parallaxe : l'image animée bouge légèrement avec la souris ou l'inclinaison du téléphone. | Écartée (choix du propriétaire) |
 | 4 | **Accroche « radio de survie »** : elle s'écrit lettre par lettre (lettre brouillée puis la vraie) et grésille de temps en temps. | **Fait** |
-| 5 | **Bandeau d'alerte** qui défile en bas (flash d'urgence ; peut annoncer les actualités). | **À l'essai** : visible seulement avec `?bandeau=1` |
+| 5 | **Bandeau d'alerte** qui défile en bas (flash d'urgence ; annonce le dernier article). | **Fait, en service** (`?bandeau=0` le cache) |
 | 6 | Bouton « En savoir plus » vivant au survol (coup de pinceau, coulure de sang). | **Fait** (lot 2b) |
 | 7 | Curseur viseur sur ordinateur, au-dessus de l'accueil. | À faire |
 
@@ -73,10 +73,9 @@ Toutes respectent « réduire les animations » et restent légères (HTML, CSS,
     l'ancienne page du site puis la remplaçait, et la nouvelle page arrivait sans la feuille transparente (écran noir) ;
   - la feuille qui rend le fond de l'accueil transparent est ajoutée à chaque nouvelle page du site, avant son premier affichage.
 
-## 5 — Bandeau d'alerte (à l'essai)
-- **Pas encore sur le site public** : le propriétaire n'est pas sûr de le garder. Il ne s'affiche qu'avec `?bandeau=1` dans l'adresse :
-  https://nowyyy.github.io/Z-Survival-Website/scene/apercu.html?bandeau=1 (sur la scène 3D) ou
-  https://nowyyy.github.io/Z-Survival-Website/?bandeau=1 (le site seul). Sans ce paramètre, rien ne change.
+## 5 — Bandeau d'alerte (en service)
+- **En service sur le site public** (décision du propriétaire, après essai avec `?bandeau=1`). `?bandeau=0` dans l'adresse le cache, pour
+  comparer. Messages par défaut de `contenus/bandeau.json` ; le lot 3b met le titre du dernier article publié en tête, avec un lien.
 - **Aspect** : collé au bas du cadre rouge, à l'intérieur ; étiquette « Alerte » rouge avec un voyant qui clignote ; messages qui
   défilent de droite à gauche (environ 70 px par seconde), séparés par un losange rouge ; le défilement s'arrête au survol. Le logo,
   l'accroche et le bouton remontent de la hauteur du bandeau. Pendant l'entrée en scène, il glisse en place à 1,7 s.
@@ -85,9 +84,9 @@ Toutes respectent « réduire les animations » et restent légères (HTML, CSS,
   Puis : flèche remontée de 2 px (elle rebondissait trop près du bandeau) et logo « Z-Survival » descendu de 10 px, puis 18, puis 24 px, plus
   près de l'accroche (les coulures du Z, à gauche, descendent au niveau de l'accroche sans la toucher).
 - **Code** : `js/accueil-bandeau.js` (activation par le paramètre, remplissage) ; `css/accueil.css` (« Bandeau d'alerte ») ;
-  bloc `.accueil-bandeau` dans `index.html` (caché par défaut). L'aperçu transmet `?bandeau=1` au site.
+  bloc `.accueil-bandeau` dans `index.html`. L'aperçu transmet `?bandeau=` au site.
 - **Messages** : dans `contenus/bandeau.json` (français et anglais), modifiables sans toucher au code, et plus tard par l'interface
   d'administration (`Docs/ref/contenus.md`). L'étiquette « Alerte » reste dans `js/textes.js`.
 - Lecteurs d'écran : la liste est lue une fois (la copie qui sert à boucler est cachée). Mouvement réduit : pas de défilement.
-- **Pour le garder** : retirer la condition `?bandeau=1` (`BANDEAU_ACTIF` dans `js/accueil-bandeau.js`). **Pour l'abandonner** : retirer
+- **Pour l'abandonner** : retirer
   le bloc de `index.html`, le module, ses styles et ses textes.
