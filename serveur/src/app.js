@@ -18,11 +18,11 @@ import {
   supprimerSurGithub,
 } from './images.js';
 
-// Origines autorisées (CORS) : le site sur son nom de domaine, et l'ancienne adresse GitHub Pages, gardée pendant la transition
-// (GitHub redirige nowyyy.github.io/Z-Survival-Website/ vers le domaine ; voir Docs/ref/nom-de-domaine.md).
-// www.zsurvival-game.com (adresse principale jusqu'au 15/11/2026, redirige maintenant vers le domaine sans www) est gardée aussi.
+// Origine autorisée (CORS) : le site sur son nom de domaine, et elle seule. www.zsurvival-game.com et l'ancienne adresse
+// nowyyy.github.io/Z-Survival-Website/ redirigent vers le domaine avant que la page ne s'exécute : elles n'appellent jamais
+// le serveur (Docs/ref/nom-de-domaine.md).
 export const ORIGINE_SITE = 'https://zsurvival-game.com';
-export const ORIGINES_SITE = Object.freeze([ORIGINE_SITE, 'https://www.zsurvival-game.com', 'https://nowyyy.github.io']);
+export const ORIGINES_SITE = Object.freeze([ORIGINE_SITE]);
 const MOTIF_ORIGINE_LOCALE = /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d{1,5})?$/;
 const MESSAGE_ECHEC = 'Identifiant ou mot de passe incorrect.';
 const PAR_PAGE_PUBLIC = 10;

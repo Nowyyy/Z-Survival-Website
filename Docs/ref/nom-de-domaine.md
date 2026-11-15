@@ -46,15 +46,13 @@
 ## Ce qui en dépend dans le code
 - **Site** : rien. Tous les chemins sont relatifs (règle de `CLAUDE.md`) : le site marche à la racine du domaine comme sous
   `/Z-Survival-Website/` (copies de vérification des outils, ancienne adresse).
-- **Serveur** (`serveur/src/app.js`) : `ORIGINES_SITE` (CORS) contient `https://zsurvival-game.com` et, pendant la transition,
-  `https://www.zsurvival-game.com` (ancienne adresse principale) et `https://nowyyy.github.io` ; `ADRESSE_SITE` (adresse publique
-  des images envoyées) = `https://zsurvival-game.com/`.
+- **Serveur** (`serveur/src/app.js`) : `ORIGINES_SITE` (CORS) = `https://zsurvival-game.com` **seulement** (depuis le 15/11/2026 :
+  `www` et `nowyyy.github.io` redirigent avant que la page ne s'exécute, elles n'appellent jamais le serveur) ; `ADRESSE_SITE`
+  (adresse publique des images envoyées) = `https://zsurvival-game.com/`.
 - **Page admin** : sa règle de sécurité (CSP) n'autorise que l'adresse du serveur (`js/config.js`), qui ne change pas.
 - Les choix gardés par les visiteurs (langue, musique : `localStorage`) dépendent de l'adresse : chacun les refait une fois.
 
 ## Plus tard
-- Retirer `https://www.zsurvival-game.com` et `https://nowyyy.github.io` de `ORIGINES_SITE` quand plus personne ne les utilise
-  (elles redirigent de toute façon).
 - Serveur sur `api.zsurvival-game.com` : facultatif. Il permettrait un cookie `HttpOnly` pour la connexion admin au lieu du jeton.
   Le branchement direct d'un domaine sur Cloud Run n'est, à notre connaissance, pas proposé en `europe-west3` : passer alors par
   Firebase Hosting ou Cloudflare (gratuits), pas par un équilibreur de charge Google (environ 18 € par mois).
@@ -63,5 +61,6 @@
 - **« Domain's DNS record could not be retrieved » / « improperly configured »** dans Settings → Pages : la zone DNS met jusqu'à
   24 heures à se propager. Vérifier les lignes ci-dessus, puis cliquer **Check again**.
 - **« Enforce HTTPS » grisé** : le certificat n'est pas encore prêt (quelques minutes, jusqu'à 24 heures). Revenir plus tard.
-- **Revenir en arrière** : Settings → Pages → *Custom domain* → **Remove**. Le site revient sur https://nowyyy.github.io/Z-Survival-Website/
-  (le serveur accepte toujours cette origine).
+- **Revenir en arrière** : Settings → Pages → *Custom domain* → **Remove**. Le site revient sur https://nowyyy.github.io/Z-Survival-Website/,
+  mais **ajouter d'abord** `https://nowyyy.github.io` à `ORIGINES_SITE` (et déployer le serveur), sinon les actualités et l'admin
+  seraient refusés par le serveur.
