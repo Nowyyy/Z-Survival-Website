@@ -99,6 +99,25 @@ du jeu avec le perso qui tire sur des zombies, une petite boucle de 5-10 s pas p
   - plus aucune image éteinte : la luminosité ne descend jamais sous 90 % de ses voisines (le creux restant est le vacillement normal de la
     lampe murale du jeu, progressif).
 
+## Second retour (15/11/2026, branche `lot-4b-retours-2`) : visée et déplacement d'un vrai joueur
+Retour : « la visée doit mimer des mouvements de souris : rapide mais pas toujours précise ; là, le personnage vise de manière aléatoire en se
+déplaçant de manière aléatoire ». Le huit, le tremblement continu et le regard dans le sens de la marche sont retirés. Le survivant est
+maintenant piloté comme par un joueur au clavier et à la souris :
+- **Clavier (8 directions, pleine vitesse)** : appuis d'au moins 0,2 s. Il **recule** quand un zombie s'approche à moins de 120 unités et
+  **reste immobile pour tirer** le reste du temps. Il ne sort pas de la zone dégagée autour de son point de départ (coincé, il esquive sur
+  le côté) et **revient à son point de départ** dans les 2 dernières secondes, ce qui garde la boucle propre.
+- **Souris** :
+  - après chaque zombie abattu, **temps de réaction** de 0,13 à 0,23 s, souris immobile ;
+  - puis un **geste rapide**, balistique (0,13 à 0,23 s, vitesse en cloche), qui **dépasse le plus souvent la cible** (6 à 18 % de l'angle
+    parcouru), ou s'arrête un peu avant (3 fois sur 10), avec une petite erreur ;
+  - une **courte correction**, puis un **suivi** du zombie avec un léger retard, et un nouveau geste s'il décroche ;
+  - sans cible, la souris ne bouge pas.
+  Exemple mesuré : visée à 39°, puis 86°, 126°, 148° et 153° (le geste dépasse le zombie), puis retour à 147°, 131° et 125°.
+- Résultat : **9 zombies tués** en 8 s, survivant indemne ; clip de **333 Kio**, affiche de 13 Kio ; aucune image éteinte à réparer cette fois
+  (la caméra bouge moins souvent).
+- Vérifications : `outils/verifier-lot-4b.mjs` **26/26** ; raccord de la boucle 1,86, plus doux qu'un passage d'image ordinaire du clip
+  (médiane 3,25), parce que le survivant est revenu à son point de départ.
+
 ## État git
 - Commits `lot-4b A` à `lot-4b C` sur la branche `lot-4b`, PR vers `main` fusionnée par l'agent (règle de `CLAUDE.md`).
 - Tag `lot-4b` créé en local ; son envoi sur GitHub est refusé par l'environnement de l'agent, comme pour les lots précédents.
