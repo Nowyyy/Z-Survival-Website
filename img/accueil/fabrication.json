@@ -36,16 +36,16 @@
   },
   "fichiers": {
     "accueil-16x9.mp4": {
-      "octets": 2582265,
-      "sha256": "9de3f8f52255f1d6f73ebaaeb456e9edef9dc72fee4569c229498cb285d7602d"
+      "octets": 2583562,
+      "sha256": "a858fb709bda3b0471d1101a56a3ff2dde0fda483274b4a12cc9cf647bc8df50"
     },
     "accueil-16x9.webp": {
       "octets": 45006,
       "sha256": "c9e39a2ba478f53e72a73c8ff767781264fd9fc3d6590dd7a93e70eb941d802e"
     },
     "accueil-9x16.mp4": {
-      "octets": 2598690,
-      "sha256": "2c2184dbdf28d3af3e0bd1d40b86c3325028a5341da52cafa37e968275f7982e"
+      "octets": 2602129,
+      "sha256": "e1012a0596c7eab048524b92669573b70ca8212d19b32e2965710cda1f4bde87"
     },
     "accueil-9x16.webp": {
       "octets": 38236,
