@@ -88,6 +88,7 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
 
 ## Ce qui est en place aujourd'hui
 - Accueil : vidéo en boucle, tir, entrée VHS, musique M2 au clic, encart « Disponible sur navigateur ».
+- **Lien Discord** (logo) entre « Bientôt disponible » et le bouton de son, sur l'accueil et dans l'en-tête (PR après #53).
 - Actualités : gérées depuis l'admin, avec images.
 - Personnages et Armes : **encore provisoires**, sous l'encart « Prochainement ».
 - À propos : ligne sous le logo et texte modifiables depuis l'admin ; logo animé, crédits, pied de page fixes.

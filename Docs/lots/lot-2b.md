@@ -207,6 +207,15 @@ Vérifications :
   est vérifié comme avant.
 - `outils/musique/verifier-site.mjs` : **158/158**, dont la rangée du haut de l'accueil sans chevauchement de 320 à 1440 px avec le logo agrandi.
 
+## Ajout (15/11/2026, branche `discord`) : lien Discord
+- **Logo Discord** (dessiné en SVG, `currentColor`) entre « Bientôt disponible » et le bouton de son, **sur l'accueil et dans l'en-tête** ;
+  lien vers https://discord.gg/4bBRJNzwwB, nouvel onglet (`rel="noopener noreferrer"`), nom accessible traduit (`commun.discord` :
+  « Rejoindre le Discord de Z-Survival (nouvel onglet) » / « Join the Z-Survival Discord (opens in a new tab) »).
+- Même allure que le bouton de son (pastille sombre, contour os, survol rouge), zone de toucher de 44 px.
+- Pour faire la place sur téléphone : « Bientôt disponible » passe sur deux lignes **jusqu'à 420 px** (avant : 360 px) ; à 340 px et
+  moins, boutons ronds un peu plus petits (accueil 40 px, en-tête 34 px, zone de toucher gardée) et coin de l'accueil décalé de 6 px.
+- `outils/musique/verifier-site.mjs` compte maintenant le lien Discord dans les contrôles de chevauchement (en-tête et accueil). Vérifications : `verifier-site.mjs` 158/158, `verifier-accueil.mjs` 172/172, `verifier-actus.mjs` 236/236 ; aucun chevauchement de 320 à 1440 px, en français et en anglais.
+
 ## État git
 - Commits `lot-2b A` à `lot-2b E` sur la branche `lot-2b`, PR vers `main` fusionnée par l'agent (règle de `CLAUDE.md`).
 - Tag `lot-2b` créé en local ; push du tag refusé (403) par l'environnement.

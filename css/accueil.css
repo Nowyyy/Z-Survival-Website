@@ -276,6 +276,14 @@
   .langue-accueil .langue-code { display: none; }
 }
 
+/* Très petits téléphones (340 px et moins) : avec le lien Discord, les boutons ronds du coin passent à 40 px (le logo du studio
+   garde sa taille ; le son et Discord gardent une zone de toucher de 44 px). */
+@media (max-width: 340px) {
+  .accueil-reglages { gap: 4px; right: 20px; }
+  .accueil-reglages .son-bouton, .accueil-reglages .discord-lien { width: 40px; height: 40px; }
+  .langue-accueil .langue-bouton { min-width: 40px; min-height: 40px; }
+}
+
 /* ---------- Logo, sous-titre, « En savoir plus » ---------- */
 .accueil-contenu {
   display: flex;

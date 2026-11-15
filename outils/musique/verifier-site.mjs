@@ -93,7 +93,8 @@ async function zoneDeClic(page, selecteur) {
   }, selecteur);
 }
 // Rangée du haut de l'accueil (logo du studio, « Bientôt disponible », son, globe ; la mention provisoire est retirée au lot 2b) : aucun rectangle ne se recoupe.
-const RANGEE_ACCUEIL = ['.accueil-studio', '.accueil-reglages .bouton-bientot', '.accueil-reglages [data-son]', '.langue-accueil .langue-bouton'];
+// Lien Discord (ajouté après le lot 3b) compris dans les rangées vérifiées.
+const RANGEE_ACCUEIL = ['.accueil-studio', '.accueil-reglages .bouton-bientot', '.accueil-reglages .discord-lien', '.accueil-reglages [data-son]', '.langue-accueil .langue-bouton'];
 function chevauchements(page, selecteurs) {
   return page.evaluate((sels) => {
     const r = sels.map((s) => document.querySelector(s).getBoundingClientRect());
@@ -229,7 +230,7 @@ for (const [k, cas] of CAS.entries()) {
 
   // En-tête sans chevauchement.
   const chevauchement = await page.evaluate(() => {
-    const els = ['.entete-logo', '.bouton-bientot', '.entete [data-son]', '.langue-entete .langue-bouton'].map((s) => document.querySelector(s).getBoundingClientRect());
+    const els = ['.entete-logo', '.entete .bouton-bientot', '.entete .discord-lien', '.entete [data-son]', '.langue-entete .langue-bouton'].map((s) => document.querySelector(s).getBoundingClientRect());
     const largeur = document.documentElement.clientWidth;
     for (let i = 0; i < els.length; i += 1) {
       if (els[i].right > largeur + 0.5 || els[i].left < -0.5) return `élément ${i} hors de l’écran`;
@@ -304,7 +305,7 @@ for (const largeur of [414, 600, 900, 1024]) {
   const { contexte, page, journal } = await ouvrir({ viewport: { width: 320, height: 568 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2, locale: 'fr-FR' });
   await allerA(page, 'news');
   const r = await page.evaluate(() => {
-    const els = ['.entete-logo', '.bouton-bientot', '.entete [data-son]', '.langue-entete .langue-bouton'].map((s) => document.querySelector(s).getBoundingClientRect());
+    const els = ['.entete-logo', '.entete .bouton-bientot', '.entete .discord-lien', '.entete [data-son]', '.langue-entete .langue-bouton'].map((s) => document.querySelector(s).getBoundingClientRect());
     for (let i = 0; i < els.length; i += 1) {
       if (els[i].right > document.documentElement.clientWidth + 0.5) return `élément ${i} hors de l’écran`;
       for (let j = i + 1; j < els.length; j += 1) if (els[i].right > els[j].left + 0.5 && els[j].right > els[i].left + 0.5) return `éléments ${i} et ${j}`;
