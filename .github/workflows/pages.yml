@@ -27,10 +27,11 @@ jobs:
       - name: Récupérer le code
         uses: actions/checkout@v4
 
+      # musique/ : planche d'écoute du lot 1b (noindex, non reliée au site) et fichiers de musique.
       - name: Préparer le site (fichiers statiques, sans build)
         run: |
           mkdir -p _site
-          cp -r index.html main.html css js fonts img scene .nojekyll _site/
+          cp -r index.html main.html css js fonts img musique scene .nojekyll _site/
           # scene/ : atelier de la scène 3D de l'accueil (lot 1) ; pages en noindex, non reliées au site.
           # Les outils de capture (scene/outils/, Node + Playwright) ne sont pas publiés.
           rm -rf _site/scene/outils

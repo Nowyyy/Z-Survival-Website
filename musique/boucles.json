@@ -1,0 +1,42 @@
+{
+  "_note": "Généré par outils/musique/generer.mjs (lot 1b). Lecture sans blanc : Web Audio, AudioBufferSourceNode.loop = true, loopStart = debutBoucle, loopEnd = finBoucle (secondes). Chaque fichier a 1 s de marge avant et après la boucle (contenu identique à la fin et au début de la boucle).",
+  "morceaux": {
+    "M1": {
+      "fichier": "M1.mp3",
+      "nom": "M1 — Variation du menu",
+      "description": "Mêmes timbres, même tonalité (mi mineur) et même tempo (96) que la musique du menu du jeu, avec de nouveaux motifs et une mélodie de cloche.",
+      "debutBoucle": 1,
+      "finBoucle": 91,
+      "dureeBoucle": 90,
+      "dureeFichier": 92,
+      "bpm": 96,
+      "mesures": 36,
+      "octets": 1473065
+    },
+    "M2": {
+      "fichier": "M2.mp3",
+      "nom": "M2 — Ambiante",
+      "description": "Version plus lente (60) et discrète, pensée comme fond sonore de navigation : nappes, cloches lointaines, battement de cœur sourd.",
+      "debutBoucle": 1,
+      "finBoucle": 97,
+      "dureeBoucle": 96,
+      "dureeFichier": 98,
+      "bpm": 60,
+      "mesures": 24,
+      "octets": 1569186,
+      "retenu": true
+    },
+    "M3": {
+      "fichier": "M3.mp3",
+      "nom": "M3 — Tension",
+      "description": "Version plus tendue, côté horreur : figures de la mélodie de début de manche, cœur qui s’emballe, houles de bruit et coups sourds.",
+      "debutBoucle": 1,
+      "finBoucle": 97,
+      "dureeBoucle": 96,
+      "dureeFichier": 98,
+      "bpm": 100,
+      "mesures": 40,
+      "octets": 1569185
+    }
+  }
+}

@@ -1,0 +1,106 @@
+/* Planche d'écoute de la musique (lot 1b) : téléphone d'abord, jetons de css/base.css. */
+.planche {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: calc(var(--marge) + env(safe-area-inset-top)) var(--marge) calc(var(--marge) * 2 + env(safe-area-inset-bottom));
+}
+
+.planche-entete { display: grid; gap: 0.75rem; margin-bottom: 1.5rem; }
+.planche-surtitre {
+  font-family: var(--font-label);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-action-text);
+  font-size: 0.85rem;
+}
+.planche-titre {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 9vw, 3rem);
+  line-height: 1.05;
+  color: var(--color-action);
+  text-shadow: 0 0 18px var(--color-action-glow);
+}
+.planche-entete .marque-provisoire { justify-self: start; }
+.planche-intro { color: var(--color-text); }
+.planche-conseils { display: grid; gap: 0.35rem; color: var(--color-text-muted); font-size: 0.9rem; }
+.planche-conseils li { padding-left: 1.1em; position: relative; }
+.planche-conseils li::before { content: "–"; position: absolute; left: 0; color: var(--color-action-text); }
+
+.planche-morceaux { display: grid; gap: var(--marge); }
+
+.morceau {
+  display: grid;
+  gap: 0.75rem;
+  padding: var(--marge);
+  border: 1px solid var(--color-surface-raised);
+  border-left: 4px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  transition: border-color 200ms;
+}
+.morceau[data-etat="lecture"], .morceau[data-etat="raccord"], .morceau[data-etat="chargement"] { border-left-color: var(--color-action); }
+
+.morceau-tete { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
+.morceau-code {
+  font-family: var(--font-label);
+  text-transform: uppercase;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--color-action);
+}
+.morceau-nom { font-size: 1.1rem; font-weight: 700; }
+.morceau-retenu {
+  padding: 0.15em 0.6em;
+  border-radius: 999px;
+  background: var(--color-action);
+  color: var(--color-on-action);
+  font-family: var(--font-label);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+}
+.morceau[data-retenu] { border-color: var(--color-action-deep); }
+.morceau-description { color: var(--color-text); }
+.morceau-infos { color: var(--color-text-muted); font-size: 0.85rem; }
+
+.morceau-boutons { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.morceau-boutons .bouton { flex: 1 1 10rem; padding-inline: 1rem; }
+.bouton-secondaire {
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+.bouton-secondaire:hover { background: var(--color-surface-raised); }
+.bouton-secondaire:active { transform: scale(0.97); }
+.bouton[disabled] { opacity: 0.6; cursor: progress; }
+.bouton-icone { width: 1em; height: 1em; flex: none; fill: currentColor; }
+
+/* Barre de position dans la boucle ; trait du raccord (fin de la boucle = retour au début) à droite. */
+.morceau-barre {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-surface-raised);
+  overflow: hidden;
+}
+.morceau-barre-remplie {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: var(--color-action);
+}
+.morceau-ligne { display: flex; justify-content: space-between; gap: 0.75rem; font-size: 0.85rem; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.morceau-statut { color: var(--color-text); min-height: 1.5em; }
+.morceau[data-etat="raccord"] .morceau-statut { color: var(--color-warning); }
+
+.planche-erreur {
+  margin-top: var(--marge);
+  padding: 0.75rem var(--marge);
+  border: 1px solid var(--color-action);
+  border-radius: var(--radius-md);
+  color: var(--color-action-text);
+}
+
+.planche-pied { margin-top: 2rem; color: var(--color-text-muted); font-size: 0.85rem; }
+.planche-pied code { font-size: 0.95em; }
