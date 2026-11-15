@@ -21,6 +21,7 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
 | **3d** | Admin : messages du bandeau d'alerte, écrits dans `contenus/bandeau.json` par le serveur | #65 | `lot-3d.md` |
 | **3e** | À propos : bloc du jeu (titre et texte) modifiable depuis l'admin, comme le studio | #67 | `lot-3e.md` |
 | **4b** | À propos : clip du vrai jeu (le survivant tire sur des zombies, 8 s en boucle), puis 3 retours sur le pilotage | #71, #72, #75, #77 | `lot-4b.md` |
+| **3f** | Admin : texte de l'aperçu de partage modifiable ; nouveau texte ; encart de l'accueil en mode application ; e-mail de contact | voir `lot-3f.md` | `lot-3f.md` |
 | — | Scène de l'accueil : retours 11 à 19 (zombie, militaire, détails, deuxième tir), vidéos refaites | #55, #57, #62, #63, #66, #68 → #70, #73 | `lot-1-retours.md` |
 | — | Petits ajouts hors lot : lien Discord, « Pages du site » en haut de l'admin, bandeau en service, serveur limité au domaine, À propos plus aéré, indice « Défiler », carrousel des actualités | #53, #54, #57, #58, #64, #74, #76 | voir plus bas |
 
@@ -121,6 +122,13 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
 ## Lot 3e — À propos : les deux blocs modifiables (PR #67)
 - L'écran « À propos » de l'admin montre **le bloc du jeu** (titre, texte) puis **le bloc du studio** (ligne sous le logo, texte), en
   français et en anglais, avec aperçu ; seuls les blocs modifiés sont enregistrés (pages `a-propos-jeu` et `a-propos` du serveur).
+
+## Lot 3f — Aperçu de partage depuis l'admin, contact, encart
+- **Pages du site → Aperçu de partage** : titre et description montrés par Discord / WhatsApp, réécrits dans `index.html` par le serveur.
+- Nouveau texte : « La nuit tombe, les morts se relèvent. Serez-vous en mesure de survivre ? Z-Survival, Top-Down Shooter avec une dose de
+  gacha par No Way Studio, bientôt disponible sur navigateur. »
+- Accueil sur iPhone en mode application : l'encart « Disponible sur navigateur » ne mord plus sur le titre.
+- Pied de page : **contact@zsurvival-game.com** (lien mailto), aussi dans les données structurées du studio.
 
 ## Lot 4b — Clip du vrai jeu dans À propos (PR #71, retours #72, #75, #77)
 - Le bloc « Le jeu » montre un **clip de 8 s en boucle tiré du vrai jeu** (branche `dev`, copie en lecture seule), fabriqué par

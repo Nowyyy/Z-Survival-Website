@@ -155,6 +155,20 @@ En haut de l'écran : **Pages du site** → **Modifier le bandeau d’alerte** (
 - Aucun message affiché et aucun article publié : le bandeau disparaît de l'accueil.
 - On peut toujours modifier le fichier à la main sur GitHub (`Docs/ref/contenus.md`) : l'admin relit le fichier à chaque ouverture.
 
+## 10. Aperçu de partage (lot 3f)
+Ce que montrent **Discord, WhatsApp et les réseaux sociaux** quand on partage `zsurvival-game.com` : un titre, une description et l'image de
+l'accueil (fixe, `img/partage.jpg`). **Pages du site → Modifier l'aperçu de partage (Discord, WhatsApp…)** :
+1. L'écran s'ouvre avec le titre et la description en ligne.
+2. Changer le **titre** (90 caractères au plus) et la **description** (300 au plus) : texte simple, sur une ligne, en français (les réseaux
+   n'affichent qu'une version). L'aperçu, à la manière de Discord, suit la frappe.
+3. **Enregistrer et publier** : le serveur réécrit ces deux textes dans la page du site (`index.html`) ; en ligne **environ une minute** plus
+   tard. **Annuler les changements** remet le texte en ligne.
+
+- Discord et WhatsApp gardent souvent l'ancien aperçu en mémoire **quelques jours**. Pour voir le nouveau tout de suite, partager l'adresse
+  avec un paramètre en plus, par exemple `https://zsurvival-game.com/?v=2`.
+- Message « La page a été modifiée entre-temps » : le site a été mis à jour pendant que l'écran était ouvert ; revenir aux articles et
+  rouvrir l'aperçu, puis refaire le changement.
+
 ## Annonce Discord (lot 3c)
 Chaque article publié pour la première fois est annoncé dans un salon de votre serveur Discord, par un **webhook** (une adresse
 secrète qui permet d'écrire dans ce salon, et seulement dans lui). Comme le jeton GitHub, elle est rangée dans Google Secret Manager,
