@@ -9,7 +9,7 @@ lecture seule. Le site reprend la DA du jeu : thème « sang noir ».
   coulures de sang qui sortent de dessous la lettre (SVG généré en code), puis « -Survival » couleur os.
   Le texte reste le nom accessible.
 - Styles du logo : `css/base.css` (section « Logo »), mêmes règles que `css/base.css` du jeu.
-- Utilisé fixe (sans animation) sur l'accueil (`index.html`) et dans l'en-tête de `main.html`.
+- Utilisé fixe (sans animation) sur l'accueil et dans l'en-tête (`index.html`).
   L'animation de chute du Z (écran de chargement du jeu, `css/menu.css`) n'est pas reprise.
 - Icônes : `img/icone-48.png` et `img/icone-180.png`, extraites de l'`index.html` du jeu
   (Z incliné, `scripts/icone.mjs` du jeu).
@@ -18,10 +18,15 @@ lecture seule. Le site reprend la DA du jeu : thème « sang noir ».
 - `img/no-way-studio.svg` : copie du **logo fixe** du jeu (`assets/studio/no-way-studio-logo-fixe.svg`,
   branche dev ; animations coupées, aucun script ni ressource externe). Le jeu signe « Un jeu de No Way Studio ».
 - Emplacements, sur le modèle des sites de jeux (signature de l'éditeur en haut à gauche et en pied de page) :
-  - en-tête de `main.html`, à gauche du logo du jeu, séparé par un trait (à partir de 600 px de large) ;
+  - en-tête, à gauche du logo du jeu, séparé par un trait (à partir de 600 px de large ; 44 px de haut,
+    60 px sur ordinateur) ;
   - coin haut gauche de l'accueil, dans le cadre rouge ;
-  - section **About us** : grand logo, signature, crédits ; pied de page (petit logo, © et licences).
-- Non repris : le logo animé et son son (introduction du jeu), le logo de Noven Studio (écran Crédits du jeu).
+  - section **About us** : grand logo **animé**, signature, crédits ; pied de page (petit logo fixe, © et licences).
+- `img/no-way-studio-anime.svg` : copie du logo animé du jeu (`assets/studio/no-way-studio-logo-anime.svg`,
+  animations CSS, aucun script ni ressource externe), **sans son**. Joué quand About us occupe 30 % de l'écran,
+  rejoué à chaque retour (adresse Blob neuve à chaque fois, sinon l'animation ne repart pas). Mouvement réduit :
+  logo fixe. Note du jeu (lot 8g) : l'allumage néon des lettres clignote ~5 fois par seconde pendant 0,7 s.
+- Non repris : le son du logo, le logo de Noven Studio (écran Crédits du jeu).
 
 ## Couleurs (`css/base.css`, mêmes noms que `css/tokens.css` du jeu)
 | Jeton | Valeur | Rôle |

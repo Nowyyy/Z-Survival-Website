@@ -1,37 +1,37 @@
-// Tous les textes du site, regroupés par langue. Le HTML ne contient que des clés (data-t="…") :
-// pour ajouter l'anglais, il suffira d'ajouter un bloc `en` avec les mêmes clés.
-// Les intitulés de section restent « News », « Characters » et « Weapons » dans toutes les langues.
+// Tous les textes du site, regroupés par langue (fr, en) avec exactement les mêmes clés.
+// Le HTML ne contient que des clés (data-t="…", data-t-aria, data-t-alt) ; js/i18n.js les applique.
+// Les intitulés de section restent en anglais dans toutes les langues : « News », « Characters », « Weapons », « About us ».
+
+const SECTIONS = {
+  news: 'News',
+  characters: 'Characters',
+  weapons: 'Weapons',
+  about: 'About us',
+};
 
 export const TEXTES = {
   fr: {
     meta: {
-      titreAccueil: 'Z-Survival',
-      titrePrincipal: 'Z-Survival — News, Characters, Weapons',
+      titre: 'Z-Survival',
       description: 'Site officiel du jeu de survie zombies Z-Survival.',
     },
     commun: {
       provisoire: 'Provisoire',
       bientot: 'Bientôt disponible',
-      accueil: 'Accueil',
       accueilAria: 'Z-Survival — retour à l’accueil',
       navigation: 'Sections de la page',
       aVenir: 'à venir',
+      langue: 'Langue',
     },
     accueil: {
       titre: 'Z-Survival',
       sousTitre: 'Tenir jusqu’à l’aube.',
-      entrer: 'Entrer',
+      entrer: 'En savoir plus',
       imageAVenir: 'Image animée — à venir',
     },
-    sections: {
-      news: 'News',
-      characters: 'Characters',
-      weapons: 'Weapons',
-      about: 'About us',
-    },
+    sections: SECTIONS,
     news: {
       intro: 'Contenu provisoire : les actualités ci-dessous sont fictives.',
-      lire: 'Lire la suite',
       cartes: [
         {
           date: '12/11/2026',
@@ -95,6 +95,93 @@ export const TEXTES = {
       licences: 'Polices : Barlow, Rubik Wet Paint et Rubik Dirt (licence SIL OFL 1.1).',
     },
   },
+
+  en: {
+    meta: {
+      titre: 'Z-Survival',
+      description: 'Official website of the zombie survival game Z-Survival.',
+    },
+    commun: {
+      provisoire: 'Placeholder',
+      bientot: 'Coming soon',
+      accueilAria: 'Z-Survival — back to the top',
+      navigation: 'Page sections',
+      aVenir: 'coming soon',
+      langue: 'Language',
+    },
+    accueil: {
+      titre: 'Z-Survival',
+      sousTitre: 'Hold out until dawn.',
+      entrer: 'Learn more',
+      imageAVenir: 'Animated scene — coming soon',
+    },
+    sections: SECTIONS,
+    news: {
+      intro: 'Placeholder content: the news below is fictional.',
+      cartes: [
+        {
+          date: 'Nov 12, 2026',
+          categorie: 'Update',
+          titre: 'A new zombie wave',
+          resume: 'Sample news: nights are getting longer and the zombies more numerous.',
+        },
+        {
+          date: 'Nov 5, 2026',
+          categorie: 'Map',
+          titre: 'The crashed helicopter',
+          resume: 'Sample news: a smoking wreck appears near the building.',
+        },
+        {
+          date: 'Oct 28, 2026',
+          categorie: 'Community',
+          titre: 'The website is open',
+          resume: 'Sample news: welcome to the Z-Survival website.',
+        },
+      ],
+    },
+    characters: {
+      intro: 'Placeholder content: the final characters will arrive in a later update.',
+      zone: 'Featured character',
+      liste: 'Choose a character',
+      personnages: [
+        { nom: 'Character 1', role: 'Survivor' },
+        { nom: 'Character 2', role: 'Survivor' },
+        { nom: 'Walker zombie', role: 'Infected' },
+        { nom: 'Big zombie', role: 'Infected' },
+      ],
+    },
+    weapons: {
+      intro: 'Placeholder content: fictional weapons and stats.',
+      zone: 'Weapon',
+      liste: 'Choose a weapon',
+      stats: {
+        degats: 'Damage',
+        cadence: 'Fire rate',
+        portee: 'Range',
+        chargeur: 'Magazine',
+      },
+      armes: {
+        pistolet: { nom: 'Pistol', type: 'Sidearm' },
+        fusil: { nom: 'Shotgun', type: 'Short range' },
+        carabine: { nom: 'Rifle', type: 'Long range' },
+      },
+    },
+    studio: {
+      nom: 'No Way Studio',
+      logoAlt: 'No Way Studio',
+      signature: 'A No Way Studio game',
+      copyright: '© 2026 No Way Studio',
+    },
+    about: {
+      intro: 'Placeholder content: studio introduction to be written.',
+      texte: 'No Way Studio makes Z-Survival, a top-down zombie survival game you can play right in your browser, on phone or computer.',
+      credits: [
+        { titre: 'Created by', noms: ['Nowy'] },
+      ],
+      licences: 'Fonts: Barlow, Rubik Wet Paint and Rubik Dirt (SIL OFL 1.1 license).',
+    },
+  },
 };
 
 export const LANGUE_PAR_DEFAUT = 'fr';
+export const LANGUES = ['fr', 'en'];
