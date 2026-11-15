@@ -239,7 +239,7 @@ export function peindreBarbe(char, rgb) {
 // et rendus par un second maillage articulé sur le même squelette, avec sa propre texture de tissu générée en code (le corps garde la
 // texture du jeu). style : 'toile' (personnage 1 : toile de coton serrée, coutures piquées) ou 'cordura' (personnage 2 : nylon épais à
 // sangles horizontales du gilet pare-balles). shared : géométrie partagée de la tenue (kit.slotKit(...).shared.get(tenue)) ; ids : débuts
-// des identifiants des pièces du gilet ; teinte : facteur sur leur couleur.
+// des identifiants des pièces du gilet ; couleur : couleur propre du gilet (linéaire), sinon celle de la tenue ; teinte : facteur.
 function textureGilet(style) {
   const n = 256;
   const toile = document.createElement('canvas');
@@ -309,7 +309,7 @@ function textureGilet(style) {
   return tex;
 }
 
-export function texturerGilet(char, shared, ids, { style = 'toile', teinte = 1, tuile = 9 } = {}) {
+export function texturerGilet(char, shared, ids, { style = 'toile', teinte = 1, tuile = 9, couleur = null } = {}) {
   const corps = char.body;
   const g = corps.geometry;
   if (!shared || g.index) return null;
@@ -321,7 +321,7 @@ export function texturerGilet(char, shared, ids, { style = 'toile', teinte = 1, 
     const a = g.getAttribute(nom);
     const out = new a.array.constructor(tris.length * 3 * a.itemSize);
     tris.forEach((t, j) => out.set(a.array.subarray(t * 3 * a.itemSize, (t + 1) * 3 * a.itemSize), j * 3 * a.itemSize));
-    if (nom === 'color') for (let i = 0; i < out.length; i += 1) out[i] *= teinte;
+    if (nom === 'color') for (let i = 0; i < out.length; i += 1) out[i] = (couleur ? couleur[i % 3] : out[i]) * teinte; // couleur : remplace celle de la tenue
     geo.setAttribute(nom, new THREE.BufferAttribute(out, a.itemSize));
   }
   // Coordonnées de texture planes, face par face (axe dominant de la normale), en unités du personnage : bandes horizontales sur les côtés.
