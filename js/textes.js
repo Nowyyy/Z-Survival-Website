@@ -4,9 +4,11 @@
 
 export const TEXTES = {
   fr: {
+    // Titre de l'onglet et description (lot 4a : soignés pour le référencement). Le HTML d'index.html porte la version française,
+    // identique (outils/verifier-lot-4a.mjs le vérifie) ; js/i18n.js pose la version de la langue affichée.
     meta: {
-      titre: 'Z-Survival',
-      description: 'Site officiel du jeu de survie zombies Z-Survival.',
+      titre: 'Z-Survival — jeu de survie zombies sur navigateur',
+      description: 'Z-Survival, jeu de survie zombies en vue de dessus par No Way Studio : tenez jusqu’à l’aube, directement dans le navigateur, sur téléphone comme sur ordinateur. Bientôt disponible.',
     },
     // Aperçu de partage (lot 4a) : balises Open Graph et Twitter Card d'index.html, en français (og:locale fr_FR), recopiées telles
     // quelles dans le HTML (les réseaux sociaux ne lisent pas le JavaScript) ; outils/verifier-lot-4a.mjs vérifie qu'elles sont identiques.
@@ -114,8 +116,8 @@ export const TEXTES = {
 
   en: {
     meta: {
-      titre: 'Z-Survival',
-      description: 'Official website of the zombie survival game Z-Survival.',
+      titre: 'Z-Survival — zombie survival browser game',
+      description: 'Z-Survival, a top-down zombie survival game by No Way Studio: hold out until dawn, right in your browser, on phone or computer. Coming soon.',
     },
     partage: {
       titre: 'Z-Survival — zombie survival in your browser',

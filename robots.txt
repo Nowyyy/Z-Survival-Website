@@ -1,0 +1,15 @@
+# Référencement du site Z-Survival (lot 4a, Docs/ref/referencement.md).
+# Une seule page à indexer : la page par défaut, https://zsurvival-game.com/ (et les fichiers qu'elle utilise : css, js, img,
+# fonts, musique, sons, contenus). Les pages de travail portent aussi une balise noindex.
+# Note : la syntaxe de robots.txt impose des chemins qui commencent par « / » (racine du domaine) ; ce fichier n'a de sens qu'à la racine.
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /scene/
+Disallow: /musique/planche.html
+Disallow: /outils/
+Disallow: /main.html
+Disallow: /serveur/
+Disallow: /Docs/
+
+Sitemap: https://zsurvival-game.com/sitemap.xml
