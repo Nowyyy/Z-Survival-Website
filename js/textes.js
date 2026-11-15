@@ -44,7 +44,22 @@ export const TEXTES = {
       weapons: 'Armes',
       about: 'À propos',
     },
+    // Actualités (lot 3b) : articles lus sur le serveur (js/actualites.js) ; le texte des articles vient de la page d'administration.
     news: {
+      chargement: 'Chargement des actualités…',
+      indisponible: 'Actualités indisponibles pour le moment.',
+      vide: {
+        titre: 'Radio silencieuse',
+        texte: 'Aucune transmission pour l’instant. Restez à l’abri et à l’écoute : les premières nouvelles arrivent.',
+      },
+      plus: 'Actualités plus anciennes',
+      fermer: 'Fermer l’article',
+      chargementArticle: 'Chargement de l’article…',
+      introuvable: 'Cet article n’existe pas ou n’est plus en ligne.',
+      articleIndisponible: 'Article indisponible pour le moment.',
+      mentionFr: '(FR)',
+      mentionFrTitre: 'Article disponible en français seulement',
+      bandeau: 'Dernière transmission',
       intro: 'Contenu provisoire : les actualités ci-dessous sont fictives.',
       cartes: [
         {
@@ -151,7 +166,22 @@ export const TEXTES = {
       weapons: 'Weapons',
       about: 'About us',
     },
+    // News (lot 3b): articles read from the server (js/actualites.js); the article text comes from the admin page.
     news: {
+      chargement: 'Loading news…',
+      indisponible: 'News unavailable at the moment.',
+      vide: {
+        titre: 'Radio silence',
+        texte: 'No transmissions yet. Stay safe and keep listening: the first news is on its way.',
+      },
+      plus: 'Older news',
+      fermer: 'Close the article',
+      chargementArticle: 'Loading the article…',
+      introuvable: 'This article does not exist or is no longer online.',
+      articleIndisponible: 'Article unavailable at the moment.',
+      mentionFr: '(FR)',
+      mentionFrTitre: 'Article available in French only',
+      bandeau: 'Latest transmission',
       intro: 'Placeholder content: the news below is fictional.',
       cartes: [
         {

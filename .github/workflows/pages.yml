@@ -31,8 +31,10 @@ jobs:
       - name: Préparer le site (fichiers statiques, sans build)
         run: |
           mkdir -p _site
-          cp -r index.html main.html css js fonts img musique sons scene contenus .nojekyll _site/
+          cp -r index.html main.html admin css js fonts img musique sons scene contenus .nojekyll _site/
           # img/accueil/ : vidéos et affiches de l'accueil (lot 2b) ; sons/ : coup de feu du jeu, copie figée (lot 2b).
+          # admin/ : page d'administration des actualités (lot 3b), noindex, non reliée au site (Docs/ref/admin.md).
+          # img/actus/ : images des articles, ajoutées par le serveur (commit sur main) ; ce workflow les republie.
           # contenus/ : contenus modifiables sans toucher au code (bandeau d'alerte…), lus par le site (Docs/ref/contenus.md).
           # scene/ : atelier de la scène 3D de l'accueil (lot 1) ; pages en noindex, non reliées au site.
           # Les outils de capture (scene/outils/, Node + Playwright) ne sont pas publiés.
