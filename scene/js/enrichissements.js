@@ -24,13 +24,23 @@ function visageSurvivant() {
   parts.push(sphere('menton', 'head', 'peau', [2.6, 1.6, 1.8], [0, 1.9, 2.9], { skin: true }));
   return parts;
 }
-// Œil gauche fermé du tireur (personnage 1, variante « riche ») : il vise de l'œil droit. La tête du jeu est une seule géométrie : on ne
-// peut pas réduire l'œil, une paupière couleur peau le recouvre (pupille comprise), avec un trait de cils.
-function oeilFerme() {
+// Paupière gauche du tireur (personnage 1, variante « riche ») : il ferme l'œil gauche pour viser, juste avant le coup de feu, et le
+// rouvre après (js/poses.js). La tête du jeu est une seule géométrie : la paupière (couleur peau, avec un trait de cils) est une pièce
+// portée par une articulation à elle, « paupiereL », posée au ras du haut de l'œil ; son échelle verticale ferme l'œil (1) ou le laisse
+// ouvert (presque 0 : la paupière rentre sous l'arcade).
+export const PAUPIERE = { id: 'paupiereL', parent: 'head', offset: [1.65, 5.78, 4.48] };
+function paupiere() {
   return [
-    sphere('paupiereL', 'head', 'peau', [1.08, 0.74, 0.62], [1.65, 5.12, 4.5], { skin: true }),
-    box('cilsL', 'head', 'sombre', [1.9, 0.24, 0.3], [1.65, 4.98, 5.06], [0, 0, 0.08]),
+    sphere('paupiereL', PAUPIERE.id, 'peau', [1.08, 0.7, 0.62], [0, -0.64, 0.02], { skin: true }),
+    box('cilsL', PAUPIERE.id, 'sombre', [1.9, 0.24, 0.3], [0, -1.2, 0.58], [0, 0, 0.08]),
   ];
+}
+// Squelettes du jeu (copie en mémoire de poses-v2.json) avec l'articulation de la paupière ajoutée au squelette v2.
+export function enrichirPoses(poses) {
+  const p = structuredClone(poses);
+  const joints = p.skeletons?.v2?.joints;
+  if (Array.isArray(joints) && !joints.some((j) => j.id === PAUPIERE.id)) joints.push({ ...PAUPIERE, range: null });
+  return p;
 }
 // Visage d'un zombie : orbites creuses et sombres, yeux pâles, bouche ouverte, dents.
 function visageZombie() {
@@ -91,7 +101,7 @@ export function enrichirPersonnages(characters) {
     if (v.kind === 'player') {
       allongerBras(v);
       add(visageSurvivant());
-      if (v.id === 'riche') add(oeilFerme());
+      if (v.id === 'riche') add(paupiere());
       add(pouce());
       if (ids.has('gunSlide')) add(pistolet());
     } else {

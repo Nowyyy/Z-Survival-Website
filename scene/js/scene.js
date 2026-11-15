@@ -7,7 +7,7 @@ import { creerAmbiance } from './ambiance.js';
 import { DUREE } from './boucle.js';
 import { brumeEnBoucle } from './brume.js';
 import { CADRAGES, FORMATS } from './cadrages.js';
-import { enrichirPersonnages, texturesFines } from './enrichissements.js';
+import { enrichirPersonnages, enrichirPoses, texturesFines } from './enrichissements.js';
 import { creerFeu } from './feu.js';
 import { creerHelico } from './helico.js';
 import { creerTir } from './tir.js';
@@ -61,7 +61,7 @@ try {
   scene.add(feuHelico.group);
 
   // Personnages : ceux du jeu, enrichis pour le plan rapproché (js/enrichissements.js).
-  const kit = creerKit(d, m.lookup, enrichirPersonnages(d.characters));
+  const kit = creerKit(d, m.lookup, enrichirPersonnages(d.characters), enrichirPoses(d.poses));
   texturesFines(kit, [['joueur', 'riche'], ['joueur', 'B'], ['marcheur', 'riche']]);
   const p1 = posable(kit.create('player', 0, { outfit: 0 }), ECHELLE_SCENE);
   // Personnage 2 : une autre tenue du jeu (variante B « civil débrouillard » : capuche, sac de sport, lampe frontale ; sweat gris clair).

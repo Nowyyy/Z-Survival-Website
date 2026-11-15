@@ -5,14 +5,14 @@ import * as THREE from 'three';
 import { createV2Kit } from '../jeu/js/game/character-v2.js';
 
 // d : données du jeu (chargerDonnees) ; lookup : jetons de couleur ; characters : données des personnages (éventuellement enrichies).
-export function creerKit(d, lookup, characters) {
+export function creerKit(d, lookup, characters, poses = d.poses) {
   const slots = { joueur: 'riche', marcheur: 'riche', petit: 'riche', voute: 'riche', grand: 'riche' };
   for (const [id, c] of Object.entries(d.choix?.persos ?? {})) if (c?.variante) slots[id] = c.variante;
   // Réglages de la table des choix (persos-choix.json), comme choiceOptions de js/game/persos-runtime.js du jeu ; la tenue est choisie par la scène.
   const table = d.choix?.persos ?? {};
   const of = (key) => Object.fromEntries(Object.entries(table).filter(([, c]) => c?.[key] !== undefined).map(([slot, c]) => [slot, c[key]]));
   const opts = { macros: of('macros'), animMacros: of('animation'), styleAnim: of('style') };
-  return createV2Kit({ characters, poses: d.poses, lookup, choice: 'riche', styleOf: slots, ...opts, zombieIds: d.variants.zombie.variants.map((v) => v.id), seed: 7, wear: () => 1 });
+  return createV2Kit({ characters, poses, lookup, choice: 'riche', styleOf: slots, ...opts, zombieIds: d.variants.zombie.variants.map((v) => v.id), seed: 7, wear: () => 1 });
 }
 
 // Personnage posable : { root, bones: Map(id -> Bone), rest: Map(id -> position de repos), char (personnage du kit) }.

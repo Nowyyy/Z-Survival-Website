@@ -8,6 +8,18 @@ export const TIR = 5.2; // instant du coup de feu (secondes de la boucle)
 const RECUL = 0.42; // durée du recul (secondes)
 const ECLAIR = 0.075; // durée de l'éclair : 2 images à 25 ou 30 images/s
 
+// Œil gauche du tireur : fermé (1) un peu avant le coup et pendant le recul, ouvert (0) le reste de la boucle. Il se ferme en 0,12 s
+// à 0,6 s du coup (il cale sa visée), se rouvre en 0,15 s une fois le recul et la fumée passés.
+const FERME = { avant: 0.6, apres: 0.75, fermer: 0.12, ouvrir: 0.15 };
+export function oeilFerme(t) {
+  const d = ((((t - TIR + FERME.avant) % DUREE) + DUREE) % DUREE); // 0 au début de la fermeture
+  const total = FERME.avant + FERME.apres;
+  const lisse = (k) => k * k * (3 - 2 * k);
+  if (d < FERME.fermer) return lisse(d / FERME.fermer);
+  if (d < total) return 1;
+  if (d < total + FERME.ouvrir) return 1 - lisse((d - total) / FERME.ouvrir);
+  return 0;
+}
 // Temps écoulé depuis le coup de feu (0 à DUREE), périodique.
 const depuis = (t) => ((((t - TIR) % DUREE) + DUREE) % DUREE);
 // Recul de 0 à 1 : coup sec (0,03 s) puis retour adouci ; 0 hors du recul.
@@ -112,7 +124,7 @@ export function creerTir({ palette, laiton, echelle = 1 }) {
       flamme.visible = on;
       if (on) {
         etoile.position.copy(tip).addScaledVector(fwd, 2.5 * k);
-        etoile.scale.setScalar((13 + 6 * f) * k);
+        etoile.scale.setScalar((9 + 4 * f) * k);
         etoile.material.rotation = 0.6;
         flamme.position.copy(tip);
         flamme.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), fwd);
