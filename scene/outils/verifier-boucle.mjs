@@ -1,7 +1,7 @@
 // Vérifie que la boucle de la scène ne saute pas (lot 1) : rend un cycle complet image par image (25 images/s) et compare chaque image à
 // la suivante (écart moyen des pixels, 0 à 255). La dernière image du cycle est comparée à la première : son écart doit rester du même
 // ordre que celui de deux images voisines. L'image à t = DUREE doit être identique à l'image à t = 0.
-// Usage : node scene/outils/verifier-boucle.mjs [adresse de scene/index.html] [cadrage] [format]
+// Usage : node scene/outils/verifier-boucle.mjs [adresse de scene/index.html] [cadrage] [format] [paramètres en plus, ex. details=1]
 // (le site doit être servi, par exemple : python3 -m http.server depuis le dossier parent du dépôt).
 import { createRequire } from 'node:module';
 
@@ -10,6 +10,7 @@ const { chromium } = require('playwright');
 const base = process.argv[2] ?? 'http://localhost:8765/Z-Survival-Website/scene/index.html';
 const cadrage = process.argv[3] ?? 'A';
 const format = process.argv[4] ?? 'paysage';
+const extra = process.argv[5] ? `&${process.argv[5]}` : ''; // paramètres en plus de la scène (ex. details=1)
 const FPS = 25;
 const [w, h] = format === 'portrait' ? [270, 480] : [480, 270];
 
@@ -18,7 +19,7 @@ const page = await browser.newPage({ viewport: { width: w, height: h } });
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
-await page.goto(`${base}?cadrage=${cadrage}&format=${format}&capture=1&w=${w}&h=${h}&t=0`);
+await page.goto(`${base}?cadrage=${cadrage}&format=${format}&capture=1&w=${w}&h=${h}&t=0${extra}`);
 await page.waitForFunction(() => window.__scene?.ready || window.__sceneError, null, { timeout: 180000 });
 const result = await page.evaluate(async ({ fps }) => {
   const s = window.__scene;

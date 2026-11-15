@@ -5,7 +5,7 @@
 import * as THREE from 'three';
 import { DUREE, bruit, cycle, onde } from './boucle.js';
 import { V, euler, lookQuat, placeBone, pointBone, twoBone, worldPos } from './rig.js';
-import { oeilFerme, recul } from './tir.js';
+import { TIR_P2, oeilFerme, recul } from './tir.js';
 
 const UP = V(0, 1, 0);
 // Échelle de la mise en scène par rapport au monde du jeu. Dans le jeu, un personnage mesure 60 unités (1 m à l'échelle de la carte : 60 unités
@@ -39,13 +39,36 @@ export const PLACEMENT = {
 // Le zombie tend le bras gauche vers le spectateur pour l'attraper, une seule fois par boucle (retours du lot 1) : 0 = main au sol, 1 = bras
 // tendu. Il tend le bras en 0,55 s à partir de 1,0 s, le garde tendu 1,1 s, le ramène en 0,55 s (fini à 3,2 s, loin du coup de feu de 5,2 s).
 export const ATTRAPE = { debut: 1.0, tendre: 0.55, tenir: 1.1, revenir: 0.55 };
+// Prévisualisation des détails (?details=1) : le personnage 2 lui tire dessus bras tendu (TIR_P2) ; le bras retombe d'un coup (0,18 s).
+export const DETAILS = { actif: false };
+const ATTRAPE_DETAILS = { debut: 1.0, tendre: 0.55, tenir: TIR_P2 + 0.04 - 1.55, revenir: 0.18 };
 export function attrapeAt(t) {
-  const d = (((t - ATTRAPE.debut) % DUREE) + DUREE) % DUREE;
-  const { tendre, tenir, revenir } = ATTRAPE;
+  const A = DETAILS.actif ? ATTRAPE_DETAILS : ATTRAPE;
+  const d = (((t - A.debut) % DUREE) + DUREE) % DUREE;
+  const { tendre, tenir, revenir } = A;
   if (d < tendre) return d / tendre;
   if (d < tendre + tenir) return 1;
   if (d < tendre + tenir + revenir) return 1 - (d - tendre - tenir) / revenir;
   return 0;
+}
+
+// Petite fenêtre temporelle douce : 0 avant a, monte jusqu'à b, 1 jusqu'à c, redescend à 0 en d (secondes de la boucle, a < b < c < d).
+function fenetre(t, a, b, c, d) {
+  const l = (k) => k * k * (3 - 2 * k);
+  if (t <= a || t >= d) return 0;
+  if (t < b) return l((t - a) / (b - a));
+  if (t <= c) return 1;
+  return 1 - l((t - c) / (d - c));
+}
+// Détails : personnage 1 qui regarde hors champ à sa droite au début ; personnage 2 qui lève la tête vers lui au même moment ;
+// impact de la balle du personnage 2 sur le zombie (secousse qui s'amortit).
+export const regardP1 = (t) => (DETAILS.actif ? fenetre(t, 0.15, 0.6, 1.5, 2.05) : 0);
+export const regardP2 = (t) => (DETAILS.actif ? fenetre(t, 0.25, 0.7, 1.55, 2.15) : 0);
+export function impactZombie(t) {
+  if (!DETAILS.actif) return 0;
+  const d = (((t - TIR_P2) % DUREE) + DUREE) % DUREE;
+  if (d > 0.7) return 0;
+  return Math.exp(-d * 6) * Math.min(1, d / 0.03);
 }
 
 // Appui du pied du personnage 2 (0 à 1) : il appuie un peu plus deux fois par boucle ; le zombie s'enfonce d'autant.
@@ -145,7 +168,9 @@ export function poseP1(p, stage, t) {
   const at = eye.clone().add(dir.clone().multiplyScalar((P1_ARME - 2.6 * r) * K)).add(V(0, (-3.2 + 0.35 * souffle + 1.2 * r) * K, 0));
   const aim = vise.clone().sub(at).normalize().add(V(0, 0.32 * r, 0));
   holdGun(p, at, aim, { elbowsOut: 5 });
-  look(p, vise, 0.4);
+  // Détails : au début de la boucle, il tourne la tête vers sa droite (notre gauche), comme pour regarder hors champ, puis revient à sa cible.
+  const rp1 = regardP1(t);
+  look(p, rp1 > 0 ? vise.clone().lerp(toWorld(stage, V(-420, 70, 160)), rp1) : vise, 0.4 + 0.25 * rp1);
   // Œil gauche : fermé seulement pour le tir (js/tir.js).
   const lid = p.bones.get('paupiereL');
   if (lid) lid.scale.set(1, Math.max(0.001, oeilFerme(t)), 1);
@@ -163,10 +188,11 @@ export function poseZombie(z, stage, t, appui) {
   euler(pelvis, Math.PI / 2 - 0.04, 0.04 * debat, 0.05 * debat);
   euler(z.bones.get('spine'), 0.08 + 0.04 * debat, 0.06 * debat, 0);
   const att = attrapeAt(t); // bras tendu vers le spectateur (0 à 1)
+  const imp = impactZombie(t); // balle du personnage 2 : la tête et le buste sont rabattus au sol
   // Quand il tend le bras, il soulève un peu le haut du corps et tourne l'épaule vers le spectateur.
   euler(z.bones.get('chest'), 0.0 + 0.03 * appui + 0.025 * onde(t, 4) - 0.18 * att, 0.08 * debat + 0.15 * att, 0.04 * debat - 0.14 * att);
   // La tête se relève vers l'avant, tournée vers la caméra, et secouée.
-  euler(z.bones.get('neck'), -0.85 + 0.05 * onde(t, 4, 0.2) - 0.1 * att, 0.25 + 0.08 * debat, 0);
+  euler(z.bones.get('neck'), -0.85 + 0.05 * onde(t, 4, 0.2) - 0.1 * att + 0.75 * imp, 0.25 + 0.08 * debat - 0.3 * imp, 0.25 * imp);
   euler(z.bones.get('head'), -0.45 + 0.06 * onde(t, 8, 0.1), 0.2 + 0.1 * bruit(t, 9, 3), 0.1 * debat);
   z.root.updateMatrixWorld(true);
   // Jambes : allongées derrière, pointes de pied au sol, une jambe qui gigote.
@@ -239,7 +265,11 @@ export function poseP2(p, z, stage, t, appui) {
   const chest = p.bones.get('chest');
   const epaules = worldPos(chest).add(V(0, 8 * K, 0));
   const dir = tete.clone().sub(epaules).normalize();
-  const at = epaules.clone().add(dir.clone().multiplyScalar((P2_ARME + 0.5 * appui) * K)).add(V(0, 0.3 * souffle * K, 0));
-  holdGun(p, at, tete.clone().sub(at), { elbowsOut: 7, up: V(0, 0, 1).transformDirection(p.root.matrixWorld) });
-  look(p, tete, 0.5);
+  // Détails : il tire sur le zombie à TIR_P2 (recul de l'arme), et lève la tête vers le personnage 1 au début de la boucle.
+  const r2 = DETAILS.actif ? recul(t, TIR_P2) : 0;
+  const at = epaules.clone().add(dir.clone().multiplyScalar((P2_ARME + 0.5 * appui - 2.4 * r2) * K)).add(V(0, (0.3 * souffle + 1.6 * r2) * K, 0));
+  const visee = tete.clone().sub(at).normalize().add(V(0, 0.35 * r2, 0));
+  holdGun(p, at, visee, { elbowsOut: 7, up: V(0, 0, 1).transformDirection(p.root.matrixWorld) });
+  const rp2 = regardP2(t);
+  look(p, rp2 > 0 ? tete.clone().lerp(worldPos(PLACEMENT.p1Tete ?? p.bones.get('head')), rp2) : tete, 0.5 + 0.3 * rp2);
 }

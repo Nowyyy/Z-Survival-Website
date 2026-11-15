@@ -112,7 +112,7 @@ function lueursFenetres(fenetres, palette, render, taille = 72) {
 }
 
 // world : monde du jeu ; stage : groupe de mise en scène ; heli : groupe de l'hélicoptère (foyers) ; lampes : [{ x, z, cap }] (repère de la scène).
-export function creerAmbiance({ world, palette, textures, stage, heli, lampes = [], fenetres = [], render = null }) {
+export function creerAmbiance({ world, palette, textures, stage, heli, lampes = [], fenetres = [], render = null, details = false }) {
   const scene = world.scene;
   let ambient = null;
   let sun = null;
@@ -180,6 +180,26 @@ export function creerAmbiance({ world, palette, textures, stage, heli, lampes = 
   const lampMeshes = createLampMeshes({ groups: { rdc: lampGroup }, lamps: lampData, palette, floors: ['rdc'] });
   for (const mesh of lampMeshes.meshes) mesh.material.side = THREE.DoubleSide; // vues d'en bas : les dessous omis par le jeu ne laissent pas de trou
   lampMeshes.cull?.(null);
+  // Détails (?details=1) : flamme des lampes qui vacille (sommets émissifs, aGlow = 1, étirés et balancés autour du bas de la flamme).
+  const flammes = [];
+  if (details) {
+    for (const mesh of lampMeshes.meshes) {
+      const pos = mesh.geometry.attributes.position;
+      const glow = mesh.geometry.attributes.aGlow;
+      for (let v = 0; v < pos.count; v += 1) {
+        if (glow.getX(v) < 0.5) continue;
+        // Lampe la plus proche (bas de flamme : 15,5 devant la plaque, 5 au-dessus du réservoir).
+        let iBest = 0;
+        let dBest = Infinity;
+        lampData.forEach((l, i) => {
+          const d = Math.hypot(pos.getX(v) - (l.x + l.n.x * 15.5), pos.getZ(v) - (l.y + l.n.y * 15.5));
+          if (d < dBest) { dBest = d; iBest = i; }
+        });
+        const l = lampData[iBest];
+        flammes.push({ mesh, v, i: iBest, base: [l.x + l.n.x * 15.5, l.hauteur + 5, l.y + l.n.y * 15.5], o: [pos.getX(v), pos.getY(v), pos.getZ(v)] });
+      }
+    }
+  }
   const lampCol = new THREE.Color(palette.lampLight);
   const lampLights = lampData.map((l) => {
     const light = new THREE.PointLight(lampCol, REGLAGES.lampe, 600, 1.3);
@@ -202,6 +222,19 @@ export function creerAmbiance({ world, palette, textures, stage, heli, lampes = 
       feux.forEach((l, i) => { l.intensity = REGLAGES.feuHelico * (1 + 0.16 * bruit(t, 30 + i, 5) + 0.06 * onde(t, 23, i * 0.3)); });
       appoint.intensity = REGLAGES.appoint * (1 + 0.06 * bruit(t, 50, 3));
       lampLights.forEach((l, i) => { l.intensity = REGLAGES.lampe * (1 + 0.07 * bruit(t, 40 + i, 3) + 0.03 * onde(t, 17, i * 0.4)); });
+      if (flammes.length) {
+        const touches = new Set();
+        for (const f of flammes) {
+          const sy = 1 + 0.22 * bruit(t, 70 + f.i, 9) + 0.08 * onde(t, 37, f.i * 0.3);
+          const sx = 1 - 0.1 * bruit(t, 80 + f.i, 7);
+          const haut = (f.o[1] - f.base[1]) / 10.5; // 0 en bas de la flamme, 1 à la pointe
+          const sway = (1.6 * bruit(t, 90 + f.i, 11) + 0.6 * onde(t, 41, f.i * 0.2)) * Math.max(0, haut);
+          const pos = f.mesh.geometry.attributes.position;
+          pos.setXYZ(f.v, f.base[0] + (f.o[0] - f.base[0]) * sx + sway, f.base[1] + (f.o[1] - f.base[1]) * sy, f.base[2] + (f.o[2] - f.base[2]) * sx + 0.5 * sway);
+          touches.add(f.mesh);
+        }
+        for (const m of touches) m.geometry.attributes.position.needsUpdate = true;
+      }
     },
   };
 }
