@@ -19,7 +19,9 @@ function visageSurvivant({ colere = false } = {}) {
     const x = 1.65 * s;
     parts.push(sphere(`oeilBlanc${s > 0 ? 'L' : 'R'}`, 'head', 'crasse', [0.95, 0.62, 0.45], [x, 5.15, 4.35], { skin: false }));
     parts.push(sphere(`pupille${s > 0 ? 'L' : 'R'}`, 'head', 'sombre', [0.48, 0.48, 0.3], [x, 5.1, 4.72]));
-    if (colere) parts.push(box(`sourcil${s > 0 ? 'L' : 'R'}`, 'head', 'sombre', [2.2, 0.7, 0.8], [1.55 * s, 6.05, 4.35], [0.15, 0, 0.42 * s]));
+    // Froncés mais au-dessus des yeux : bout intérieur à 5,9 (haut du blanc de l'œil : 5,77), et devant l'œil (face avant à 4,95 ; l'œil
+    // dépasse jusqu'à 4,8, la pupille 5,02 mais plus bas) : l'œil ne traverse plus le sourcil (retour du propriétaire).
+    if (colere) parts.push(box(`sourcil${s > 0 ? 'L' : 'R'}`, 'head', 'sombre', [2.2, 0.66, 0.7], [1.6 * s, 6.28, 4.6], [0.2, 0, 0.32 * s]));
     else parts.push(box(`sourcil${s > 0 ? 'L' : 'R'}`, 'head', 'sombre', [2.1, 0.55, 0.8], [x, 6.25, 4.25], [0.15, 0, -0.12 * s]));
   }
   parts.push(box('nez', 'head', 'peau', [1.1, 1.9, 1.3], [0, 4.4, 4.75], [-0.25, 0, 0], { skin: true }));

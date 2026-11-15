@@ -168,3 +168,5 @@ Suite du lot 1 (`Docs/lots/lot-1.md`). Branche `lot-1-retours`, PR fusionnée pa
 - Visage du personnage 1 (variante « riche ») : **sourcils froncés en V** (bouts intérieurs plus bas et rapprochés, bouts extérieurs
   relevés, plus épais) et **bouche serrée** (plus courte, plus fine) : `visageSurvivant({ colere: true })` dans
   `scene/js/enrichissements.js`. Le personnage 2 garde son visage.
+- Correction : l'œil gauche traversait le bout intérieur du sourcil froncé. Sourcils remontés (bout intérieur à 5,9, au-dessus du haut de
+  l'œil à 5,77), avancés devant l'œil et un peu moins inclinés (0,32 au lieu de 0,42) : toujours en V, sans croisement.
