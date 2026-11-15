@@ -8,13 +8,14 @@ const TEXTES = {
   surtitre: 'Z-Survival · lot 1b',
   titre: 'Planche d’écoute',
   provisoire: 'Page de travail provisoire, non reliée au site',
-  intro: 'Trois propositions de musique pour le site, dans le thème de la musique du menu du jeu. Chacune tourne en boucle : écoutez-les, puis dites laquelle garder (ou ce qu’il faut changer).',
+  intro: 'Trois propositions de musique pour le site, dans le thème de la musique du menu du jeu. Chacune tourne en boucle. M2 a été retenue pour le site (intégration au lot 2).',
   conseils: [
     'Casque ou écouteurs conseillés : les basses ne passent pas dans le haut-parleur d’un téléphone.',
     '« Écouter le raccord » joue les 5 dernières secondes, puis enchaîne sur le début : on ne doit entendre ni blanc ni saut.',
     'Un seul morceau joue à la fois ; Pause garde la position.',
   ],
   pied: 'Musique générée par du code (outils/musique/ du dépôt), fichiers MP3 dans musique/. Aucune musique n’est encore jouée sur le site : l’intégration se fera au lot 2.',
+  retenu: 'Retenue',
   lecture: 'Lecture',
   pause: 'Pause',
   raccord: 'Écouter le raccord',
@@ -235,6 +236,13 @@ function creerCarte(id, m) {
     <div class="morceau-ligne"><span class="morceau-temps"></span><span class="morceau-tours"></span></div>
     <p class="morceau-statut" aria-live="polite"></p>`;
   el.querySelector('.morceau-code').textContent = code;
+  if (m.retenu) {
+    el.dataset.retenu = '1';
+    const marque = document.createElement('span');
+    marque.className = 'morceau-retenu';
+    marque.textContent = TEXTES.retenu;
+    el.querySelector('.morceau-tete').append(marque);
+  }
   el.querySelector('.morceau-nom').textContent = reste.join(' — ') || m.nom;
   el.querySelector('.morceau-description').textContent = m.description;
   el.querySelector('.morceau-infos').textContent = TEXTES.infos(m);
