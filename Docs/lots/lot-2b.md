@@ -193,7 +193,7 @@ Les vidéos restent sous les 3 Mo visés, **sans perte de qualité visible**, fl
    leurs logos :
    - pastille sombre à contour os, flou d'arrière-plan ;
    - icône de fenêtre de navigateur dessinée en SVG, avec son curseur rouge ;
-   - petite ligne « DISPONIBLE SUR », puis « Navigateur » en gras. En anglais : « AVAILABLE ON THE » puis « Web » (clés
+   - petite ligne « DISPONIBLE SUR », puis « Navigateur » en gras. En anglais : « AVAILABLE ON » puis « Browser » (demande du propriétaire, au lieu de « Available on the Web » ; clés
      `accueil.plateforme.petit` et `accueil.plateforme.grand` dans `js/textes.js`) ;
    - c'est une simple information, pas un lien ;
    - placement : sur téléphone en portrait, à gauche de la flèche ; sur ordinateur et téléphone en paysage, dans le coin du bas. Il remonte au-dessus

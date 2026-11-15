@@ -134,8 +134,8 @@ export const TEXTES = {
       entrer: 'Learn more',
       // Bottom-left badge on the home screen, styled like "available on…" store badges (small line, then the platform name).
       plateforme: {
-        petit: 'Available on the',
-        grand: 'Web',
+        petit: 'Available on',
+        grand: 'Browser',
       },
       // Alert ticker ("catchy" idea no. 5, shown with ?bandeau=1): label and accessible name; the messages live in
       // contenus/bandeau.json (editable without touching the code, later through the admin interface).
