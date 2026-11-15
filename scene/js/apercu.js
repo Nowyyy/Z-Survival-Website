@@ -54,10 +54,10 @@ function relaisNeige() {
 (function attendreScene() {
   const w = document.getElementById('scene').contentWindow;
   if (w?.__scene?.ready || w?.__sceneError) {
-    // ?lang= et ?bandeau=1 (bandeau d'alerte à l'essai) sont transmis au site.
+    // ?lang= et ?bandeau= (?bandeau=0 cache le bandeau d'alerte) sont transmis au site.
     const siteParams = new URLSearchParams({ video: '0' }); // la scène 3D tient lieu de vidéo
     if (q.get('lang')) siteParams.set('lang', q.get('lang'));
-    if (q.get('bandeau') === '1') siteParams.set('bandeau', '1');
+    if (q.get('bandeau')) siteParams.set('bandeau', q.get('bandeau'));
     site = document.createElement('iframe');
     site.id = 'site';
     site.className = 'couche';

@@ -60,8 +60,10 @@ function visageZombie() {
     parts.push(sphere(`oeil${s > 0 ? 'L' : 'R'}`, 'head', 'yeux', [0.5, 0.42, 0.3], [x, 5.0, 4.62], { skin: false }));
   }
   parts.push(box('nez', 'head', 'peau', [1.1, 1.6, 1.1], [0, 4.0, 4.7], [-0.2, 0, 0], { skin: true }));
+  // Au repos, l'articulation est écrasée (bouche fermée : un trait sombre) ; elle s'agrandit quand il tend le bras (js/poses.js). Les dents
+  // du haut sont portées par la même articulation : elles n'apparaissent que bouche ouverte.
   parts.push(sphere('bouche', BOUCHE.id, 'sombre', [1.5, 0.85, 1.3], [0, 0, 0]));
-  parts.push(box('dents', 'head', 'crasse', [2.2, 0.45, 0.5], [0, 2.85, 4.45], [0.15, 0, 0], { skin: false }));
+  parts.push(box('dents', BOUCHE.id, 'crasse', [2.1, 0.4, 0.5], [0, 0.5, 1.0], [0.15, 0, 0], { skin: false }));
   return parts;
 }
 // Pouces (les mains du jeu : une sphère et une boîte de doigts).

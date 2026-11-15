@@ -186,3 +186,15 @@ Suite du lot 1 (`Docs/lots/lot-1.md`). Branche `lot-1-retours`, PR fusionnée pa
   s'il rampait vers lui ; il tend alors le bras vers le personnage 1. Transmis par l'aperçu :
   https://nowyyy.github.io/Z-Survival-Website/scene/apercu.html?bandeau=1&zombie=vers-p1
 - Contacts mesurés dans les deux versions : pied du personnage 2 sur le dos sans y entrer, mains et corps du zombie au-dessus du sol.
+
+## Douzième retour : bras droit du zombie, bouche fermée, bandeau en service
+- **Main droite du zombie et pied du soldat** : mesuré sur toute la boucle, aucune traversée (au plus près 3,2 unités de la jambe
+  d'appui, 8 de la jambe posée sur le dos).
+- **Bras qui « se désaxait »** : le point vers lequel plie le coude était fixe pendant que la main bougeait ; à chaque coup de griffe, le
+  coude basculait d'un côté à l'autre du bras. Il suit maintenant la main, en dehors et au-dessus : le coude reste du même côté (entre 41°
+  et 111° autour du bras). Le coup de griffe était aussi inversé : la main se lève et avance, se pose loin devant, puis racle le sol en
+  revenant vers le corps.
+- **Bouche fermée au repos** : écrasée à 12 % (un trait), elle s'ouvre seulement quand il tend le bras ; les dents du haut ne se voient
+  que bouche ouverte.
+- **Bandeau d'alerte en service** sur le site public, avec les messages par défaut de `contenus/bandeau.json` ; `?bandeau=0` le cache.
+  Le titre du dernier article publié passe en tête (travail déjà fait par le lot 3b, gardé).

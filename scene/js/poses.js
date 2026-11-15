@@ -191,15 +191,19 @@ export function poseZombie(z, stage, t, appui) {
   const coudeL = local(z, 20, 16, 26).lerp(sh.clone().add(versSpect.clone().multiplyScalar(10 * K)).add(V(0, 6 * K, 0)), lisse);
   const doigts = dirWorld(z.root, V(0.08, -0.06, 1)).lerp(versSpect, lisse).normalize();
   arm(z, 'L', mainL, coudeL, doigts, dirWorld(z.root, V(0, -1, 0)));
-  // Bouche : elle s'ouvre quand il tend le bras (et claque un peu des dents pendant qu'il le garde tendu).
+  // Bouche : fermée au repos, elle s'ouvre quand il tend le bras (et claque un peu des dents pendant qu'il le garde tendu).
   const bouche = z.bones.get('boucheZ');
-  if (bouche) bouche.scale.set(1 + 0.15 * lisse, 1 + lisse * (1.0 + 0.15 * onde(t, 16)), 1);
+  // Fermée au repos (retour du propriétaire) : écrasée à 12 % (un trait sombre) ; grande ouverte bras tendu.
+  if (bouche) bouche.scale.set(1 + 0.15 * lisse, 0.12 + lisse * (1.88 + 0.15 * onde(t, 16)), 1);
   const g = cycle(t, 4);
-  // Griffe : la main avance au-dessus du sol (25 % du cycle), se pose, puis racle vers l'arrière (75 %).
+  // Griffe : la main se lève et avance (25 % du cycle), se pose loin devant, puis racle le sol en revenant vers le corps (75 %).
+  // Le coude reste toujours du même côté, en dehors et au-dessus du bras (point de pliage qui suit la main) : avant, fixe, il faisait
+  // basculer le coude d'un côté à l'autre à chaque coup (retour du propriétaire : « le bras se désaxe »).
   const rake = g < 0.25 ? g / 0.25 : 1 - (g - 0.25) / 0.75;
   const lift = g < 0.25 ? Math.sin(Math.PI * (g / 0.25)) * 3.5 : 0;
   const s = rake * rake * (3 - 2 * rake);
-  arm(z, 'R', local(z, -17, 3.8 + lift, 27 - 13 * s), local(z, -30, 17, 14), dirWorld(z.root, V(-0.15, -0.12 - 0.25 * (1 - s), 1)), dirWorld(z.root, V(0, -1, 0)));
+  const mainZ = 14 + 13 * s;
+  arm(z, 'R', local(z, -17, 3.8 + lift, mainZ), local(z, -30, 18, mainZ - 7), dirWorld(z.root, V(-0.15, -0.12 - 0.25 * s, 1)), dirWorld(z.root, V(0, -1, 0)));
 }
 
 // --- Personnage 2 : un pied sur le dos du zombie, le vise vers le bas ---------------------------------------------------------------

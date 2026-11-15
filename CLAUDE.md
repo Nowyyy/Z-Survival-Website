@@ -80,7 +80,7 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   `js/accueil-entree.js` : entrée en scène de l'accueil (chute du Z copiée du jeu dans `css/accueil-chute-z.css`, puis grain VHS ; 1,5 s,
   première visite de la session, `?intro=1` la force) ;
   `js/accueil-accroche.js` : accroche « radio de survie » (écriture lettre par lettre pendant l'entrée ; grésillement en CSS) ;
-  `js/accueil-bandeau.js` : bandeau d'alerte qui défile (affiché seulement avec `?bandeau=1` tant qu'il n'est pas mis en service) ;
+  `js/accueil-bandeau.js` : bandeau d'alerte qui défile en bas de l'accueil (en service ; `?bandeau=0` le cache) ;
   `js/accueil-tir.js` : suit le temps de la vidéo et, à `TEMPS_TIR`, flash du cadre rouge et coup de feu du jeu si le son est activé (idées « catchy » suivies dans `Docs/ref/idees-accroche.md`).
 - `musique/` : propositions de musique (MP3 en boucle, points de boucle dans `boucles.json` ; **M2 retenue**, règles
   d'intégration dans `Docs/ref/musique.md`) et planche d'écoute

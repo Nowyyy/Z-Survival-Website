@@ -1,5 +1,5 @@
-// Accueil : bandeau d'alerte qui défile en bas (idée « catchy » n° 5). Affiché seulement avec ?bandeau=1 dans l'adresse (l'aperçu
-// scene/apercu.html?bandeau=1 le transmet) tant que le propriétaire ne l'a pas mis en service sur le site public.
+// Accueil : bandeau d'alerte qui défile en bas (idée « catchy » n° 5). En service sur le site public (décision du propriétaire) ;
+// ?bandeau=0 dans l'adresse le cache (pour comparer).
 // Messages : SOURCE_BANDEAU (aujourd'hui le fichier contenus/bandeau.json, modifiable sans toucher au code ; demain l'adresse de l'API de
 // l'interface d'administration, même format : Docs/ref/contenus.md). Format : { messages: [{ id, actif, fr, en }] }, texte brut seulement.
 // La piste contient deux fois la liste : le défilement (CSS) boucle sans saut. Les lecteurs d'écran lisent la première copie ; la seconde est
@@ -7,7 +7,7 @@
 // Lot 3b : le titre du dernier article publié passe en tête du bandeau, avec un lien vers l'article (#actu/<slug>), quand il y en a un.
 import { langue, t } from './i18n.js';
 
-export const BANDEAU_ACTIF = new URLSearchParams(window.location.search).get('bandeau') === '1';
+export const BANDEAU_ACTIF = new URLSearchParams(window.location.search).get('bandeau') !== '0';
 export const SOURCE_BANDEAU = 'contenus/bandeau.json';
 
 // Messages valides de la source (chargée une seule fois) : { id, fr, en } avec au moins le français.
