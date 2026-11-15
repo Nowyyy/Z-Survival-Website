@@ -70,8 +70,8 @@ function relaisNeige() {
   setTimeout(attendreScene, 100);
 }());
 
-// Coup de feu de la scène → événement « zs:tir » envoyé à l'accueil du site (js/accueil-tir.js : flash du cadre rouge), comme le fera la
-// vidéo du lot 2. On suit le temps de la boucle de la scène et on signale chaque passage de l'instant du tir.
+// Coup de feu de la scène → événement « zs:tir » envoyé à l'accueil du site (js/accueil-tir.js : flash du cadre rouge, munitions, son),
+// comme le fait la vidéo sur le site (lot 2b) ; retour au début de la boucle → « zs:tour » (munitions remises, heure + 1 min).
 const sceneFrame = document.getElementById('scene');
 let avant = null;
 function suivreTir() {
@@ -85,6 +85,7 @@ function suivreTir() {
       const passe = tour ? avant < s.tir || s.tir <= t : avant < s.tir && s.tir <= t;
       // Un saut de plus d'une seconde (images perdues, premier rendu lent) n'est pas un vrai passage : pas de flash à contretemps.
       const pas = tour ? t + s.duree - avant : t - avant;
+      if (tour && pas < 1) win.document.dispatchEvent(new win.CustomEvent('zs:tour'));
       if (passe && pas < 1) win.document.dispatchEvent(new win.CustomEvent('zs:tir'));
     }
     avant = t;

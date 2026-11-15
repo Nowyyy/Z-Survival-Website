@@ -80,7 +80,20 @@
         <div class="accueil-vhs"></div>
       </div>
       <img class="studio-logo accueil-studio" src="img/no-way-studio.svg" alt="No Way Studio" data-t-alt="studio.logoAlt" width="824" height="628">
-      <p class="marque-provisoire accueil-mention" data-t="accueil.imageAVenir">Image animée — à venir</p>
+
+      <!-- HUD de jeu le long du cadre (lot 2b, js/accueil-tir.js) : manche, heure de nuit (+ 1 min par tour), munitions (30 → 29 au tir). -->
+      <div class="accueil-hud" aria-hidden="true">
+        <div class="hud-colonne hud-gauche">
+          <p class="hud-bloc hud-manche"><span class="hud-libelle" data-t="accueil.hud.manche">Manche</span> <span class="hud-valeur">01</span></p>
+          <p class="hud-bloc hud-heure"><span class="hud-rec"></span><time class="hud-valeur" data-hud="heure" datetime="23:47">23:47</time></p>
+        </div>
+        <div class="hud-colonne hud-droite">
+          <p class="hud-bloc hud-munitions">
+            <svg class="hud-icone" viewBox="0 0 12 24" focusable="false"><path d="M6 1c2.2 2 3.2 4.6 3.2 7.6V19H2.8V8.6C2.8 5.6 3.8 3 6 1z"/><rect x="2" y="20" width="8" height="3" rx="0.6"/></svg>
+            <span class="hud-valeur" data-hud="munitions">30</span>
+          </p>
+        </div>
+      </div>
 
       <div class="accueil-reglages">
         <span class="bouton bouton-bientot" role="status" data-t="commun.bientot">Bientôt disponible</span>

@@ -5,7 +5,7 @@
 import { appliquerTextes, changerLangue, langue, langueInitiale, mouvementReduit, t } from './i18n.js';
 import { ARMES } from './donnees.js';
 import { poserLogo } from './logo.js';
-import { installerFlashTir } from './accueil-tir.js';
+import { installerTir, suivreVideo } from './accueil-tir.js';
 import { installerVideo } from './accueil-video.js';
 import { lancerEntree } from './accueil-entree.js';
 import { taperAccroche } from './accueil-accroche.js';
@@ -306,10 +306,10 @@ activer(Math.max(0, depart));
 const entree = lancerEntree(depart <= 0);
 // Accroche « radio de survie » (js/accueil-accroche.js) : elle s'écrit pendant l'entrée, au moment où elle apparaît (1,3 s).
 if (entree) taperAccroche(document.querySelector('.accueil-sous-titre'), 1300);
-// Flash du cadre de l'accueil au coup de feu de l'image animée (js/accueil-tir.js).
-installerFlashTir(document.getElementById('accueil'));
-// Vidéo en boucle de l'accueil (js/accueil-video.js).
+// Vidéo en boucle de l'accueil (js/accueil-video.js) et tir synchronisé : flash du cadre, HUD, coup de feu (js/accueil-tir.js).
 const accueil = document.getElementById('accueil');
-installerVideo(accueil.querySelector('.accueil-video'), accueil);
+installerTir(accueil);
+const video = installerVideo(accueil.querySelector('.accueil-video'), accueil);
+if (video) suivreVideo(video);
 
 document.body.classList.add('est-pret');

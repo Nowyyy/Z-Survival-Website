@@ -244,9 +244,10 @@
 .entree-accueil .accueil-bandeau { animation: bandeau-entre 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) 1.7s both; }
 @keyframes bandeau-entre { from { transform: translateY(100%); opacity: 0; } }
 
-/* Coup de feu de l'image animée (js/accueil-tir.js, événement « zs:tir ») : le cadre s'illumine d'un coup, son halo s'étend à
-   l'intérieur comme à l'extérieur, puis tout revient en 0,5 s. Couleurs : jetons rouges (--color-action-hover, --color-action). */
-.section-accueil.est-tir .accueil-scene::after { animation: cadre-tir 520ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+/* Coup de feu de la vidéo (js/accueil-tir.js, à TEMPS_TIR de chaque tour) : le cadre s'illumine d'un coup, son halo rouge s'étend à
+   l'intérieur comme à l'extérieur, puis tout revient en 220 ms. Un éclat rouge, jamais blanc, un seul par tour de 8 s.
+   Couleurs : jetons rouges (--color-action-hover, --color-action). */
+.section-accueil.est-tir .accueil-scene::after { animation: cadre-tir 220ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
 @keyframes cadre-tir {
   0% {
     border-color: var(--color-action-hover);
@@ -368,9 +369,78 @@
   .accueil-reglages { top: 48px; right: 52px; }
   .accueil-sous-titre { font-size: 1rem; }
 }
-/* Ordinateur étroit : la mention passe sous la rangée du coin haut droit (elle la toucherait). */
-@media (min-width: 900px) and (max-width: 1023px) {
-  .accueil-mention { top: 112px; }
+
+/* ---------- HUD de jeu (lot 2b, js/accueil-tir.js) ----------
+   Petits indicateurs du jeu le long du cadre : « MANCHE 01 », heure de nuit (+ 1 min par tour de boucle) et munitions (30, puis 29 au tir
+   avec un sursaut). Puces du HUD du jeu (fond --hud-bg, libellé rouge en Rubik Dirt). Jamais sur les logos, les boutons, l'accroche ni
+   « En savoir plus » : téléphone en portrait, sous les deux rangées du haut (logo du studio à gauche, réglages à droite) ; ordinateur et
+   téléphone en paysage, dans les coins du bas, de part et d'autre du titre et du bouton. */
+.accueil-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  font-family: var(--font-label);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  color: var(--color-text);
+}
+.hud-colonne {
+  position: absolute;
+  top: calc(86px + env(safe-area-inset-top));
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-gap);
+}
+.hud-gauche { left: 22px; align-items: flex-start; }
+.hud-droite { right: 22px; align-items: flex-end; }
+.hud-bloc {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  height: 1.75em;
+  padding: 0 0.5em;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  border: 1px solid color-mix(in srgb, var(--hud-border) 55%, transparent);
+  border-radius: var(--hud-radius);
+  background: color-mix(in srgb, var(--hud-bg) calc(var(--hud-bg-alpha) * 100%), transparent);
+}
+.hud-libelle { color: var(--color-action-text); }
+.hud-valeur { font-variant-numeric: tabular-nums; }
+.hud-munitions { font-size: 0.95rem; }
+.hud-munitions .hud-valeur { min-width: 1.4em; text-align: right; }
+.hud-icone { flex: none; width: 0.5em; height: 1em; fill: var(--color-warning); }
+.hud-rec {
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: var(--color-action);
+  box-shadow: 0 0 6px var(--color-action-glow);
+  animation: hud-rec 2s ease-in-out infinite;
+}
+@keyframes hud-rec { 50% { opacity: 0.35; } }
+/* Au tir : le compteur sursaute (et rougit un instant), puis revient. */
+.hud-munitions.est-sursaut { animation: hud-sursaut 280ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+@keyframes hud-sursaut {
+  0% { transform: translateY(-3px) scale(1.16); color: var(--color-action-text); border-color: var(--color-action); }
+  100% { transform: none; }
+}
+/* Téléphone en paysage (peu de hauteur) : coins du bas, comme sur ordinateur. */
+@media (orientation: landscape) and (max-height: 540px) {
+  .hud-colonne { top: auto; bottom: calc(max(8px, env(safe-area-inset-bottom)) + 14px); }
+  .hud-gauche { left: max(22px, calc(env(safe-area-inset-left) + 12px)); }
+  .hud-droite { right: max(22px, calc(env(safe-area-inset-right) + 12px)); }
+  .avec-bandeau .hud-colonne { bottom: calc(max(8px, env(safe-area-inset-bottom)) + 3px + var(--bandeau-h, 34px) + 10px); }
+}
+@media (min-width: 900px) {
+  .hud-colonne { top: auto; bottom: 48px; }
+  .hud-gauche { left: 52px; }
+  .hud-droite { right: 52px; }
+  .hud-bloc { font-size: 0.875rem; }
+  .hud-munitions { font-size: 1.15rem; }
+  .avec-bandeau .hud-colonne { bottom: calc(27px + 38px + 14px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -382,4 +452,5 @@
   .bandeau-piste, .bandeau-titre::before, .entree-accueil .accueil-bandeau { animation: none; }
   .accueil-vhs { display: none; }
   .js .accueil-contenu > * { opacity: 1; transform: none; }
+  .hud-rec, .hud-munitions.est-sursaut { animation: none; }
 }

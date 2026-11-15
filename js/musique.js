@@ -8,11 +8,18 @@
 // - Commutateur silencieux de l'iPhone ignoré : navigator.audioSession.type = 'playback' avant la lecture (Safari 17 et plus).
 // - Onglet caché : pause ; reprise au retour seulement si la musique jouait.
 // - Le choix (activée / coupée) est gardé dans le navigateur, mais ne relance jamais la musique au chargement.
+// - Coup de feu de l'accueil (lot 2b) : le bruit de tir du jeu (sons/coup-de-feu.wav, copie figée : sons/ORIGINE.json), joué par-dessus
+//   la musique au tir de la vidéo (js/accueil-tir.js appelle jouerCoupDeFeu). Mêmes règles que la musique : il ne déclenche jamais le son
+//   à lui seul, il ne sort que si le son du site est activé (lecture en cours) et l'onglet visible ; son fichier n'est téléchargé qu'à
+//   l'activation du son (et jamais en mouvement réduit, où la vidéo ne joue pas).
 // État pour les tests : window.__zsMusique.etat().
-import { t } from './i18n.js';
+import { mouvementReduit, t } from './i18n.js';
 
 // Volume de lecture (gain de 0 à 1). À régler à l'oreille.
 export const VOLUME = 0.4;
+// Volume du coup de feu de l'accueil (gain de 0 à 1), par-dessus la musique. À régler à l'oreille.
+export const VOLUME_TIR = 0.3;
+const SON_TIR = 'sons/coup-de-feu.wav';
 
 const MORCEAU = 'M2';
 const DOSSIER = 'musique/';
@@ -84,6 +91,34 @@ function charger() {
   return chargement;
 }
 
+// Coup de feu : téléchargé et décodé une seule fois, à la première activation du son.
+let tirTampon = null;
+let tirChargement = null;
+let tirsJoues = 0;
+function chargerTir() {
+  if (tirChargement || mouvementReduit()) return;
+  tirChargement = fetch(SON_TIR)
+    .then((r) => { if (!r.ok) throw new Error(`${SON_TIR} : ${r.status}`); return r.arrayBuffer(); })
+    .then(decoder)
+    .then((tampon) => { tirTampon = tampon; })
+    .catch(() => { tirChargement = null; }); // nouvel essai à la prochaine activation
+}
+
+// Joue le coup de feu si le son du site est activé (musique en lecture, contexte en marche) et l'onglet visible ; sinon rien.
+// Retour : vrai si le son est parti.
+export function jouerCoupDeFeu() {
+  if (etat !== 'lecture' || !ctx || ctx.state !== 'running' || document.hidden || !tirTampon || mouvementReduit()) return false;
+  const s = ctx.createBufferSource();
+  s.buffer = tirTampon;
+  const g = ctx.createGain();
+  g.gain.value = VOLUME_TIR;
+  s.connect(g);
+  g.connect(ctx.destination); // à côté de la musique (pas dans ses fondus)
+  s.start();
+  tirsJoues += 1;
+  return true;
+}
+
 function rampe(cible, duree) {
   const now = ctx.currentTime;
   sortie.gain.cancelScheduledValues(now);
@@ -109,6 +144,7 @@ async function activer() {
   if (!contexte()) return;
   if (ctx.state !== 'running') ctx.resume().catch(() => {}); // dans le geste
   garderChoix(true);
+  chargerTir();
   if (source) { // déjà chargée : reprise
     etat = 'lecture';
     majBoutons();
@@ -175,5 +211,8 @@ window.__zsMusique = {
     volume: VOLUME,
     charge: Boolean(source),
     temps: ctx ? ctx.currentTime : null,
+    tirCharge: Boolean(tirTampon),
+    tirsJoues,
+    volumeTir: VOLUME_TIR,
   }),
 };
