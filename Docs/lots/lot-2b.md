@@ -129,6 +129,13 @@ paysage), 1440 × 900**, chacune avec et sans mouvement réduit. Résultat : **1
   télécharge aucune vidéo.
 - Aucun chemin ne commence par « / ».
 
+### En ligne, après la fusion (https://nowyyy.github.io/Z-Survival-Website/)
+- `node outils/video/verifier-accueil.mjs --en-ligne` : **144/144**. Ce sont toutes les vérifications de navigateur ci-dessus, aux huit
+  combinaisons de taille et de mouvement réduit. Le contrôle des fichiers vidéo (raccord, pistes, faststart) ne tourne qu'en local, sur les
+  fichiers du dépôt.
+- `node outils/musique/verifier-site.mjs --en-ligne` (lot 2a : musique, navigation, langues, en-tête) : **158/158**.
+- Le lot 3a (serveur, PR #38), fusionné juste avant, ne touche aucun fichier du site.
+
 ## Poids des fichiers de l'accueil
 
 | Fichier | Poids | Quand |
