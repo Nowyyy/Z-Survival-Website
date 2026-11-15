@@ -75,58 +75,111 @@ export function cheminImage(slug, empreinte) {
 
 const AUTEUR = Object.freeze({ name: 'Z-Survival admin', email: 'z-survival-admin@nowyyy.github.io' });
 
+// Nom de fichier accepté dans img/actus/ (suppression, bibliothèque) : simple, sans dossier ni « .. ».
+const MOTIF_NOM_IMAGE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,150}\.(?:webp|jpe?g|png)$/;
+export const nomImageValide = (nom) => typeof nom === 'string' && MOTIF_NOM_IMAGE.test(nom) && !nom.includes('..');
+/** Chemin img/actus/<nom> si l'image est une image d'article enregistrée par le serveur, sinon null. */
+export function nomDansDossier(chemin) {
+  const prefixe = `${DOSSIER_IMAGES}/`;
+  if (typeof chemin !== 'string' || !chemin.startsWith(prefixe)) return null;
+  const nom = chemin.slice(prefixe.length);
+  return nomImageValide(nom) ? nom : null;
+}
+
 /**
- * Enregistre le fichier dans le dépôt par l'API GitHub : un commit sur la branche, auteur « Z-Survival admin ».
- * Si le même fichier existe déjà (même image envoyée deux fois : même empreinte, donc même chemin), rien n'est recommité.
- * Le jeton n'apparaît jamais dans une erreur : seuls des messages fixes et le code HTTP de GitHub remontent.
- * Retour : { deja_present: boolean, commit: sha|null }.
+ * Appels à l'API GitHub (« contents ») du dépôt du site. Le jeton n'apparaît jamais dans une erreur :
+ * seuls des messages fixes et le code HTTP de GitHub remontent.
  */
-export async function enregistrerSurGithub({ config, chemin, donnees, fetchGithub = fetch }) {
+function clientGithub({ config, fetchGithub = fetch }) {
   const [proprietaire, depot] = config.depotGithub.split('/');
-  const adresse = `${config.apiGithub}/repos/${encodeURIComponent(proprietaire)}/${encodeURIComponent(depot)}/contents/${chemin}`;
+  const base = `${config.apiGithub}/repos/${encodeURIComponent(proprietaire)}/${encodeURIComponent(depot)}/contents/`;
   const entetes = {
     Accept: 'application/vnd.github+json',
     Authorization: `Bearer ${config.jetonGithubImages}`,
     'X-GitHub-Api-Version': '2022-11-28',
     'User-Agent': 'z-survival-serveur',
   };
-  const appeler = async (options) => {
+  const ref = `?ref=${encodeURIComponent(config.brancheGithub)}`;
+  async function appeler(chemin, { methode = 'GET', corps, avecRef = false } = {}) {
     try {
-      return await fetchGithub(options.url, { ...options, signal: AbortSignal.timeout(20_000) });
+      return await fetchGithub(`${base}${chemin}${avecRef ? ref : ''}`, {
+        method: methode,
+        headers: corps ? { ...entetes, 'Content-Type': 'application/json' } : entetes,
+        body: corps ? JSON.stringify(corps) : undefined,
+        signal: AbortSignal.timeout(20_000),
+      });
     } catch {
       throw new ErreurImage(502, 'GitHub ne répond pas. Réessayez dans un moment.');
     }
-  };
-  const refuse = (statut) => {
+  }
+  function refuse(statut) {
     if (statut === 401) return new ErreurImage(502, 'GitHub refuse le jeton des images (expiré ou révoqué ?). Voir Docs/ref/admin.md, « Jeton GitHub ».');
     if (statut === 403 || statut === 404) {
       return new ErreurImage(502, 'Le jeton GitHub des images n’a pas le droit d’écrire dans le dépôt (permission Contents en lecture et écriture).');
     }
-    return new ErreurImage(502, `GitHub a refusé l’envoi de l’image (code ${statut}). Réessayez dans un moment.`);
-  };
+    return new ErreurImage(502, `GitHub a refusé l’opération sur l’image (code ${statut}). Réessayez dans un moment.`);
+  }
+  return { appeler, refuse };
+}
 
-  const existant = await appeler({ url: `${adresse}?ref=${encodeURIComponent(config.brancheGithub)}`, method: 'GET', headers: entetes });
-  if (existant.status === 200) return { deja_present: true, commit: null };
-  if (existant.status !== 404) throw refuse(existant.status);
+/** Images présentes dans img/actus/ du dépôt : [{ nom, chemin, sha, octets }] (dossier absent : liste vide). */
+export async function listerSurGithub({ config, fetchGithub }) {
+  const gh = clientGithub({ config, fetchGithub });
+  const r = await gh.appeler(DOSSIER_IMAGES, { avecRef: true });
+  if (r.status === 404) return [];
+  if (r.status !== 200) throw gh.refuse(r.status);
+  let liste;
+  try { liste = await r.json(); } catch { liste = null; }
+  if (!Array.isArray(liste)) throw new ErreurImage(502, 'Réponse de GitHub illisible.');
+  return liste
+    .filter((f) => f?.type === 'file' && nomImageValide(f.name))
+    .map((f) => ({ nom: f.name, chemin: `${DOSSIER_IMAGES}/${f.name}`, sha: f.sha, octets: f.size }));
+}
 
-  const reponse = await appeler({
-    url: adresse,
-    method: 'PUT',
-    headers: { ...entetes, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      message: `Image d'article : ${chemin}`,
-      content: donnees.toString('base64'),
-      branch: config.brancheGithub,
-      author: AUTEUR,
-      committer: AUTEUR,
-    }),
+/**
+ * Enregistre le fichier dans le dépôt par l'API GitHub : un commit sur la branche, auteur « Z-Survival admin ».
+ * Rien n'est recommité si la même image est déjà dans img/actus/ (même empreinte SHA-256), même sous le nom d'un autre
+ * article : le chemin existant est renvoyé. Retour : { chemin, deja_present, commit }.
+ */
+export async function enregistrerSurGithub({ config, chemin, empreinte, donnees, fetchGithub }) {
+  const gh = clientGithub({ config, fetchGithub });
+  const existantes = await listerSurGithub({ config, fetchGithub });
+  const identique = existantes.find((f) => f.chemin === chemin || (empreinte && f.nom.endsWith(`-${empreinte}.webp`)));
+  if (identique) return { chemin: identique.chemin, deja_present: true, commit: null };
+
+  const reponse = await gh.appeler(chemin, {
+    methode: 'PUT',
+    corps: { message: `Image d'article : ${chemin}`, content: donnees.toString('base64'), branch: config.brancheGithub, author: AUTEUR, committer: AUTEUR },
   });
   if (reponse.status !== 201 && reponse.status !== 200) {
     // 422 : un fichier du même nom est arrivé entre-temps (même image envoyée deux fois en même temps).
-    if (reponse.status === 422) return { deja_present: true, commit: null };
-    throw refuse(reponse.status);
+    if (reponse.status === 422) return { chemin, deja_present: true, commit: null };
+    throw gh.refuse(reponse.status);
   }
   let commit = null;
   try { commit = (await reponse.json())?.commit?.sha ?? null; } catch { /* réponse sans corps lisible : sans gravité */ }
-  return { deja_present: false, commit };
+  return { chemin, deja_present: false, commit };
+}
+
+/**
+ * Supprime img/actus/<nom> du dépôt (un commit « Z-Survival admin » sur la branche) ; GitHub Pages republie le site sans elle.
+ * Déjà absente : rien à faire. Retour : { supprimee: true, deja_absente: boolean }.
+ */
+export async function supprimerSurGithub({ config, nom, fetchGithub }) {
+  if (!nomImageValide(nom)) throw new ErreurImage(400, 'Nom d’image invalide.');
+  const gh = clientGithub({ config, fetchGithub });
+  const chemin = `${DOSSIER_IMAGES}/${nom}`;
+  const lu = await gh.appeler(chemin, { avecRef: true });
+  if (lu.status === 404) return { supprimee: true, deja_absente: true };
+  if (lu.status !== 200) throw gh.refuse(lu.status);
+  let sha = null;
+  try { sha = (await lu.json())?.sha ?? null; } catch { /* sans sha : erreur ci-dessous */ }
+  if (typeof sha !== 'string') throw new ErreurImage(502, 'Réponse de GitHub illisible.');
+  const r = await gh.appeler(chemin, {
+    methode: 'DELETE',
+    corps: { message: `Image d'article supprimée : ${chemin}`, sha, branch: config.brancheGithub, author: AUTEUR, committer: AUTEUR },
+  });
+  if (r.status === 404) return { supprimee: true, deja_absente: true };
+  if (r.status !== 200) throw gh.refuse(r.status);
+  return { supprimee: true, deja_absente: false };
 }

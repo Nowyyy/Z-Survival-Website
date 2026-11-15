@@ -560,9 +560,116 @@ $('image-retirer').addEventListener('click', () => {
   image = '';
   $('image-fichier').value = '';
   majImage();
-  $('image-etat').textContent = 'Image retirée de l’article (enregistrez pour confirmer). Le fichier reste dans le dépôt.';
+  $('image-etat').textContent = 'Image retirée de l’article (enregistrez pour confirmer). Elle reste dans « Réutiliser une image », d’où on peut aussi la supprimer.';
   $('image-etat').hidden = false;
 });
+
+// ---------- Bibliothèque : réutiliser une image déjà envoyée (rien n'est republié) ----------
+
+/** Phrase sur le sort de l'image d'un article supprimé (réponse du serveur : { chemin, supprimee, raison? }). */
+function messageImageSupprimee(info) {
+  if (!info) return '';
+  if (info.supprimee) return ' Son image est supprimée du dépôt (elle disparaît du site d’ici une minute).';
+  if (info.raison === 'utilisee_ailleurs') return ' Son image est gardée : un autre article l’utilise.';
+  if (info.raison === 'non_configure') return ' Son image n’a pas pu être supprimée (jeton GitHub des images absent) : elle reste dans « Réutiliser une image ».';
+  return ` Son image n’a pas pu être supprimée (${info.message ?? 'GitHub injoignable'}) : supprimez-la plus tard depuis « Réutiliser une image ».`;
+}
+
+function nomImage(chemin) { return chemin.slice(chemin.lastIndexOf('/') + 1); }
+
+async function remplirBibliotheque() {
+  const etat = $('bibliotheque-etat');
+  const ul = $('bibliotheque-liste');
+  etat.textContent = 'Chargement des images…';
+  ul.replaceChildren();
+  let r;
+  try {
+    r = await appel('GET', '/api/admin/images');
+  } catch (err) {
+    if (!(err instanceof ErreurSession)) etat.textContent = `Images indisponibles : ${messageErreur(err)}`;
+    return;
+  }
+  const images = r.images.filter((i) => imageValide(i.image));
+  const notes = [];
+  if (!images.length) notes.push('Aucune image envoyée pour l’instant.');
+  else notes.push(`${images.length} image${images.length > 1 ? 's' : ''}.`);
+  if (r.source === 'articles') notes.push('Jeton GitHub des images absent : seules les images des articles sont listées.');
+  etat.textContent = notes.join(' ');
+  ul.replaceChildren(...images.map((i) => {
+    const li = document.createElement('li');
+    li.className = 'admin-vignette';
+    const cadre = document.createElement('div');
+    cadre.className = 'admin-vignette-image';
+    const img = document.createElement('img');
+    img.alt = '';
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.addEventListener('error', () => { cadre.dataset.absente = 'oui'; cadre.textContent = 'Pas encore en ligne (environ une minute après l’envoi)'; }, { once: true });
+    img.src = apercusLocaux.get(i.image) ?? `../${i.image}`;
+    cadre.append(img);
+    const usage = document.createElement('p');
+    usage.className = 'admin-vignette-usage';
+    const autres = i.utilisee_par.filter((a) => a.id !== courant?.id);
+    const ici = i.image === image || i.utilisee_par.some((a) => a.id === courant?.id);
+    const morceaux = [];
+    if (ici) morceaux.push('Cet article');
+    if (autres.length) morceaux.push(`Utilisée par : ${autres.map((a) => `${a.titre_fr || '(sans titre)'}${a.statut === 'publie' ? '' : ' (brouillon)'}`).join(', ')}`);
+    usage.textContent = morceaux.join(' · ') || 'Inutilisée';
+    usage.dataset.libre = String(!i.utilisee_par.length && !ici);
+    const actions = document.createElement('div');
+    actions.className = 'admin-vignette-actions';
+    const utiliser = document.createElement('button');
+    utiliser.type = 'button';
+    utiliser.className = 'bouton bouton-principal';
+    utiliser.textContent = i.image === image ? 'Déjà choisie' : 'Utiliser';
+    utiliser.disabled = i.image === image && !fichierChoisi;
+    utiliser.addEventListener('click', () => reprendreImage(i.image));
+    actions.append(utiliser);
+    if (!i.utilisee_par.length && !ici && r.source === 'depot') {
+      const supprimer = document.createElement('button');
+      supprimer.type = 'button';
+      supprimer.className = 'admin-bouton admin-bouton-danger';
+      supprimer.textContent = 'Supprimer';
+      supprimer.addEventListener('click', () => supprimerImage(i.image, supprimer));
+      actions.append(supprimer);
+    }
+    li.append(cadre, usage, actions);
+    return li;
+  }));
+}
+
+function reprendreImage(chemin) {
+  fichierChoisi = null;
+  image = chemin;
+  $('image-fichier').value = '';
+  majImage();
+  $('image-etat').textContent = 'Image reprise de la bibliothèque : elle est déjà en ligne, rien n’est republié. Pensez à enregistrer l’article.';
+  $('image-etat').hidden = false;
+  $('bibliotheque').close();
+}
+
+async function supprimerImage(chemin, bouton) {
+  if (!window.confirm(`Supprimer l’image « ${nomImage(chemin)} » du site ? Aucun article ne l’utilise. Cette action ne peut pas être annulée.`)) return;
+  bouton.disabled = true;
+  try {
+    await appel('DELETE', `/api/admin/images/${encodeURIComponent(nomImage(chemin))}`);
+    annoncer('Image supprimée du dépôt (elle disparaît du site d’ici une minute).');
+    await remplirBibliotheque();
+  } catch (err) {
+    if (!(err instanceof ErreurSession)) {
+      bouton.disabled = false;
+      $('bibliotheque-etat').textContent = `Image non supprimée : ${messageErreur(err)}`;
+    }
+  }
+}
+
+$('image-bibliotheque').addEventListener('click', () => {
+  $('bibliotheque').showModal();
+  $('bibliotheque').scrollTop = 0;
+  remplirBibliotheque();
+});
+$('bibliotheque-fermer').addEventListener('click', () => $('bibliotheque').close());
+$('bibliotheque').addEventListener('close', () => $('image-bibliotheque').focus());
 
 // ---------- Enregistrer, publier, dépublier, supprimer ----------
 
@@ -656,12 +763,13 @@ $('bouton-depublier').addEventListener('click', () => {
 
 $('bouton-supprimer').addEventListener('click', () => {
   if (!courant) return;
-  if (!window.confirm(`Supprimer définitivement « ${courant.titre_fr} » ? Cette action ne peut pas être annulée.`)) return;
+  const avecImage = imageValide(courant.image) ? ' Son image sera aussi supprimée du site, sauf si un autre article l’utilise.' : '';
+  if (!window.confirm(`Supprimer définitivement « ${courant.titre_fr} » ?${avecImage} Cette action ne peut pas être annulée.`)) return;
   action('Suppression', async () => {
-    await appel('DELETE', `/api/admin/articles/${courant.id}`);
+    const r = await appel('DELETE', `/api/admin/articles/${courant.id}`);
     courant = null;
     definirReference();
-    annoncer('Article supprimé.');
+    annoncer(`Article supprimé.${messageImageSupprimee(r.image)}`, { duree: 9000 });
     await afficherListe();
   });
 });
@@ -691,6 +799,7 @@ function rendreApercu() {
 
 function fermerApercu() {
   if ($('apercu').open) $('apercu').close();
+  if ($('bibliotheque').open) $('bibliotheque').close();
 }
 
 $('bouton-apercu').addEventListener('click', () => {

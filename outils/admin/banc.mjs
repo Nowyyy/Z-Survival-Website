@@ -21,33 +21,44 @@ const libre = () => new Promise((ok) => {
   s.listen(0, '127.0.0.1', () => { const { port } = s.address(); s.close(() => ok(port)); });
 });
 
-/** Fausse API GitHub (contents) : GET → 404/200, PUT → écrit le fichier dans dossierSite et répond 201. */
+/** Fausse API GitHub (contents) : listage de img/actus, lecture (sha), PUT → écrit le fichier dans dossierSite (comme GitHub Pages le
+ *  republierait), DELETE → l'efface. etat.commits : écritures ; etat.suppressions : suppressions. */
 async function fausseApiGithub(dossierSite, jeton) {
-  const etat = { commits: [], refus: false };
+  const etat = { commits: [], suppressions: [], refus: false, fichiers: new Map() };
+  const json = (res, statut, corps) => { res.writeHead(statut, { 'content-type': 'application/json' }); res.end(JSON.stringify(corps)); };
   const serveur = createServer((req, res) => {
     let corps = '';
     req.on('data', (d) => { corps += d; });
     req.on('end', () => {
       const m = /^\/repos\/([^/]+)\/([^/]+)\/contents\/(.+?)(?:\?.*)?$/.exec(req.url);
-      if (!m || req.headers.authorization !== `Bearer ${jeton}` || etat.refus) {
-        res.writeHead(401, { 'content-type': 'application/json' });
-        res.end('{"message":"Bad credentials"}');
+      if (!m || req.headers.authorization !== `Bearer ${jeton}` || etat.refus) { json(res, 401, { message: 'Bad credentials' }); return; }
+      const chemin = decodeURIComponent(m[3]);
+      if (req.method === 'GET' && chemin === 'img/actus') {
+        const liste = [...etat.fichiers].map(([f, info]) => ({ type: 'file', name: f.slice(10), sha: info.sha, size: info.octets }));
+        if (liste.length) json(res, 200, liste); else json(res, 404, { message: 'Not Found' });
         return;
       }
-      const chemin = decodeURIComponent(m[3]);
-      const fichier = join(dossierSite, chemin);
       if (req.method === 'GET') {
-        const connu = etat.commits.some((c) => c.chemin === chemin);
-        res.writeHead(connu ? 200 : 404, { 'content-type': 'application/json' });
-        res.end('{}');
+        if (etat.fichiers.has(chemin)) json(res, 200, { sha: etat.fichiers.get(chemin).sha }); else json(res, 404, {});
         return;
       }
       const donnees = JSON.parse(corps);
+      if (req.method === 'DELETE') {
+        if (!etat.fichiers.has(chemin)) { json(res, 404, {}); return; }
+        if (donnees.sha !== etat.fichiers.get(chemin).sha) { json(res, 409, { message: 'sha' }); return; }
+        etat.fichiers.delete(chemin);
+        rmSync(join(dossierSite, chemin), { force: true });
+        etat.suppressions.push({ chemin, branche: donnees.branch, auteur: donnees.author });
+        json(res, 200, { commit: { sha: randomBytes(20).toString('hex') } });
+        return;
+      }
+      const fichier = join(dossierSite, chemin);
       mkdirSync(dirname(fichier), { recursive: true });
-      writeFileSync(fichier, Buffer.from(donnees.content, 'base64'));
+      const octets = Buffer.from(donnees.content, 'base64');
+      writeFileSync(fichier, octets);
+      etat.fichiers.set(chemin, { sha: randomBytes(20).toString('hex'), octets: octets.length });
       etat.commits.push({ depot: `${m[1]}/${m[2]}`, chemin, branche: donnees.branch, auteur: donnees.author, message: donnees.message });
-      res.writeHead(201, { 'content-type': 'application/json' });
-      res.end(JSON.stringify({ commit: { sha: randomBytes(20).toString('hex') } }));
+      json(res, 201, { commit: { sha: randomBytes(20).toString('hex') } });
     });
   });
   await new Promise((ok) => serveur.listen(0, '127.0.0.1', ok));

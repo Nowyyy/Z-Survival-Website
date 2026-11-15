@@ -271,6 +271,38 @@ let imagePrincipale = '';
   await page.waitForFunction(() => !document.getElementById('ecran-liste').hidden && document.querySelectorAll('.admin-article').length === 1);
   verifier(true, 'supprimer : article supprimé, retour à la liste');
 
+  // Bibliothèque : réutiliser l'image déjà envoyée (rien n'est republié).
+  const commitsAvant = banc.github.commits.length;
+  await page.click('#nouvel-article');
+  await page.fill('#titre_fr', 'Article qui réutilise l’image');
+  await page.click('#image-bibliotheque');
+  await page.waitForSelector('#bibliotheque[open] .admin-vignette');
+  const vignettes = await page.$$eval('.admin-vignette', (l) => l.map((v) => v.querySelector('.admin-vignette-usage').textContent));
+  verifier(vignettes.length === 1 && /^Utilisée par : Nouvelle carte/.test(vignettes[0]), `bibliothèque : image déjà envoyée, avec l’article qui l’utilise (« ${vignettes[0]} »)`);
+  verifier(await page.locator('.admin-vignette .admin-bouton-danger').count() === 0, 'bibliothèque : pas de « Supprimer » pour une image utilisée');
+  await page.screenshot({ path: join(CAPTURES, 'admin-bibliotheque-375.png') });
+  await page.click('.admin-vignette .bouton-principal');
+  await page.waitForSelector('#bibliotheque[open]', { state: 'detached' });
+  verifier(/rien n’est republié/.test(await page.textContent('#image-etat')) && await page.isVisible('#image-apercu'), 'bibliothèque : image reprise, aperçu affiché, « rien n’est republié »');
+  await page.click('#bouton-enregistrer');
+  await page.waitForFunction(() => document.getElementById('statut-article').dataset.statut === 'brouillon');
+  const reutilise = (await banc.api('GET', '/api/admin/articles', { jeton: await banc.connecter() })).json.articles.find((a) => a.slug === 'article-qui-reutilise-l-image');
+  verifier(reutilise?.image === imagePrincipale && banc.github.commits.length === commitsAvant, 'image réutilisée enregistrée dans l’article, aucun nouveau commit');
+
+  // La même photo envoyée de nouveau pour un autre article : le fichier existant est repris.
+  await page.setInputFiles('#image-fichier', { name: 'photo.jpg', mimeType: 'image/jpeg', buffer: photo });
+  await page.click('#image-envoyer');
+  await page.waitForFunction(() => /Image envoyée/.test(document.getElementById('image-etat').textContent), null, { timeout: 15000 });
+  verifier(banc.github.commits.length === commitsAvant, 'même photo envoyée pour un autre article : fichier existant repris, aucun nouveau commit');
+
+  // Supprimer cet article : l'image est gardée (l'article principal l'utilise).
+  suivi.reponses.push(true);
+  await page.click('#bouton-supprimer');
+  verifier(/Son image sera aussi supprimée/.test(suivi.dialogues.at(-1).message), 'confirmation de suppression : l’image partira aussi (sauf si partagée)');
+  await page.waitForFunction(() => /gardée : un autre article/.test(document.getElementById('message').textContent), null, { timeout: 8000 }).catch(() => {});
+  verifier(/gardée : un autre article/.test(await page.textContent('#message')) && existsSync(join(banc.dossierSite, imagePrincipale)) && banc.github.suppressions.length === 0,
+    `article supprimé, image gardée car partagée (« ${(await page.textContent('#message')).trim()} »)`);
+
   // Réponse 401 du serveur : déconnexion propre.
   await page.route(`${ADRESSE_SERVEUR}/api/admin/articles?*`, (r) => r.fulfill({ status: 401, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: '{"erreur":"Connexion requise."}' }), { times: 1 });
   await page.click('#actualiser');
@@ -486,6 +518,53 @@ console.log('\n# Site : adresse partageable, erreur, bandeau');
   await contexte.close();
 }
 
+// ---------- Images : suppression avec l'article, image inutilisée supprimée depuis la bibliothèque ----------
+console.log('\n# Admin : suppression des images');
+{
+  const { page, contexte, suivi, erreursInattendues } = await nouvellePage();
+  await page.goto(`${banc.base}admin/`);
+  await page.fill('#identifiant', banc.identifiant);
+  await page.fill('#mot-de-passe', banc.motDePasse);
+  await page.click('#bouton-connexion');
+  await page.waitForSelector('.admin-article');
+  // Une image envoyée puis retirée de son article : « Inutilisée » dans la bibliothèque, supprimable.
+  await page.click('#nouvel-article');
+  await page.fill('#titre_fr', 'Image orpheline');
+  const autre = await sharp({ create: { width: 800, height: 450, channels: 3, background: '#224466' } }).png().toBuffer();
+  await page.setInputFiles('#image-fichier', { name: 'autre.png', mimeType: 'image/png', buffer: autre });
+  await page.click('#image-envoyer');
+  await page.waitForFunction(() => /Image envoyée/.test(document.getElementById('image-etat').textContent), null, { timeout: 15000 });
+  const orpheline = banc.github.commits.at(-1).chemin;
+  await page.click('#image-retirer');
+  await page.click('#bouton-enregistrer');
+  await page.waitForFunction(() => document.getElementById('statut-article').dataset.statut === 'brouillon');
+  await page.click('#image-bibliotheque');
+  await page.waitForFunction(() => document.querySelectorAll('#bibliotheque[open] .admin-vignette').length === 2);
+  const libre = page.locator('.admin-vignette', { hasText: 'Inutilisée' });
+  verifier(await libre.count() === 1 && await libre.locator('.admin-bouton-danger').count() === 1, 'bibliothèque : image inutilisée signalée, avec « Supprimer »');
+  suivi.reponses.push(true);
+  await libre.locator('.admin-bouton-danger').click();
+  await page.waitForFunction(() => document.querySelectorAll('#bibliotheque .admin-vignette').length === 1, null, { timeout: 8000 }).catch(() => {});
+  verifier(!existsSync(join(banc.dossierSite, orpheline)) && banc.github.suppressions.at(-1)?.chemin === orpheline && banc.github.suppressions.at(-1)?.auteur?.name === 'Z-Survival admin',
+    `image inutilisée supprimée du dépôt (commit simulé sur ${banc.github.suppressions.at(-1)?.branche}, ${orpheline})`);
+  await page.click('#bibliotheque-fermer');
+  suivi.reponses.push(true);
+  await page.click('#bouton-supprimer');
+  await page.waitForSelector('#ecran-liste:not([hidden])');
+
+  // Supprimer l'article principal (seul à utiliser son image) : l'image est supprimée du dépôt.
+  await page.locator('.admin-article', { hasText: 'Nouvelle carte' }).click();
+  await page.waitForSelector('#zone-suppression:not([hidden])');
+  suivi.reponses.push(true);
+  await page.click('#bouton-supprimer');
+  await page.waitForFunction(() => /image est supprimée du dépôt/.test(document.getElementById('message').textContent), null, { timeout: 8000 }).catch(() => {});
+  verifier(/image est supprimée du dépôt/.test(await page.textContent('#message')) && !existsSync(join(banc.dossierSite, imagePrincipale)) && banc.github.suppressions.at(-1)?.chemin === imagePrincipale,
+    `suppression de l’article : son image est supprimée du dépôt (« ${(await page.textContent('#message')).trim()} »)`);
+  verifier((await banc.api('GET', '/api/articles?lang=fr')).json.articles.every((a) => a.slug !== slugPrincipal), 'article supprimé : plus visible côté public');
+  verifier(erreursInattendues(HTTP_VOULU).length === 0, `aucune erreur console inattendue (${erreursInattendues(HTTP_VOULU).join(' | ')})`);
+  await contexte.close();
+}
+
 // ---------- Blocage après 5 essais (en dernier : il bloque l'adresse locale 15 minutes) ----------
 console.log('\n# Admin : blocage');
 {
@@ -508,7 +587,7 @@ console.log('\n# Admin : blocage');
 // ---------- Secrets ----------
 const journal = banc.journalServeur.join('\n');
 verifier(banc.secrets.every((s) => !journal.includes(s)) && !journal.includes(banc.identifiant), 'journal du serveur : aucun secret (mot de passe, clé, empreinte, jeton GitHub, identifiant)');
-verifier(existsSync(join(banc.dossierSite, imagePrincipale)), 'image « commitée » présente dans la copie publiée');
+verifier(banc.github.commits.length >= 2 && banc.github.suppressions.length === 2, `commits simulés : ${banc.github.commits.length} envois, ${banc.github.suppressions.length} suppressions`);
 
 await navigateur.close();
 banc.fermer();

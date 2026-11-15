@@ -127,7 +127,8 @@ Branche `lot-3b`, depuis `main` (`c1f90e4`). Références : `Docs/ref/admin.md` 
 ## Limites
 - **Rien n'a été essayé sur le vrai GitHub ni sur Google Cloud** depuis la session (le jeton ne passe jamais par l'agent) : la route est
   vérifiée contre une API GitHub simulée, le script contre un faux `gcloud`. Le premier vrai envoi d'image confirmera.
-- **Supprimer un article ne supprime pas son image** (ni la retirer de l'article) : le fichier reste dans `img/actus/`.
+- ~~Supprimer un article ne supprime pas son image~~ : corrigé après le retour du propriétaire (voir en fin de bilan). Retirer ou
+  remplacer l'image d'un article garde le fichier (réutilisable, supprimable depuis la bibliothèque).
 - **Une image n'est en ligne qu'environ une minute après l'envoi** (GitHub Pages republie) ; en attendant, le site montre le grand Z.
 - **Chaque image = un commit sur `main`** (et un déploiement Pages) : faire `git pull` avant de travailler sur le site ; une branche de
   lot en cours devra être rebasée.
@@ -171,3 +172,27 @@ La fusion déploie seule le site (workflow « Déploiement GitHub Pages ») et l
 
 ## État git
 - Commits `lot-3b A` à `lot-3b E` sur la branche `lot-3b` ; PR vers `main` fusionnée par l'agent (règle de `CLAUDE.md`).
+
+## Retour du propriétaire (15/11/2026, branche `lot-3b-images`)
+Demande : « En cas de suppression d'un article, il faudrait que l'image soit supprimée. Il faudrait pouvoir aussi réutiliser une
+image déjà utilisée pour éviter de la republier. »
+
+1. **Suppression de l'image avec l'article** : `DELETE /api/admin/articles/:id` supprime aussi l'image du dépôt (API GitHub,
+   commit « Z-Survival admin » sur `main`), **sauf si un autre article l'utilise**. L'article est supprimé d'abord ; si GitHub ne
+   répond pas (ou sans jeton), l'image reste et la réponse le dit (`image.raison`). La confirmation et le message de l'admin le disent.
+2. **Bibliothèque des images** dans l'admin (« Réutiliser une image ») : les images de `img/actus/` (lues dans le dépôt,
+   `GET /api/admin/images`) avec les articles qui les utilisent ; **Utiliser** reprend l'image telle quelle, **rien n'est republié**.
+   Plusieurs articles peuvent partager une image.
+3. **Pas de doublon à l'envoi** : une photo identique (même empreinte) déjà dans `img/actus/`, même envoyée pour un autre article,
+   est reprise au lieu d'être recommitée.
+4. **Images inutilisées** (retirées ou remplacées) : marquées « Inutilisée » dans la bibliothèque, avec **Supprimer**
+   (`DELETE /api/admin/images/:nom`, refusé si un article l'utilise).
+
+Vérifications :
+- `npm test` → **47/47** (7 nouveaux : réutilisation sans commit, bibliothèque et usages, image gardée si partagée, image supprimée
+  avec le dernier article qui l'utilise, panne de GitHub pendant la suppression, suppression d'une image inutilisée et refus si
+  utilisée ou nom invalide, sans jeton GitHub).
+- `outils/admin/verifier-actus.mjs` → **207/207** (12 nouveaux contrôles de bout en bout dans l'admin : bibliothèque, réutilisation
+  sans commit, photo renvoyée reprise, image gardée car partagée, image inutilisée supprimée, image supprimée avec l'article).
+- Le site lui-même n'a pas changé (seuls `admin/`, `serveur/`, `outils/admin/` et la documentation).
+- Rien à refaire de votre côté : le jeton GitHub déjà rangé (permission *Contents* en lecture et écriture) suffit pour supprimer.
