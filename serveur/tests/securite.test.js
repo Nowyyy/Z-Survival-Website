@@ -8,7 +8,7 @@ import { calculerEmpreinte, verifierMotDePasse, lireEmpreinte, ITERATIONS } from
 import { creerJeton, verifierJeton, DUREE_JETON_S } from '../src/jeton.js';
 import { hacherIp, FENETRE_MS } from '../src/limite.js';
 import { creerJournal } from '../src/journal.js';
-import { fabriquer, SECRETS_TEST, ORIGINE, ORIGINE_ANCIENNE } from './aide.js';
+import { fabriquer, SECRETS_TEST, ORIGINE, ORIGINE_ANCIENNE, ORIGINE_WWW } from './aide.js';
 
 describe('empreinte du mot de passe (PBKDF2-SHA256)', () => {
   test('format pbkdf2$600000$<sel>$<empreinte>, sel aléatoire', async () => {
@@ -163,7 +163,7 @@ describe('serveur : connexion, limite, refus, CORS, entrées, secrets', () => {
     assert.equal(Number((await s.db.execute('SELECT COUNT(*) AS n FROM articles')).rows[0].n), 0);
   });
 
-  test('CORS : seulement le site (www.zsurvival-game.com, et nowyyy.github.io pendant la transition) et localhost hors production', async () => {
+  test('CORS : seulement le site (zsurvival-game.com, www et nowyyy.github.io pendant la transition) et localhost hors production', async () => {
     const pre = await s.app.request('/api/admin/articles', {
       method: 'OPTIONS',
       headers: { Origin: ORIGINE, 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'authorization, content-type' },
@@ -183,6 +183,8 @@ describe('serveur : connexion, limite, refus, CORS, entrées, secrets', () => {
     const pub = await s.requete('GET', '/api/articles', { origine: ORIGINE });
     assert.equal(pub.entetes.get('access-control-allow-origin'), ORIGINE);
     assert.match(pub.entetes.get('vary'), /Origin/);
+    const www = await s.requete('GET', '/api/articles', { origine: ORIGINE_WWW });
+    assert.equal(www.entetes.get('access-control-allow-origin'), ORIGINE_WWW, 'www encore accepté');
     const ancienne = await s.requete('GET', '/api/articles', { origine: ORIGINE_ANCIENNE });
     assert.equal(ancienne.entetes.get('access-control-allow-origin'), ORIGINE_ANCIENNE, 'ancienne adresse encore acceptée');
     const preAncienne = await s.app.request('/api/admin/articles', {
@@ -191,8 +193,9 @@ describe('serveur : connexion, limite, refus, CORS, entrées, secrets', () => {
     });
     assert.equal(preAncienne.status, 204);
     for (const refusee of [
-      'https://zsurvival-game.com', // domaine nu : GitHub le redirige vers www, il n'appelle jamais le serveur
-      'http://www.zsurvival-game.com', // http (sans s)
+      'http://zsurvival-game.com', // http (sans s)
+      'http://www.zsurvival-game.com',
+      'https://zsurvival-game.com.exemple.com',
       'https://www.zsurvival-game.com.exemple.com',
       'https://exemple-zsurvival-game.com',
       'https://admin.zsurvival-game.com',
