@@ -2,3 +2,5 @@
 outils/musique/rendu/
 # Images rendues de la scène (PNG, ~1 Go) : regénérées par outils/video/fabriquer.mjs
 outils/video/rendu/
+# Dépendances des outils (opentype.js, wawoff2 : outils/icones/), réinstallées par npm ci
+outils/icones/node_modules/

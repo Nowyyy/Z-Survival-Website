@@ -11,8 +11,10 @@ lecture seule. Le site reprend la DA du jeu : thème « sang noir ».
 - Styles du logo : `css/base.css` (section « Logo »), mêmes règles que `css/base.css` du jeu.
 - Utilisé fixe (sans animation) sur l'accueil et dans l'en-tête (`index.html`).
   L'animation de chute du Z (écran de chargement du jeu, `css/menu.css`) n'est pas reprise.
-- Icônes : `img/icone-48.png` et `img/icone-180.png`, extraites de l'`index.html` du jeu
-  (Z incliné, `scripts/icone.mjs` du jeu).
+- Icônes (lot 4a) : `favicon.ico` (16, 32, 48 px), `img/icones/icone.svg`, `icone-180.png` (Apple), `icone-192.png`, `icone-512.png`,
+  `icone-masquable-512.png` (Android), fabriquées par `outils/icones/fabriquer.mjs` depuis le logo du site (Z de la police du logo,
+  incliné de 13°, contour et coulures de `js/logo.js`, jetons de couleur). Remplacent les anciennes `img/icone-48.png` et
+  `img/icone-180.png` (copiées de l'icône du jeu, `scripts/icone.mjs`). Manifeste : `site.webmanifest`.
 
 ## Logo du studio (No Way Studio)
 - `img/no-way-studio.svg` : copie du **logo fixe** du jeu (`assets/studio/no-way-studio-logo-fixe.svg`,
