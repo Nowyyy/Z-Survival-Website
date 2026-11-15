@@ -59,8 +59,12 @@ Toutes respectent « réduire les animations » et restent légères (HTML, CSS,
   s'écrit) se joue par-dessus la scène. Avant, le site arrivait en une fraction de seconde et son entrée se jouait sur fond noir, avant que la
   scène (plusieurs secondes de construction) soit visible.
 - Pour revoir l'entrée : recharger la page de l'aperçu.
-- La feuille qui rend le fond de l'accueil transparent est ajoutée dès que la page du site commence à se construire (avant son premier
-  affichage), et non plus à la fin de son chargement complet : sur PC, un écran noir d'environ une seconde apparaissait après la neige.
+- Ouverture de l'aperçu (retours du propriétaire, sur PC) :
+  - la même neige que l'entrée du site couvre l'écran dès l'ouverture, pendant que la scène se construit ; elle s'efface quand la neige
+    du site, identique, prend le relais (avant : scène seule, puis neige) ;
+  - le cadre du site est créé une fois la scène prête, et non déclaré dans la page : au rechargement simple, le navigateur restaurait
+    l'ancienne page du site puis la remplaçait, et la nouvelle page arrivait sans la feuille transparente (écran noir) ;
+  - la feuille qui rend le fond de l'accueil transparent est ajoutée à chaque nouvelle page du site, avant son premier affichage.
 
 ## 5 — Bandeau d'alerte (à l'essai)
 - **Pas encore sur le site public** : le propriétaire n'est pas sûr de le garder. Il ne s'affiche qu'avec `?bandeau=1` dans l'adresse :

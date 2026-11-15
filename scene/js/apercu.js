@@ -7,22 +7,6 @@ const sceneParams = new URLSearchParams({ cadrage: q.get('cadrage') ?? 'B', form
 if (q.get('t') !== null) sceneParams.set('t', q.get('t'));
 for (const k of ['p1', 'zb']) if (q.get(k)) sceneParams.set(k, q.get(k)); // réglages d'atelier du placement
 document.getElementById('scene').src = `index.html?${sceneParams}`;
-const site = document.getElementById('site');
-// Le site n'est chargé qu'une fois la scène 3D affichée (elle met plusieurs secondes à se construire) : son entrée en scène (grain VHS,
-// chute du Z, accroche qui s'écrit) se joue ainsi par-dessus la scène, et non sur un fond noir.
-const sceneFrameAttente = document.getElementById('scene');
-(function attendreScene() {
-  const w = sceneFrameAttente.contentWindow;
-  if (w?.__scene?.ready || w?.__sceneError) {
-    // ?lang= et ?bandeau=1 (bandeau d'alerte à l'essai) sont transmis au site.
-    const siteParams = new URLSearchParams();
-    if (q.get('lang')) siteParams.set('lang', q.get('lang'));
-    if (q.get('bandeau') === '1') siteParams.set('bandeau', '1');
-    site.src = `../index.html${siteParams.size ? `?${siteParams}` : ''}#accueil`;
-    return;
-  }
-  setTimeout(attendreScene, 100);
-}());
 
 const CSS = `
 html, body, .section-accueil { background: transparent !important; }
@@ -30,23 +14,61 @@ html, body, .section-accueil { background: transparent !important; }
 .accueil-scene-brume, .accueil-scene-grain, .accueil-mention { display: none !important; }
 .sections { overflow: hidden !important; }
 `;
-// Feuille ajoutée dès que la page du site commence à se construire (sa tête existe), avant son premier affichage : les feuilles de style du
-// site bloquent l'affichage le temps de leur chargement, ce qui laisse le temps de l'ajouter. Avant (retour du propriétaire, sur PC), elle
-// n'était ajoutée qu'à la fin du chargement complet (polices, musique) : le fond noir de l'accueil cachait la scène une seconde après la neige.
+const neige = document.getElementById('neige');
+let site = null; // cadre du site, créé une fois la scène prête
+const siteDoc = () => (site && /index\.html/.test(site.contentWindow?.location.href ?? '') ? site.contentDocument : null);
+
+// Feuille qui rend le fond de l'accueil transparent, ajoutée à CHAQUE nouvelle page du site dès que sa tête existe (avant son premier
+// affichage). Retours du propriétaire, sur PC : ajoutée trop tard (fin du chargement complet), ou perdue quand la page était remplacée, elle
+// laissait voir un écran noir après la neige.
 function rendreTransparent() {
-  const doc = site.contentDocument;
-  if (!doc?.head || !/index\.html/.test(site.contentWindow?.location.href ?? '') || doc.getElementById('apercu-transparent')) return Boolean(doc?.getElementById('apercu-transparent'));
-  const style = doc.createElement('style');
-  style.id = 'apercu-transparent';
-  style.textContent = CSS;
-  doc.head.append(style);
-  doc.documentElement.style.colorScheme = 'normal'; // un iframe en « dark » recevrait un fond opaque
+  const doc = siteDoc();
+  if (!doc?.head) return false;
+  if (!doc.getElementById('apercu-transparent')) {
+    const style = doc.createElement('style');
+    style.id = 'apercu-transparent';
+    style.textContent = CSS;
+    doc.head.append(style);
+    doc.documentElement.style.colorScheme = 'normal'; // un iframe en « dark » recevrait un fond opaque
+  }
   return true;
 }
+// La neige de l'aperçu s'efface quand le site est affichable par-dessus la scène : feuille ajoutée et, s'il joue son entrée, sa propre
+// neige en place (même dessin : le passage ne se voit pas).
+function relaisNeige() {
+  const doc = siteDoc();
+  if (!neige.isConnected || !doc?.body || !doc.getElementById('apercu-transparent')) return;
+  const entree = doc.documentElement.classList.contains('entree-accueil');
+  const vhs = doc.querySelector('.accueil-vhs');
+  if (entree && !(vhs && Number(getComputedStyle(vhs).opacity) > 0.5)) return;
+  requestAnimationFrame(() => requestAnimationFrame(() => neige.remove()));
+}
 (function guetter() {
-  if (!rendreTransparent()) setTimeout(guetter, 4);
+  rendreTransparent();
+  relaisNeige();
+  setTimeout(guetter, neige.isConnected ? 4 : 250); // vite tant que la neige d'attente est là, puis en veille (pages remplacées)
 }());
-site.addEventListener('load', rendreTransparent); // filet de sécurité
+
+// Le cadre du site est créé (et non restauré par le navigateur au rechargement) une fois la scène 3D affichée : son entrée en scène se
+// joue ainsi par-dessus la scène.
+(function attendreScene() {
+  const w = document.getElementById('scene').contentWindow;
+  if (w?.__scene?.ready || w?.__sceneError) {
+    // ?lang= et ?bandeau=1 (bandeau d'alerte à l'essai) sont transmis au site.
+    const siteParams = new URLSearchParams();
+    if (q.get('lang')) siteParams.set('lang', q.get('lang'));
+    if (q.get('bandeau') === '1') siteParams.set('bandeau', '1');
+    site = document.createElement('iframe');
+    site.id = 'site';
+    site.className = 'couche';
+    site.title = 'Accueil du site Z-Survival';
+    site.src = `../index.html${siteParams.size ? `?${siteParams}` : ''}#accueil`;
+    site.addEventListener('load', rendreTransparent); // filet de sécurité
+    neige.before(site);
+    return;
+  }
+  setTimeout(attendreScene, 100);
+}());
 
 // Coup de feu de la scène → événement « zs:tir » envoyé à l'accueil du site (js/accueil-tir.js : flash du cadre rouge), comme le fera la
 // vidéo du lot 2. On suit le temps de la boucle de la scène et on signale chaque passage de l'instant du tir.
@@ -54,7 +76,7 @@ const sceneFrame = document.getElementById('scene');
 let avant = null;
 function suivreTir() {
   const s = sceneFrame.contentWindow?.__scene;
-  const win = site.contentWindow;
+  const win = site?.contentWindow;
   if (s?.ready && typeof s.temps === 'function' && win?.document?.readyState === 'complete') {
     const t = s.temps();
     if (avant !== null && t !== avant) {
@@ -75,5 +97,5 @@ const note = document.getElementById('note');
 if (q.get('capture') === '1') note.remove();
 else setTimeout(() => note.classList.add('cachee'), 4000);
 window.__apercu = {
-  pret: () => Boolean(document.getElementById('scene').contentWindow?.__scene?.ready) && /index\.html/.test(site.contentWindow?.location.href ?? '') && site.contentDocument?.readyState === 'complete',
+  pret: () => Boolean(document.getElementById('scene').contentWindow?.__scene?.ready) && siteDoc()?.readyState === 'complete' && !neige.isConnected,
 };

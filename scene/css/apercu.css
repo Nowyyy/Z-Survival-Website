@@ -9,3 +9,26 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--color-
 }
 .note.cachee { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .note { transition: none; } }
+
+/* Neige d'attente : même dessin que la neige VHS de l'entrée en scène du site (css/accueil.css, .accueil-vhs, image de départ), affichée
+   pendant que la scène 3D se construit ; retirée quand la neige du site, identique, la remplace (js/apercu.js). */
+.neige-attente {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  filter: contrast(1.6) brightness(1.2);
+  background:
+    repeating-linear-gradient(to bottom, color-mix(in srgb, var(--color-bg) 55%, transparent) 0 2px, transparent 2px 4px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 160px 160px,
+    var(--color-bg);
+  animation: neige-attente 0.24s steps(4) infinite;
+}
+@keyframes neige-attente {
+  0%   { background-position: 0 0, 0 0, 0 0; }
+  25%  { background-position: 0 1px, -43px 71px, 0 0; }
+  50%  { background-position: 0 2px, 67px -29px, 0 0; }
+  75%  { background-position: 0 3px, -17px -83px, 0 0; }
+  100% { background-position: 0 0, 0 0, 0 0; }
+}
+@media (prefers-reduced-motion: reduce) { .neige-attente { animation: none; } }

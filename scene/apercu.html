@@ -15,7 +15,9 @@
   <!-- Aperçu (retours du lot 1) : la scène retenue (cadrage B) en fond, plein écran, et par-dessus la vraie page d'accueil du site,
        chargée telle quelle ; seuls son fond provisoire et la mention « Image animée — à venir » sont masqués (dans l'aperçu seulement). -->
   <iframe id="scene" class="couche" title="Scène 3D de l'accueil (cadrage B)" tabindex="-1"></iframe>
-  <iframe id="site" class="couche" title="Accueil du site Z-Survival"></iframe>
+  <!-- Le cadre du site (#site) est créé par js/apercu.js une fois la scène prête. Pendant que la scène se construit, la même neige que
+       l'entrée en scène du site couvre l'écran ; elle s'efface quand la neige du site prend le relais. -->
+  <div id="neige" class="neige-attente" aria-hidden="true"></div>
   <p id="note" class="note">Aperçu provisoire : scène 3D en direct derrière l'accueil du site (la vidéo viendra au lot 2)</p>
 </body>
 </html>
