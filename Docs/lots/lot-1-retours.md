@@ -231,3 +231,26 @@ pas tant que le propriétaire n'a pas validé (il faudra alors rendre ces détai
   amortie) et la bouche se referme. Le flash du cadre rouge du site ne suit encore que le tir du personnage 1.
 - Vérifié : boucle parfaite avec les détails (jonction 0,533 pour une moyenne de 0,587) ; contacts tenus (pied sur le dos, zombie au-dessus
   du sol, même au moment de l'impact). `scene/outils/verifier-boucle.mjs` accepte des paramètres en plus (`… B paysage details=1`).
+
+## Quinzième retour : détails, deuxième passe (`?details=1`)
+Toujours en prévisualisation (`?details=1`), sauf le menton et le dessous du bras, corrigés pour toute la scène (les vidéos de l'accueil
+les reprendront quand elles seront refaites, après validation).
+- **Coup d'œil du personnage 1** déplacé **après son tir** (6,0 à 7,7 s) : le retour de la tête à la normale relance la boucle. Moins
+  « lisse » : départ vif qui dépasse un peu puis se pose, petit réajustement au milieu, retour rapide ; le cou suit la tête avec un léger
+  retard et la tête penche un peu (`coupDoeil`, `scene/js/poses.js`).
+- **Coup d'œil du personnage 2** vers le personnage 1 pendant un moment calme (3,4 à 4,6 s, zombie à terre, entre les deux tirs).
+- **Zombie touché** (tir du personnage 2 à 2,6 s) : la tête tape le sol (petit rebond amorti) et y reste posée (cou recalé à chaque image
+  pour que le bas de la tête reste à 0,1 unité du sol au plus), les yeux se ferment (aplatis, nouvelle articulation `yeuxZ`) ; il se
+  relève doucement de 6,5 à 7,5 s pour retrouver la pose du début de la boucle.
+- **Hélicoptère en métal** : teinte du jeu (olive, qui faisait bois sous la lumière chaude) désaturée vers un gris acier, matière plus
+  métallique et plus lisse, et reflets d'une petite image d'environnement de nuit (ciel, lune, lueur du feu) préfiltrée par Three.js.
+- **Le tir du personnage 2 fait aussi flasher le cadre rouge** dans l'aperçu (`scene/apercu.html?details=1`, deux flashs par boucle).
+  `js/accueil-tir.js` suit maintenant une liste d'instants (`TEMPS_TIRS`, `js/accueil-boucle.js`) ; sur le site elle ne contient encore
+  que le tir du personnage 1 : `TEMPS_TIR_P2` (2,6 s) y sera ajouté quand les vidéos montreront ce tir.
+- **Menton retiré** : la petite sphère sous la bouche des survivants n'existe plus (`visageSurvivant`, `scene/js/enrichissements.js`).
+- **« Trou » sous le bras du personnage 1** : la capsule du torse du jeu dépassait sur les côtés du gilet, sous l'épaule, et faisait une
+  encoche sombre. Elle est maintenant un peu plus étroite que le gilet (`torseSousGilet`), pour les deux tenues.
+- **Barbe du personnage 1** : seulement une texture (couleurs de sommets peintes sur la tête, aucun volume) : mâchoire, menton, joues,
+  pattes et moustache, brun foncé à intensité irrégulière (`peindreBarbe`).
+- Vérifié : boucle parfaite avec et sans détails (jonctions 0,547 et 0,406) ; `outils/video/verifier-accueil.mjs` 172/172,
+  `outils/verifier-lot-4a.mjs` 79/79, vérification de l'atelier sur la copie publiée sans erreur.

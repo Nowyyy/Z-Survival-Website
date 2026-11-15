@@ -7,7 +7,7 @@ import { creerAmbiance } from './ambiance.js';
 import { DUREE } from './boucle.js';
 import { brumeEnBoucle } from './brume.js';
 import { CADRAGES, FORMATS } from './cadrages.js';
-import { MILITAIRE, enrichirPersonnages, enrichirPoses, texturesFines } from './enrichissements.js';
+import { MILITAIRE, enrichirPersonnages, enrichirPoses, peindreBarbe, texturesFines } from './enrichissements.js';
 import { creerFeu } from './feu.js';
 import { creerHelico } from './helico.js';
 import { TIR, TIR_P2, creerTir } from './tir.js';
@@ -59,7 +59,7 @@ try {
   scene.add(stage);
 
   // Hélicoptère agrandi, à la place de celui du jeu, et son incendie.
-  const heli = creerHelico({ heli: m.helico, floor: m.layout.floor, palette, textures, details });
+  const heli = creerHelico({ heli: m.helico, floor: m.layout.floor, palette, textures, details, renderer });
   scene.add(heli);
   const feuHelico = creerFeu({ foyers: heli.userData.foyers, spread: 16, scale: 1.1, palette, flames: 140, smoke: 90, seed: 3, wind: new THREE.Vector3(34, 0, 0), smokeColor: palette.smokeLight, smokeAlpha: 0.26 });
   scene.add(feuHelico.group);
@@ -72,6 +72,12 @@ try {
   // pare-balles sombre, treillis kaki). ?p2=civil : l'ancienne tenue (variante B du jeu, capuche et lampe frontale), pour comparer.
   const p2 = posable(kit.create('player', 0, q.get('p2') === 'civil' ? { choice: 'B', outfit: 0 } : { choice: MILITAIRE, outfit: 0 }), ECHELLE_SCENE);
   PLACEMENT.p1Tete = p1.bones.get('head'); // le personnage 2 lève la tête vers lui (détails)
+  // Barbe du personnage 1 (peinte, aucune pièce 3D) : brun très sombre, mélange de --perso-sombre et --perso-cuir.
+  if (details) {
+    const lin = (tok) => new THREE.Color().setRGB(...m.lookup(tok).map((c) => c / 255), THREE.SRGBColorSpace);
+    const brun = lin('--perso-sombre').lerp(lin('--perso-cuir'), 0.25).multiplyScalar(0.7);
+    peindreBarbe(p1.char, [brun.r, brun.g, brun.b]);
+  }
   const zb = posable(kit.create('zombie', 0, { outfit: 3, wear: 2 }), ECHELLE_SCENE);
   zb.char.setWound(1);
   for (const p of [p1, p2, zb]) scene.add(p.root);
@@ -241,6 +247,7 @@ try {
     // Temps de la boucle de l'image affichée, et instant du coup de feu (aperçu : flash du cadre de l'accueil).
     temps: () => tNow,
     tir: TIR,
+    tirs: details ? [TIR, TIR_P2] : [TIR], // détails : le tir du personnage 2 fait aussi flasher le cadre
     fps: () => fps.value,
     atelier: { p1, p2, zb, stage, THREE },
     info: () => ({ cadrage, format, duree: DUREE, taille: [toile.width, toile.height], triangles: renderer.info.render.triangles, appels: renderer.info.render.calls }),

@@ -68,7 +68,7 @@ function texturePeinteMetal() {
     h ^= h >>> 16;
     return (h >>> 0) / 4294967296;
   };
-  g.fillStyle = '#b8b8b8';
+  g.fillStyle = '#c4c8cc';
   g.fillRect(0, 0, n, n);
   const img = g.getImageData(0, 0, n, n);
   for (let i = 0; i < img.data.length; i += 4) {
@@ -124,7 +124,37 @@ function texturePeinteMetal() {
 }
 
 // heli : décor du jeu (layout.decor.helicopter) ; floor : emprise du bâtiment (le cratère n'y entre pas). Renvoie un groupe.
-export function creerHelico({ heli: heli0, floor, palette, textures, k = ECHELLE_HELICO, details = false }) {
+// Reflets du métal (détails) : petite image d'environnement de nuit (ciel bleu-noir, lune, lueur orange du feu), préfiltrée par Three.js.
+function environnementNuit(renderer, palette) {
+  const env = new THREE.Scene();
+  const ciel = new THREE.Mesh(new THREE.SphereGeometry(100, 32, 16), new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    uniforms: { haut: { value: new THREE.Color(palette.ground) }, bas: { value: new THREE.Color(palette.fog) } },
+    vertexShader: 'varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: 'uniform vec3 haut; uniform vec3 bas; varying vec3 vP; void main(){ gl_FragColor = vec4(mix(bas, haut, clamp(vP.y * 1.5 + 0.3, 0.0, 1.0)) * 1.6, 1.0); }',
+  }));
+  const tache = (couleur, force, x, y, z, r) => {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 8), new THREE.MeshBasicMaterial({ color: new THREE.Color(couleur).multiplyScalar(force) }));
+    m.position.set(x, y, z);
+    env.add(m);
+  };
+  env.add(ciel);
+  tache(palette.sun, 3, -40, 50, -60, 9); // lune
+  tache(palette.fireEdge, 4, 60, 10, 20, 22); // incendie
+  tache(palette.fire, 2.5, -60, 5, 50, 10); // lampes
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const tex = pmrem.fromScene(env, 0.02).texture;
+  pmrem.dispose();
+  return tex;
+}
+// Teinte « acier » : la teinte du jeu (olive brûlé, qui faisait bois sous la lumière chaude) désaturée et refroidie vers un gris bleuté.
+function teinteAcier(rgb) {
+  const l = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+  const acier = [l * 0.92, l * 0.98, l * 1.08];
+  return rgb.map((c, i) => c * 0.25 + acier[i] * 0.75);
+}
+
+export function creerHelico({ heli: heli0, floor, palette, textures, k = ECHELLE_HELICO, details = false, renderer = null }) {
   const heli = { ...heli0, x: heli0.x + HELICO.decalage[0], y: heli0.y + HELICO.decalage[1] };
   const group = new THREE.Group();
   group.name = 'helicoptere-scene';
@@ -158,7 +188,8 @@ export function creerHelico({ heli: heli0, floor, palette, textures, k = ECHELLE
   // Détails (?details=1) : tôle peinte (texture générée) au lieu de la région de l'atlas du jeu, sauf la verrière ; rotor de queue à part,
   // qui tourne lentement autour de son moyeu (group.userData.rotor).
   const rotorIds = new Set(['rotor-queue-1', 'rotor-queue-2']);
-  const metal = details ? new THREE.MeshStandardMaterial({ map: texturePeinteMetal(), vertexColors: true, metalness: 0.35, roughness: 0.62, side: THREE.DoubleSide }) : null;
+  const metal = details ? new THREE.MeshStandardMaterial({ map: texturePeinteMetal(), vertexColors: true, metalness: 0.7, roughness: 0.42, envMap: renderer ? environnementNuit(renderer, palette) : null, envMapIntensity: 1.1, side: THREE.DoubleSide }) : null;
+  if (details) for (const t of all) if (t.region !== 'vitre') t.rgb = teinteAcier(t.rgb);
   const TUILE = 70; // unités du monde par répétition de la tôle (panneaux d'environ 17 unités)
   const uvMetal = (t) => t.p.map((p) => {
     const n = t.n;

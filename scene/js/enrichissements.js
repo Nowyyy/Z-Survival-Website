@@ -26,7 +26,7 @@ function visageSurvivant({ colere = false } = {}) {
   }
   parts.push(box('nez', 'head', 'peau', [1.1, 1.9, 1.3], [0, 4.4, 4.75], [-0.25, 0, 0], { skin: true }));
   parts.push(colere ? box('bouche', 'head', 'sombre', [1.5, 0.3, 0.6], [0, 2.8, 4.35]) : box('bouche', 'head', 'sombre', [1.9, 0.38, 0.6], [0, 2.75, 4.35]));
-  parts.push(sphere('menton', 'head', 'peau', [2.6, 1.6, 1.8], [0, 1.9, 2.9], { skin: true }));
+  // (Pas de « menton » ajouté : la bosse sous la bouche a été retirée, retour du propriétaire.)
   return parts;
 }
 // Paupière gauche du tireur (personnage 1, variante « riche ») : il ferme l'œil gauche pour viser, juste avant le coup de feu, et le
@@ -44,11 +44,14 @@ function paupiere() {
 // visage (seul son devant affleure), portée par une articulation à elle, « boucheZ », placée en son centre ; son échelle l'agrandit en
 // suivant la courbe du visage (un rectangle qui s'allonge flotterait devant le menton, la tête du jeu étant une sphère).
 export const BOUCHE = { id: 'boucheZ', parent: 'head', offset: [0, 2.3, 3.35] };
+// Yeux du zombie (détails : ils se ferment quand la balle le frappe) : les deux globes sont portés par « yeuxZ » ; écrasée, l'articulation ne
+// laisse voir que les orbites sombres (yeux fermés).
+export const YEUX = { id: 'yeuxZ', parent: 'head', offset: [0, 5.0, 4.62] };
 // Squelettes du jeu (copie en mémoire de poses-v2.json) avec les articulations de la paupière et de la bouche ajoutées au squelette v2.
 export function enrichirPoses(poses) {
   const p = structuredClone(poses);
   const joints = p.skeletons?.v2?.joints;
-  for (const j of [PAUPIERE, BOUCHE]) if (Array.isArray(joints) && !joints.some((x) => x.id === j.id)) joints.push({ ...j, range: null });
+  for (const j of [PAUPIERE, BOUCHE, YEUX]) if (Array.isArray(joints) && !joints.some((x) => x.id === j.id)) joints.push({ ...j, range: null });
   return p;
 }
 // Visage d'un zombie : orbites creuses et sombres, yeux pâles, bouche ouverte, dents.
@@ -57,7 +60,7 @@ function visageZombie() {
   for (const s of [1, -1]) {
     const x = 1.7 * s;
     parts.push(sphere(`orbite${s > 0 ? 'L' : 'R'}`, 'head', 'sombre', [1.25, 0.95, 0.55], [x, 5.05, 4.2]));
-    parts.push(sphere(`oeil${s > 0 ? 'L' : 'R'}`, 'head', 'yeux', [0.5, 0.42, 0.3], [x, 5.0, 4.62], { skin: false }));
+    parts.push(sphere(`oeil${s > 0 ? 'L' : 'R'}`, YEUX.id, 'yeux', [0.5, 0.42, 0.3], [x, 0, 0], { skin: false }));
   }
   parts.push(box('nez', 'head', 'peau', [1.1, 1.6, 1.1], [0, 4.0, 4.7], [-0.2, 0, 0], { skin: true }));
   // Au repos, l'articulation est écrasée (bouche fermée : un trait sombre) ; elle s'agrandit quand il tend le bras (js/poses.js). Les dents
@@ -84,6 +87,14 @@ function pistolet() {
 
 // Bras allongés (survivants) : le jeu a des bras de 19 unités (10 + 9) pour une carrure de 23 ; tenir l'arme à deux mains devant les yeux
 // obligeait les bras à rentrer en biais à travers le gilet. Proportions humaines : bras de 22 (11,5 + 10,5), pièces allongées d'autant.
+// Torse du jeu sous le gilet (retour du propriétaire : « un trou sous le bras ») : la capsule de la poitrine (5,2 × 1,85 = 9,6 de
+// demi-largeur) était plus large que le gilet et son bord arrondi ressortait sur le côté, sous le bras. Elle est rétrécie pour rester
+// dedans (cachée par le gilet). demi : demi-largeur intérieure du gilet.
+function torseSousGilet(v, demi) {
+  const p = v.parts.find((x) => x.id === 'chest');
+  if (p?.dims) p.dims = { ...p.dims, sx: Math.min(p.dims.sx ?? 1, (demi - 0.3) / p.dims.r) };
+}
+
 function allongerBras(v) {
   v.joints = { ...(v.joints ?? {}), elbowL: [0, -11.5, 0], elbowR: [0, -11.5, 0], wristL: [0, -10.5, 0], wristR: [0, -10.5, 0] };
   for (const p of v.parts) {
@@ -153,6 +164,8 @@ export function enrichirPersonnages(characters) {
     lisser(v.parts);
     if (v.kind === 'player') {
       allongerBras(v);
+      if (v.id === 'riche') torseSousGilet(v, 17.5 / 2); // gilet du jeu (vestA, 17,5 de large)
+      if (v.id === MILITAIRE) torseSousGilet(v, 16 / 2); // gilet pare-balles (16 de large)
       add(visageSurvivant({ colere: v.id === 'riche' })); // personnage 1 (variante « riche ») en colère
       if (v.id === 'riche') add(paupiere());
       add(pouce());
@@ -181,3 +194,43 @@ export function texturesFines(kit, slots) {
   }
 }
 export { THREE };
+
+// Barbe du personnage 1 (retour du propriétaire : « juste une texture, pas d'élément 3D ») : peinte dans les couleurs des sommets de la
+// tête (le modèle du jeu n'a qu'une texture de détail commune à toute la peau) : mâchoire, menton, moustache et favoris assombris par une
+// barbe de quelques jours, d'intensité irrégulière (hachage par sommet), fondue sur ses bords. char : personnage du kit (char.body) ;
+// rgb : couleur de la barbe en [r, g, b] linéaires. La géométrie modifiée n'est utilisée que par ce personnage (variante « riche »).
+export function peindreBarbe(char, rgb) {
+  const mesh = char.body;
+  const g = mesh.geometry;
+  const pos = g.attributes.position;
+  const col = g.attributes.color;
+  const si = g.attributes.skinIndex;
+  const iTete = mesh.skeleton.bones.findIndex((b) => b.name === 'head');
+  if (iTete < 0 || !col) return;
+  // Centre de la tête au repos : position de repos de l'articulation (inverse de sa matrice de liaison) + décalage de la sphère.
+  const repos = mesh.skeleton.boneInverses[iTete].clone().invert();
+  const centre = new THREE.Vector3(0, 4.5, 0.2).applyMatrix4(repos);
+  const v = new THREE.Vector3();
+  const hache = (i) => {
+    let h = Math.imul(i + 11, 2654435761);
+    h = Math.imul(h ^ (h >>> 15), 2246822519);
+    return ((h ^ (h >>> 13)) >>> 0) / 4294967296;
+  };
+  const fond = (x, a, b) => Math.max(0, Math.min(1, (x - a) / (b - a)));
+  const nouvelle = new Float32Array(col.array);
+  for (let i = 0; i < pos.count; i += 1) {
+    if (si.getX(i) !== iTete) continue;
+    v.fromBufferAttribute(pos, i).sub(centre);
+    const d = Math.hypot(v.x / 4.5, v.y / 4.9, v.z / 4.7);
+    if (d < 0.9 || d > 1.12 || v.z < -0.6) continue; // seulement la surface de la tête, de face et de côté
+    const ax = Math.abs(v.x);
+    const machoire = (1 - fond(v.y, -1.6, -0.9)) * fond(v.z, -0.6, 0.8); // bas du visage, sous la bouche, et le long de la mâchoire
+    const favoris = ax > 3.3 && v.z > 0.9 ? 1 - fond(v.y, -0.6, 0.6) : 0; // joues et favoris, devant les oreilles
+    const moustache = ax < 1.7 && v.z > 3.4 && v.y > -1.65 && v.y < -0.95 ? 1 : 0;
+    const k = Math.max(machoire, favoris, moustache);
+    if (k <= 0) continue;
+    const f = k * (0.55 + 0.35 * hache(i));
+    for (let c = 0; c < 3; c += 1) nouvelle[i * 3 + c] = col.array[i * 3 + c] * (1 - f) + rgb[c] * f;
+  }
+  g.setAttribute('color', new THREE.BufferAttribute(nouvelle, 3));
+}
