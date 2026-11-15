@@ -1,7 +1,7 @@
 // Page unique du site : accueil plein écran (image animée à venir), puis les sections News, Characters,
 // Weapons et About us. Défilement qui s'arrête sur chaque section (scroll-snap en CSS), « En savoir plus » qui
 // descend vers News (on peut remonter vers l'accueil), navigation qui suit la section affichée,
-// apparition du contenu à l'entrée de chaque section, menu de langue (Français / English).
+// apparition du contenu à l'entrée de chaque section, menus de langue (Français / English) sur l'accueil et dans l'en-tête.
 import { appliquerTextes, changerLangue, langue, langueInitiale, mouvementReduit, t } from './i18n.js';
 import { ARMES } from './donnees.js';
 import { poserLogo } from './logo.js';
@@ -118,36 +118,48 @@ function construireCredits() {
   });
 }
 
-// ---------- Menu de langue (globe de l'accueil) ----------
+// ---------- Menus de langue (globe de l'accueil et globe de l'en-tête) ----------
 
-const blocLangue = document.getElementById('langue');
-const boutonLangue = blocLangue.querySelector('.langue-bouton');
-const menuLangue = document.getElementById('langue-menu');
-const choixLangue = [...menuLangue.querySelectorAll('.langue-choix')];
+const menusLangue = [...document.querySelectorAll('.langue')].map((bloc) => ({
+  bloc,
+  bouton: bloc.querySelector('.langue-bouton'),
+  menu: bloc.querySelector('.langue-menu'),
+  choix: [...bloc.querySelectorAll('.langue-choix')],
+}));
+const menuOuvert = () => menusLangue.find((m) => !m.menu.hidden) ?? null;
 
-function ouvrirMenuLangue(ouvrir) {
-  menuLangue.hidden = !ouvrir;
-  boutonLangue.setAttribute('aria-expanded', String(ouvrir));
-  if (ouvrir) (choixLangue.find((b) => b.dataset.langue === langue()) ?? choixLangue[0]).focus();
+function ouvrirMenuLangue(m, ouvrir) {
+  m.menu.hidden = !ouvrir;
+  m.bouton.setAttribute('aria-expanded', String(ouvrir));
+  if (ouvrir) (m.choix.find((b) => b.dataset.langue === langue()) ?? m.choix[0]).focus();
 }
-const menuLangueOuvert = () => !menuLangue.hidden;
+const fermerMenusLangue = () => menusLangue.forEach((m) => { if (!m.menu.hidden) ouvrirMenuLangue(m, false); });
 
-boutonLangue.addEventListener('click', () => ouvrirMenuLangue(!menuLangueOuvert()));
-choixLangue.forEach((b) => {
-  b.addEventListener('click', () => {
-    changerLangue(b.dataset.langue);
-    rendre();
-    ouvrirMenuLangue(false);
-    boutonLangue.focus();
+menusLangue.forEach((m) => {
+  m.bouton.addEventListener('click', () => {
+    const ouvrir = m.menu.hidden;
+    fermerMenusLangue();
+    ouvrirMenuLangue(m, ouvrir);
+  });
+  m.choix.forEach((b) => {
+    b.addEventListener('click', () => {
+      changerLangue(b.dataset.langue);
+      rendre();
+      ouvrirMenuLangue(m, false);
+      m.bouton.focus();
+    });
   });
 });
 document.addEventListener('click', (e) => {
-  if (menuLangueOuvert() && !blocLangue.contains(e.target)) ouvrirMenuLangue(false);
+  const m = menuOuvert();
+  if (m && !m.bloc.contains(e.target)) ouvrirMenuLangue(m, false);
 });
 
 function majLangue() {
-  document.getElementById('langue-code').textContent = langue().toUpperCase();
-  choixLangue.forEach((b) => b.setAttribute('aria-current', String(b.dataset.langue === langue())));
+  menusLangue.forEach((m) => {
+    m.bloc.querySelector('.langue-code').textContent = langue().toUpperCase();
+    m.choix.forEach((b) => b.setAttribute('aria-current', String(b.dataset.langue === langue())));
+  });
 }
 
 // ---------- Rendu des textes ----------
@@ -217,7 +229,7 @@ function activer(index) {
     else a.removeAttribute('aria-current');
   });
   document.body.dataset.section = id;
-  if (id !== 'accueil') ouvrirMenuLangue(false);
+  fermerMenusLangue();
   // Adresse partageable : #news, #weapons… ; rien pour l'accueil.
   const voulu = id === 'accueil' ? '' : `#${id}`;
   if (window.location.hash !== voulu) history.replaceState(null, '', `${window.location.pathname}${window.location.search}${voulu}`);
@@ -260,12 +272,13 @@ document.querySelector('.entete-logo').addEventListener('click', (e) => {
 // Menu de langue ouvert : flèches entre les langues, Échap le referme.
 document.addEventListener('keydown', (e) => {
   if (e.altKey || e.ctrlKey || e.metaKey) return;
-  if (menuLangueOuvert()) {
-    if (e.key === 'Escape') { e.preventDefault(); ouvrirMenuLangue(false); boutonLangue.focus(); return; }
+  const m = menuOuvert();
+  if (m) {
+    if (e.key === 'Escape') { e.preventDefault(); ouvrirMenuLangue(m, false); m.bouton.focus(); return; }
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
-      const i = choixLangue.indexOf(document.activeElement);
-      choixLangue[(i + (e.key === 'ArrowDown' ? 1 : -1) + choixLangue.length) % choixLangue.length].focus();
+      const i = m.choix.indexOf(document.activeElement);
+      m.choix[(i + (e.key === 'ArrowDown' ? 1 : -1) + m.choix.length) % m.choix.length].focus();
       return;
     }
   }

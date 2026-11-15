@@ -25,7 +25,9 @@ publié sur https://nowyyy.github.io/Z-Survival/).
 - **Téléphone d'abord** : le rendu en portrait (375 px de large) est la référence, puis l'ordinateur.
 - **`prefers-reduced-motion`** respecté partout : animations réduites ou coupées.
 - Textes regroupés dans `js/textes.js` (français et anglais : toute nouvelle clé s'écrit dans les deux langues),
-  jamais éparpillés dans le HTML. Les intitulés de section restent en anglais : « News », « Characters », « Weapons », « About us ».
+  jamais éparpillés dans le HTML. Intitulés de section traduits : Accueil / Actualités / Personnages / Armes /
+  À propos en français, Home / News / Characters / Weapons / About us en anglais (identifiants #news, #characters,
+  #weapons, #about inchangés).
 - Le site est servi sous un sous-dossier GitHub Pages : **aucun chemin ne commence par « / »**
   (chemins relatifs uniquement).
 - Les contenus provisoires sont clairement marqués comme tels à l'écran.
@@ -37,7 +39,8 @@ publié sur https://nowyyy.github.io/Z-Survival/).
 ## Organisation
 - `index.html` : **page unique**. Accueil plein écran (image animée à venir, logo du studio, globe
   Français / English, « En savoir plus » + flèche qui descend vers News), puis les sections plein écran
-  News / Characters / Weapons / About us (About us : logo animé du studio rejoué à chaque arrivée,
+  News / Characters / Weapons / About us. Navigation : 01 Accueil à 05 About us. Globe de langue aussi
+  dans l'en-tête, à côté de « Bientôt disponible » (About us : logo animé du studio rejoué à chaque arrivée,
   puis pied de page). En-tête et navigation cachés sur l'accueil.
 - `main.html` : ancienne page principale, simple redirection vers `./#news` (garde l'ancre).
 - `css/`, `js/` : styles et scripts ; `js/site.js` : script de la page ; `js/textes.js` : tous les textes

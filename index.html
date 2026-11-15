@@ -28,15 +28,28 @@
       <span class="entete-separateur" aria-hidden="true"></span>
       <a class="entete-logo" href="#accueil" data-t-aria="commun.accueilAria"><span data-t="accueil.titre">Z-Survival</span></a>
     </div>
-    <span class="bouton bouton-bientot" role="status" data-t="commun.bientot">Bientôt disponible</span>
+    <div class="entete-actions">
+      <span class="bouton bouton-bientot" role="status" data-t="commun.bientot">Bientôt disponible</span>
+      <div class="langue langue-entete">
+        <button class="langue-bouton" type="button" aria-expanded="false" aria-controls="langue-menu-entete" data-t-aria="commun.langue" aria-label="Langue">
+          <svg class="globe-icone" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9.25"/><ellipse cx="12" cy="12" rx="4" ry="9.25"/><path d="M3 9h18M3 15h18"/></svg>
+          <span class="langue-code">FR</span>
+        </button>
+        <ul class="langue-menu" id="langue-menu-entete" hidden>
+          <li><button type="button" class="langue-choix" data-langue="fr" lang="fr">Français</button></li>
+          <li><button type="button" class="langue-choix" data-langue="en" lang="en">English</button></li>
+        </ul>
+      </div>
+    </div>
   </header>
 
   <nav class="nav-sections" data-t-aria="commun.navigation">
     <ol>
-      <li><a href="#news" data-section="news"><span class="brush" aria-hidden="true"></span><span class="nav-num">01</span><span class="nav-nom" data-t="sections.news">News</span></a></li>
-      <li><a href="#characters" data-section="characters"><span class="brush" aria-hidden="true"></span><span class="nav-num">02</span><span class="nav-nom" data-t="sections.characters">Characters</span></a></li>
-      <li><a href="#weapons" data-section="weapons"><span class="brush" aria-hidden="true"></span><span class="nav-num">03</span><span class="nav-nom" data-t="sections.weapons">Weapons</span></a></li>
-      <li><a href="#about" data-section="about"><span class="brush" aria-hidden="true"></span><span class="nav-num">04</span><span class="nav-nom" data-t="sections.about">About us</span></a></li>
+      <li><a href="#accueil" data-section="accueil"><span class="brush" aria-hidden="true"></span><span class="nav-num">01</span><span class="nav-nom" data-t="sections.accueil">Accueil</span></a></li>
+      <li><a href="#news" data-section="news"><span class="brush" aria-hidden="true"></span><span class="nav-num">02</span><span class="nav-nom" data-t="sections.news">Actualités</span></a></li>
+      <li><a href="#characters" data-section="characters"><span class="brush" aria-hidden="true"></span><span class="nav-num">03</span><span class="nav-nom" data-t="sections.characters">Personnages</span></a></li>
+      <li><a href="#weapons" data-section="weapons"><span class="brush" aria-hidden="true"></span><span class="nav-num">04</span><span class="nav-nom" data-t="sections.weapons">Armes</span></a></li>
+      <li><a href="#about" data-section="about"><span class="brush" aria-hidden="true"></span><span class="nav-num">05</span><span class="nav-nom" data-t="sections.about">À propos</span></a></li>
     </ol>
   </nav>
 
@@ -50,12 +63,12 @@
       <img class="studio-logo accueil-studio" src="img/no-way-studio.svg" alt="No Way Studio" data-t-alt="studio.logoAlt" width="824" height="628">
       <p class="marque-provisoire accueil-mention" data-t="accueil.imageAVenir">Image animée — à venir</p>
 
-      <div class="langue" id="langue">
-        <button class="langue-bouton" type="button" aria-expanded="false" aria-controls="langue-menu" data-t-aria="commun.langue" aria-label="Langue">
+      <div class="langue langue-accueil">
+        <button class="langue-bouton" type="button" aria-expanded="false" aria-controls="langue-menu-accueil" data-t-aria="commun.langue" aria-label="Langue">
           <svg class="globe-icone" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9.25"/><ellipse cx="12" cy="12" rx="4" ry="9.25"/><path d="M3 9h18M3 15h18"/></svg>
-          <span class="langue-code" id="langue-code">FR</span>
+          <span class="langue-code">FR</span>
         </button>
-        <ul class="langue-menu" id="langue-menu" hidden>
+        <ul class="langue-menu" id="langue-menu-accueil" hidden>
           <li><button type="button" class="langue-choix" data-langue="fr" lang="fr">Français</button></li>
           <li><button type="button" class="langue-choix" data-langue="en" lang="en">English</button></li>
         </ul>
@@ -72,11 +85,11 @@
     </section>
 
     <!-- News -->
-    <section class="section section-news" id="news" data-num="01" aria-labelledby="titre-news">
+    <section class="section section-news" id="news" data-num="02" aria-labelledby="titre-news">
       <div class="section-interieur">
         <header class="section-entete revele" style="--i:0">
-          <span class="section-num" aria-hidden="true">01</span>
-          <h2 class="section-titre" id="titre-news" data-t="sections.news">News</h2>
+          <span class="section-num" aria-hidden="true">02</span>
+          <h2 class="section-titre" id="titre-news" data-t="sections.news">Actualités</h2>
         </header>
         <p class="section-intro marque-provisoire revele" style="--i:1" data-t="news.intro"></p>
         <ul class="news-liste" id="news-liste"></ul>
@@ -84,11 +97,11 @@
     </section>
 
     <!-- Characters -->
-    <section class="section section-characters" id="characters" data-num="02" aria-labelledby="titre-characters">
+    <section class="section section-characters" id="characters" data-num="03" aria-labelledby="titre-characters">
       <div class="section-interieur">
         <header class="section-entete revele" style="--i:0">
-          <span class="section-num" aria-hidden="true">02</span>
-          <h2 class="section-titre" id="titre-characters" data-t="sections.characters">Characters</h2>
+          <span class="section-num" aria-hidden="true">03</span>
+          <h2 class="section-titre" id="titre-characters" data-t="sections.characters">Personnages</h2>
         </header>
         <p class="section-intro marque-provisoire revele" style="--i:1" data-t="characters.intro"></p>
         <div class="perso-scene emplacement revele" style="--i:2" aria-live="polite">
@@ -100,11 +113,11 @@
     </section>
 
     <!-- Weapons -->
-    <section class="section section-weapons" id="weapons" data-num="03" aria-labelledby="titre-weapons">
+    <section class="section section-weapons" id="weapons" data-num="04" aria-labelledby="titre-weapons">
       <div class="section-interieur">
         <header class="section-entete revele" style="--i:0">
-          <span class="section-num" aria-hidden="true">03</span>
-          <h2 class="section-titre" id="titre-weapons" data-t="sections.weapons">Weapons</h2>
+          <span class="section-num" aria-hidden="true">04</span>
+          <h2 class="section-titre" id="titre-weapons" data-t="sections.weapons">Armes</h2>
         </header>
         <p class="section-intro marque-provisoire revele" style="--i:1" data-t="weapons.intro"></p>
         <div class="arme-choix revele" style="--i:2" id="arme-choix" role="group" data-t-aria="weapons.liste"></div>
@@ -119,11 +132,11 @@
     </section>
 
     <!-- About us -->
-    <section class="section section-about" id="about" data-num="04" aria-labelledby="titre-about">
+    <section class="section section-about" id="about" data-num="05" aria-labelledby="titre-about">
       <div class="section-interieur">
         <header class="section-entete revele" style="--i:0">
-          <span class="section-num" aria-hidden="true">04</span>
-          <h2 class="section-titre" id="titre-about" data-t="sections.about">About us</h2>
+          <span class="section-num" aria-hidden="true">05</span>
+          <h2 class="section-titre" id="titre-about" data-t="sections.about">À propos</h2>
         </header>
         <div class="about-corps">
           <div class="about-studio revele" style="--i:1">
