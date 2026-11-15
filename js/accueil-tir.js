@@ -1,7 +1,7 @@
 // Accueil : tir synchronisé avec la vidéo (lot 2b ; flash du cadre : idée « catchy » n° 1, après le lot 1). UN seul module suit le temps
-// de la vidéo et déclenche, une fois par tour de boucle et par tir de TEMPS_TIRS (js/accueil-boucle.js : TEMPS_TIR, 5,2 s ; le tir du
-// personnage 2 s'y ajoutera quand les vidéos le montreront) :
-//  1. le flash du cadre rouge (css/accueil.css, « est-tir » : environ 200 ms, éclat rouge, jamais blanc ; un par tour de 8 s) ;
+// de la vidéo et déclenche, une fois par tour de boucle et par tir de TEMPS_TIRS (js/accueil-boucle.js : 2,6 s, personnage 2 sur le
+// zombie ; 5,2 s, personnage 1) :
+//  1. le flash du cadre rouge (css/accueil.css, « est-tir » : environ 200 ms, éclat rouge, jamais blanc ; un par tir) ;
 //  2. le coup de feu du jeu (js/musique.js, jouerCoupDeFeu) : seulement si le son du site est activé, l'onglet visible et la vidéo en lecture.
 // Il repère aussi le retour au début de la boucle (« zs:tour », compté). Le HUD de jeu du lot 2b (manche, heure, munitions) est retiré
 // (retour du propriétaire).

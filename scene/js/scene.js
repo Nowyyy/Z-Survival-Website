@@ -19,9 +19,9 @@ const q = new URLSearchParams(location.search);
 const etat = document.getElementById('etat');
 const toile = document.getElementById('toile');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-// Prévisualisation des détails (retours du propriétaire, ?details=1) : rotor de queue qui tourne, tôle de l'hélicoptère, flamme des lampes,
-// regards des personnages au début, tir du personnage 2 sur le zombie. Sans le paramètre : la scène des vidéos actuelles.
-const details = q.get('details') === '1';
+// Détails (retours du propriétaire, validés : scène des vidéos de l'accueil) : rotor de queue qui tourne, tôle de l'hélicoptère, flamme des
+// lampes, regards des personnages, tir du personnage 2 sur le zombie, barbe, gilets texturés. ?details=0 : l'ancienne scène, pour comparer.
+const details = q.get('details') !== '0';
 DETAILS.actif = details;
 const cadrage = CADRAGES[(q.get('cadrage') ?? 'B').toUpperCase()] ? (q.get('cadrage') ?? 'B').toUpperCase() : 'B'; // B : cadrage retenu (retours du lot 1)
 // format=plein : la fenêtre entière, comme le serait la vidéo plein écran de l'accueil (réglage paysage ou portrait selon la fenêtre,

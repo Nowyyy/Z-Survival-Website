@@ -14,7 +14,7 @@ import { createRequire } from 'node:module';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { servirCopiePubliee } from '../copie-publiee.mjs';
-import { DUREE_BOUCLE, IMAGES_PAR_SECONDE, TEMPS_AFFICHE, TEMPS_TIR } from '../../js/accueil-boucle.js';
+import { DUREE_BOUCLE, IMAGES_PAR_SECONDE, TEMPS_AFFICHE, TEMPS_TIR, TEMPS_TIRS } from '../../js/accueil-boucle.js';
 
 const require = createRequire(import.meta.url);
 const ICI = dirname(fileURLToPath(import.meta.url));
@@ -100,7 +100,7 @@ function encoder(format) {
 
 const empreinte = (fichier) => createHash('sha256').update(readFileSync(fichier)).digest('hex');
 
-if (Math.abs(TEMPS_AFFICHE - TEMPS_TIR) < 0.6) throw new Error('TEMPS_AFFICHE trop près du tir');
+if (TEMPS_TIRS.some((t) => Math.abs(TEMPS_AFFICHE - t) < 0.6)) throw new Error('TEMPS_AFFICHE trop près d\'un tir');
 if (!args.get('sans-rendu')) {
   const serveur = await servirCopiePubliee();
   try {
@@ -114,7 +114,7 @@ const manifeste = join(SORTIE, 'fabrication.json');
 const ancien = existsSync(manifeste) ? JSON.parse(readFileSync(manifeste, 'utf8')) : { fichiers: {} };
 const fiche = {
   _note: 'Écrit par outils/video/fabriquer.mjs (lot 2b). Une nouvelle exécution doit redonner les mêmes empreintes.',
-  boucle: { duree: DUREE_BOUCLE, imagesParSeconde: IMAGES_PAR_SECONDE, images: IMAGES, tempsTir: TEMPS_TIR, tempsAffiche: TEMPS_AFFICHE },
+  boucle: { duree: DUREE_BOUCLE, imagesParSeconde: IMAGES_PAR_SECONDE, images: IMAGES, tempsTir: TEMPS_TIR, tempsTirs: TEMPS_TIRS, tempsAffiche: TEMPS_AFFICHE },
   encodage: { codec: 'H.264 High 4.0, yuv420p, deux passes', debit: DEBIT, debitMax: DEBIT_MAX, imageCle: `${2} s`, son: 'aucun', faststart: true, afficheWebp: QUALITE_AFFICHE },
   formats: FORMATS,
   fichiers: { ...ancien.fichiers },

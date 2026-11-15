@@ -36,14 +36,15 @@ node outils/video/fabriquer.mjs
    toutes les 2 s (reprise rapide au même instant quand on tourne l'écran), **sans piste son** (`-an`), **faststart** (index en tête
    de fichier : la lecture démarre avant la fin du téléchargement), métadonnées retirées, encodage déterministe (`-threads 1`,
    `bitexact`). Lisible partout, Safari de l'iPhone compris.
-5. **Affiche** : l'image de `TEMPS_AFFICHE` (2,4 s : bras du zombie tendu, loin de l'éclair du tir), en WebP qualité 78. Le site
+5. **Affiche** : l'image de `TEMPS_AFFICHE` (1,9 s : bras du zombie tendu, bouche ouverte, loin des éclairs des tirs), en WebP qualité 78. Le site
    démarre la vidéo à ce même instant : le passage de l'affiche à la vidéo ne se voit pas.
 
 ## Temps partagés
 
 Toutes les valeurs de temps sont dans **`js/accueil-boucle.js`**, lu à la fois par ce script, par la scène (`scene/js/boucle.js`,
 `scene/js/tir.js`) et par le site (`js/accueil-video.js`, `js/accueil-tir.js`) :
-`DUREE_BOUCLE = 8`, **`TEMPS_TIR = 5.2`**, `IMAGES_PAR_SECONDE = 30`, `TEMPS_AFFICHE = 2.4`.
+`DUREE_BOUCLE = 8`, **`TEMPS_TIR = 5.2`** et **`TEMPS_TIR_P2 = 2.6`** (réunis dans `TEMPS_TIRS`), `IMAGES_PAR_SECONDE = 30`,
+`TEMPS_AFFICHE = 1.9`.
 Si l'une change, relancer ce script : le site suit tout seul.
 
 ## Reproductibilité

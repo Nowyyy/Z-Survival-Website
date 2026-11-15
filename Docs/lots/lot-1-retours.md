@@ -281,3 +281,16 @@ les reprendront quand elles seront refaites, après validation).
   écaillures, suie et rouille. Image raccordable, répétée tous les 240 unités (au lieu de 70) et décalée pour chaque pièce : deux pièces
   voisines ne montrent pas le même morceau de tôle.
 - Vérifié : boucle parfaite avec les détails.
+
+## Dix-neuvième retour : détails validés, mis en ligne
+« C'est parfait, tu peux pousser cette version qui devrait être finale. »
+- **Détails activés par défaut** dans la scène (`scene/js/scene.js` ; `?details=0` : l'ancienne scène, pour comparer) : tous ceux des
+  retours 14 à 18.
+- **Vidéos de l'accueil refaites** (`node outils/video/fabriquer.mjs`) depuis cette scène, avec leurs affiches.
+- **Flash du cadre rouge (et coup de feu, son activé) aux deux tirs** sur le site : `TEMPS_TIRS = [TEMPS_TIR_P2, TEMPS_TIR]` (2,6 et 5,2 s,
+  `js/accueil-boucle.js`).
+- **Affiche** à 1,9 s (au lieu de 2,4 s, qui tombait 0,2 s avant le tir du personnage 2) : bras du zombie tendu, bouche ouverte. La vidéo
+  part de cet instant : le tir du personnage 2 arrive 0,7 s après.
+- `outils/video/fabriquer.mjs` refuse une affiche à moins de 0,6 s d'un des tirs ; `outils/video/verifier-accueil.mjs` attend les deux tirs
+  du tour (personnage 2 puis personnage 1), le retour au début, puis le premier tir du tour suivant, et exclut les deux tirs du calcul du
+  raccord.
