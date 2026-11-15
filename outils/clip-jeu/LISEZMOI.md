@@ -27,12 +27,20 @@ node outils/clip-jeu/fabriquer.mjs
 2. **Jeu ouvert dans Chromium sans écran**, avec son accès de test (`jeu.html?test=1`) : graine fixe (`seed=7`), aucune vague automatique
    (`nospawn=1`), sans effet VHS (`vhs=0` : plus net à petite taille et plus léger), zoom maximal du jeu (`zoom=3`). Le HUD est masqué.
 3. **Horloge contrôlée** (`page.clock` de Playwright) : chaque image avance le jeu d'exactement 1/30 s, quel que soit le temps de rendu.
-4. **Action** : des groupes de zombies apparaissent à des instants fixes autour du joueur (`REGLAGES.vagues`) ; la visée pivote vers le zombie le
-   plus proche (520° par seconde au plus : vite, mais pas d'un coup) ; le tir est celui du jeu (automatique quand un zombie est dans la ligne de visée). Environ 10 zombies tués en 8 s.
+4. **Action** : des groupes de zombies apparaissent à des instants fixes autour du point de départ (`REGLAGES.vagues`). Le survivant
+   **se déplace** : il marche sur un huit qui revient à son point de départ en exactement 8 s (la boucle reste propre), commandé comme un
+   joystick analogique qui suit le parcours (`REGLAGES.pilote.parcours`). Sa **visée est « humaine »** (`REGLAGES.pilote.visee`) : temps de
+   réaction de 0,2 à 0,3 s avant de changer de cible après un zombie abattu, rotation amortie (accélère, dépasse un peu, se reprend), petit
+   tremblement de la main, et sans cible le regard suit la direction de marche. Le tir est celui du jeu (automatique quand un zombie est dans
+   la ligne de visée ; le cône s'élargit en marchant, des balles partent à côté). Environ 8 zombies tués en 8 s.
 5. **Cadrage** : 800 × 450 autour du joueur dans une fenêtre de 1600 × 900 (personnages deux fois plus grands qu'en plein écran au zoom maximal du jeu, sans perte de netteté).
 6. **Boucle** : 255 images rendues ; la vidéo commence à l'image 15 et ses 15 dernières images sont fondues dans les 15 premières (0,5 s) :
    la fin rejoint le début sans saut (les corps au sol apparaissent et disparaissent dans ce fondu).
-7. **Encodage** : léger éclaircissement (le jeu est sombre et la vidéo petite dans la page), H.264 `crf 27`, métadonnées retirées.
+7. **Images éteintes** : quand la caméra bouge, la carte d'ombres du soleil du jeu rate parfois une ou deux images (une grande bande d'ombre
+   couvre la scène, qui perd jusqu'à la moitié de sa lumière). Après le rendu, une image sous 85 % de la luminosité médiane de ses 8 voisines
+   est remplacée par le mélange des images saines qui l'entourent (séries de 3 images au plus ; au-delà, le script prévient et n'y touche
+   pas). Les images réparées sont notées dans `fabrication.json`.
+8. **Encodage** : léger éclaircissement (le jeu est sombre et la vidéo petite dans la page), H.264 `crf 27`, métadonnées retirées.
 
 ## Refaire le clip quand le jeu change
 Relancer le script : il recopie la branche `dev` du jeu. Le commit utilisé est noté dans `fabrication.json`. Si la salle de départ change

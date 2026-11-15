@@ -81,20 +81,48 @@
           ]
         ]
       ]
-    ]
+    ],
+    "pilote": {
+      "parcours": {
+        "ax": 110,
+        "ay": 35,
+        "periode": 8,
+        "rappel": 4
+      },
+      "visee": {
+        "pulsation": 14,
+        "amortissement": 0.65,
+        "vitesseMax": 9,
+        "reaction": [
+          6,
+          9
+        ],
+        "tremblement": 0.05,
+        "tremblementLibre": 0.15
+      }
+    }
   },
   "rendu": {
-    "zombies_tues": 10,
-    "vie": 100
+    "zombies_tues": 8,
+    "vie": 77,
+    "images_eteintes_reparees": [
+      14,
+      49,
+      50,
+      132,
+      133,
+      170,
+      254
+    ]
   },
   "fichiers": {
     "img/a-propos/jeu-clip.mp4": {
-      "octets": 262005,
-      "sha256": "3910a6868e32d0762d55dd8eee3a45e093e2300b2570a193790614aaabd0ff7c"
+      "octets": 419332,
+      "sha256": "3b3c3b111df7d5ec675ca8f822ea161cea6214bb40eb6ffd0260a1b823e3346a"
     },
     "img/a-propos/jeu-clip.webp": {
-      "octets": 16786,
-      "sha256": "e40a1fda9dccc5f64e64def9e4e05666e8a1ce48a7c8ba8f9bf54f7e6a31f398"
+      "octets": 15920,
+      "sha256": "4df1d63c176c16fd58b4096982a1254cbe409db2d2e08eb7aa01abe2a7141471"
     }
   }
 }

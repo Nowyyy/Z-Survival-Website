@@ -76,6 +76,29 @@ du jeu avec le perso qui tire sur des zombies, une petite boucle de 5-10 s pas p
 2. Sur téléphone : il démarre en arrivant sur À propos ; en mode économie d'énergie de l'iPhone, l'affiche fixe reste, sans bouton de lecture.
 3. Réglages → Accessibilité → Réduire les animations : affiche fixe seulement.
 
+## Retour du propriétaire (15/11/2026, branche `lot-4b-retours`) : le survivant se déplace, visée moins « automatique »
+- **Déplacement** : le survivant marche sur un huit autour de son point de départ (allure de marche, environ 100 u/s au plus), commandé comme un
+  joystick analogique. Le huit dure exactement 8 s : il revient à son point de départ au bout de la boucle, le raccord reste propre. La caméra
+  du jeu le suit, le décor défile.
+- **Visée humaine** :
+  - après un zombie abattu, **temps de réaction** de 0,2 à 0,3 s avant de viser le suivant ;
+  - **rotation amortie** : elle accélère, dépasse un peu la cible puis se reprend, au lieu de se verrouiller d'un coup ;
+  - petit **tremblement** de la main ;
+  - sans cible, le regard suit la direction de marche.
+  Le tir reste celui du jeu ; en marchant, son cône s'élargit et des balles partent à côté. Résultat : 8 zombies tués en 8 s (10 avant), et le
+  survivant se fait toucher une fois.
+- **Images éteintes** : avec la caméra en mouvement, la carte d'ombres du soleil du jeu rate parfois une ou deux images (une bande d'ombre
+  couvre la moitié de la scène, puis tout revient). Le jeu, mesuré dans sa propre image, ne montre pas cette baisse : c'est un défaut du rendu
+  logiciel du navigateur sans écran. Le script repère ces images après le rendu (sous 85 % de la luminosité de leurs voisines) et les remplace
+  par le mélange des images saines qui les entourent. Les images réparées sont notées dans `fabrication.json`.
+- Vidéo plus lourde, parce que le décor défile : **410 Kio** (256 Kio avant), affiche de 16 Kio. Sept images réparées dans cette version
+  (14, 49, 50, 132, 133, 170, 254 sur 255).
+- Vérifications :
+  - `outils/verifier-lot-4b.mjs` **26/26** (le site ne change pas, seul le clip est refait) ;
+  - raccord de la boucle 5,76, contre 4,44 en médiane pour les passages d'image ordinaires (le décor bouge) ;
+  - plus aucune image éteinte : la luminosité ne descend jamais sous 90 % de ses voisines (le creux restant est le vacillement normal de la
+    lampe murale du jeu, progressif).
+
 ## État git
 - Commits `lot-4b A` à `lot-4b C` sur la branche `lot-4b`, PR vers `main` fusionnée par l'agent (règle de `CLAUDE.md`).
 - Tag `lot-4b` créé en local ; son envoi sur GitHub est refusé par l'environnement de l'agent, comme pour les lots précédents.
