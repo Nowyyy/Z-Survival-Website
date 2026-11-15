@@ -2,6 +2,8 @@
 
 Site vitrine du jeu **Z-Survival** (jeu web de survie zombies en Three.js, vue de dessus,
 publié sur https://nowyyy.github.io/Z-Survival/).
+Adresse du site : **https://www.zsurvival-game.com/** (GitHub Pages, domaine chez OVH ; réglages et zone DNS :
+`Docs/ref/nom-de-domaine.md`). L'ancienne adresse https://nowyyy.github.io/Z-Survival-Website/ y redirige.
 
 ## Fonctionnement par lots
 - Le travail avance par **lots** numérotés (lot-0, lot-1, …). Chaque lot a sa consigne.
@@ -28,8 +30,8 @@ publié sur https://nowyyy.github.io/Z-Survival/).
   jamais éparpillés dans le HTML. Intitulés de section traduits : Accueil / Actualités / Personnages / Armes /
   À propos en français, Home / News / Characters / Weapons / About us en anglais (identifiants #news, #characters,
   #weapons, #about inchangés).
-- Le site est servi sous un sous-dossier GitHub Pages : **aucun chemin ne commence par « / »**
-  (chemins relatifs uniquement).
+- **Aucun chemin ne commence par « / »** (chemins relatifs uniquement) : le site doit marcher à la racine du domaine comme
+  sous un sous-dossier (copies de vérification servies sous `/Z-Survival-Website/`, ancienne adresse GitHub Pages).
 - Les contenus provisoires sont clairement marqués comme tels à l'écran.
 - **Direction artistique = celle du jeu** (`Docs/ref/direction-artistique.md`) : couleurs en jetons
   dans `css/base.css` (mêmes noms que `css/tokens.css` du jeu), logo au Z incliné (`js/logo.js`),
