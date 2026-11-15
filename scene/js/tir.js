@@ -21,11 +21,13 @@ export function oeilFerme(t) {
   if (d < total + FERME.ouvrir) return 1 - lisse((d - total) / FERME.ouvrir);
   return 0;
 }
-// Temps écoulé depuis le coup de feu (0 à DUREE), périodique.
-const depuis = (t) => ((((t - TIR) % DUREE) + DUREE) % DUREE);
+// Prévisualisation des détails (?details=1, retours du propriétaire) : le personnage 2 tire sur le zombie quand il tend le bras.
+export const TIR_P2 = 2.6;
+// Temps écoulé depuis le coup de feu (0 à DUREE), périodique ; instant : celui du tir (personnage 1 par défaut).
+const depuis = (t, instant = TIR) => ((((t - instant) % DUREE) + DUREE) % DUREE);
 // Recul de 0 à 1 : coup sec (0,03 s) puis retour adouci ; 0 hors du recul.
-export function recul(t) {
-  const d = depuis(t);
+export function recul(t, instant = TIR) {
+  const d = depuis(t, instant);
   if (d >= RECUL) return 0;
   if (d < 0.03) return d / 0.03;
   const k = 1 - (d - 0.03) / (RECUL - 0.03);
@@ -84,7 +86,7 @@ function jet() {
 }
 
 // palette : readPalette() ; laiton : couleur de la douille ; echelle : celle de la mise en scène (stage).
-export function creerTir({ palette, laiton, echelle = 1 }) {
+export function creerTir({ palette, laiton, echelle = 1, instant = TIR, lumiereMax = 3200 }) {
   const group = new THREE.Group();
   group.name = 'tir';
   const muzzle = new THREE.Color(palette.muzzle);
@@ -112,7 +114,7 @@ export function creerTir({ palette, laiton, echelle = 1 }) {
     group,
     // prop : os de l'arme du personnage 1 (après la pose) ; k : échelle du personnage (unités du monde par unité du personnage).
     update(t, prop, k = echelle) {
-      const d = depuis(t);
+      const d = depuis(t, instant);
       prop.updateMatrixWorld(true);
       prop.getWorldQuaternion(q);
       fwd.set(0, 0, 1).applyQuaternion(q);
@@ -132,7 +134,7 @@ export function creerTir({ palette, laiton, echelle = 1 }) {
         flamme.scale.set(6 * k, (9 + 4 * f) * k, 6 * k); // courte : longue, elle passait pour un trait de laser
       }
       lumiere.position.copy(tip).addScaledVector(fwd, 4 * k);
-      lumiere.intensity = d < 0.12 ? 3200 * (1 - d / 0.12) ** 2 : 0;
+      lumiere.intensity = d < 0.12 ? lumiereMax * (1 - d / 0.12) ** 2 : 0;
       // Douille : éjectée vers la droite et vers le haut, retombe en 0,55 s, puis disparaît (au sol, hors de vue de la boucle).
       const vol = d - 0.02;
       douille.visible = vol > 0 && vol < 0.55;

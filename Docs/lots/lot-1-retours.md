@@ -214,3 +214,20 @@ Suite du lot 1 (`Docs/lots/lot-1.md`). Branche `lot-1-retours`, PR fusionnée pa
 - **Encart « Disponible sur Navigateur »** (téléphone et tablette en portrait) : depuis que le bas de l'accueil est resserré avec le
   bandeau, le bouton descendait au niveau de l'encart et le chevauchait (8 échecs de `outils/video/verifier-accueil.mjs`). L'encart reste
   en bas à gauche, mais juste au-dessus du titre (`css/accueil.css`). Paysage et ordinateur inchangés.
+
+## Quatorzième retour : petits détails, en prévisualisation (`?details=1`)
+Visibles seulement avec `?details=1` (`scene/index.html` et `scene/apercu.html`) : les vidéos de l'accueil et le site public ne changent
+pas tant que le propriétaire n'a pas validé (il faudra alors rendre ces détails permanents et refaire les vidéos).
+- **Rotor de queue** de l'hélicoptère : pièces détachées dans leur propre maillage, qui tourne autour du moyeu (axe = normale de la plus
+  grande face), un tour par boucle (`scene/js/helico.js`).
+- **Tôle de l'hélicoptère** : texture de tôle peinte générée en code (panneaux, rivets, rayures, suie et rouille), multipliée par les teintes
+  du jeu, matière métal légère ; la verrière garde la texture du jeu. Avant : la région de l'atlas du jeu, qui faisait « bois ».
+- **Flamme des lampes** qui vacille : sommets émissifs étirés et balancés autour du bas de la flamme (`scene/js/ambiance.js`).
+- **Personnage 1** : de 0,15 à 2,05 s, il tourne la tête vers sa droite (notre gauche), comme pour regarder hors champ, puis revient à sa
+  cible (`regardP1`, `scene/js/poses.js`).
+- **Personnage 2** : au même moment (0,25 à 2,15 s), il lève la tête vers le personnage 1 (`regardP2`).
+- **Tir du personnage 2** à 2,6 s (`TIR_P2`, `scene/js/tir.js`), quand le zombie a le bras tendu et la bouche ouverte : recul, éclair (plus
+  faible que celui du personnage 1), douille, fumée ; le bras du zombie retombe d'un coup (0,18 s), sa tête est rabattue au sol (secousse
+  amortie) et la bouche se referme. Le flash du cadre rouge du site ne suit encore que le tir du personnage 1.
+- Vérifié : boucle parfaite avec les détails (jonction 0,533 pour une moyenne de 0,587) ; contacts tenus (pied sur le dos, zombie au-dessus
+  du sol, même au moment de l'impact). `scene/outils/verifier-boucle.mjs` accepte des paramètres en plus (`… B paysage details=1`).

@@ -10,15 +10,19 @@ import { CADRAGES, FORMATS } from './cadrages.js';
 import { MILITAIRE, enrichirPersonnages, enrichirPoses, texturesFines } from './enrichissements.js';
 import { creerFeu } from './feu.js';
 import { creerHelico } from './helico.js';
-import { TIR, creerTir } from './tir.js';
+import { TIR, TIR_P2, creerTir } from './tir.js';
 import { chargerDonnees, construireMonde } from './monde.js';
 import { creerKit, posable } from './persos.js';
-import { ECHELLE_SCENE, PLACEMENT, appuiAt, poseP1, poseP2, poseZombie } from './poses.js';
+import { DETAILS, ECHELLE_SCENE, PLACEMENT, appuiAt, poseP1, poseP2, poseZombie } from './poses.js';
 
 const q = new URLSearchParams(location.search);
 const etat = document.getElementById('etat');
 const toile = document.getElementById('toile');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Prévisualisation des détails (retours du propriétaire, ?details=1) : rotor de queue qui tourne, tôle de l'hélicoptère, flamme des lampes,
+// regards des personnages au début, tir du personnage 2 sur le zombie. Sans le paramètre : la scène des vidéos actuelles.
+const details = q.get('details') === '1';
+DETAILS.actif = details;
 const cadrage = CADRAGES[(q.get('cadrage') ?? 'B').toUpperCase()] ? (q.get('cadrage') ?? 'B').toUpperCase() : 'B'; // B : cadrage retenu (retours du lot 1)
 // format=plein : la fenêtre entière, comme le serait la vidéo plein écran de l'accueil (réglage paysage ou portrait selon la fenêtre,
 // même champ horizontal que l'image de référence 16:9 ou 9:16, jamais de bande noire). Sert à l'aperçu (apercu.html).
@@ -55,7 +59,7 @@ try {
   scene.add(stage);
 
   // Hélicoptère agrandi, à la place de celui du jeu, et son incendie.
-  const heli = creerHelico({ heli: m.helico, floor: m.layout.floor, palette, textures });
+  const heli = creerHelico({ heli: m.helico, floor: m.layout.floor, palette, textures, details });
   scene.add(heli);
   const feuHelico = creerFeu({ foyers: heli.userData.foyers, spread: 16, scale: 1.1, palette, flames: 140, smoke: 90, seed: 3, wind: new THREE.Vector3(34, 0, 0), smokeColor: palette.smokeLight, smokeAlpha: 0.26 });
   scene.add(feuHelico.group);
@@ -67,6 +71,7 @@ try {
   // Personnage 2 : militaire, au style différent du personnage 1 (js/enrichissements.js, variante « militaire » : casque, gilet
   // pare-balles sombre, treillis kaki). ?p2=civil : l'ancienne tenue (variante B du jeu, capuche et lampe frontale), pour comparer.
   const p2 = posable(kit.create('player', 0, q.get('p2') === 'civil' ? { choice: 'B', outfit: 0 } : { choice: MILITAIRE, outfit: 0 }), ECHELLE_SCENE);
+  PLACEMENT.p1Tete = p1.bones.get('head'); // le personnage 2 lève la tête vers lui (détails)
   const zb = posable(kit.create('zombie', 0, { outfit: 3, wear: 2 }), ECHELLE_SCENE);
   zb.char.setWound(1);
   for (const p of [p1, p2, zb]) scene.add(p.root);
@@ -77,12 +82,15 @@ try {
   const laiton = new THREE.Color().setRGB(...m.lookup('--perso-casque').map((c) => c / 255), THREE.SRGBColorSpace);
   const tir = creerTir({ palette, laiton, echelle: ECHELLE_SCENE });
   scene.add(tir.group);
+  // Détails : coup de feu du personnage 2 sur le zombie (TIR_P2).
+  const tir2 = details ? creerTir({ palette, laiton, echelle: ECHELLE_SCENE, instant: TIR_P2, lumiereMax: 1100 }) : null; // canon vers le bas, tout près de lui : éclat plus faible
+  if (tir2) scene.add(tir2.group);
 
   // Lampe frontale du personnage 2 (variante B du jeu) : un faisceau faible vers la tête du zombie.
   const frontale = new THREE.SpotLight(new THREE.Color().setRGB(...m.lookup('--perso-lampe').map((c) => c / 255), THREE.SRGBColorSpace), 900, 420, 0.38, 0.6, 1.2);
   scene.add(frontale, frontale.target);
 
-  const ambiance = creerAmbiance({ world, palette, textures, stage, heli, lampes: [{ x: -96, z: -64, cap: 30 }, { x: 104, z: -118, cap: -35 }], fenetres: d.world.windows ?? [], render: m.render });
+  const ambiance = creerAmbiance({ world, palette, textures, stage, heli, lampes: [{ x: -96, z: -64, cap: 30 }, { x: 104, z: -118, cap: -35 }], fenetres: d.world.windows ?? [], render: m.render, details });
   const brume = brumeEnBoucle(world, { vitesse: 3, force: 1.3 });
 
   const camera = new THREE.PerspectiveCamera(40, FORMATS[format], 2, 40000);
@@ -155,6 +163,9 @@ try {
     poser(u);
     feuHelico.update(u);
     tir.update(u, p1.bones.get('prop'), ECHELLE_SCENE);
+    tir2?.update(u, p2.bones.get('prop'), ECHELLE_SCENE);
+    // Rotor de queue : un tour par boucle (au ralenti), boucle parfaite.
+    if (heli.userData.rotor) heli.userData.rotor.pivot.quaternion.setFromAxisAngle(heli.userData.rotor.axe, (2 * Math.PI * u) / DUREE);
     p2.bones.get('head').localToWorld(q.get('p2') === 'civil' ? frontale.position.set(0, 7, 5) : frontale.position.set(-5.2, 7.3, 2.4)); // lampe frontale ou lampe du casque
     zb.bones.get('head').getWorldPosition(frontale.target.position);
     ambiance.update(u);
