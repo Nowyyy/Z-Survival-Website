@@ -163,3 +163,8 @@ Suite du lot 1 (`Docs/lots/lot-1.md`). Branche `lot-1-retours`, PR fusionnée pa
 ## Neuvième retour : bras encore plus bas
 - Le zombie tend le bras vers le spectateur **presque à l'horizontale**, main à environ 9 unités du sol au plus fort (au lieu de 12) :
   `PLACEMENT.spectateur` abaissé de 42 à 24 dans `scene/js/poses.js`. Pied du personnage 2 toujours posé sans entrer dans le dos.
+
+## Dixième retour : personnage 1 en colère
+- Visage du personnage 1 (variante « riche ») : **sourcils froncés en V** (bouts intérieurs plus bas et rapprochés, bouts extérieurs
+  relevés, plus épais) et **bouche serrée** (plus courte, plus fine) : `visageSurvivant({ colere: true })` dans
+  `scene/js/enrichissements.js`. Le personnage 2 garde son visage.

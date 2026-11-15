@@ -11,16 +11,19 @@ const box = (id, joint, palette, [w, h, d], offset, rotation = [0, 0, 0], extra 
 
 // Visage d'un survivant : yeux (blanc + pupille), sourcils, nez, bouche, mâchoire un peu marquée. Tête du jeu : sphère 4,5 × 4,9 × 4,7
 // centrée en (0 ; 4,5 ; 0,2) sur l'articulation « head » ; l'avant est +z.
-function visageSurvivant() {
+// colere (personnage 1, retour du propriétaire) : sourcils froncés en V (bouts intérieurs plus bas et rapprochés, bouts extérieurs
+// relevés, plus épais) et bouche serrée (plus courte et plus fine).
+function visageSurvivant({ colere = false } = {}) {
   const parts = [];
   for (const s of [1, -1]) {
     const x = 1.65 * s;
     parts.push(sphere(`oeilBlanc${s > 0 ? 'L' : 'R'}`, 'head', 'crasse', [0.95, 0.62, 0.45], [x, 5.15, 4.35], { skin: false }));
     parts.push(sphere(`pupille${s > 0 ? 'L' : 'R'}`, 'head', 'sombre', [0.48, 0.48, 0.3], [x, 5.1, 4.72]));
-    parts.push(box(`sourcil${s > 0 ? 'L' : 'R'}`, 'head', 'sombre', [2.1, 0.55, 0.8], [x, 6.25, 4.25], [0.15, 0, -0.12 * s]));
+    if (colere) parts.push(box(`sourcil${s > 0 ? 'L' : 'R'}`, 'head', 'sombre', [2.2, 0.7, 0.8], [1.55 * s, 6.05, 4.35], [0.15, 0, 0.42 * s]));
+    else parts.push(box(`sourcil${s > 0 ? 'L' : 'R'}`, 'head', 'sombre', [2.1, 0.55, 0.8], [x, 6.25, 4.25], [0.15, 0, -0.12 * s]));
   }
   parts.push(box('nez', 'head', 'peau', [1.1, 1.9, 1.3], [0, 4.4, 4.75], [-0.25, 0, 0], { skin: true }));
-  parts.push(box('bouche', 'head', 'sombre', [1.9, 0.38, 0.6], [0, 2.75, 4.35]));
+  parts.push(colere ? box('bouche', 'head', 'sombre', [1.5, 0.3, 0.6], [0, 2.8, 4.35]) : box('bouche', 'head', 'sombre', [1.9, 0.38, 0.6], [0, 2.75, 4.35]));
   parts.push(sphere('menton', 'head', 'peau', [2.6, 1.6, 1.8], [0, 1.9, 2.9], { skin: true }));
   return parts;
 }
@@ -100,7 +103,7 @@ export function enrichirPersonnages(characters) {
     lisser(v.parts);
     if (v.kind === 'player') {
       allongerBras(v);
-      add(visageSurvivant());
+      add(visageSurvivant({ colere: v.id === 'riche' })); // personnage 1 (variante « riche ») en colère
       if (v.id === 'riche') add(paupiere());
       add(pouce());
       if (ids.has('gunSlide')) add(pistolet());
