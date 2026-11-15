@@ -1,0 +1,56 @@
+/* Chute du Z de l'écran de chargement du jeu Z-Survival : COPIE FIGÉE (lot 2b), jamais retouchée.
+   Origine : dépôt Nowyyy/Z-Survival, branche dev, commit 10a9e6b90f3943f4062c4c42004f7c9f67a6804b (2026-11-15 ; dernier changement de
+   ce fichier du jeu : b73e6f4), fichier css/menu.css, images clés e7-chute (chute, écrasement, rebond, bascule à 13°) et e7-secousse
+   (le titre tremble à l'impact), recopiées telles quelles. Dans le jeu : chute de 1,5 s, impact à 40 % (0,6 s), secousse de 0,32 s à
+   0,6 s ; --u est l'unité de l'écran du jeu (1 px pour un titre de 72 px) : l'accueil la règle sur la taille de son titre.
+   Utilisées par l'entrée en scène de l'accueil (css/accueil.css, js/accueil-entree.js). */
+
+@keyframes e7-chute {
+  0% {
+    transform: translate(-0.1em, -120vh) rotate(-4deg);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
+  }
+
+  40% {
+    transform: translate(-0.1em, 0) rotate(0deg) scale(1.06, 0.9);
+    animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1);
+  }
+
+  52% {
+    transform: translate(-0.06em, -0.3em) rotate(3deg) scale(1);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
+  }
+
+  64% {
+    transform: translate(-0.02em, 0) rotate(6deg);
+    animation-timing-function: ease-out;
+  }
+
+  82% {
+    transform: translate(0.12em, 0) rotate(15deg);
+    animation-timing-function: ease-in-out;
+  }
+
+  100% {
+    transform: translate(0.1em, 0) rotate(13deg);
+  }
+}
+
+@keyframes e7-secousse {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  25% {
+    transform: translate(calc(-3 * var(--u)), calc(2 * var(--u)));
+  }
+
+  50% {
+    transform: translate(calc(3 * var(--u)), calc(-1 * var(--u)));
+  }
+
+  75% {
+    transform: translate(calc(-2 * var(--u)), 0);
+  }
+}

@@ -6,14 +6,18 @@
 // texte entier tout de suite (js/i18n.js réécrit l'élément). Mouvement réduit : texte fixe, ni écriture ni grésillement.
 import { mouvementReduit } from './i18n.js';
 
-const PAS_MS = 42; // une lettre brouillée, puis la vraie : environ 0,09 s par lettre
+const PAS_MS = 42; // sans durée imposée : une lettre brouillée, puis la vraie, environ 0,09 s par lettre
+const PAS_MIN_MS = 12;
 const BROUILLE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
-// p : l'accroche ; departMs : attente avant la première lettre (synchronisée avec l'apparition de l'accroche).
-export function taperAccroche(p, departMs = 0) {
-  if (!p || mouvementReduit()) return;
+// p : l'accroche ; departMs : attente avant la première lettre (synchronisée avec l'apparition de l'accroche) ; dureeMs : temps
+// d'écriture voulu (lot 2b : l'entrée tient en 1,5 s), sinon PAS_MS par étape. Retour : une fonction qui écrit tout le texte d'un coup
+// (entrée passée par le visiteur).
+export function taperAccroche(p, departMs = 0, dureeMs = null) {
+  const rien = () => {};
+  if (!p || mouvementReduit()) return rien;
   const texte = p.textContent;
-  if (!texte) return;
+  if (!texte) return rien;
   const lecture = document.createElement('span');
   lecture.className = 'accroche-lecture';
   lecture.textContent = texte;
@@ -31,12 +35,15 @@ export function taperAccroche(p, departMs = 0) {
   ecrit.prepend(curseur); // le curseur avance derrière la dernière lettre écrite
   p.replaceChildren(lecture, ecrit);
   const vraies = [...texte];
+  const etapes = vraies.reduce((n, c) => n + (c.trim() ? 2 : 1), 0);
+  const pas = dureeMs ? Math.max(PAS_MIN_MS, dureeMs / etapes) : PAS_MS;
   let i = 0;
   let brouille = true;
+  let arrete = false;
   const tic = () => {
-    if (!p.contains(curseur)) return; // langue changée entre-temps : le texte a été réécrit, on s'arrête
+    if (arrete || !p.contains(curseur)) return; // langue changée entre-temps : le texte a été réécrit, on s'arrête
     if (i >= lettres.length) {
-      setTimeout(() => curseur.remove(), 1200);
+      setTimeout(() => curseur.remove(), dureeMs ? 0 : 1200); // entrée de 1,5 s : le curseur part avec la dernière lettre
       return;
     }
     const s = lettres[i];
@@ -52,7 +59,12 @@ export function taperAccroche(p, departMs = 0) {
       brouille = true;
     }
     s.after(curseur);
-    setTimeout(tic, PAS_MS);
+    setTimeout(tic, pas);
   };
   setTimeout(tic, departMs);
+  return () => {
+    if (arrete || !p.contains(curseur)) return;
+    arrete = true;
+    p.textContent = texte;
+  };
 }

@@ -11,17 +11,25 @@
   <link rel="apple-touch-icon" sizes="180x180" href="img/icone-180.png">
   <script>
     // js : la page a JavaScript. entree-accueil : l'entrée en scène de l'accueil démarre dès le premier affichage (sans attendre les
-    // modules) si la page s'ouvre sur l'accueil et sans « réduire les animations » (js/accueil-entree.js, css/accueil.css).
+    // modules) si la page s'ouvre sur l'accueil, sans « réduire les animations », et seulement à la première visite de la session
+    // (?intro=1 la force) : js/accueil-entree.js, css/accueil.css.
     document.documentElement.classList.add('js');
     try {
-      if (!/^#(news|characters|weapons|about)$/.test(location.hash) && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      var cle = 'z-survival-site.entree';
+      var forcee = /[?&]intro=1(&|$)/.test(location.search);
+      var vue = false;
+      try { vue = sessionStorage.getItem(cle) === 'vue'; } catch (e) { /* stockage indisponible : entrée jouée */ }
+      if ((forcee || !vue) && !/^#(news|characters|weapons|about)$/.test(location.hash) && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
         document.documentElement.classList.add('entree-accueil');
+        document.documentElement.dataset.entreeDebut = String(Math.round(performance.now())); // la fin se compte depuis ici
+        try { sessionStorage.setItem(cle, 'vue'); } catch (e) { /* stockage indisponible */ }
       }
     } catch (e) { /* sans matchMedia : pas d'entrée */ }
   </script>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/principal.css">
   <link rel="stylesheet" href="css/accueil.css">
+  <link rel="stylesheet" href="css/accueil-chute-z.css">
   <script type="module" src="js/site.js"></script>
   <script type="module" src="js/musique.js"></script>
 </head>
@@ -121,7 +129,8 @@
       <div class="accueil-contenu">
         <h1 class="accueil-titre" data-t="accueil.titre">Z-Survival</h1>
         <p class="accueil-sous-titre" data-t="accueil.sousTitre"></p>
-        <a class="bouton bouton-principal accueil-entrer" href="#news" data-t="accueil.entrer">En savoir plus</a>
+        <!-- Bouton vivant (lot 2b) : coup de pinceau et coulure au survol ou au toucher, petite coulure de temps en temps (css/accueil.css). -->
+        <a class="bouton bouton-principal accueil-entrer" href="#news"><span class="entrer-pinceau" aria-hidden="true"></span><span class="entrer-texte" data-t="accueil.entrer">En savoir plus</span><span class="entrer-coulure" aria-hidden="true"><span class="entrer-goutte"></span></span></a>
         <a class="accueil-fleche" href="#news" tabindex="-1" aria-hidden="true">
           <svg viewBox="0 0 24 24" focusable="false"><path d="M5 9l7 7 7-7"/></svg>
         </a>

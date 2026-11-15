@@ -269,6 +269,17 @@ document.querySelectorAll('.accueil-entrer, .accueil-fleche').forEach((a) => a.a
   e.preventDefault();
   allerA(indexDe('news'));
 }));
+// Bouton vivant (css/accueil.css) : au toucher (téléphone), coup de pinceau et coulure, comme au survol sur ordinateur.
+const boutonEntrer = document.querySelector('.accueil-entrer');
+let toucheMinuteur = 0;
+boutonEntrer.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'mouse' || mouvementReduit()) return;
+  boutonEntrer.classList.remove('est-touche');
+  void boutonEntrer.offsetWidth;
+  boutonEntrer.classList.add('est-touche');
+  clearTimeout(toucheMinuteur);
+  toucheMinuteur = setTimeout(() => boutonEntrer.classList.remove('est-touche'), 1200);
+});
 document.querySelector('.entete-logo').addEventListener('click', (e) => {
   e.preventDefault();
   allerA(indexDe('accueil'));
@@ -302,10 +313,12 @@ const depart = indexDe(window.location.hash.slice(1));
 if (depart > 0) sections[depart].scrollIntoView({ behavior: 'auto', block: 'start' });
 activer(Math.max(0, depart));
 
-// Entrée en scène de l'accueil (js/accueil-entree.js) : seulement si la page s'ouvre sur l'accueil.
-const entree = lancerEntree(depart <= 0);
-// Accroche « radio de survie » (js/accueil-accroche.js) : elle s'écrit pendant l'entrée, au moment où elle apparaît (1,3 s).
-if (entree) taperAccroche(document.querySelector('.accueil-sous-titre'), 1300);
+// Entrée en scène de l'accueil (js/accueil-entree.js) : première visite de la session, seulement si la page s'ouvre sur l'accueil.
+// Accroche « radio de survie » (js/accueil-accroche.js) : elle s'écrit pendant l'entrée, de son apparition (0,65 s) à la fin (1,45 s) ;
+// si le visiteur passe l'entrée, elle s'écrit d'un coup.
+let finirAccroche = () => {};
+const entree = lancerEntree(depart <= 0, () => finirAccroche());
+if (entree) finirAccroche = taperAccroche(document.querySelector('.accueil-sous-titre'), 650, 800);
 // Vidéo en boucle de l'accueil (js/accueil-video.js) et tir synchronisé : flash du cadre, HUD, coup de feu (js/accueil-tir.js).
 const accueil = document.getElementById('accueil');
 installerTir(accueil);
