@@ -67,14 +67,15 @@
       <button class="admin-bouton admin-bouton-discret" id="actualiser" type="button">Actualiser la liste</button>
     </section>
 
-    <!-- Écran 4 : page « À propos » du site (titre et texte, français et anglais). -->
+    <!-- Écran 4 : page « À propos » du site, deux blocs (lot 3e) : le jeu (titre, texte) puis le studio (ligne sous le logo, texte),
+         en français et en anglais. -->
     <section class="admin-ecran" id="ecran-page" aria-labelledby="titre-page" hidden>
       <div class="admin-barre">
         <button class="admin-bouton admin-bouton-discret" id="page-retour" type="button">← Articles</button>
         <span class="admin-statut" id="page-statut" data-statut="nouveau">Texte d’origine</span>
       </div>
       <h1 class="admin-titre" id="titre-page">Page « À propos »</h1>
-      <p class="admin-aide">Le titre est la ligne sous le logo du studio (aujourd’hui « Un jeu de No Way Studio »), puis le texte de la section « À propos ». Le grand titre « À propos », le logo, les crédits et le menu ne changent pas.</p>
+      <p class="admin-aide">Deux blocs, dans l’ordre du site : <strong>le jeu</strong> (titre et texte, à côté de l’image du jeu), puis <strong>le studio</strong> (la ligne sous le logo, aujourd’hui « Un jeu de No Way Studio », et le texte). Le grand titre « À propos », les images, les crédits et le menu ne changent pas.</p>
 
       <form class="admin-formulaire" id="formulaire-page" novalidate>
         <div class="admin-onglets" role="tablist" aria-label="Langue du texte de la page">
@@ -83,12 +84,30 @@
         </div>
 
         <div class="admin-panneau admin-carte" id="page-panneau-fr" role="tabpanel" aria-labelledby="page-onglet-fr">
+          <h2 class="admin-sous-titre admin-bloc-titre">Bloc du jeu</h2>
+          <label class="admin-champ">
+            <span class="admin-etiquette">Titre du jeu (français)</span>
+            <input id="jeu_titre_fr" type="text" maxlength="120" lang="fr" autocomplete="off">
+          </label>
+          <div class="admin-champ">
+            <label class="admin-etiquette" for="jeu_contenu_fr">Texte du jeu (français)</label>
+            <div class="admin-outils" role="toolbar" aria-label="Mise en forme du texte français du jeu" data-cible="jeu_contenu_fr">
+              <button type="button" data-format="gras" aria-label="Gras"><b>G</b></button>
+              <button type="button" data-format="italique" aria-label="Italique"><i>I</i></button>
+              <button type="button" data-format="titre" aria-label="Intertitre">T</button>
+              <button type="button" data-format="liste" aria-label="Liste à puces">•≡</button>
+              <button type="button" data-format="lien" aria-label="Lien">Lien</button>
+            </div>
+            <textarea id="jeu_contenu_fr" rows="6" maxlength="20000" lang="fr" spellcheck="true"></textarea>
+          </div>
+
+          <h2 class="admin-sous-titre admin-bloc-titre">Bloc du studio</h2>
           <label class="admin-champ">
             <span class="admin-etiquette">Titre sous le logo (français)</span>
             <input id="page_titre_fr" type="text" maxlength="120" lang="fr" autocomplete="off">
           </label>
           <div class="admin-champ">
-            <label class="admin-etiquette" for="page_contenu_fr">Texte (français)</label>
+            <label class="admin-etiquette" for="page_contenu_fr">Texte du studio (français)</label>
             <div class="admin-outils" role="toolbar" aria-label="Mise en forme du texte français de la page" data-cible="page_contenu_fr">
               <button type="button" data-format="gras" aria-label="Gras"><b>G</b></button>
               <button type="button" data-format="italique" aria-label="Italique"><i>I</i></button>
@@ -96,18 +115,36 @@
               <button type="button" data-format="liste" aria-label="Liste à puces">•≡</button>
               <button type="button" data-format="lien" aria-label="Lien">Lien</button>
             </div>
-            <textarea id="page_contenu_fr" rows="12" maxlength="20000" lang="fr" spellcheck="true"></textarea>
+            <textarea id="page_contenu_fr" rows="8" maxlength="20000" lang="fr" spellcheck="true"></textarea>
           </div>
         </div>
 
         <div class="admin-panneau admin-carte" id="page-panneau-en" role="tabpanel" aria-labelledby="page-onglet-en" hidden>
-          <p class="admin-aide">Facultatif. Si vous changez le français, pensez à l’anglais. Sans titre anglais, le site anglais affiche la version française avec la mention « (FR) ».</p>
+          <p class="admin-aide">Facultatif, bloc par bloc. Si vous changez le français, pensez à l’anglais. Sans titre anglais, le site anglais affiche la version française de ce bloc avec la mention « (FR) ».</p>
+          <h2 class="admin-sous-titre admin-bloc-titre">Game block</h2>
+          <label class="admin-champ">
+            <span class="admin-etiquette">Game title (English)</span>
+            <input id="jeu_titre_en" type="text" maxlength="120" lang="en" autocomplete="off">
+          </label>
+          <div class="admin-champ">
+            <label class="admin-etiquette" for="jeu_contenu_en">Game text (English)</label>
+            <div class="admin-outils" role="toolbar" aria-label="Mise en forme du texte anglais du jeu" data-cible="jeu_contenu_en">
+              <button type="button" data-format="gras" aria-label="Gras"><b>G</b></button>
+              <button type="button" data-format="italique" aria-label="Italique"><i>I</i></button>
+              <button type="button" data-format="titre" aria-label="Intertitre">T</button>
+              <button type="button" data-format="liste" aria-label="Liste à puces">•≡</button>
+              <button type="button" data-format="lien" aria-label="Lien">Lien</button>
+            </div>
+            <textarea id="jeu_contenu_en" rows="6" maxlength="20000" lang="en" spellcheck="true"></textarea>
+          </div>
+
+          <h2 class="admin-sous-titre admin-bloc-titre">Studio block</h2>
           <label class="admin-champ">
             <span class="admin-etiquette">Title under the logo (English)</span>
             <input id="page_titre_en" type="text" maxlength="120" lang="en" autocomplete="off">
           </label>
           <div class="admin-champ">
-            <label class="admin-etiquette" for="page_contenu_en">Text (English)</label>
+            <label class="admin-etiquette" for="page_contenu_en">Studio text (English)</label>
             <div class="admin-outils" role="toolbar" aria-label="Mise en forme du texte anglais de la page" data-cible="page_contenu_en">
               <button type="button" data-format="gras" aria-label="Gras"><b>G</b></button>
               <button type="button" data-format="italique" aria-label="Italique"><i>I</i></button>
@@ -115,7 +152,7 @@
               <button type="button" data-format="liste" aria-label="Liste à puces">•≡</button>
               <button type="button" data-format="lien" aria-label="Lien">Lien</button>
             </div>
-            <textarea id="page_contenu_en" rows="12" maxlength="20000" lang="en" spellcheck="true"></textarea>
+            <textarea id="page_contenu_en" rows="8" maxlength="20000" lang="en" spellcheck="true"></textarea>
           </div>
         </div>
 
@@ -271,6 +308,9 @@
     <div class="admin-apercu-apropos">
       <p class="admin-apercu-apropos-num" aria-hidden="true">05</p>
       <h2 class="admin-apercu-apropos-titre" id="apercu-page-titre"></h2>
+      <p class="admin-apercu-apropos-signature" id="apercu-jeu-titre"></p>
+      <div class="about-paragraphe actu-texte" id="apercu-jeu-texte"></div>
+      <hr class="admin-apercu-separation">
       <p class="admin-apercu-apropos-signature" id="apercu-page-signature"></p>
       <div class="about-paragraphe actu-texte" id="apercu-page-texte"></div>
     </div>
