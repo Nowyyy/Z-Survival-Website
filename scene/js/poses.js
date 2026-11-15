@@ -5,7 +5,7 @@
 import * as THREE from 'three';
 import { bosse, bruit, cycle, onde } from './boucle.js';
 import { V, euler, lookQuat, placeBone, pointBone, twoBone, worldPos } from './rig.js';
-import { recul } from './tir.js';
+import { oeilFerme, recul } from './tir.js';
 
 const UP = V(0, 1, 0);
 // Échelle de la mise en scène par rapport au monde du jeu. Dans le jeu, un personnage mesure 60 unités (1 m à l'échelle de la carte : 60 unités
@@ -102,7 +102,7 @@ const local = (p, x, y, z) => p.root.localToWorld(V(x, y, z));
 
 // --- Personnage 1 : au premier plan, tir à genou (position militaire), vise au loin à côté de la caméra ------------------------------
 // Genou droit au sol, orteils repliés derrière ; pied gauche à plat devant, genou levé ; buste droit, un peu penché vers l'avant ; œil
-// gauche fermé (js/enrichissements.js). Retours du lot 1 : debout, son arme sortait du haut du cadre.
+// gauche fermé pour le tir seulement (js/enrichissements.js, js/tir.js). Retours du lot 1 : debout, son arme sortait du haut du cadre.
 const GENOU = { bassin: 16.4, genouD: [-6.2, -5], chevilleD: [-6.4, 7.7, -15.6], piedG: [6.5, 13.5] };
 export function poseP1(p, stage, t) {
   const P = PLACEMENT.p1;
@@ -133,6 +133,9 @@ export function poseP1(p, stage, t) {
   const aim = vise.clone().sub(at).normalize().add(V(0, 0.32 * r, 0));
   holdGun(p, at, aim, { elbowsOut: 5 });
   look(p, vise, 0.4);
+  // Œil gauche : fermé seulement pour le tir (js/tir.js).
+  const lid = p.bones.get('paupiereL');
+  if (lid) lid.scale.set(1, Math.max(0.001, oeilFerme(t)), 1);
 }
 
 // --- Zombie : à plat ventre, bras gauche tendu vers l'avant, bras droit qui griffe le sol ; il se débat sous le pied -------------------

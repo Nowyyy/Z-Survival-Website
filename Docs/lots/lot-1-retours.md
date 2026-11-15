@@ -128,3 +128,13 @@ Suite du lot 1 (`Docs/lots/lot-1.md`). Branche `lot-1-retours`, PR fusionnée pa
 - Maintenant qu'il est à genou, le personnage 1 reprend sa **position d'origine, au centre** (le décalage vers la gauche est retiré du
   `placement` du cadrage B paysage). Le zombie et le personnage 2 restent décalés à droite.
 - Le pistolet reste dans le cadre pendant le recul ; seul l'éclair du tir effleure le haut de l'écran pendant 2 images.
+
+## Quatrième retour : caméra plus basse, œil fermé seulement pour le tir
+- **Caméra de l'ordinateur inclinée vers le bas** : point visé du cadrage B paysage abaissé de 50 à 42. La scène remonte dans l'image,
+  dans la place libre en haut, et le zombie sort de la vignette. Le pistolet reste dans le cadre ; au moment du tir, le bout de l'éclair
+  touche le haut de l'écran pendant 2 images (étoile de l'éclair un peu réduite pour cela).
+- **Œil gauche du personnage 1 fermé seulement pour tirer** (`scene/js/tir.js`, `oeilFerme(t)`) : il se ferme en 0,12 s à 0,6 s du coup
+  de feu (il cale sa visée), reste fermé pendant le recul et se rouvre en 0,15 s, 0,75 s après le coup. Le reste de la boucle, il a les
+  deux yeux ouverts.
+- Pour cela, la paupière est portée par une **articulation ajoutée** au squelette v2 (`paupiereL`, enfant de la tête, au ras du haut de
+  l'œil ; copie en mémoire de `poses-v2.json`, fichier copié intact). Son échelle verticale ferme la paupière, du haut vers le bas.
