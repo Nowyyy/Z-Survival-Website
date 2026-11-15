@@ -12,6 +12,7 @@ import { appliquerMigrations, versionMigrations } from './base.js';
 import { verifierMotDePasse } from './mot-de-passe.js';
 import { creerJeton, verifierJeton } from './jeton.js';
 import { hacherIp, reserverTentative, effacerTentatives, nettoyerTentatives } from './limite.js';
+import { annoncerArticle } from './discord.js';
 import { ErreurValidation, LANGUES, PAGES, entierPositif, slugValide, validerArticle, validerConnexion, validerPage } from './validation.js';
 import {
   ErreurImage, TAILLE_MAX_IMAGE, COTE_MAX, cheminImage, enregistrerSurGithub, listerSurGithub, nomDansDossier, nomImageValide, preparerImage,
@@ -31,7 +32,7 @@ const CACHE_PUBLIC = 'public, max-age=60';
 const TAILLE_MAX_CONNEXION = 4 * 1024;
 const TAILLE_MAX_ARTICLE = 256 * 1024;
 const ADRESSE_SITE = 'https://zsurvival-game.com/';
-const COLONNES = 'id, slug, statut, date_publication, titre_fr, titre_en, contenu_fr, contenu_en, image, cree_le, modifie_le';
+const COLONNES = 'id, slug, statut, date_publication, titre_fr, titre_en, contenu_fr, contenu_en, image, cree_le, modifie_le, annonce_discord_le';
 
 class ErreurHttp extends Error {
   constructor(statut, message) {
@@ -85,8 +86,9 @@ const limiteCorps = (maxSize) =>
  * @param {object} options.journal    journal (creerJournal)
  * @param {() => number} [options.maintenant]  horloge en millisecondes (remplaçable dans les tests)
  * @param {typeof fetch} [options.fetchGithub]  appels à l'API GitHub (remplaçable dans les tests : API simulée)
+ * @param {typeof fetch} [options.fetchAnnonce] appels au webhook Discord et au site (lot 3c ; remplaçable dans les tests)
  */
-export function creerApp({ config, db, journal, maintenant = () => Date.now(), fetchGithub = (...a) => fetch(...a) }) {
+export function creerApp({ config, db, journal, maintenant = () => Date.now(), fetchGithub = (...a) => fetch(...a), fetchAnnonce = (...a) => fetch(...a) }) {
   const app = new Hono();
 
   // --- Migrations : appliquées au démarrage (preparer), réessayées à la requête suivante en cas d'échec. ---
@@ -344,6 +346,20 @@ export function creerApp({ config, db, journal, maintenant = () => Date.now(), f
     return lireArticle(article.id);
   }
 
+  /**
+   * Lot 3c : annonce Discord à la première publication. `avant` : article avant l'opération (null à la création).
+   * Seulement si l'article devient public et n'a jamais été annoncé ; la date d'annonce n'est notée qu'en cas de succès.
+   * Retour : null si rien n'était à annoncer, sinon { envoyee, raison? } (jamais d'adresse ni de secret).
+   */
+  async function annoncerSiBesoin(avant, apres) {
+    if (apres.statut !== 'publie' || avant?.statut === 'publie' || apres.annonce_discord_le) return null;
+    const resultat = await annoncerArticle({ config, article: apres, journal, fetchAnnonce, fetchGithub });
+    if (resultat.envoyee) {
+      await db.execute({ sql: 'UPDATE articles SET annonce_discord_le = ? WHERE id = ?', args: [new Date(maintenant()).toISOString(), apres.id] });
+    }
+    return { envoyee: resultat.envoyee, ...(resultat.raison ? { raison: resultat.raison } : {}) };
+  }
+
   app.get('/api/admin/articles', async (c) => {
     const page = entierPositif(c.req.query('page'), { defaut: 1, max: 10_000 });
     if (page === null) throw new ErreurHttp(400, '« page » doit être un entier à partir de 1.');
@@ -380,7 +396,9 @@ export function creerApp({ config, db, journal, maintenant = () => Date.now(), f
       throw err;
     }
     journal.info('Article créé', { id: Number(r.lastInsertRowid) });
-    return c.json({ article: await lireArticle(Number(r.lastInsertRowid)) }, 201);
+    const cree = await lireArticle(Number(r.lastInsertRowid));
+    const annonce = await annoncerSiBesoin(null, cree);
+    return c.json({ article: annonce?.envoyee ? await lireArticle(cree.id) : cree, ...(annonce ? { annonce_discord: annonce } : {}) }, 201);
   });
 
   app.put('/api/admin/articles/:id', limiteCorps(TAILLE_MAX_ARTICLE), async (c) => {
@@ -392,7 +410,9 @@ export function creerApp({ config, db, journal, maintenant = () => Date.now(), f
     if (champs.slug !== undefined) await slugLibre(champs.slug, id);
     const article = completerPublication({ ...actuel, ...champs, modifie_le: instantIso }, instantIso);
     journal.info('Article modifié', { id });
-    return c.json({ article: await enregistrer(article) });
+    const enregistre = await enregistrer(article);
+    const annonce = await annoncerSiBesoin(actuel, enregistre);
+    return c.json({ article: annonce?.envoyee ? await lireArticle(id) : enregistre, ...(annonce ? { annonce_discord: annonce } : {}) });
   });
 
   /** Articles qui utilisent une image (chemin img/actus/…). */
@@ -433,9 +453,12 @@ export function creerApp({ config, db, journal, maintenant = () => Date.now(), f
   app.post('/api/admin/articles/:id/publier', async (c) => {
     const id = idValide(c);
     const instantIso = new Date(maintenant()).toISOString();
-    const article = completerPublication({ ...(await lireArticle(id)), statut: 'publie', modifie_le: instantIso }, instantIso);
+    const actuel = await lireArticle(id);
+    const article = completerPublication({ ...actuel, statut: 'publie', modifie_le: instantIso }, instantIso);
     journal.info('Article publié', { id });
-    return c.json({ article: await enregistrer(article) });
+    const enregistre = await enregistrer(article);
+    const annonce = await annoncerSiBesoin(actuel, enregistre);
+    return c.json({ article: annonce?.envoyee ? await lireArticle(id) : enregistre, ...(annonce ? { annonce_discord: annonce } : {}) });
   });
 
   app.post('/api/admin/articles/:id/depublier', async (c) => {

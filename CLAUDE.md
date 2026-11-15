@@ -54,6 +54,9 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   Un lot sur le site ne touche pas `serveur/`, un lot sur le serveur ne touche pas les fichiers du site.
 - Images des articles (lot 3b) : envoyées au serveur, réduites, converties en WebP sans métadonnées, enregistrées dans le dépôt
   (`img/actus/`) par l'API GitHub avec le secret facultatif `GITHUB_JETON_IMAGES` (`installer-gcp.sh --jeton-github`).
+- Annonce Discord (lot 3c, `serveur/src/discord.js`) : à la **première** publication d'un article, message dans un salon par le webhook
+  `DISCORD_WEBHOOK_ACTUS` (secret facultatif, `installer-gcp.sh --discord`), une seule fois par article (`annonce_discord_le`) ; un échec
+  de Discord n'empêche jamais la publication ; aucune mention qui notifie.
 - Connexion admin sans cookie (domaines différents) : jeton signé dans `Authorization: Bearer`. Migrations versionnées
   dans `serveur/migrations/` (nouveau fichier `NNN_…sql`, jamais modifier une migration déployée).
 

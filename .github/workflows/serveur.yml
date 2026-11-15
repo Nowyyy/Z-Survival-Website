@@ -123,7 +123,9 @@ jobs:
           # Secrets : lus dans Secret Manager par Cloud Run au démarrage de chaque instance (jamais ici).
           # « --update-… » (et non « --set-… ») : le jeton GitHub des images (GITHUB_JETON_IMAGES, lot 3b), facultatif, est donné
           # au service par le script d'installation quand il est rangé ; un redéploiement le garde. S'il manque, seul l'envoi
-          # d'images est refusé. L'accès public a été donné une fois pour toutes par le script d'installation.
+          # d'images est refusé. Même chose pour le webhook Discord des actualités (DISCORD_WEBHOOK_ACTUS, lot 3c, installer-gcp.sh
+          # --discord) : s'il manque, les articles publiés ne sont simplement pas annoncés.
+          # L'accès public a été donné une fois pour toutes par le script d'installation.
           gcloud run deploy "$SERVICE" \
             --project="$PROJET" \
             --region="$REGION" \
