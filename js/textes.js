@@ -26,6 +26,7 @@ export const TEXTES = {
       langue: 'Langue',
       comingSoon: 'Prochainement',
       discord: 'Rejoindre le Discord de Z-Survival (nouvel onglet)',
+      defiler: 'Défiler',
     },
     musique: {
       activer: 'Activer la musique',
@@ -139,6 +140,7 @@ export const TEXTES = {
       langue: 'Language',
       comingSoon: 'Coming soon',
       discord: 'Join the Z-Survival Discord (opens in a new tab)',
+      defiler: 'Scroll',
     },
     musique: {
       activer: 'Turn music on',

@@ -224,6 +224,7 @@ function activer(index) {
   });
   document.body.dataset.section = id;
   fermerMenusLangue();
+  demanderIndice();
   // Adresse partageable : #news, #weapons… ; rien pour l'accueil. Article ouvert (#actu/<slug>, js/actualites.js) : adresse gardée.
   const voulu = id === 'accueil' ? '' : `#${id}`;
   if (window.location.hash !== voulu && !slugDeLAdresse()) history.replaceState(null, '', `${window.location.pathname}${window.location.search}${voulu}`);
@@ -244,6 +245,47 @@ function allerA(index) {
   const i = Math.max(0, Math.min(sections.length - 1, index));
   sections[i].scrollIntoView({ behavior: mouvementReduit() ? 'auto' : 'smooth', block: 'start' });
 }
+
+// ---------- Indice « Défiler » : section plus haute que l'écran (À propos sur téléphone) ----------
+// Dégradé en bas tant qu'il reste du contenu sous l'écran ; flèche « Défiler » tant qu'on est au début de la section.
+const indice = document.getElementById('indice-defiler');
+const MARGE_INDICE = 24; // px : en dessous, la section est considérée comme entièrement visible / pas encore défilée
+let indiceDemande = 0;
+indice.hidden = false;
+
+function majIndice() {
+  indiceDemande = 0;
+  const s = sections[indexActif];
+  let visible = false;
+  let auDebut = false;
+  if (s && s.id !== 'accueil') {
+    const b = s.getBoundingClientRect();
+    visible = b.bottom - conteneur.clientHeight > MARGE_INDICE && b.top < MARGE_INDICE;
+    auDebut = visible && b.top > -MARGE_INDICE;
+  }
+  indice.classList.toggle('est-visible', visible);
+  indice.classList.toggle('au-debut', auDebut);
+}
+function demanderIndice() {
+  if (!indiceDemande) indiceDemande = requestAnimationFrame(majIndice);
+}
+conteneur.addEventListener('scroll', demanderIndice, { passive: true });
+window.addEventListener('resize', demanderIndice);
+// Textes d'À propos et actualités arrivent du serveur après l'affichage : la hauteur des sections change.
+const observateurTaille = new ResizeObserver(demanderIndice);
+sections.forEach((s) => observateurTaille.observe(s));
+
+// Défile dans la section affichée, vers le bas (sens 1) ou le haut (-1), sans dépasser son bord ; faux s'il n'y a plus rien à défiler.
+function defilerDansSection(sens, part) {
+  const s = sections[Math.max(0, indexActif)];
+  const b = s.getBoundingClientRect();
+  const h = conteneur.clientHeight;
+  const reste = sens > 0 ? b.bottom - h : -b.top;
+  if (reste <= 2) return false;
+  conteneur.scrollBy({ top: sens * Math.min(reste, Math.round(h * part)), behavior: mouvementReduit() ? 'auto' : 'smooth' });
+  return true;
+}
+indice.querySelector('.indice-defiler-bouton').addEventListener('click', () => defilerDansSection(1, 0.6));
 
 liens.forEach((a) => {
   a.addEventListener('click', (e) => {
@@ -293,6 +335,8 @@ document.addEventListener('keydown', (e) => {
   if (document.getElementById('actu-vue').open) return;
   const actuel = Math.max(0, indexActif);
   const pas = { ArrowDown: 1, PageDown: 1, ArrowUp: -1, PageUp: -1 }[e.key];
+  // Section plus haute que l'écran (À propos) : on la parcourt d'abord, puis on passe à la section voisine.
+  if (pas && defilerDansSection(pas, e.key.startsWith('Page') ? 0.85 : 0.4)) { e.preventDefault(); return; }
   if (pas) { e.preventDefault(); allerA(actuel + pas); }
   else if (e.key === 'Home') { e.preventDefault(); allerA(0); }
   else if (e.key === 'End') { e.preventDefault(); allerA(sections.length - 1); }
