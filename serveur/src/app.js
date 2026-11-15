@@ -18,7 +18,10 @@ import {
   supprimerSurGithub,
 } from './images.js';
 
-export const ORIGINE_SITE = 'https://nowyyy.github.io';
+// Origines autorisées (CORS) : le site sur son nom de domaine, et l'ancienne adresse GitHub Pages, gardée pendant la transition
+// (GitHub redirige nowyyy.github.io/Z-Survival-Website/ vers le domaine ; voir Docs/ref/nom-de-domaine.md).
+export const ORIGINE_SITE = 'https://www.zsurvival-game.com';
+export const ORIGINES_SITE = Object.freeze([ORIGINE_SITE, 'https://nowyyy.github.io']);
 const MOTIF_ORIGINE_LOCALE = /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d{1,5})?$/;
 const MESSAGE_ECHEC = 'Identifiant ou mot de passe incorrect.';
 const PAR_PAGE_PUBLIC = 10;
@@ -26,7 +29,7 @@ const PAR_PAGE_ADMIN = 50;
 const CACHE_PUBLIC = 'public, max-age=60';
 const TAILLE_MAX_CONNEXION = 4 * 1024;
 const TAILLE_MAX_ARTICLE = 256 * 1024;
-const ADRESSE_SITE = 'https://nowyyy.github.io/Z-Survival-Website/';
+const ADRESSE_SITE = 'https://www.zsurvival-game.com/';
 const COLONNES = 'id, slug, statut, date_publication, titre_fr, titre_en, contenu_fr, contenu_en, image, cree_le, modifie_le';
 
 class ErreurHttp extends Error {
@@ -106,7 +109,7 @@ export function creerApp({ config, db, journal, maintenant = () => Date.now(), f
   app.preparer = preparer;
 
   function origineAutorisee(origine) {
-    return origine === ORIGINE_SITE || (config.originesLocales && MOTIF_ORIGINE_LOCALE.test(origine));
+    return ORIGINES_SITE.includes(origine) || (config.originesLocales && MOTIF_ORIGINE_LOCALE.test(origine));
   }
 
   function adresseIp(c) {

@@ -3,8 +3,8 @@
 Site vitrine du jeu de survie zombies **Z-Survival**
 (le jeu : https://nowyyy.github.io/Z-Survival/).
 
-- Adresse du site : https://nowyyy.github.io/Z-Survival-Website/
-  (GitHub Pages sert le site sous le nom du dépôt, `Z-Survival-Website`).
+- Adresse du site : https://www.zsurvival-game.com/ (servi par GitHub Pages ; l'ancienne adresse
+  https://nowyyy.github.io/Z-Survival-Website/ y redirige ; réglages : `Docs/ref/nom-de-domaine.md`).
 - Structure : une seule page. Accueil plein écran (« En savoir plus » descend vers les sections),
   puis les sections plein écran News, Characters, Weapons et About us, avec un défilement qui
   s'arrête sur chaque section. Site en français et en anglais (globe sur l'accueil et dans l'en-tête) :
@@ -26,5 +26,5 @@ outils de développement du navigateur → mode appareil (375 px).
 - `Docs/ref/` : références (scène d'accueil, pile technique du jeu).
 - `Docs/lots/` : bilan de chaque lot.
 - `outils/musique/` : génération de la musique du site (voir `outils/musique/LISEZMOI.md`) ;
-  planche d'écoute : https://nowyyy.github.io/Z-Survival-Website/musique/planche.html
+  planche d'écoute : https://www.zsurvival-game.com/musique/planche.html
 - `outils/video/` : fabrication des vidéos de l'accueil depuis la scène 3D (voir `outils/video/LISEZMOI.md`).
