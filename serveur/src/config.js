@@ -10,6 +10,7 @@ export const NOMS_SECRETS = Object.freeze([
   'ADMIN_EMPREINTE',
   'CLE_SESSION',
   'GITHUB_JETON_IMAGES',
+  'DISCORD_WEBHOOK_ACTUS',
 ]);
 
 export function lireConfig(env = process.env) {
@@ -28,6 +29,8 @@ export function lireConfig(env = process.env) {
     depotGithub: env.GITHUB_DEPOT || 'Nowyyy/Z-Survival-Website',
     brancheGithub: env.GITHUB_BRANCHE || 'main',
     apiGithub: (env.GITHUB_API || 'https://api.github.com').replace(/\/+$/, ''),
+    // Annonce des actualités sur Discord (lot 3c) : adresse du webhook du salon (secret, facultatif : sans elle, pas d'annonce).
+    webhookDiscordActus: (env.DISCORD_WEBHOOK_ACTUS ?? '').trim(),
     // Origines http://localhost:* et http://127.0.0.1:* : autorisées hors production (tests locaux),
     // et en production seulement si ORIGINES_LOCALES=1.
     originesLocales: env.ORIGINES_LOCALES !== undefined ? env.ORIGINES_LOCALES === '1' : !production,
@@ -38,6 +41,8 @@ export function lireConfig(env = process.env) {
 /** Valeurs secrètes de la configuration, pour les masquer dans les journaux. */
 export function valeursSecretes(config) {
   const valeurs = [config.jetonBase, config.adminIdentifiant, config.adminEmpreinte, config.cleSession, config.jetonGithubImages];
+  // Webhook Discord : l'adresse entière et sa partie secrète (le dernier morceau, qui suffit pour écrire dans le salon).
+  if (config.webhookDiscordActus) valeurs.push(config.webhookDiscordActus, config.webhookDiscordActus.split('/').pop());
   if (config.urlBase && !config.urlBase.startsWith('file:')) {
     valeurs.push(config.urlBase);
     try {

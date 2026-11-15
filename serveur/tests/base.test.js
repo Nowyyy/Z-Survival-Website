@@ -20,7 +20,7 @@ test('migrations : tables créées, relance sans effet ni erreur, données gard�
     const tables = (await s.db.execute("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name")).rows.map((r) => r.name);
     for (const t of ['articles', 'migrations', 'tentatives_connexion']) assert.ok(tables.includes(t), t);
     const colonnes = (await s.db.execute('PRAGMA table_info(articles)')).rows.map((r) => r.name);
-    assert.deepEqual(colonnes, ['id', 'slug', 'statut', 'date_publication', 'titre_fr', 'titre_en', 'contenu_fr', 'contenu_en', 'image', 'cree_le', 'modifie_le']);
+    assert.deepEqual(colonnes, ['id', 'slug', 'statut', 'date_publication', 'titre_fr', 'titre_en', 'contenu_fr', 'contenu_en', 'image', 'cree_le', 'modifie_le', 'annonce_discord_le']);
 
     await s.db.execute("INSERT INTO articles (slug, titre_fr, cree_le, modifie_le) VALUES ('garde', 'x', 'a', 'a')");
     const v1 = await versionMigrations(s.db);

@@ -27,7 +27,10 @@ export const ORIGINE_WWW = 'https://www.zsurvival-game.com';
 export const ORIGINE_ANCIENNE = 'https://nowyyy.github.io';
 
 /** Crée une application de test complète sur une base neuve. */
-export async function fabriquer({ env = {}, fetchGithub } = {}) {
+// Lot 3c : par défaut, aucun appel réseau vers Discord ni vers le site pendant les tests (un appel imprévu échoue).
+const sansReseau = async () => { throw new Error('appel réseau imprévu pendant les tests'); };
+
+export async function fabriquer({ env = {}, fetchGithub, fetchAnnonce = sansReseau } = {}) {
   const dossier = await mkdtemp(path.join(tmpdir(), 'zs-serveur-test-'));
   const config = lireConfig({
     NODE_ENV: 'test',
@@ -41,7 +44,7 @@ export async function fabriquer({ env = {}, fetchGithub } = {}) {
   const journal = creerJournal({ secrets: valeursSecretes(config), ecrire: (l) => lignes.push(l) });
   const db = ouvrirBase(config);
   const horloge = { t: Date.parse('2026-11-15T12:00:00Z') };
-  const app = creerApp({ config, db, journal, maintenant: () => horloge.t, ...(fetchGithub ? { fetchGithub } : {}) });
+  const app = creerApp({ config, db, journal, maintenant: () => horloge.t, fetchAnnonce, ...(fetchGithub ? { fetchGithub } : {}) });
   await app.preparer();
 
   let numeroIp = 0;
