@@ -35,7 +35,8 @@ Toutes respectent « réduire les animations » et restent légères (HTML, CSS,
 - **Code** : `js/accueil-entree.js` retire la classe après 4 s (ou tout de suite si la page ne s'ouvre pas sur l'accueil). Tout le reste est en CSS
   (`css/accueil.css`, « Entrée en scène ») ; un bloc `.accueil-vhs` est ajouté dans la zone de l'image animée (`index.html`).
 - **Déroulé** :
-  - **0 à 1,4 s** : grain VHS (neige qui saute, lignes, barre claire qui descend, dernier sursaut) qui se dissipe sur l'image animée ;
+  - **0 à 0,7 s** : grain VHS (neige qui saute, lignes, barre claire qui descend, dernier sursaut) qui se dissipe sur l'image animée
+    (1,4 s au départ ; raccourci à la demande du propriétaire) ;
   - **0,45 s** : le Z tombe sur « -Survival », s'écrase, rebondit et bascule à 13° (même mouvement que l'écran de chargement du jeu,
     `css/menu.css` du jeu, animations `e7-*`, branche `dev`) ; **1,05 s** : impact, le titre tremble ;
   - **1,25 à 1,55 s** : l'accroche, le bouton et la flèche apparaissent ;
