@@ -254,3 +254,14 @@ les reprendront quand elles seront refaites, après validation).
   pattes et moustache, brun foncé à intensité irrégulière (`peindreBarbe`).
 - Vérifié : boucle parfaite avec et sans détails (jonctions 0,547 et 0,406) ; `outils/video/verifier-accueil.mjs` 172/172,
   `outils/verifier-lot-4a.mjs` 79/79, vérification de l'atelier sur la copie publiée sans erreur.
+
+## Seizième retour : coups d'œil plus doux, gilets texturés (`?details=1`)
+- **Coups d'œil moins brusques** : plus de départ en ressort ni de dépassement (et plus le petit saut à la fin du retour). Profil à
+  secousse minimale, comme un vrai mouvement de tête : il part et arrive en douceur, en 0,5 à 0,7 s ; pendant la tenue, la tête glisse
+  encore très lentement au lieu de se figer. Personnage 1 : 5,95 à 7,8 s, un peu moins tourné (trois quarts au lieu du profil complet) ;
+  personnage 2 : 3,35 à 4,8 s.
+- **Gilets avec leur propre texture**, différente de celle des vêtements (`texturerGilet`, `scene/js/enrichissements.js`) : les triangles
+  du gilet sont rendus par un second maillage articulé sur le même squelette, avec une texture de tissu générée en code. Personnage 1 :
+  toile matelassée à coutures piquées, un peu plus foncée que la chemise (elles avaient la même couleur). Personnage 2 : nylon épais à
+  sangles horizontales cousues (gilet pare-balles).
+- Vérifié : boucle parfaite avec et sans détails (jonctions 0,548 et 0,406).

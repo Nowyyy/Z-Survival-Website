@@ -64,21 +64,22 @@ function fenetre(t, a, b, c, d) {
 // impact de la balle du personnage 2 sur le zombie (secousse qui s'amortit).
 // Coup d'œil naturel (retour du propriétaire : « trop lisse ») : la tête part vite et dépasse un peu sa cible (aller en aA secondes,
 // dépassement amorti), se réajuste une fois pendant la tenue, puis revient vite, en dépassant à peine le point de départ.
-const sortieRessort = (k) => { const c = 1.7; return 1 + (c + 1) * (k - 1) ** 3 + c * (k - 1) ** 2; };
+// Coup d'œil (retour du propriétaire : « brusque, pas naturel ») : profil à secousse minimale (départ et arrivée en douceur, comme un
+// mouvement de tête réel d'environ une demi-seconde), sans dépassement ; pendant la tenue, la tête continue de glisser très lentement
+// (quelques pour cent) au lieu de se figer. Valeur continue et dérivée continue partout (aucun à-coup).
+const sansSecousse = (k) => k * k * k * (10 + k * (-15 + 6 * k));
 function coupDoeil(t, debut, aller, fin, retour) {
-  if (t <= debut || t >= fin + retour + 0.25) return 0;
-  if (t < debut + aller) return sortieRessort((t - debut) / aller);
-  if (t < fin) {
-    const m = (debut + aller + fin) / 2; // petit réajustement au milieu de la tenue
-    return 1 + 0.12 * fenetre(t, m - 0.12, m, m + 0.05, m + 0.2);
-  }
-  if (t < fin + retour) return 1 - sortieRessort((t - fin) / retour);
-  return -0.04 * (1 - (t - fin - retour) / 0.25); // léger dépassement du retour, qui se résorbe
+  if (t <= debut || t >= fin + retour) return 0;
+  let v = 1;
+  if (t < debut + aller) v = sansSecousse((t - debut) / aller);
+  else if (t > fin) v = 1 - sansSecousse((t - fin) / retour);
+  const u = (t - debut) / (fin + retour - debut);
+  return v * (0.94 + 0.08 * Math.sin(Math.PI * u));
 }
-// Détails : le personnage 1 regarde hors champ après son tir (6,0 à 7,8 s : son retour à la normale relance la boucle) ; le personnage 2
-// tourne la tête vers lui pendant un moment calme (3,4 à 4,5 s : zombie inerte, aucun tir).
-export const regardP1 = (t, retard = 0) => (DETAILS.actif ? coupDoeil(t - retard, 6.0, 0.24, 7.4, 0.3) : 0);
-export const regardP2 = (t, retard = 0) => (DETAILS.actif ? coupDoeil(t - retard, 3.4, 0.28, 4.25, 0.32) : 0);
+// Détails : le personnage 1 regarde hors champ après son tir (5,95 à 7,8 s : son retour à la normale relance la boucle) ; le personnage 2
+// tourne la tête vers lui pendant un moment calme (3,35 à 4,8 s : zombie inerte, aucun tir).
+export const regardP1 = (t, retard = 0) => (DETAILS.actif ? coupDoeil(t - retard, 5.95, 0.6, 7.1, 0.7) : 0);
+export const regardP2 = (t, retard = 0) => (DETAILS.actif ? coupDoeil(t - retard, 3.35, 0.5, 4.2, 0.6) : 0);
 // Zombie touché par la balle du personnage 2 (TIR_P2) : « vie » de 1 à 0 en 0,1 s (la tête tape le sol, les yeux se ferment), inerte,
 // puis il se ranime (yeux qui se rouvrent d'un coup à 6,5 s, tête qui se relève jusqu'à 7,5 s) avant la fin de la boucle.
 export function vieZombie(t) {
@@ -202,7 +203,7 @@ export function poseP1(p, stage, t) {
   // La tête mène, le cou suit avec un léger retard (0,08 s) ; un peu d'inclinaison pendant le coup d'œil.
   const rp1 = regardP1(t);
   const cou1 = regardP1(t, 0.08);
-  look(p, rp1 !== 0 ? vise.clone().lerp(toWorld(stage, V(-420, 55, 160)), rp1) : vise, 0.4 + 0.25 * Math.max(0, cou1));
+  look(p, rp1 !== 0 ? vise.clone().lerp(toWorld(stage, V(-420, 55, 110)), rp1) : vise, 0.4 + 0.25 * Math.max(0, cou1));
   if (rp1 !== 0) p.bones.get('head').rotateZ(0.08 * rp1);
   // Œil gauche : fermé seulement pour le tir (js/tir.js).
   const lid = p.bones.get('paupiereL');
