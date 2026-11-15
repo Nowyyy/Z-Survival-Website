@@ -30,7 +30,7 @@
 /* À droite : « Bientôt disponible », le bouton de son et le globe de langue. */
 .entete-actions { display: flex; align-items: center; gap: 8px; flex: none; }
 .langue-entete .langue-bouton { min-height: 40px; min-width: 40px; padding: 0 9px; }
-.entete-actions .son-bouton { width: 40px; height: 40px; }
+.entete-actions .son-bouton, .entete-actions .discord-lien { width: 40px; height: 40px; }
 
 /* « Bientôt disponible » : pas cliquable, aspect atténué. */
 .bouton-bientot {
@@ -55,14 +55,23 @@
   .bouton-bientot { min-height: 38px; padding: 0 0.55em; font-size: 0.68rem; letter-spacing: 0.02em; }
   .langue-entete .langue-bouton { min-height: 38px; min-width: 38px; padding: 0; justify-content: center; }
   .langue-entete .langue-code { display: none; }
-  .entete-actions .son-bouton { width: 38px; height: 38px; }
-  .entete-actions .son-icone { width: 20px; height: 20px; }
+  .entete-actions .son-bouton, .entete-actions .discord-lien { width: 38px; height: 38px; }
+  .entete-actions .son-icone, .entete-actions .discord-icone { width: 20px; height: 20px; }
 }
-/* Téléphones jusqu'à 420 px : le bouton de son prend place dans l'en-tête, on resserre un peu. */
+/* Téléphones jusqu'à 420 px : le bouton de son et le lien Discord prennent place dans l'en-tête, on resserre un peu ;
+   « Bientôt disponible » passe sur deux lignes (en-tête et accueil). */
 @media (max-width: 420px) {
   .entete-logo { font-size: 1.25rem; }
   .entete-actions { gap: 5px; }
   .bouton-bientot { padding: 0 0.45em; font-size: 0.62rem; }
+  .bouton-bientot { max-width: 6.4em; white-space: normal; line-height: 1.1; text-align: center; }
+}
+/* Très petits téléphones (340 px et moins) : boutons ronds de l'en-tête un peu plus petits (zone de toucher gardée à 44 px). */
+@media (max-width: 340px) {
+  .entete-actions { gap: 4px; }
+  .entete-actions .son-bouton, .entete-actions .discord-lien { width: 34px; height: 34px; }
+  .langue-entete .langue-bouton { min-height: 34px; min-width: 34px; }
+  .entete-actions .son-icone, .entete-actions .discord-icone, .langue-entete .globe-icone { width: 18px; height: 18px; }
 }
 
 /* ---------- Navigation des sections ---------- */
@@ -434,7 +443,5 @@
   /* En-tête et navigation à cinq entrées : on resserre encore. */
   .entete-logo { font-size: 1.2rem; }
   .bouton-bientot { padding: 0 0.4em; font-size: 0.6rem; letter-spacing: 0; }
-  /* Avec le bouton de son, « Bientôt disponible » passe sur deux lignes. */
-  .bouton-bientot { max-width: 6.4em; white-space: normal; line-height: 1.1; text-align: center; }
   .nav-sections a { font-size: 0.62rem; letter-spacing: 0; }
 }

@@ -248,6 +248,31 @@ button { font: inherit; color: inherit; }
 .langue-choix:focus-visible { background: var(--color-surface-raised); }
 .langue-choix[aria-current="true"] { border-left-color: var(--color-action); color: var(--color-action-text); }
 
+/* ---------- Lien Discord : entre « Bientôt disponible » et le bouton de son (accueil et en-tête), même allure que le bouton de son ---------- */
+.discord-lien {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border: 1px solid rgb(244 241 236 / 35%);
+  border-radius: 999px;
+  background: rgb(5 5 5 / 55%);
+  color: var(--color-text);
+  backdrop-filter: blur(6px);
+  transition: border-color 150ms, color 150ms;
+}
+/* Zone de toucher d'au moins 44 × 44 px, même quand le lien est dessiné plus petit (en-tête). */
+.discord-lien::after {
+  content: "";
+  position: absolute;
+  inset: min(0px, calc((100% - var(--touch-target)) / 2));
+  border-radius: 999px;
+}
+.discord-lien:hover { border-color: var(--color-action); color: var(--color-action-text); }
+.discord-icone { width: 22px; height: 22px; fill: currentColor; }
+
 /* ---------- Bouton de son (musique, js/musique.js) : à côté de chaque globe ; même allure que le globe ----------
    Coupé : haut-parleur barré. Chargement : petit cercle en pointillés qui tourne. Lecture : ondes qui battent, halo rouge. */
 .son-bouton {
