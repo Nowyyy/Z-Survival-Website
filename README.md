@@ -25,3 +25,5 @@ outils de développement du navigateur → mode appareil (375 px).
 - `CLAUDE.md` : règles du projet.
 - `Docs/ref/` : références (scène d'accueil, pile technique du jeu).
 - `Docs/lots/` : bilan de chaque lot.
+- `outils/musique/` : génération de la musique du site (voir `outils/musique/LISEZMOI.md`) ;
+  planche d'écoute : https://nowyyy.github.io/Z-Survival-Website/musique/planche.html
