@@ -1,5 +1,8 @@
 # Lot 0 — squelette du site vitrine
 
+> **Bilan historique** : le site a beaucoup évolué depuis (page unique, DA du jeu, langues, About us…).
+> État actuel et récapitulatif des PR #2 à #7 : `Docs/lots/lot-0-retours.md`.
+
 Branche `lot-0`, tag `lot-0`. Aucune PR ouverte, rien fusionné dans `main` par l'agent
 (seul le commit d'initialisation `init: README` a été poussé sur `main`, le dépôt étant vide).
 
