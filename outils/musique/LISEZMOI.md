@@ -10,6 +10,8 @@ Relevé de la musique du menu du jeu et règles d'intégration : `Docs/ref/musiq
 | `generer.mjs` | Rendu → `rendu/<id>.wav` (non versionné) → `musique/<id>.mp3` (128 kb/s, 44,1 kHz stéréo) et `musique/boucles.json` (points de boucle). |
 | `verifier-boucle.mjs` | Décode les MP3 et contrôle le raccord (périodicité, saut, blanc, écart avec la suite naturelle). |
 | `verifier-planche.mjs` | Contrôle Playwright de `musique/planche.html` servie comme sur GitHub Pages (voir l'en-tête du fichier). |
+| `verifier-site.mjs` | Contrôle Playwright de la musique du site (lot 2a, `js/musique.js` et boutons de son), servie comme sur GitHub Pages ; `--en-ligne` pour le site publié. |
+| `../copie-publiee.mjs` | Copie exacte de ce que publie `pages.yml`, servie sous `/Z-Survival-Website/` (utilisée par les deux contrôles). |
 
 ## Refaire les fichiers
 Il faut Node 18 ou plus et `ffmpeg` (avec `libmp3lame`).
