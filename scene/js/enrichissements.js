@@ -86,6 +86,13 @@ function allongerBras(v) {
   }
 }
 
+// Épaules du zombie (retour du propriétaire : « les bras sont détachés du corps ») : l'articulation de l'épaule du jeu est à 11,5 du centre,
+// en dehors du torse (9,6 de demi-largeur) ; bras tendus vers l'avant (à plat ventre), un vide apparaît entre le torse et le haut du bras.
+// Une épaule arrondie fait la jonction : portée par le torse (articulation « chest », elle ne tourne pas avec le bras), centrée sur
+// l'articulation de l'épaule (chest + [±11,5 ; 8 ; 0]), un peu vers le corps. Le bras tourne autour de ce point : elle couvre la jonction
+// quelle que soit sa position.
+const epaules = () => [1, -1].map((s) => sphere(`epaule${s > 0 ? 'L' : 'R'}`, 'chest', 'tenue', [3.6, 3.6, 3.4], [10.9 * s, 8, 0], { cloth: true }));
+
 // Sphères plus fines (tête, mains, bottes…) : 20 × 14 facettes au lieu de 10 × 7 ; capsules à 16 côtés.
 function lisser(parts) {
   for (const p of parts) {
@@ -102,6 +109,9 @@ export function enrichirPersonnages(characters) {
   for (const v of cibles) {
     const ids = new Set(v.parts.map((p) => p.id));
     const add = (list) => v.parts.push(...list.filter((p) => !ids.has(p.id)));
+    // Lambeaux de tissu plats du jeu (pièces « quad » : carrés sans épaisseur, au coude, au ventre, au dos, aux hanches), lisibles vus de
+    // dessus mais qui flottent comme des carrés vus de près (retour du propriétaire : « le carré qui dépasse du coude ») : retirés.
+    v.parts = v.parts.filter((p) => p.kind !== 'quad');
     lisser(v.parts);
     if (v.kind === 'player') {
       allongerBras(v);
@@ -112,6 +122,7 @@ export function enrichirPersonnages(characters) {
     } else {
       add(visageZombie());
       add(pouce());
+      add(epaules());
     }
     v.flags = { ...(v.flags ?? {}), enrichiScene: true };
   }
