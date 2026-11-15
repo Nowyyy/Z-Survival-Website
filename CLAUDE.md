@@ -46,21 +46,30 @@ publié sur https://nowyyy.github.io/Z-Survival/).
   Artifact Registry ne garde que les 3 dernières images ; pas de Cloud Storage tant qu'un lot ne le décide pas.
 - **Le site et le serveur évoluent séparément** : `pages.yml` publie le site (jamais `serveur/`), `serveur.yml` déploie le serveur.
   Un lot sur le site ne touche pas `serveur/`, un lot sur le serveur ne touche pas les fichiers du site.
+- Images des articles (lot 3b) : envoyées au serveur, réduites, converties en WebP sans métadonnées, enregistrées dans le dépôt
+  (`img/actus/`) par l'API GitHub avec le secret facultatif `GITHUB_JETON_IMAGES` (`installer-gcp.sh --jeton-github`).
 - Connexion admin sans cookie (domaines différents) : jeton signé dans `Authorization: Bearer`. Migrations versionnées
   dans `serveur/migrations/` (nouveau fichier `NNN_…sql`, jamais modifier une migration déployée).
 
 ## Organisation
 - `index.html` : **page unique**. Accueil plein écran (vidéo en boucle de la scène sur son affiche, encart « Disponible sur navigateur » en bas à gauche, logo du studio, globe
   Français / English, « En savoir plus » + flèche qui descend vers News), puis les sections plein écran
-  News / Characters / Weapons / About us. Navigation : 01 Accueil à 05 About us. Personnages et Armes :
+  News / Characters / Weapons / About us. Navigation : 01 Accueil à 05 About us. Actualités : articles publiés lus sur le serveur (lot 3b), cartes, article complet dans une fenêtre à l'adresse `#actu/<slug>`.
+  Personnages et Armes :
   contenu provisoire atténué et inerte sous un encart « Prochainement » (« Coming soon » en anglais). Globe de langue aussi
   dans l'en-tête ; « Bientôt disponible », bouton de son et globe en haut à droite de l'accueil comme dans l'en-tête (About us : logo animé du studio rejoué à chaque arrivée,
   puis pied de page). En-tête et navigation cachés sur l'accueil.
 - `main.html` : ancienne page principale, simple redirection vers `./#news` (garde l'ancre).
+- `admin/` (lot 3b) : page d'administration des actualités (noindex, non reliée au site, français seulement, CSP stricte),
+  mode d'emploi `Docs/ref/admin.md`.
 - `css/`, `js/` : styles et scripts ; `js/site.js` : script de la page ; `js/textes.js` : tous les textes
   (blocs `fr` et `en`, mêmes clés) ; `js/i18n.js` : langue (priorité : `?lang=`, puis choix gardé du globe, puis langue du navigateur :
   français pour les visiteurs francophones, anglais pour les autres ; aucune géolocalisation) ;
   `js/logo.js` : logo du jeu ;
+  `js/config.js` : **adresse du serveur, seul endroit côté site** (la CSP d'`admin/index.html` doit autoriser la même) ;
+  `js/actualites.js` : section Actualités (lecture du serveur, cartes, squelettes, erreur, liste vide, fenêtre de l'article, `#actu/<slug>`) ;
+  `js/article.js` : carte et article complet (site et aperçu de l'admin) ; `js/markdown.js` : Markdown sûr, liste blanche, aucun HTML ;
+  `css/actualites.css` : styles des actualités ;
   `js/musique.js` : musique M2 et boutons de son à côté de chaque globe (règles : `Docs/ref/musique.md`, volume : constante `VOLUME`).
   `js/accueil-boucle.js` : **seules valeurs de temps** de la boucle (`DUREE_BOUCLE`, **`TEMPS_TIR` = 5,2 s**, `IMAGES_PAR_SECONDE`,
   `TEMPS_AFFICHE`), partagées par la scène, la fabrication des vidéos et le site ;
@@ -76,6 +85,7 @@ publié sur https://nowyyy.github.io/Z-Survival/).
 - `contenus/` : contenus modifiables sans toucher au code, aujourd'hui sur GitHub, plus tard par une interface d'administration
   (`bandeau.json` : messages du bandeau d'alerte ; format et marche à suivre : `Docs/ref/contenus.md`). Exception assumée à la règle
   « textes dans `js/textes.js` », qui vaut pour les libellés fixes.
+- `img/actus/` (lot 3b) : images des articles, ajoutées par le serveur (commit « Z-Survival admin » sur `main`) : ne pas les retoucher à la main.
 - `fonts/` : polices du jeu (+ licences) ; `img/` : icônes et logos du studio (`no-way-studio.svg` fixe, `no-way-studio-anime.svg` animé) ;
   `img/accueil/` : vidéos de l'accueil (`accueil-16x9.mp4`, `accueil-9x16.mp4`) et leurs affiches WebP, fabriquées par
   `outils/video/fabriquer.mjs` depuis la scène (méthode : `outils/video/LISEZMOI.md`, `Docs/ref/scene-accueil.md`) ; vérification de
@@ -86,6 +96,8 @@ publié sur https://nowyyy.github.io/Z-Survival/).
   `scene/apercu.html` (la scène sous la vraie page d'accueil, pour juger le rendu),
   `scene/jeu/` (copie figée du jeu, jamais retouchée), `scene/js/` (scène, poses, enrichissements), `scene/outils/`
   (copie, captures, vérification de la boucle ; Node + Playwright, non publiés).
+- `outils/admin/` (lot 3b) : banc local des actualités (`banc.mjs` : serveur sur SQLite, API GitHub simulée) et vérification
+  de bout en bout `verifier-actus.mjs` (site et admin) ; `outils/copie-publiee.mjs` : copie publiée + `simulerActualites()`.
 - `Docs/ref/` : documents de référence ; `Docs/lots/` : bilans de lot.
 - `.github/workflows/pages.yml` : déploiement GitHub Pages à chaque push sur `main`.
 - `serveur/` (lot 3a) : serveur des actualités (Node.js, Hono, `@libsql/client`, Dockerfile ; mode d'emploi `serveur/LISEZMOI.md`) ;

@@ -1,7 +1,8 @@
 # Serveur du site Z-Survival
 
 Serveur des actualités du site : **Node.js 24 (LTS)**, **Hono** (petit framework web), client officiel **`@libsql/client`**
-(base **Turso**), image **Docker** pour **Google Cloud Run** (région `europe-west3`, Francfort).
+(base **Turso**), **sharp** (images des articles, lot 3b), image **Docker** pour **Google Cloud Run** (région `europe-west3`, Francfort).
+Page d'administration : `admin/` du site, mode d'emploi [`Docs/ref/admin.md`](../Docs/ref/admin.md).
 Architecture, routes, base, connexion, secrets et coûts : [`Docs/ref/serveur.md`](../Docs/ref/serveur.md).
 
 ---
@@ -40,7 +41,11 @@ npm test
 Tests sur une base SQLite en fichier temporaire (supprimée ensuite), avec des secrets tirés au hasard à chaque lancement.
 Ils couvrent : empreinte et vérification du mot de passe, jeton (valide, expiré, falsifié), limite des tentatives (y compris
 des requêtes simultanées), CRUD des articles, seuls les articles publiés côté public, CORS, refus sans jeton, contrôle des entrées,
-migrations relançables, `/api/sante`, aucun secret dans les réponses ni dans le journal.
+migrations relançables, `/api/sante`, aucun secret dans les réponses ni dans le journal ; images des articles (bon format, trop
+lourde, mauvais type, sans jeton, sans secret GitHub, EXIF et GPS supprimés, commit au bon chemin) avec une API GitHub **simulée**.
+
+Banc complet (serveur local sur SQLite, API GitHub simulée, site et admin dans Chromium) : `node outils/admin/verifier-actus.mjs`
+depuis la racine du dépôt.
 
 ## Le conteneur en local
 
@@ -110,6 +115,17 @@ La clé de session est fabriquée par le script, vous n'avez rien à fournir.
 2. **Run workflow** → branche **main** → **Run workflow**. Attendre la coche verte (3 à 5 minutes).
 3. Ouvrir l'adresse affichée à la fin du script (ou dans le résumé du workflow), suivie de `/api/sante` :
    `https://z-survival-serveur-….europe-west3.run.app/api/sante` → doit afficher `"ok":true` et `"base":"connectée"`.
+
+### Jeton GitHub des images (lot 3b)
+Pour que l'admin puisse ajouter des images aux articles, il faut un jeton GitHub (création pas à pas : `Docs/ref/admin.md`,
+« Jeton GitHub »). Pour le ranger **sans toucher au reste**, coller cette ligne dans Cloud Shell, puis le jeton :
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/Nowyyy/Z-Survival-Website/main/serveur/deploiement/installer-gcp.sh) --jeton-github
+```
+
+Le passage complet du script pose aussi la question (« Avez-vous le jeton GitHub des images… ? ») ; Entrée = plus tard.
+Le jeton expire au bout d'un an : refaire la même chose avec un nouveau jeton.
 
 ### Relancer le script plus tard
 Le script peut être relancé autant de fois que voulu (même ligne) : il ne recrée pas ce qui existe. Pour chaque groupe de secrets,
