@@ -1,6 +1,6 @@
 # Récapitulatif de tous les lots — site Z-Survival
 
-État au 15/11/2026, après la PR #51. Site : **https://zsurvival-game.com/** · Admin : **https://zsurvival-game.com/admin/**
+État au 15/11/2026 au soir, après la PR #77 (aucune PR ouverte). Site : **https://zsurvival-game.com/** · Admin : **https://zsurvival-game.com/admin/**
 Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot dans `Docs/lots/`.
 
 ## En un coup d'œil
@@ -16,13 +16,17 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
 | **2b** | Accueil : vidéo en boucle de la scène, tir synchronisé, entrée VHS, encart « Disponible sur navigateur » | #39 → #41, #44 | `lot-2b.md` |
 | **3b** | Page admin + vraies actualités + images des articles, puis bibliothèque d'images et page « À propos » modifiable | #45 → #47, #50, #51 | `lot-3b.md` |
 | — | Nom de domaine **zsurvival-game.com** | #48, #49 | `nom-de-domaine.md` |
-| **3c** | Serveur : annonce Discord de chaque actualité publiée (webhook, une fois par article) | voir `lot-3c.md` | `lot-3c.md` |
-| **3d** | Admin : messages du bandeau d'alerte (sous « À propos »), écrits dans `contenus/bandeau.json` par le serveur | voir `lot-3d.md` | `lot-3d.md` |
-| **3e** | À propos : bloc du jeu (titre et texte) modifiable depuis l'admin, comme le studio | voir `lot-3e.md` | `lot-3e.md` |
-| **4b** | À propos : clip du vrai jeu (le survivant tire sur des zombies, 8 s en boucle) à la place de l'image | voir `lot-4b.md` | `lot-4b.md` |
-| **4a** | Finitions : aperçu de partage, icônes, référencement, titre en paysage, boutons à 44 px ; À propos en deux blocs (jeu, studio) | voir `lot-4a.md` | `lot-4a.md` |
+| **4a** | Finitions : aperçu de partage, icônes, référencement, titre en paysage, boutons à 44 px ; À propos en deux blocs (jeu, studio) | #56 | `lot-4a.md` |
+| **3c** | Serveur : annonce Discord de chaque actualité publiée (titre et début du texte FR + EN, drapeaux) | #59 → #61 | `lot-3c.md` |
+| **3d** | Admin : messages du bandeau d'alerte, écrits dans `contenus/bandeau.json` par le serveur | #65 | `lot-3d.md` |
+| **3e** | À propos : bloc du jeu (titre et texte) modifiable depuis l'admin, comme le studio | #67 | `lot-3e.md` |
+| **4b** | À propos : clip du vrai jeu (le survivant tire sur des zombies, 8 s en boucle), puis 3 retours sur le pilotage | #71, #72, #75, #77 | `lot-4b.md` |
+| — | Scène de l'accueil : retours 11 à 19 (zombie, militaire, détails, deuxième tir), vidéos refaites | #55, #57, #62, #63, #66, #68 → #70, #73 | `lot-1-retours.md` |
+| — | Petits ajouts hors lot : lien Discord, « Pages du site » en haut de l'admin, bandeau en service, serveur limité au domaine, À propos plus aéré, indice « Défiler », carrousel des actualités | #53, #54, #57, #58, #64, #74, #76 | voir plus bas |
 
-> Les lots ont été numérotés par thème, pas dans l'ordre : 1b avant 1, 3a avant 2b.
+> Les lots ont été numérotés par thème, pas dans l'ordre : 1b avant 1, 3a avant 2b, 4a avant 3c.
+> Depuis la PR #52, **deux sessions de l'agent ont travaillé en parallèle** : l'une sur la scène de l'accueil, les actualités et À propos
+> (indice « Défiler »), l'autre sur les lots 4a, 3c, 3d, 3e et 4b. Chacune rebasait sur `main` avant de fusionner ; aucun conflit.
 
 ---
 
@@ -91,36 +95,84 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
 
 ---
 
-## Lot 4a — Finitions (après le nom de domaine)
-- **Aperçu de partage** (Discord, WhatsApp…) : titre, description et image 1200 × 630 tirée de l'accueil.
+## Lot 4a — Finitions après le nom de domaine (PR #56)
+- **Aperçu de partage** (Discord, WhatsApp…) : titre, description et image 1200 × 630 tirée de l'accueil, avec le logo.
 - **Icônes** : favicon, icône d'iPhone et d'Android, manifeste, tirées du Z rouge du logo ; mêmes icônes sur l'admin.
-- **Référencement** : une seule page indexée (la page d'accueil), `robots.txt`, `sitemap.xml`, canonique, données structurées ; mode d'emploi
-  Google Search Console dans `Docs/ref/referencement.md`.
+- **Référencement** : une seule page indexée (la page d'accueil), `robots.txt`, `sitemap.xml`, canonique fixe, données structurées
+  (jeu, studio, site), rien d'inventé. Mode d'emploi Google Search Console : `Docs/ref/referencement.md`.
 - **Téléphone en paysage** : le titre ne touche plus la rangée du haut. **Boutons de l'en-tête** : zone de clic de 44 × 44 px.
-- **À propos** (demande du propriétaire pendant le lot) : bloc du jeu au-dessus du bloc du studio.
+- **À propos** (demande pendant le lot) : bloc du jeu au-dessus du bloc du studio ; puis plus d'espace entre les deux et logo du studio
+  agrandi (#64).
 
-## Lot 3c — Annonce Discord des actualités
-- À la **première** publication d'un article, le serveur poste un message dans un salon Discord (titre, début du texte, image, lien),
-  par un webhook rangé dans Secret Manager (`installer-gcp.sh --discord`). Un échec de Discord n'empêche jamais la publication.
-- **À activer** par le propriétaire : créer le webhook dans Discord et le ranger (`Docs/ref/admin.md`, « Annonce Discord »).
+## Lot 3c — Annonce Discord des actualités (PR #59 à #61)
+- À la **première** publication d'un article, le serveur poste dans un salon Discord : « 📰 Nouvelle actualité · New post », puis une
+  carte avec le titre « 🇫🇷 … — 🇬🇧 … », le début du texte français puis anglais, l'image et le lien vers l'article.
+- Une seule fois par article ; aucune mention qui notifie ; un échec de Discord n'empêche jamais la publication.
+- Webhook rangé dans Secret Manager par `installer-gcp.sh --discord` (fait par le propriétaire le 15/11).
+- Incident du 15/11 (19 h 27 à 20 h 45 environ) : le serveur ne répondait plus. Cause côté Google Cloud (limite budgétaire réglée à 0 €,
+  relevée à 1 € par le propriétaire), pas le code ; le serveur est reparti au déploiement suivant.
 
-## Lot 3d — Bandeau d'alerte depuis l'admin
-- **Pages du site → Modifier le bandeau d’alerte** : textes FR / EN, affiché ou caché, ordre, ajout, suppression, aperçu.
-- Le serveur réécrit `contenus/bandeau.json` dans le dépôt (commit « Z-Survival admin ») ; l'accueil est à jour une minute plus tard.
+## Lot 3d — Bandeau d'alerte depuis l'admin (PR #65)
+- **Pages du site → Bandeau d'alerte** : textes FR / EN, affiché ou caché, ordre, ajout, suppression, aperçu.
+- Le serveur réécrit `contenus/bandeau.json` dans le dépôt (commit « Z-Survival admin »), avec le jeton GitHub des images ; l'accueil est à
+  jour une minute plus tard. Refus clair si le fichier a été modifié ailleurs entre-temps.
+- Le bandeau est **en service** sur le site public depuis la PR #57 (`?bandeau=0` le cache) ; le dernier article publié passe en tête.
+
+## Lot 3e — À propos : les deux blocs modifiables (PR #67)
+- L'écran « À propos » de l'admin montre **le bloc du jeu** (titre, texte) puis **le bloc du studio** (ligne sous le logo, texte), en
+  français et en anglais, avec aperçu ; seuls les blocs modifiés sont enregistrés (pages `a-propos-jeu` et `a-propos` du serveur).
+
+## Lot 4b — Clip du vrai jeu dans À propos (PR #71, retours #72, #75, #77)
+- Le bloc « Le jeu » montre un **clip de 8 s en boucle tiré du vrai jeu** (branche `dev`, copie en lecture seule), fabriqué par
+  `outils/clip-jeu/fabriquer.mjs` : 800 × 450, sans son, environ 400 Kio, posé sur son affiche ; chargé seulement en arrivant sur À propos,
+  en pause hors de l'écran, affiche seule en mouvement réduit.
+- Retours du propriétaire : le survivant se déplace (#72) ; visée « à la souris » (temps de réaction, geste rapide qui dépasse souvent la
+  cible, correction, suivi) et déplacement d'un vrai joueur (#75) ; allure modérée, direction tenue vers là où il n'y a pas de zombie,
+  toujours le plus proche (#77).
+- Les rares images assombries par le rendu logiciel (carte d'ombres du jeu) sont réparées automatiquement.
+
+## Scène de l'accueil : retours 11 à 19 (PR #55, #57, #62, #63, #66, #68 à #70, #73)
+- Zombie corrigé (épaules, bras qui griffe, bouche qui s'ouvre quand il tend le bras), **personnage 2 en militaire**, zombie tourné vers le
+  personnage 1.
+- Détails validés et mis en ligne (#73) : rotor de queue qui tourne, hélicoptère en métal, flammes des lampes, coups d'œil des personnages,
+  **tir du personnage 2 à 2,6 s** (le zombie retombe, tête au sol) ; vidéos de l'accueil refaites.
+- Sur le site : **flash du cadre rouge et coup de feu aux deux tirs** (`TEMPS_TIRS` : 2,6 et 5,2 s, `js/accueil-boucle.js`) ; affiche à 1,9 s.
+- Détails : `Docs/lots/lot-1-retours.md`.
+
+## Petits ajouts hors lot
+- **Lien Discord** (logo) entre « Bientôt disponible » et le bouton de son, sur l'accueil et dans l'en-tête (#54).
+- **Admin** : « Pages du site » au-dessus de la liste des articles (#53).
+- **Serveur** limité à `https://zsurvival-game.com` (les anciennes adresses redirigent) et actions GitHub à jour, Node.js 24 (#58).
+- **À propos sur téléphone** : dégradé et pastille « Défiler » tant que la section dépasse de l'écran ; flèches et Page suivante / précédente
+  parcourent une section haute au clavier (#74).
+- **Actualités sur téléphone** : position « 01 / 02 », barre de progression et flèches sous le carrousel ; bloc « Rejoindre le Discord » en
+  bas de la section (#76).
+
+---
 
 ## Ce qui est en place aujourd'hui
-- Accueil : vidéo en boucle, tir, entrée VHS, musique M2 au clic, encart « Disponible sur navigateur ».
-- **Lien Discord** (logo) entre « Bientôt disponible » et le bouton de son, sur l'accueil et dans l'en-tête (PR après #53).
-- Actualités : gérées depuis l'admin, avec images.
-- Personnages et Armes : **encore provisoires**, sous l'encart « Prochainement ».
-- À propos : ligne sous le logo et texte modifiables depuis l'admin ; logo animé, crédits, pied de page fixes.
-- Français / anglais partout.
+- **Accueil** : vidéo en boucle de la scène (deux tirs, flash du cadre et coup de feu son activé), entrée VHS, accroche radio, musique M2 au
+  clic, encart « Disponible sur navigateur », **bandeau d'alerte en service**, lien Discord.
+- **Actualités** : gérées depuis l'admin (images comprises), carrousel sur téléphone, **annonce Discord** à chaque nouvel article.
+- **Personnages** et **Armes** : encore provisoires, sous l'encart « Prochainement ».
+- **À propos** : bloc du jeu (clip du vrai jeu) et bloc du studio (logo animé), titres et textes modifiables depuis l'admin, crédits,
+  pied de page.
+- **Admin** (https://zsurvival-game.com/admin/) : articles, images et bibliothèque, page « À propos » (deux blocs), bandeau d'alerte.
+- **Adresse** https://zsurvival-game.com/, aperçu de partage, icônes, référencement ; français / anglais partout.
+- **Serveur** : Cloud Run (Francfort, 0 instance au repos) + Turso ; secrets dans Secret Manager (jeton GitHub des images, webhook Discord).
+
+## À faire ou à vérifier par le propriétaire
+- **Partager** https://zsurvival-game.com/ dans Discord ou WhatsApp pour voir l'aperçu (cache possible quelques jours).
+- **Google Search Console** (facultatif) : pas à pas dans `Docs/ref/referencement.md`.
+- **Admin → À propos** : vérifier que le texte du studio parle du studio (le bloc du jeu décrit déjà le jeu).
+- **Téléphones réels** (iPhone, Android) : vidéo de l'accueil et clip d'À propos (mode économie d'énergie : affiche fixe), son, rotation.
+- **Budget Google Cloud** : le garder au-dessus de 0 € (le projet coûte quelques centimes par mois, couverts par le crédit d'essai).
 
 ## Restant à faire ou à décider
 - **Personnages** et **Armes** : contenu définitif (aucun lot prévu pour l'instant).
-- **Bandeau d'alerte** : le mettre en service sur le site public ou non (il afficherait aussi le dernier article publié).
 - **Bouton « Jouer »** : à remettre quand le jeu sera disponible (le lien est déjà dans `js/donnees.js`).
-- **Jeton GitHub des images** : à renouveler dans environ 11 mois (marche à suivre dans `Docs/ref/admin.md`, « Jeton GitHub »).
-- Facultatif : serveur sur `api.zsurvival-game.com` (permettrait une connexion admin par cookie, plus protégée).
+- **Jeton GitHub des images** (aussi utilisé par le bandeau) : à renouveler dans environ 11 mois (`Docs/ref/admin.md`, « Jeton GitHub »).
+- **Clip d'À propos** : à refaire si le jeu change (`node outils/clip-jeu/fabriquer.mjs`, environ 7 minutes).
+- Facultatif : serveur sur `api.zsurvival-game.com` (connexion admin par cookie, plus protégée) ; pages de partage par article (aujourd'hui
+  un lien `#actu/…` montre l'aperçu général du site).
 - Tags `lot-N` : créés en local seulement, leur envoi sur GitHub est refusé par l'environnement de l'agent.
-- Testé seulement dans Chromium : à vérifier sur iPhone et Android réels (liste dans `lot-2b.md`, « À tester »).
