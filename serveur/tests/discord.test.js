@@ -4,7 +4,7 @@ import { test, describe, before, after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
 import { fabriquer } from './aide.js';
-import { extrait, texteBrut, webhookValide } from '../src/discord.js';
+import { extrait, texteBrut, titreBilingue, webhookValide } from '../src/discord.js';
 
 // Adresse de webhook tirée au hasard (aucune valeur réelle dans le dépôt).
 const JETON_WEBHOOK = randomBytes(40).toString('base64url');
@@ -73,6 +73,7 @@ describe('annonce Discord des actualités', () => {
     const a = (await creer({
       slug: 'nouvelle-carte',
       titre_fr: 'Nouvelle carte : l’hôpital @everyone',
+      titre_en: 'New map: the hospital',
       contenu_fr: '# La nuit tombe\n\nUne **nouvelle carte** arrive, avec un [lien](https://exemple.org) et des zombies plus rapides.',
       image: 'img/actus/nouvelle-carte-0123abcd.webp',
     })).json.article;
@@ -87,12 +88,13 @@ describe('annonce Discord des actualités', () => {
     assert.deepEqual(corps.allowed_mentions, { parse: [] });
     assert.equal(corps.username, 'Z-Survival');
     const e = corps.embeds[0];
-    assert.equal(e.title, 'Nouvelle carte : l’hôpital @everyone');
+    assert.equal(e.title, '🇫🇷 Nouvelle carte : l’hôpital @everyone — 🇬🇧 New map: the hospital');
     assert.equal(e.url, 'https://zsurvival-game.com/#actu/nouvelle-carte');
-    assert.equal(e.description, 'La nuit tombe Une nouvelle carte arrive, avec un lien et des zombies plus rapides.');
+    assert.equal(e.description, 'La nuit tombe. Une nouvelle carte arrive, avec un lien et des zombies plus rapides.');
     assert.equal(e.image.url, 'https://zsurvival-game.com/img/actus/nouvelle-carte-0123abcd.webp');
     assert.equal(e.timestamp, '2026-11-15T12:00:00.000Z');
-    assert.match(corps.content, /Nouvelle actualité/);
+    assert.equal(corps.content, '📰 **Nouvelle actualité · New post**');
+    assert.ok(!corps.content.includes('http'), 'pas de lien dans la ligne (sinon Discord ajoute un second aperçu)');
     assert.deepEqual(d.heads, ['https://zsurvival-game.com/img/actus/nouvelle-carte-0123abcd.webp']);
   });
 
@@ -200,8 +202,18 @@ describe('annonce Discord : outils', () => {
       `https://discord.com/api/webhooks/1234567890/${JETON_WEBHOOK}?x=1`, null]) assert.ok(!webhookValide(v), String(v));
   });
 
+  test('titre bilingue : drapeaux, français seul sans anglais, 256 caractères au plus', () => {
+    assert.equal(titreBilingue({ titre_fr: 'Bonjour', titre_en: 'Hello' }), '🇫🇷 Bonjour — 🇬🇧 Hello');
+    assert.equal(titreBilingue({ titre_fr: 'Bonjour', titre_en: '' }), '🇫🇷 Bonjour');
+    assert.equal(titreBilingue({ titre_fr: 'Bonjour', titre_en: '   ' }), '🇫🇷 Bonjour');
+    const long = titreBilingue({ titre_fr: 'é'.repeat(200), titre_en: 'e'.repeat(200) });
+    assert.ok(long.length <= 256 && long.includes(' — 🇬🇧 ') && long.endsWith('…'), long.length);
+    assert.ok(titreBilingue({ titre_fr: 'é'.repeat(300) }).length <= 256);
+  });
+
   test('texte brut et extrait', () => {
-    assert.equal(texteBrut('## Titre\n- **un** point\n> cité\n[lien](https://a.b) `code`'), 'Titre un point cité lien code');
+    assert.equal(texteBrut('## Titre\n- **un** point\n> cité\n[lien](https://a.b) `code`'), 'Titre. un point. cité lien code');
+    assert.equal(texteBrut('# Déjà ponctué !\nUne phrase\ncoupée en deux.'), 'Déjà ponctué ! Une phrase coupée en deux.');
     const long = 'mot '.repeat(200);
     const e = extrait(long, 50);
     assert.ok(e.length <= 50 && e.endsWith('…'), e);

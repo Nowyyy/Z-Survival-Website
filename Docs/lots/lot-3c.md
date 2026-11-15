@@ -77,6 +77,18 @@ channel Discord ». Lot **serveur** : aucun fichier du site n'est touché (règl
 3. **Essai réel** : dans l'admin, publier un article (un vrai, ou un essai à supprimer ensuite) : le message doit arriver dans le salon
    en quelques secondes, avec le titre, le début du texte, l'image et le lien. Le republier ne doit rien renvoyer.
 
+## Retour du propriétaire (15/11/2026, branche `lot-3c-retours`)
+- **Titre en français et en anglais avec drapeaux** : « 🇫🇷 Nouvelle carte : l’hôpital — 🇬🇧 New map: the hospital ». Sans titre anglais :
+  « 🇫🇷 titre français » seulement. 256 caractères au plus (limite de Discord), partagés entre les deux langues.
+- Première ligne bilingue « 📰 **Nouvelle actualité · New post** », **sans le lien** : Discord aurait ajouté sous la carte un second
+  aperçu (celui du site, avec son image de partage). Le titre de la carte reste le lien vers l'article.
+- Pied de carte « Z-Survival — Actualités · News ».
+- Extrait : un titre (`#`) ou un élément de liste sans ponctuation finale est suivi d'un point (« La nuit tombe sur l’hôpital. Une nouvelle
+  carte… » au lieu de « …l’hôpital Une nouvelle carte… »).
+- **Aperçu** montré au propriétaire avant la mise en service : maquette fabriquée à partir du contenu exact que le serveur envoie
+  (`messageArticle` de `serveur/src/discord.js`), avec et sans titre anglais.
+- Tests du serveur : **65/65** (titre bilingue, ligne sans lien, ponctuation de l'extrait).
+
 ## État git
 - Commits `lot-3c A` à `lot-3c D` sur la branche `lot-3c`, PR vers `main` fusionnée par l'agent (règle de `CLAUDE.md`). Le push sur `main`
   touche `serveur/` : le workflow « serveur » teste puis déploie le serveur sur Cloud Run (la migration 003 s'applique au démarrage).

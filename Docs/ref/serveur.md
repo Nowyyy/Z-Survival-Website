@@ -124,9 +124,11 @@ contenu_fr, contenu_en, modifie_le } }` ; `PUT /api/admin/pages/a-propos` avec `
 - **Quand** : un article devient public (`POST /api/admin/articles/:id/publier`, création avec `statut: "publie"`, ou `PUT` qui passe le
   statut à `publie`) **et** n'a jamais été annoncé (colonne `annonce_discord_le` nulle, migration 003). Jamais pour une modification,
   ni pour une republication après dépublication.
-- **Message** (webhook `DISCORD_WEBHOOK_ACTUS`, `POST …?wait=true`) : ligne « 📰 Nouvelle actualité sur Z-Survival » + lien, carte
-  (*embed*) rouge `#d81414` avec le titre français, un extrait du texte (Markdown retiré, 280 caractères au plus), l'image, le lien
-  `https://zsurvival-game.com/#actu/<slug>`, la date de publication ; nom « Z-Survival », icône du site. `allowed_mentions: { parse: [] }` :
+- **Message** (webhook `DISCORD_WEBHOOK_ACTUS`, `POST …?wait=true`) : ligne « 📰 **Nouvelle actualité · New post** » (sans lien : Discord
+  ajouterait un second aperçu, celui du site), carte (*embed*) rouge `#d81414` dont le titre est **« 🇫🇷 titre français — 🇬🇧 titre
+  anglais »** (seulement « 🇫🇷 titre français » sans version anglaise ; 256 caractères au plus), un extrait du texte français (Markdown
+  retiré, un point après un titre ou un élément de liste, 280 caractères au plus), l'image, le lien `https://zsurvival-game.com/#actu/<slug>`
+  (titre cliquable), la date ; pied « Z-Survival — Actualités · News » ; nom « Z-Survival », icône du site. `allowed_mentions: { parse: [] }` :
   aucune mention ne notifie.
 - **Image** : son adresse publique si elle répond déjà (`HEAD`) ; sinon (image envoyée à l'instant, pas encore republiée par GitHub
   Pages), le fichier lu dans le dépôt par l'API GitHub (`Accept: application/vnd.github.raw`) et **joint** au message

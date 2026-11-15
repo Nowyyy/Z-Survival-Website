@@ -1,7 +1,7 @@
 // Annonce Discord des actualités (lot 3c) : à la PREMIÈRE publication d'un article, un message part dans un salon Discord
 // par un webhook (adresse secrète DISCORD_WEBHOOK_ACTUS, rangée dans Google Secret Manager par installer-gcp.sh --discord).
-// Message : une ligne « Nouvelle actualité », puis une carte (embed) avec le titre français, un extrait du texte, l'image de
-// l'article et le lien vers l'article sur le site (https://zsurvival-game.com/#actu/<slug>).
+// Message : une ligne « Nouvelle actualité · New post », puis une carte (embed) avec le titre en français et en anglais (drapeaux),
+// un extrait du texte français, l'image de l'article et le lien vers l'article sur le site (https://zsurvival-game.com/#actu/<slug>).
 // Règles :
 // - l'adresse du webhook ne quitte jamais le serveur : ni dans les réponses, ni dans le journal (masquée), ni dans les erreurs ;
 // - aucune mention ne notifie qui que ce soit (allowed_mentions vide) : un « @everyone » dans un titre reste du texte ;
@@ -18,15 +18,24 @@ export function webhookValide(adresse) {
   return typeof adresse === 'string' && MOTIF_WEBHOOK.test(adresse);
 }
 
-/** Texte brut d'un contenu Markdown (js/markdown.js du site) : sans titres, gras, italique ni adresses de liens. */
+/**
+ * Texte brut d'un contenu Markdown (js/markdown.js du site) : sans titres, gras, italique ni adresses de liens. Un titre ou un élément
+ * de liste sans ponctuation finale est suivi d'un point (« La nuit tombe. Une nouvelle carte… »), les autres lignes d'une espace.
+ */
 export function texteBrut(markdown) {
-  return String(markdown ?? '')
-    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
-    .replace(/^\s{0,3}(?:#{1,6}\s+|>\s?|[-*+]\s+|\d+[.)]\s+)/gm, '')
-    .replace(/(\*\*|__|\*|_|`)/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+  const morceaux = [];
+  for (const brute of String(markdown ?? '').split('\n')) {
+    const bloc = /^\s{0,3}(?:#{1,6}\s+|[-*+]\s+|\d+[.)]\s+)/.test(brute);
+    const ligne = brute
+      .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+      .replace(/^\s{0,3}(?:#{1,6}\s+|>\s?|[-*+]\s+|\d+[.)]\s+)/, '')
+      .replace(/(\*\*|__|\*|_|`)/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (ligne) morceaux.push(bloc && !/[.!?:;…]$/.test(ligne) ? `${ligne}.` : ligne);
+  }
+  return morceaux.join(' ');
 }
 
 /** Extrait d'au plus `max` caractères, coupé à un mot, avec « … ». */
@@ -71,20 +80,34 @@ async function imageDeLArticle({ image, config, fetchAnnonce, fetchGithub }) {
   }
 }
 
+/**
+ * Titre de la carte (retour du propriétaire) : « 🇫🇷 titre français — 🇬🇧 titre anglais », ou seulement « 🇫🇷 titre français » quand
+ * l'article n'a pas de version anglaise. 256 caractères au plus (limite de Discord), partagés entre les deux langues.
+ */
+export function titreBilingue(article) {
+  const fr = String(article.titre_fr ?? '').trim();
+  const en = String(article.titre_en ?? '').trim();
+  const couper = (t, max) => (t.length <= max ? t : `${t.slice(0, max - 1).trimEnd()}…`);
+  if (!en) return couper(`🇫🇷 ${fr}`, 256);
+  const place = Math.floor((256 - ' — '.length - 2 * '🇫🇷 '.length) / 2);
+  return `🇫🇷 ${couper(fr, place)} — 🇬🇧 ${couper(en, place)}`;
+}
+
 /** Contenu JSON du message Discord pour un article (sans l'image). */
 export function messageArticle(article) {
   const embed = {
-    title: String(article.titre_fr).slice(0, 256),
+    title: titreBilingue(article),
     url: adresseArticle(article.slug),
     description: extrait(article.contenu_fr),
     color: COULEUR,
-    footer: { text: 'Z-Survival — Actualités' },
+    footer: { text: 'Z-Survival — Actualités · News' },
   };
   if (article.date_publication) embed.timestamp = article.date_publication;
   return {
     username: 'Z-Survival',
     avatar_url: `${ADRESSE_SITE}img/icones/icone-512.png`,
-    content: `📰 **Nouvelle actualité sur Z-Survival** : ${adresseArticle(article.slug)}`,
+    // Pas de lien dans cette ligne : Discord y ajouterait un second aperçu (celui du site) sous la carte. Le titre de la carte est le lien.
+    content: '📰 **Nouvelle actualité · New post**',
     embeds: [embed],
     allowed_mentions: { parse: [] },
   };
