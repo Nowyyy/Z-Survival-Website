@@ -153,3 +153,9 @@ Suite du lot 1 (`Docs/lots/lot-1.md`). Branche `lot-1-retours`, PR fusionnée pa
   tâtonne au sol. Il soulève un peu le haut du corps et tourne l'épaule pendant le geste (`attrapeAt(t)`, `ATTRAPE` et
   `PLACEMENT.spectateur` dans `scene/js/poses.js`).
 - Contacts mesurés pendant le geste : le pied du personnage 2 reste posé sur le dos sans y entrer (écart de 0,09 à 0,39).
+
+## Huitième retour : un seul geste, plus long, bras moins haut
+- **Une seule fois par boucle** : le zombie tend le bras à partir de **1,0 s** (0,55 s), le **garde tendu 1,1 s**, le ramène en 0,55 s
+  (fini à 3,2 s, loin du coup de feu de 5,2 s) : le geste dure 2,2 s au lieu de 1,1 s (`ATTRAPE` dans `scene/js/poses.js`).
+- **Bras moins haut** : il se tend vers le spectateur à peu près à hauteur d'épaule, sans se dresser (point visé `PLACEMENT.spectateur`
+  abaissé de 62 à 42).
