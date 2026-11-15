@@ -40,11 +40,15 @@ function paupiere() {
     box('cilsL', PAUPIERE.id, 'sombre', [1.9, 0.24, 0.3], [0, -1.2, 0.58], [0, 0, 0.08]),
   ];
 }
-// Squelettes du jeu (copie en mémoire de poses-v2.json) avec l'articulation de la paupière ajoutée au squelette v2.
+// Bouche du zombie, qui s'ouvre quand il tend le bras (retour du propriétaire, js/poses.js) : une cavité sombre arrondie, logée dans le
+// visage (seul son devant affleure), portée par une articulation à elle, « boucheZ », placée en son centre ; son échelle l'agrandit en
+// suivant la courbe du visage (un rectangle qui s'allonge flotterait devant le menton, la tête du jeu étant une sphère).
+export const BOUCHE = { id: 'boucheZ', parent: 'head', offset: [0, 2.3, 3.35] };
+// Squelettes du jeu (copie en mémoire de poses-v2.json) avec les articulations de la paupière et de la bouche ajoutées au squelette v2.
 export function enrichirPoses(poses) {
   const p = structuredClone(poses);
   const joints = p.skeletons?.v2?.joints;
-  if (Array.isArray(joints) && !joints.some((j) => j.id === PAUPIERE.id)) joints.push({ ...PAUPIERE, range: null });
+  for (const j of [PAUPIERE, BOUCHE]) if (Array.isArray(joints) && !joints.some((x) => x.id === j.id)) joints.push({ ...j, range: null });
   return p;
 }
 // Visage d'un zombie : orbites creuses et sombres, yeux pâles, bouche ouverte, dents.
@@ -56,7 +60,7 @@ function visageZombie() {
     parts.push(sphere(`oeil${s > 0 ? 'L' : 'R'}`, 'head', 'yeux', [0.5, 0.42, 0.3], [x, 5.0, 4.62], { skin: false }));
   }
   parts.push(box('nez', 'head', 'peau', [1.1, 1.6, 1.1], [0, 4.0, 4.7], [-0.2, 0, 0], { skin: true }));
-  parts.push(box('bouche', 'head', 'sombre', [2.6, 1.5, 0.9], [0, 2.3, 4.1], [0.15, 0, 0]));
+  parts.push(sphere('bouche', BOUCHE.id, 'sombre', [1.5, 0.85, 1.3], [0, 0, 0]));
   parts.push(box('dents', 'head', 'crasse', [2.2, 0.45, 0.5], [0, 2.85, 4.45], [0.15, 0, 0], { skin: false }));
   return parts;
 }
@@ -101,11 +105,43 @@ function lisser(parts) {
   }
 }
 
+// Personnage 2 en militaire (retour du propriétaire), au style différent du personnage 1 (casquette, gilet sable, sac à dos) : casque rond
+// avec rebord, jugulaires, lunettes relevées et petite lampe sur le côté ; gilet pare-balles sombre avec trois porte-chargeurs et une radio ;
+// sac d'hydratation plat ; gants ; treillis kaki et olive. Variante « militaire » construite à partir de la variante « riche » du jeu.
+export const MILITAIRE = 'militaire';
+function militaire(riche) {
+  const m = structuredClone(riche);
+  m.id = MILITAIRE;
+  m.label = 'Militaire (scène de l’accueil)';
+  m.parts = m.parts
+    .filter((p) => !['cap', 'capBrim', 'vestA', 'pack'].includes(p.id))
+    .map((p) => (['handL', 'fingersL'].includes(p.id) ? { ...p, palette: 'sombre', skin: false } : p)); // gants
+  const taper = (id, joint, palette, d, offset) => ({ id, joint, kind: 'taper', dims: { sides: 14, ...d }, offset, rotation: [0, 0, 0], palette });
+  m.parts.push(
+    sphere('casque', 'head', 'accent', [5.5, 2.9, 5.6], [0, 7.6, -0.2]),
+    taper('casqueBord', 'head', 'accent', { r0: 5.75, r1: 5.55, h: 0.8, sx: 1, sz: 1.04 }, [0, 6.75, -0.2]),
+    box('jugulaireL', 'head', 'sombre', [0.45, 3.8, 0.6], [4.35, 4.7, 0.9], [0.25, 0, 0], { mirror: true }),
+    box('lunettesBande', 'head', 'sombre', [8.4, 1.1, 0.8], [0, 8.1, 4.75], [-0.35, 0, 0]),
+    box('lunettesVerreL', 'head', 'metal', [2.0, 1.3, 0.7], [1.3, 8.1, 5.15], [-0.35, 0, 0], { mirror: true }),
+    { ...box('lampeCasque', 'head', 'lampe', [1.4, 1.1, 1.3], [-5.15, 7.3, 1.6]), material: 'glow' },
+    box('gilet', 'chest', 'accent', [16, 10.8, 12.8], [0, 4.2, 0]),
+    ...[-4.3, 0, 4.3].map((x, i) => box(`chargeur${i + 1}`, 'chest', 'sac', [2.8, 3.6, 1.6], [x, 1.9, 7.1])),
+    box('radio', 'chest', 'sombre', [2.4, 4, 1.8], [5.6, 7.7, 6.8]),
+    box('hydratation', 'chest', 'accent', [9, 10, 3.6], [0, 4, -7.9]),
+  );
+  m.outfits = [{ id: 'treillis', label: 'treillis', palette: { tenue: '--perso-tissu-kaki', pantalon: '--perso-tissu-olive', accent: '--perso-sombre' } }];
+  m.flags = { ...(m.flags ?? {}), militaireScene: true };
+  return m;
+}
+
 // Copie des données des personnages, enrichie (variantes « riche » du joueur et des zombies).
 export function enrichirPersonnages(characters) {
   const c = structuredClone(characters);
-  // Joueur : toutes ses variantes (la scène habille le personnage 2 en variante B) ; zombies : la variante « riche ».
-  const cibles = c.slots.flatMap((slot) => slot.variants.filter((x) => x.id === 'riche' || (x.kind === 'player' && ['A', 'B', 'C'].includes(x.id))));
+  const joueur = c.slots.find((x) => x.id === 'joueur');
+  const riche = joueur?.variants.find((x) => x.id === 'riche');
+  if (riche && !joueur.variants.some((x) => x.id === MILITAIRE)) joueur.variants.push(militaire(riche));
+  // Joueur : toutes ses variantes (dont « militaire », le personnage 2) ; zombies : la variante « riche ».
+  const cibles = c.slots.flatMap((slot) => slot.variants.filter((x) => x.id === 'riche' || (x.kind === 'player' && ['A', 'B', 'C', MILITAIRE].includes(x.id))));
   for (const v of cibles) {
     const ids = new Set(v.parts.map((p) => p.id));
     const add = (list) => v.parts.push(...list.filter((p) => !ids.has(p.id)));
@@ -118,6 +154,7 @@ export function enrichirPersonnages(characters) {
       add(visageSurvivant({ colere: v.id === 'riche' })); // personnage 1 (variante « riche ») en colère
       if (v.id === 'riche') add(paupiere());
       add(pouce());
+      if (v.id === MILITAIRE) for (const p of v.parts) if (p.id === 'pouceL') Object.assign(p, { palette: 'sombre', skin: false }); // gants
       if (ids.has('gunSlide')) add(pistolet());
     } else {
       add(visageZombie());

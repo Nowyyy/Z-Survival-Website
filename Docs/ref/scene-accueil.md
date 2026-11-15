@@ -86,8 +86,8 @@ La scène 3D (`scene/`) ne charge rien depuis le jeu en ligne : les fichiers du 
 ## Cadrage retenu (retours du lot 1)
 - **B, contre-plongée rapprochée** (`scene/js/cadrages.js`), ouvert par défaut par `scene/index.html`.
 - Aperçu dans la vraie page d'accueil : `scene/apercu.html` (scène en `?format=plein` dessous, site par-dessus, sans le modifier).
-- Personnage 1 : survivant tactique (variante « riche »), **tir à genou, œil gauche fermé pendant le tir seulement** ; personnage 2 : civil débrouillard
-  (variante B du jeu, lampe frontale).
+- Personnage 1 : survivant tactique (variante « riche »), **tir à genou, œil gauche fermé pendant le tir seulement** ; personnage 2 : **militaire**
+  (variante « militaire » de la scène : casque, gilet pare-balles, treillis ; `?p2=civil` : ancienne tenue).
 - Ordinateur : angle d'origine du cadrage B, personnage 1 au centre, zombie et personnage 2 décalés à droite (`placement` dans `cadrages.js`).
 - Accueil du site : vignette sombre en bas (`.accueil-scene-vignette`), logo, accroche et bouton au plus bas, juste au-dessus du cadre.
 
@@ -143,3 +143,4 @@ Origine : dépôt `Nowyyy/Z-Survival`, branche **`dev`**, commit **`10a9e6b90f39
 |---|---|---|
 | `sons/coup-de-feu.wav` (64,6 Kio, PCM 16 bits mono 44,1 kHz, 0,75 s) | son `tir` de `data/game/sounds.json` (version 1 sur 3), calculé par `js/core/synth.js` du jeu (le jeu n'a aucun fichier audio) ; origine et empreinte : `sons/ORIGINE.json` ; refaire : `node outils/sons/copier-tir.mjs <clone>` | coup de feu joué au tir de la vidéo si le son du site est activé (`VOLUME_TIR` = 0,3 dans `js/musique.js`) |
 | `css/accueil-chute-z.css` | images clés `e7-chute` et `e7-secousse` de `css/menu.css` (écran de chargement ; dernier changement du fichier : `b73e6f4`), telles quelles | chute du Z de l'entrée en scène de l'accueil |
+- Essai `?zombie=vers-p1` : zombie et personnage 2 tournés vers le personnage 1 (le zombie rampe vers lui).

@@ -191,6 +191,9 @@ export function poseZombie(z, stage, t, appui) {
   const coudeL = local(z, 20, 16, 26).lerp(sh.clone().add(versSpect.clone().multiplyScalar(10 * K)).add(V(0, 6 * K, 0)), lisse);
   const doigts = dirWorld(z.root, V(0.08, -0.06, 1)).lerp(versSpect, lisse).normalize();
   arm(z, 'L', mainL, coudeL, doigts, dirWorld(z.root, V(0, -1, 0)));
+  // Bouche : elle s'ouvre quand il tend le bras (et claque un peu des dents pendant qu'il le garde tendu).
+  const bouche = z.bones.get('boucheZ');
+  if (bouche) bouche.scale.set(1 + 0.15 * lisse, 1 + lisse * (1.0 + 0.15 * onde(t, 16)), 1);
   const g = cycle(t, 4);
   // Griffe : la main avance au-dessus du sol (25 % du cycle), se pose, puis racle vers l'arrière (75 %).
   const rake = g < 0.25 ? g / 0.25 : 1 - (g - 0.25) / 0.75;
