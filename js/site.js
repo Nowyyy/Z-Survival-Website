@@ -1,4 +1,4 @@
-// Page unique du site : accueil plein écran (image animée à venir), puis les sections News, Characters,
+// Page unique du site : accueil plein écran (vidéo en boucle de la scène, lot 2b), puis les sections News, Characters,
 // Weapons et About us. Défilement qui s'arrête sur chaque section (scroll-snap en CSS), « En savoir plus » qui
 // descend vers News (on peut remonter vers l'accueil), navigation qui suit la section affichée,
 // apparition du contenu à l'entrée de chaque section, menus de langue (Français / English) sur l'accueil et dans l'en-tête.
@@ -6,6 +6,7 @@ import { appliquerTextes, changerLangue, langue, langueInitiale, mouvementReduit
 import { ARMES } from './donnees.js';
 import { poserLogo } from './logo.js';
 import { installerFlashTir } from './accueil-tir.js';
+import { installerVideo } from './accueil-video.js';
 import { lancerEntree } from './accueil-entree.js';
 import { taperAccroche } from './accueil-accroche.js';
 import { construireBandeau } from './accueil-bandeau.js';
@@ -307,5 +308,8 @@ const entree = lancerEntree(depart <= 0);
 if (entree) taperAccroche(document.querySelector('.accueil-sous-titre'), 1300);
 // Flash du cadre de l'accueil au coup de feu de l'image animée (js/accueil-tir.js).
 installerFlashTir(document.getElementById('accueil'));
+// Vidéo en boucle de l'accueil (js/accueil-video.js).
+const accueil = document.getElementById('accueil');
+installerVideo(accueil.querySelector('.accueil-video'), accueil);
 
 document.body.classList.add('est-pret');

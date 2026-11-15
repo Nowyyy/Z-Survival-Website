@@ -1,6 +1,6 @@
-/* Accueil : première section plein écran de la page. Image animée (emplacement provisoire), logo du studio,
-   « Bientôt disponible », bouton de son, menu de langue (globe), logo du jeu et bouton « Entrer » qui descend vers News.
-   Cadre rouge lumineux et fond noir comme l'écran d'accueil du jeu. */
+/* Accueil : première section plein écran de la page. Vidéo en boucle de la scène (lot 2b) sur son affiche, logo du studio,
+   « Bientôt disponible », bouton de son, menu de langue (globe), HUD de jeu, logo du jeu et bouton « En savoir plus » qui descend vers
+   News. Cadre rouge lumineux et fond noir comme l'écran d'accueil du jeu. */
 
 .section-accueil {
   display: grid;
@@ -11,7 +11,7 @@
   background: var(--color-bg);
 }
 
-/* Emplacement de l'image animée : fond noir, lueur rouge au sol, brume qui dérive (provisoire). */
+/* Image animée : fond noir (le temps que l'affiche arrive), affiche, vidéo, vignette, cadre rouge. */
 .accueil-scene {
   position: absolute;
   inset: 0;
@@ -21,6 +21,28 @@
     radial-gradient(120% 60% at 50% 105%, rgb(216 20 20 / 22%), transparent 60%),
     radial-gradient(120% 90% at 70% 10%, #161618, var(--color-bg) 70%);
 }
+/* Affiche (image fixe, js/accueil-video.js) et vidéo en boucle par-dessus, plein cadre (rognées sur les bords, jamais de bande noire).
+   La vidéo reste invisible tant qu'elle ne joue pas (classe est-lue) : si la lecture automatique est bloquée, seule l'affiche se voit,
+   sans bouton de lecture du navigateur. */
+.accueil-affiche, .accueil-affiche img, .accueil-video {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+}
+.accueil-video {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms linear;
+}
+.accueil-video.est-lue { opacity: 1; }
+.accueil-video::-webkit-media-controls,
+.accueil-video::-webkit-media-controls-panel,
+.accueil-video::-webkit-media-controls-overlay-play-button,
+.accueil-video::-webkit-media-controls-start-playback-button { display: none !important; -webkit-appearance: none; }
 /* Cadre rouge lumineux de l'écran du jeu. */
 .accueil-scene::after {
   content: "";
@@ -236,22 +258,8 @@
     box-shadow: 0 0 22px var(--color-action-glow), inset 0 0 22px rgb(216 20 20 / 25%);
   }
 }
-.accueil-scene-brume {
-  position: absolute;
-  inset: -20% -50%;
-  background:
-    radial-gradient(40% 25% at 30% 65%, rgb(200 205 210 / 7%), transparent 70%),
-    radial-gradient(35% 20% at 70% 75%, rgb(200 205 210 / 6%), transparent 70%);
-  animation: brume 18s ease-in-out infinite alternate;
-}
-.accueil-scene-grain {
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(0deg, rgb(255 255 255 / 2.5%) 0 1px, transparent 1px 3px);
-  mix-blend-mode: overlay;
-}
 /* Vignette sombre en bas (retours du lot 1) : le logo, l'accroche et le bouton restent lisibles sur l'image animée.
-   Au-dessus de l'image et de la brume, sous le cadre rouge (::after). Couleur : celle du fond (--color-bg). */
+   Au-dessus de la vidéo, sous le cadre rouge (::after). Couleur : celle du fond (--color-bg). */
 .accueil-scene-vignette {
   position: absolute;
   inset: 0;
@@ -264,11 +272,6 @@
     linear-gradient(to bottom, color-mix(in srgb, var(--color-bg) 45%, transparent), transparent 18%);
   pointer-events: none;
 }
-@keyframes brume {
-  from { transform: translateX(-6%); }
-  to   { transform: translateX(6%); }
-}
-
 /* Logo du studio dans le coin haut gauche, comme la signature de l'éditeur sur les sites de jeux. */
 .accueil-studio {
   position: absolute;
@@ -276,15 +279,6 @@
   left: 26px;
   width: 64px;
   filter: drop-shadow(0 2px 8px rgb(0 0 0 / 60%));
-}
-
-/* Téléphone : la mention passe sous la rangée logo du studio / globe. */
-.accueil-mention {
-  position: absolute;
-  top: calc(86px + env(safe-area-inset-top));
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
 }
 
 /* Coin haut droit, comme l'en-tête des autres sections : « Bientôt disponible » (css/principal.css), bouton de son et globe
@@ -371,7 +365,6 @@
   .accueil-bandeau { --bandeau-h: 38px; left: 27px; right: 27px; bottom: 27px; border-radius: 0 0 25px 25px; font-size: 0.9rem; }
   .accueil-scene::after { inset: 24px; border-radius: 28px; }
   .accueil-studio { top: 44px; left: 52px; width: 96px; }
-  .accueil-mention { top: 48px; }
   .accueil-reglages { top: 48px; right: 52px; }
   .accueil-sous-titre { font-size: 1rem; }
 }
@@ -381,7 +374,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .accueil-scene-brume, .accueil-fleche svg { animation: none; }
+  .accueil-fleche svg { animation: none; }
+  .accueil-video { display: none; }
   .section-accueil.est-tir .accueil-scene::after { animation: none; }
   .entree-accueil .accueil-vhs, .entree-accueil .accueil-titre, .entree-accueil .accueil-titre * { animation: none !important; }
   .accueil-sous-titre, .accroche-curseur { animation: none; }

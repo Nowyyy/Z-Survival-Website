@@ -67,11 +67,15 @@
   </nav>
 
   <main class="sections" id="sections">
-    <!-- Accueil : image animée plein écran (voir Docs/ref/scene-accueil.md), puis « Entrer » descend vers News. -->
+    <!-- Accueil : vidéo en boucle de la scène plein écran (lot 2b, Docs/ref/scene-accueil.md), puis « En savoir plus » descend vers News.
+         Affiche (image fixe) dessous, vidéo dessus : la source de la vidéo est posée par js/accueil-video.js (jamais en mouvement réduit). -->
     <section class="section section-accueil" id="accueil" data-t-aria="accueil.titre" aria-label="Z-Survival">
       <div class="accueil-scene" aria-hidden="true">
-        <div class="accueil-scene-brume"></div>
-        <div class="accueil-scene-grain"></div>
+        <picture class="accueil-affiche">
+          <source media="(orientation: portrait)" srcset="img/accueil/accueil-9x16.webp" width="1080" height="1920">
+          <img src="img/accueil/accueil-16x9.webp" alt="" width="1920" height="1080" decoding="async">
+        </picture>
+        <video class="accueil-video" autoplay muted loop playsinline preload="none" disablepictureinpicture disableremoteplayback tabindex="-1"></video>
         <div class="accueil-scene-vignette"></div>
         <div class="accueil-vhs"></div>
       </div>
