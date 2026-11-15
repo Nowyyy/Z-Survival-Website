@@ -53,7 +53,8 @@ publié sur https://nowyyy.github.io/Z-Survival/).
   `planche.html` (noindex, non reliée au site) ; `outils/musique/` : script qui génère la musique (`Docs/ref/musique.md`).
 - `fonts/` : polices du jeu (+ licences) ; `img/` : icônes et logos du studio (`no-way-studio.svg` fixe, `no-way-studio-anime.svg` animé).
 - `scene/` (lot 1) : atelier de la scène 3D de l'accueil, hors du site (noindex, aucun lien depuis l'accueil) :
-  `scene/index.html` (la scène, `?cadrage=A|B|C&format=paysage|portrait`), `scene/planche.html` (planche de cadrages),
+  `scene/index.html` (la scène, `?cadrage=A|B|C&format=paysage|portrait|plein`, **B retenu**), `scene/planche.html` (planche),
+  `scene/apercu.html` (la scène sous la vraie page d'accueil, pour juger le rendu),
   `scene/jeu/` (copie figée du jeu, jamais retouchée), `scene/js/` (scène, poses, enrichissements), `scene/outils/`
   (copie, captures, vérification de la boucle ; Node + Playwright, non publiés).
 - `Docs/ref/` : documents de référence ; `Docs/lots/` : bilans de lot.

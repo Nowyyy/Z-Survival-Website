@@ -44,8 +44,10 @@ export function pointBone(bone, localDir, worldDir, localUp, worldUp) {
 export function twoBone(upper, lower, endLocal, target, pole, { bendLocal = V(0, 0, 1) } = {}) {
   upper.parent.updateMatrixWorld(true);
   const S = worldPos(upper, new THREE.Vector3());
-  const a = lower.position.length();
-  const b = endLocal.length();
+  // Longueurs des os dans le monde : le personnage peut être mis à l'échelle (la scène le grandit de 1,6).
+  const k = upper.getWorldScale(new THREE.Vector3()).x;
+  const a = lower.position.length() * k;
+  const b = endLocal.length() * k;
   const toT = target.clone().sub(S);
   const dist = toT.length();
   const d = Math.min(Math.max(dist, Math.abs(a - b) + 1e-3), a + b - 1e-3);

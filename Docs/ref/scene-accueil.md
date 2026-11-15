@@ -78,4 +78,12 @@ La scène 3D (`scene/`) ne charge rien depuis le jeu en ligne : les fichiers du 
   pour les flammes, 1 ou 2 pour la fumée) et naît en fondu ; son point de départ dépend de son numéro de vie modulo k.
 - **Brume** (`scene/js/brume.js`, nappes et shader du jeu) : deux tirages du même bruit, décalés d'une boucle de vent,
   fondus l'un dans l'autre ; au début et à la fin de la boucle, c'est le même tirage.
-- Vérification : `node scene/outils/verifier-boucle.mjs` (écart entre images voisines et à la jonction 8 s → 0 s).
+- **Coup de feu du personnage 1** (retours du lot 1, `scene/js/tir.js`) : un tir par boucle à 5,2 s (recul 0,4 s, éclair 2 images,
+  douille, fumée 1,4 s), terminé bien avant la fin de la boucle.
+- Vérification : `node scene/outils/verifier-boucle.mjs` (écart entre images voisines et à la jonction 8 s → 0 s ; le coup de feu
+  donne un pic d'écart, attendu).
+
+## Cadrage retenu (retours du lot 1)
+- **B, contre-plongée rapprochée** (`scene/js/cadrages.js`), ouvert par défaut par `scene/index.html`.
+- Aperçu dans la vraie page d'accueil : `scene/apercu.html` (scène en `?format=plein` dessous, site par-dessus, sans le modifier).
+- Personnage 1 : survivant tactique (variante « riche ») ; personnage 2 : civil débrouillard (variante B du jeu, lampe frontale).

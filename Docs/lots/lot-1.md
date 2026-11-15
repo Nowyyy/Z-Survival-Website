@@ -5,6 +5,8 @@ Branche `lot-1`, tag `lot-1`. Le site lui-même n'a pas changé : la scène vit 
 
 **Planche à comparer sur téléphone** : https://nowyyy.github.io/Z-Survival-Website/scene/planche.html
 
+> Suite : retours du propriétaire (cadrage B retenu, poses corrigées, tir, tenues, aperçu avec le site) dans `Docs/lots/lot-1-retours.md`.
+
 ## Ce qui a été fait
 
 ### A — Copie figée des éléments du jeu
