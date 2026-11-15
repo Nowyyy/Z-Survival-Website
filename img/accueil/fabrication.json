@@ -32,20 +32,20 @@
   },
   "fichiers": {
     "accueil-16x9.mp4": {
-      "octets": 2586987,
-      "sha256": "c20634e1510422120fff5b9d1121a9703d0c80abea6616c4ff39567183e5c2c3"
+      "octets": 2588750,
+      "sha256": "4e78e2f09ba9840e7733494b9edebc51bcc36db6a60fdfecfbfa5e57f4685004"
     },
     "accueil-16x9.webp": {
-      "octets": 45440,
-      "sha256": "2ccb699e2cd422fcdabcb097ce1540dd7683c5ead1852f5c164a97b0969baff6"
+      "octets": 43266,
+      "sha256": "9a313726eab967c1a176435e5d185983ec84d92230719ed472a0414509c73027"
     },
     "accueil-9x16.mp4": {
-      "octets": 2602360,
-      "sha256": "662521f683f68bb7fbb2a8e3d9421ce6ccb3fe425609d07e982efa483d039b17"
+      "octets": 2600748,
+      "sha256": "799dedcd235ed93d92e7c57d75e81f7ef4458aee45b72231e1779e7dd615ed00"
     },
     "accueil-9x16.webp": {
-      "octets": 37840,
-      "sha256": "011e3ff1481ffba2a012fdb8c4d1f377ed6aa8749b032caa1e8535814edf2fcd"
+      "octets": 37482,
+      "sha256": "aa21f9d33f530238566738c0c3d121225f4a1e68df6aa5dfb3317470f128e068"
     }
   }
 }

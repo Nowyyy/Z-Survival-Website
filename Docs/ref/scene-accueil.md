@@ -143,4 +143,5 @@ Origine : dépôt `Nowyyy/Z-Survival`, branche **`dev`**, commit **`10a9e6b90f39
 |---|---|---|
 | `sons/coup-de-feu.wav` (64,6 Kio, PCM 16 bits mono 44,1 kHz, 0,75 s) | son `tir` de `data/game/sounds.json` (version 1 sur 3), calculé par `js/core/synth.js` du jeu (le jeu n'a aucun fichier audio) ; origine et empreinte : `sons/ORIGINE.json` ; refaire : `node outils/sons/copier-tir.mjs <clone>` | coup de feu joué au tir de la vidéo si le son du site est activé (`VOLUME_TIR` = 0,3 dans `js/musique.js`) |
 | `css/accueil-chute-z.css` | images clés `e7-chute` et `e7-secousse` de `css/menu.css` (écran de chargement ; dernier changement du fichier : `b73e6f4`), telles quelles | chute du Z de l'entrée en scène de l'accueil |
-- Essai `?zombie=vers-p1` : zombie et personnage 2 tournés vers le personnage 1 (le zombie rampe vers lui).
+- Zombie et personnage 2 **tournés vers le personnage 1** (le zombie rampe vers lui et tend le bras vers lui) ; `?zombie=face` : ancienne
+  orientation, vers la caméra.

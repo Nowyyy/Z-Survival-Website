@@ -95,14 +95,14 @@ try {
     const xz = (v, def) => (v ? (([x, z]) => ({ x, z }))(nums(v)) : def);
     Object.assign(PLACEMENT.p1, PLACEMENT_BASE.p1, pl.p1 ?? {}, xz(q.get('p1'), {}));
     Object.assign(PLACEMENT.zombie, PLACEMENT_BASE.zombie, pl.zombie ?? {}, xz(q.get('zb'), {}));
-    // Essai (?zombie=vers-p1, retour du propriétaire) : le zombie, et le personnage 2 qui le cloue au sol, sont tournés vers le personnage 1,
-    // comme si le zombie rampait vers lui ; il tend alors le bras vers le personnage 1, pas vers le spectateur.
-    PLACEMENT.spectateur.copy(PLACEMENT_BASE.spectateur);
-    if (q.get('zombie') === 'vers-p1') {
+    // Le zombie, et le personnage 2 qui le cloue au sol, sont tournés vers le personnage 1, comme si le zombie rampait vers lui ; il tend
+    // le bras vers le personnage 1 (retenu par le propriétaire). ?zombie=face : l'ancienne orientation (vers la caméra), pour comparer.
+    PLACEMENT.attrapeDevant = false;
+    if (q.get('zombie') !== 'face') {
       const p1 = PLACEMENT.p1;
       const z = PLACEMENT.zombie;
       z.cap = (Math.atan2(p1.x - z.x, p1.z - z.z) * 180) / Math.PI;
-      PLACEMENT.spectateur.set(p1.x, 18, p1.z);
+      PLACEMENT.attrapeDevant = true;
     }
     const cam = nums(q.get('cam'), c.cam);
     const vise = nums(q.get('vise'), c.vise);
