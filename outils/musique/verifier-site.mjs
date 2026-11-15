@@ -8,7 +8,8 @@
 // - boutons de l'accueil et de l'en-tête synchronisés, intitulés en français et en anglais ; zone de clic ≥ 44 × 44 px ;
 // - choix gardé dans le navigateur, mais rechargement = toujours coupée, aucun téléchargement ;
 // - onglet caché puis revenu : pause puis reprise si elle jouait, rien si elle était coupée ;
-// - animation des ondes coupée en mouvement réduit ; en-tête sans chevauchement (320, 375, 1440 px) ;
+// - animation des ondes coupée en mouvement réduit ; en-tête et haut de l'accueil (« Bientôt disponible », son, globe) sans
+//   chevauchement (320 à 1440 px) ;
 // - boucle : lecture Web Audio rendue hors ligne autour du point de boucle, sans blanc ni saut (méthode du lot 1b) ;
 // - aucune erreur console, aucun fichier manquant ; reste du site : navigation, clavier, langues, défilement par sections.
 import { mkdirSync } from 'node:fs';
@@ -90,6 +91,21 @@ async function zoneDeClic(page, selecteur) {
     return { ok: points.every(([x, y]) => document.elementFromPoint(x, y)?.closest('[data-son]') === b), taille: `${Math.round(r.width)} × ${Math.round(r.height)}` };
   }, selecteur);
 }
+// Rangée du haut de l'accueil (logo du studio, « Bientôt disponible », son, globe, mention) : aucun rectangle ne se recoupe.
+const RANGEE_ACCUEIL = ['.accueil-studio', '.accueil-reglages .bouton-bientot', '.accueil-reglages [data-son]', '.langue-accueil .langue-bouton', '.accueil-mention'];
+function chevauchements(page, selecteurs) {
+  return page.evaluate((sels) => {
+    const r = sels.map((s) => document.querySelector(s).getBoundingClientRect());
+    const largeur = document.documentElement.clientWidth;
+    for (let i = 0; i < r.length; i += 1) {
+      if (r[i].right > largeur + 0.5 || r[i].left < -0.5) return `${sels[i]} hors de l’écran`;
+      for (let j = i + 1; j < r.length; j += 1) {
+        if (r[i].right > r[j].left + 0.5 && r[j].right > r[i].left + 0.5 && r[i].bottom > r[j].top + 0.5 && r[j].bottom > r[i].top + 0.5) return `${sels[i]} et ${sels[j]}`;
+      }
+    }
+    return '';
+  }, selecteurs);
+}
 async function allerA(page, section) {
   // Sur l'accueil, la navigation est cachée : « En savoir plus » descend vers News.
   if (await page.evaluate(() => document.body.dataset.section) === 'accueil' && section === 'news') await page.click('.accueil-entrer');
@@ -122,6 +138,9 @@ for (const [k, cas] of CAS.entries()) {
   let e = await etat(page);
   verifier(e.etat === 'coupee' && e.contexte === null, `au chargement : coupée, aucun contexte audio (${e.etat}, ${e.contexte})`);
   verifier(await synchro(page, 'coupee', 'Activer la musique'), 'deux boutons : barrés, aria-pressed="false", « Activer la musique »');
+  verifier(await page.textContent('.accueil-reglages .bouton-bientot') === 'Bientôt disponible', 'accueil : « Bientôt disponible » en haut à droite');
+  const rangee = await chevauchements(page, RANGEE_ACCUEIL);
+  verifier(rangee === '', `accueil : rangée du haut sans chevauchement${rangee ? ` : ${rangee}` : ''}`);
   const barre = await page.$eval('.accueil-reglages [data-son] .son-barre', (el) => getComputedStyle(el).display !== 'none');
   verifier(barre, 'icône barrée');
   const zoneAccueil = await zoneDeClic(page, '.accueil-reglages [data-son]');
@@ -154,6 +173,7 @@ for (const [k, cas] of CAS.entries()) {
   // Anglais (globe de l'accueil) : intitulés traduits, état gardé.
   await changerLangue(page, '.langue-accueil', 'en');
   verifier(await synchro(page, 'lecture', 'Turn music off') && (await etat(page)).etat === 'lecture', 'anglais : « Turn music off » sur les deux boutons, la musique continue');
+  verifier(await page.textContent('.accueil-reglages .bouton-bientot') === 'Coming soon', 'anglais : « Coming soon » sur l’accueil');
 
   // En-tête (section News) : second clic → descente, puis contexte suspendu.
   verifier(await allerA(page, 'news') === 'news', 'passage à la section News');
@@ -267,7 +287,14 @@ for (const [k, cas] of CAS.entries()) {
   await contexte.close();
 }
 
-// En-tête des très petits téléphones (320 px), en français : sans chevauchement.
+// En-tête et haut de l'accueil des très petits téléphones (320 px), en français : sans chevauchement.
+// Haut de l'accueil à d'autres largeurs (tablette, ordinateur étroit), en français.
+for (const largeur of [414, 600, 900, 1024]) {
+  const { contexte, page } = await ouvrir({ viewport: { width: largeur, height: 800 }, locale: 'fr-FR' });
+  const rangee = await chevauchements(page, RANGEE_ACCUEIL);
+  verifier(rangee === '', `accueil à ${largeur} px : rangée du haut sans chevauchement${rangee ? ` : ${rangee}` : ''}`);
+  await contexte.close();
+}
 {
   console.log('\ntéléphone 320 × 568 (français, le libellé le plus long)');
   const { contexte, page, journal } = await ouvrir({ viewport: { width: 320, height: 568 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2, locale: 'fr-FR' });
@@ -282,6 +309,10 @@ for (const [k, cas] of CAS.entries()) {
   });
   verifier(r === '', `en-tête sans chevauchement${r ? ` : ${r}` : ''}`);
   await page.screenshot({ path: join(CAPTURES, 'entete-320.png'), clip: { x: 0, y: 0, width: 320, height: 90 } });
+  await page.keyboard.press('Home');
+  await page.waitForTimeout(900);
+  const rangee = await chevauchements(page, RANGEE_ACCUEIL);
+  verifier(rangee === '', `accueil : rangée du haut sans chevauchement${rangee ? ` : ${rangee}` : ''}`);
   verifier(journal.erreurs.length === 0 && journal.manquants.length === 0, 'aucune erreur console ni fichier manquant');
   await contexte.close();
 }
