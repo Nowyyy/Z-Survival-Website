@@ -123,3 +123,8 @@ Suite du lot 1 (`Docs/lots/lot-1.md`). Branche `lot-1-retours`, PR fusionnée pa
 ### Limite
 - Téléphone en paysage (667 × 375) : le logo du jeu recouvre la mention provisoire « Image animée — à venir ». C'était déjà le cas sur
   `main`, et en pire (titre à 44 px du haut contre 63 maintenant). La mention disparaîtra avec la vidéo du lot 2.
+
+## Troisième retour : personnage 1 recentré sur ordinateur
+- Maintenant qu'il est à genou, le personnage 1 reprend sa **position d'origine, au centre** (le décalage vers la gauche est retiré du
+  `placement` du cadrage B paysage). Le zombie et le personnage 2 restent décalés à droite.
+- Le pistolet reste dans le cadre pendant le recul ; seul l'éclair du tir effleure le haut de l'écran pendant 2 images.

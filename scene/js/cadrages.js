@@ -10,10 +10,9 @@ export const CADRAGES = {
   },
   B: {
     nom: 'Contre-plongée rapprochée',
-    // Angle d'origine du cadrage B ; sur ordinateur, les personnages s'écartent (placement) : le titre centré de l'accueil ne cache plus rien.
-    // Déplacements dans le repère de la caméra : personnage 1 (à genou) de 30 vers la gauche de l'image et 8 vers le fond (le pistolet reste dans le
-    // cadre pendant le tir) ; zombie (et personnage 2) de 36 vers la droite et 8 vers le fond.
-    paysage: { cam: [-46, 8, 122], vise: [4, 50, -30], fov: 44, placement: { p1: { x: -56, z: 17 }, zombie: { x: 58.7, z: -14.4 } } },
+    // Angle d'origine du cadrage B. Sur ordinateur, le zombie (et le personnage 2 qui le suit) est décalé de 36 vers la droite de l'image et
+    // 8 vers le fond : le titre centré de l'accueil ne le cache plus. Le personnage 1, à genou, garde sa place d'origine, au centre.
+    paysage: { cam: [-46, 8, 122], vise: [4, 50, -30], fov: 44, placement: { zombie: { x: 58.7, z: -14.4 } } },
     portrait: { cam: [-40, 8, 126], vise: [-8, 31, -20], fov: 62 },
   },
   C: {
