@@ -8,18 +8,14 @@
 //   loopEnd de boucles.json) rendue hors ligne autour du raccord et comparée à la suite naturelle du fichier ; saut et blanc mesurés.
 // - Site : l'accueil charge sans erreur et ne pointe pas vers musique/.
 // Playwright : celui installé sur la machine (require('playwright')).
-import { execSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, createReadStream, statSync, existsSync } from 'node:fs';
-import { createServer } from 'node:http';
+import { mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
-import { dirname, extname, join, normalize } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import { servirCopiePubliee } from '../copie-publiee.mjs';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
-const ICI = dirname(fileURLToPath(import.meta.url));
-const RACINE = join(ICI, '..', '..');
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, '').split('=')).map(([k, v]) => [k, v ?? true]));
 const CAPTURES = args.captures || join(tmpdir(), 'planche-captures');
 mkdirSync(CAPTURES, { recursive: true });
@@ -37,23 +33,10 @@ let serveur;
 if (args['en-ligne']) {
   base = 'https://nowyyy.github.io/Z-Survival-Website/';
 } else {
-  const workflow = readFileSync(join(RACINE, '.github', 'workflows', 'pages.yml'), 'utf8');
-  const cp = workflow.split('\n').map((l) => l.trim()).find((l) => l.startsWith('cp -r '));
-  const site = mkdtempSync(join(tmpdir(), 'site-'));
-  execSync(`mkdir -p _site && ${cp}`, { cwd: RACINE, env: { ...process.env } });
-  execSync(`rm -rf "${join(site, 'Z-Survival-Website')}" && mv _site "${join(site, 'Z-Survival-Website')}"`, { cwd: RACINE });
-  console.log(`Copie publiée (${cp}) servie depuis ${site}`);
-  const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json', '.mp3': 'audio/mpeg', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.txt': 'text/plain' };
-  serveur = createServer((req, res) => {
-    let chemin = decodeURIComponent(new URL(req.url, 'http://x').pathname);
-    if (chemin.endsWith('/')) chemin += 'index.html';
-    const fichier = normalize(join(site, chemin));
-    if (!fichier.startsWith(site) || !existsSync(fichier) || statSync(fichier).isDirectory()) { res.writeHead(404); res.end(); return; }
-    res.writeHead(200, { 'content-type': TYPES[extname(fichier)] ?? 'application/octet-stream', 'content-length': statSync(fichier).size });
-    createReadStream(fichier).pipe(res);
-  });
-  await new Promise((ok) => { serveur.listen(0, '127.0.0.1', ok); });
-  base = `http://127.0.0.1:${serveur.address().port}/Z-Survival-Website/`;
+  const copie = await servirCopiePubliee();
+  console.log(`Copie publiée (${copie.commande}) servie depuis ${copie.dossier}`);
+  base = copie.base;
+  serveur = { close: copie.fermer };
 }
 const PLANCHE = `${base}musique/planche.html`;
 
@@ -135,6 +118,7 @@ console.log(`\nPlanche (téléphone 375 × 667) : ${PLANCHE}`);
   const avant = await page.textContent('#morceau-M3 .morceau-statut');
   e = await attendre(page, (x) => x.courant?.tours === 1, 8000);
   verifier(e.courant?.tours === 1 && e.courant.pos < m3.debutBoucle + 2, `retour au début de la boucle (position ${e.courant?.pos.toFixed(2)} s, tour ${(e.courant?.tours ?? 0) + 1})`);
+  await page.waitForTimeout(400); // le message suit l'affichage (une image plus tard)
   const apres = await page.textContent('#morceau-M3 .morceau-statut');
   verifier(/retour au début dans/.test(avant) && /raccord passé/.test(apres), `messages du raccord (« ${avant} » puis « ${apres} »)`);
   await page.screenshot({ path: join(CAPTURES, 'planche-raccord.png') });
@@ -217,7 +201,7 @@ console.log(`\nSite : ${base}`);
 for (const [nom, options] of [['téléphone', { viewport: { width: 375, height: 667 } }], ['ordinateur', { viewport: { width: 1440, height: 900 } }]]) {
   const { contexte, page, erreurs, manquants } = await ouvrir(base, options);
   verifier(await page.locator('#news').count() === 1 && await page.locator('#about').count() === 1, `${nom} : accueil chargé (sections présentes)`);
-  verifier(await page.locator('a[href*="musique"], [src*="musique"]').count() === 0, `${nom} : aucun lien vers musique/`);
+  verifier(await page.locator('a[href*="musique/"], [src*="musique/"]').count() === 0, `${nom} : aucun lien vers musique/`);
   await page.screenshot({ path: join(CAPTURES, `site-${nom}.png`) });
   verifier(erreurs.length === 0 && manquants.length === 0, `${nom} : aucune erreur console ni fichier manquant${[...erreurs, ...manquants].length ? ` : ${[...erreurs, ...manquants].join(' | ')}` : ''}`);
   await contexte.close();

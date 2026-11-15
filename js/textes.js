@@ -15,7 +15,11 @@ export const TEXTES = {
       navigation: 'Sections de la page',
       aVenir: 'à venir',
       langue: 'Langue',
-      comingSoon: 'Coming soon',   // volontairement en anglais dans les deux langues
+      comingSoon: 'Prochainement',
+    },
+    musique: {
+      activer: 'Activer la musique',
+      couper: 'Couper la musique',
     },
     accueil: {
       titre: 'Z-Survival',
@@ -109,6 +113,10 @@ export const TEXTES = {
       aVenir: 'coming soon',
       langue: 'Language',
       comingSoon: 'Coming soon',
+    },
+    musique: {
+      activer: 'Turn music on',
+      couper: 'Turn music off',
     },
     accueil: {
       titre: 'Z-Survival',

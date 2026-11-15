@@ -27,9 +27,10 @@
   .entete-separateur { display: block; width: 1px; height: 36px; background: var(--color-border); opacity: 0.6; }
 }
 
-/* À droite : « Bientôt disponible » et le globe de langue. */
+/* À droite : « Bientôt disponible », le bouton de son et le globe de langue. */
 .entete-actions { display: flex; align-items: center; gap: 8px; flex: none; }
 .langue-entete .langue-bouton { min-height: 40px; min-width: 40px; padding: 0 9px; }
+.entete-actions .son-bouton { width: 40px; height: 40px; }
 
 /* « Bientôt disponible » : pas cliquable, aspect atténué. */
 .bouton-bientot {
@@ -54,6 +55,14 @@
   .bouton-bientot { min-height: 38px; padding: 0 0.55em; font-size: 0.68rem; letter-spacing: 0.02em; }
   .langue-entete .langue-bouton { min-height: 38px; min-width: 38px; padding: 0; justify-content: center; }
   .langue-entete .langue-code { display: none; }
+  .entete-actions .son-bouton { width: 38px; height: 38px; }
+  .entete-actions .son-icone { width: 20px; height: 20px; }
+}
+/* Téléphones jusqu'à 420 px : le bouton de son prend place dans l'en-tête, on resserre un peu. */
+@media (max-width: 420px) {
+  .entete-logo { font-size: 1.25rem; }
+  .entete-actions { gap: 5px; }
+  .bouton-bientot { padding: 0 0.45em; font-size: 0.62rem; }
 }
 
 /* ---------- Navigation des sections ---------- */
@@ -285,7 +294,7 @@
 .js .section:not(.est-visible) .arme-stat-remplissage { transform: scaleX(0); }
 .arme-stat-valeur { width: 2.2em; text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 0.9rem; }
 
-/* ---------- Sections à venir (Personnages, Armes) : contenu provisoire atténué + encart « Coming soon » ---------- */
+/* ---------- Sections à venir (Personnages, Armes) : contenu provisoire atténué + encart « Prochainement » / « Coming soon » ---------- */
 .est-a-venir .section-interieur { position: relative; }
 .a-venir-contenu {
   display: flex;
@@ -463,5 +472,7 @@
   /* En-tête et navigation à cinq entrées : on resserre encore. */
   .entete-logo { font-size: 1.2rem; }
   .bouton-bientot { padding: 0 0.4em; font-size: 0.6rem; letter-spacing: 0; }
+  /* Avec le bouton de son, « Bientôt disponible » passe sur deux lignes. */
+  .bouton-bientot { max-width: 6.4em; white-space: normal; line-height: 1.1; text-align: center; }
   .nav-sections a { font-size: 0.62rem; letter-spacing: 0; }
 }

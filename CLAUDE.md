@@ -40,14 +40,15 @@ publié sur https://nowyyy.github.io/Z-Survival/).
 - `index.html` : **page unique**. Accueil plein écran (image animée à venir, logo du studio, globe
   Français / English, « En savoir plus » + flèche qui descend vers News), puis les sections plein écran
   News / Characters / Weapons / About us. Navigation : 01 Accueil à 05 About us. Personnages et Armes :
-  contenu provisoire atténué et inerte sous un encart « Coming soon » (en anglais dans les deux langues). Globe de langue aussi
-  dans l'en-tête, à côté de « Bientôt disponible » (About us : logo animé du studio rejoué à chaque arrivée,
+  contenu provisoire atténué et inerte sous un encart « Prochainement » (« Coming soon » en anglais). Globe de langue aussi
+  dans l'en-tête ; « Bientôt disponible », bouton de son et globe en haut à droite de l'accueil comme dans l'en-tête (About us : logo animé du studio rejoué à chaque arrivée,
   puis pied de page). En-tête et navigation cachés sur l'accueil.
 - `main.html` : ancienne page principale, simple redirection vers `./#news` (garde l'ancre).
 - `css/`, `js/` : styles et scripts ; `js/site.js` : script de la page ; `js/textes.js` : tous les textes
   (blocs `fr` et `en`, mêmes clés) ; `js/i18n.js` : langue (priorité : `?lang=`, puis choix gardé du globe, puis langue du navigateur :
   français pour les visiteurs francophones, anglais pour les autres ; aucune géolocalisation) ;
-  `js/logo.js` : logo du jeu.
+  `js/logo.js` : logo du jeu ;
+  `js/musique.js` : musique M2 et boutons de son à côté de chaque globe (règles : `Docs/ref/musique.md`, volume : constante `VOLUME`).
 - `musique/` : propositions de musique (MP3 en boucle, points de boucle dans `boucles.json` ; **M2 retenue**, règles
   d'intégration dans `Docs/ref/musique.md`) et planche d'écoute
   `planche.html` (noindex, non reliée au site) ; `outils/musique/` : script qui génère la musique (`Docs/ref/musique.md`).
