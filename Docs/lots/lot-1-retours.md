@@ -78,3 +78,48 @@ Suite du lot 1 (`Docs/lots/lot-1.md`). Branche `lot-1-retours`, PR fusionnée pa
 2. **Personnage 2** : la variante B (capuche grise) convient-elle, ou préfères-tu la variante C du jeu (turquoise, bonnet, brassard
    orange) pour un contraste encore plus fort ?
 3. **Tir** : un seul coup vers 5,2 s ; faut-il un deuxième coup, ou un tir du personnage 2 sur le zombie ?
+
+## Deuxièmes retours (branche `accueil-vignette`)
+
+### Demandes
+1. Une vignette en bas de l'accueil pour que le texte se lise mieux.
+2. Le logo, l'accroche et le bouton le plus bas possible.
+3. Le pistolet du personnage 1 sortait du cadre en haut : dézoomer ou reculer.
+4. Garder l'angle de caméra d'origine du cadrage B, mais écarter les personnages (personnage 1 à gauche, personnage 2 et zombie à
+   droite) pour que le titre ne cache plus rien.
+5. Le personnage 1 en position militaire sur un genou, un œil fermé pour montrer qu'il tire.
+
+### Ce qui a été fait
+- **Site** (`index.html`, `css/accueil.css`) :
+  - **vignette** `accueil-scene-vignette` dans la zone de l'image animée (la vidéo du lot 2 passera dessous), sous le cadre rouge.
+    Dégradé de la couleur de fond (`--color-bg`) : 92 % tout en bas, transparent à mi-hauteur, plus un léger voile en haut pour la
+    rangée d'icônes ;
+  - **logo, accroche et bouton tout en bas**, juste au-dessus du cadre rouge. Avant, ils étaient à 12 % de la hauteur d'écran sur
+    téléphone et 14 % sur ordinateur ; maintenant, 18 px au-dessus du cadre sur téléphone et 48 px du bord sur ordinateur (le cadre y
+    est à 24 px).
+- **Cadrage B ordinateur** : angle de caméra d'origine. Les personnages sont déplacés dans le repère de la caméra (réglage `placement`
+  de `scene/js/cadrages.js`, propre au format) :
+  - le personnage 1 de 30 vers la gauche de l'image et 8 vers le fond ;
+  - le zombie, et le personnage 2 qui le suit, de 36 vers la droite et 8 vers le fond.
+  Le titre centré ne cache plus personne ; le feu de l'hélicoptère reste visible derrière.
+- **Personnage 1 à genou** (`scene/js/poses.js`) :
+  - genou droit au sol, orteils repliés derrière (talon en l'air), pied gauche à plat devant, genou levé ;
+  - buste droit, un peu penché, arme à hauteur des yeux ;
+  - **œil gauche fermé** : une paupière couleur peau avec un trait de cils recouvre l'œil gauche (la tête du jeu est une seule
+    géométrie, l'œil ne peut pas être réduit), pour ce personnage seulement.
+  - Contacts mesurés sur toute la boucle : genou à −0,01, pointe du pied à 0,21, pied avant à 0.
+- **Cadrage B téléphone** : caméra rapprochée (les personnages sont plus grands), tout au-dessus du titre ; l'éclair du tir reste dans
+  l'écran.
+- **Flamme du canon** raccourcie : longue, elle passait pour un trait de laser.
+- Planche et aperçus refaits.
+
+### Vérifications
+- Test du site existant (`outils/musique/verifier-site.mjs`) : **158 vérifications réussies, 0 en échec** (dont la rangée du haut de
+  l'accueil sans chevauchement de 320 à 1024 px).
+- Boucle : jonction normale (B paysage 0,413 pour une moyenne de 0,450 ; B portrait 0,555 pour une moyenne de 0,584), image à 8 s
+  identique à celle à 0 s.
+- Planche, scène et aperçu, sur la copie exacte publiée par le workflow : voir la PR.
+
+### Limite
+- Téléphone en paysage (667 × 375) : le logo du jeu recouvre la mention provisoire « Image animée — à venir ». C'était déjà le cas sur
+  `main`, et en pire (titre à 44 px du haut contre 63 maintenant). La mention disparaîtra avec la vidéo du lot 2.

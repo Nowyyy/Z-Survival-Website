@@ -15,7 +15,7 @@ export const ECHELLE_SCENE = 1.6;
 const K = ECHELLE_SCENE;
 const ANKLE = 3.5; // hauteur de la cheville au-dessus de la semelle (squelette v2 : 27 - 12 - 11,5)
 // Les décalages appliqués dans le monde sont en unités des personnages, multipliées par K (échelle de la scène, plus bas).
-const P1_ARME = 21.5; // distance des yeux à l'arme du personnage 1 (bras presque tendus)
+const P1_ARME = 21; // distance des yeux à l'arme du personnage 1 (bras presque tendus)
 const P2_ARME = 21; // distance des épaules à l'arme du personnage 2
 
 // Prises de l'arme dans le repère de l'arme (« prop » : +z le canon, +y le dessus, +x la gauche du tireur). Le jeu (pose-v2.js,
@@ -100,7 +100,10 @@ function placeRoot(p, stage, x, z, cap, y = 0) {
 }
 const local = (p, x, y, z) => p.root.localToWorld(V(x, y, z));
 
-// --- Personnage 1 : au premier plan, de face, vise au loin (à côté de la caméra) --------------------------------------------------------
+// --- Personnage 1 : au premier plan, tir à genou (position militaire), vise au loin à côté de la caméra ------------------------------
+// Genou droit au sol, orteils repliés derrière ; pied gauche à plat devant, genou levé ; buste droit, un peu penché vers l'avant ; œil
+// gauche fermé (js/enrichissements.js). Retours du lot 1 : debout, son arme sortait du haut du cadre.
+const GENOU = { bassin: 16.4, genouD: [-6.2, -5], chevilleD: [-6.4, 7.7, -15.6], piedG: [6.5, 13.5] };
 export function poseP1(p, stage, t) {
   const P = PLACEMENT.p1;
   p.reset();
@@ -109,14 +112,16 @@ export function poseP1(p, stage, t) {
   const derive = bruit(t, 1, 1); // la visée dérive un peu
   const r = recul(t); // coup de feu (js/tir.js) : 1 au départ du coup, puis retour
   const pelvis = p.bones.get('pelvis');
-  pelvis.position.y += -2.2 + 0.25 * souffle;
-  euler(pelvis, 0.03, -0.12, 0);
-  euler(p.bones.get('spine'), 0.06 + 0.012 * souffle, 0.05, 0);
-  euler(p.bones.get('chest'), 0.04 + 0.018 * souffle - 0.07 * r, 0.1, 0);
+  pelvis.position.set(0, GENOU.bassin + 0.2 * souffle - 0.3 * r, -2);
+  euler(pelvis, 0.05, -0.18, 0);
+  euler(p.bones.get('spine'), 0.1 + 0.012 * souffle, 0.08, 0);
+  euler(p.bones.get('chest'), 0.06 + 0.018 * souffle - 0.07 * r, 0.12, 0);
   p.root.updateMatrixWorld(true);
-  // Pieds : gauche un peu devant, droit en arrière (appui de tir).
-  leg(p, 'L', local(p, 7, ANKLE, 6), local(p, 9, 16, 30), dirWorld(p.root, V(0.25, 0, 1)));
-  leg(p, 'R', local(p, -7.5, ANKLE, -6), local(p, -9, 16, 26), dirWorld(p.root, V(-0.35, 0, 1)));
+  // Jambe gauche : pied à plat devant, genou levé vers l'avant.
+  leg(p, 'L', local(p, GENOU.piedG[0], ANKLE, GENOU.piedG[1]), local(p, 8, 40, 26), dirWorld(p.root, V(0.15, 0, 1)));
+  // Jambe droite : genou posé au sol, tibia couché vers l'arrière, orteils repliés (pointe du pied au sol, talon en l'air).
+  const [kx, kz] = GENOU.genouD;
+  leg(p, 'R', local(p, ...GENOU.chevilleD), local(p, kx, -8, kz + 6), dirWorld(p.root, V(0, -1, -0.35)), dirWorld(p.root, V(0, 0.25, 1)));
   // Visée : la tête regarde le point visé, l'arme est tendue devant les yeux, sur l'axe de la visée.
   const vise = toWorld(stage, PLACEMENT.p1Vise).add(V(derive * 6 * K, bruit(t, 2, 1) * 4 * K, 0));
   const head = p.bones.get('head');
