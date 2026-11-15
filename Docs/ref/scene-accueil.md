@@ -65,3 +65,17 @@ La scène 3D (`scene/`) ne charge rien depuis le jeu en ligne : les fichiers du 
 | `data/game/` | `render.json`, `textures.json`, `camera.json`, `windows.json`, `lumieres.json` | Réglages de rendu, textures, fenêtres, lumières. |
 | `data/game/maps/rez-de-chaussee/` | `world.json`, `decor.json`, `zones.json`, `etage.world.json`, `decor-interieur.world.json`, `mobilier.world.json`, `feux.json`, `lampes.world.json`, `epaves.json` | La carte (plan converti en unités du jeu), son décor, ses épaves. |
 | `css/` | `tokens.css` | Jetons de couleur du jeu (`--game-*`, `--perso-*`). |
+
+## Boucle de la scène 3D (lot 1)
+
+- **Durée de la boucle : 8 secondes** (`DUREE` dans `scene/js/boucle.js`), en vue de la vidéo du lot 2.
+- Toute la scène est une **fonction du temps** t (0 à 8 s) : aucune horloge, aucun hasard, aucun état qui s'accumule.
+  Chaque mouvement fait un **nombre entier de cycles par boucle** :
+  respiration 2 cycles (4 s) ; appui du pied du personnage 2 : 2 cycles ; zombie qui se débat : ondes de 2, 5 et 8 cycles ;
+  griffe sur le sol : 4 coups (2 s chacun) ; bras tendu qui tâtonne : 2 cycles ; jambe qui gigote : 4 cycles ;
+  visée qui dérive : ondes de 1, 3 et 5 cycles ; vacillement des lumières : ondes de 3 à 23 cycles.
+- **Flammes et fumée** (`scene/js/feu.js`, shaders du feu du jeu) : chaque particule vit 8/k secondes (k entier : 9 à 15
+  pour les flammes, 1 ou 2 pour la fumée) et naît en fondu ; son point de départ dépend de son numéro de vie modulo k.
+- **Brume** (`scene/js/brume.js`, nappes et shader du jeu) : deux tirages du même bruit, décalés d'une boucle de vent,
+  fondus l'un dans l'autre ; au début et à la fin de la boucle, c'est le même tirage.
+- Vérification : `node scene/outils/verifier-boucle.mjs` (écart entre images voisines et à la jonction 8 s → 0 s).

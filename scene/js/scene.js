@@ -1,6 +1,7 @@
 // Scène de l'accueil (lot 1) : point d'entrée de scene/index.html.
 // Paramètres : ?cadrage=A|B|C (caméra), ?format=paysage|portrait (cadre 16:9 ou 9:16), ?t=secondes (image fixe à cet instant),
-// ?capture=1&w=…&h=… (rendu à une taille exacte, pour la planche).
+// ?capture=1&w=…&h=… (rendu à une taille exacte, pour la planche), ?fps=1 (compteur d'images par seconde).
+// Mouvement réduit (prefers-reduced-motion) : image fixe.
 import * as THREE from 'three';
 import { creerAmbiance } from './ambiance.js';
 import { DUREE } from './boucle.js';
@@ -142,11 +143,27 @@ try {
   // Les matières sont compilées avant la première image.
   renderer.compile(scene, camera);
 
-  const fixe = q.get('t') !== null ? Number(q.get('t')) : 0;
+  const fixe = q.get('t') !== null ? Number(q.get('t')) : reduced ? 0 : null;
   let tNow = fixe ?? 0;
   const fps = { frames: 0, since: performance.now(), value: 0 };
   const badge = q.get('fps') === '1' ? etat : null;
   dessiner(tNow);
+  if (fixe === null && !capture) {
+    const t0 = performance.now();
+    const loop = (now) => {
+      tNow = ((now - t0) / 1000) % DUREE;
+      dessiner(tNow);
+      fps.frames += 1;
+      if (now - fps.since >= 1000) {
+        fps.value = (fps.frames * 1000) / (now - fps.since);
+        fps.frames = 0;
+        fps.since = now;
+        if (badge) badge.textContent = `${fps.value.toFixed(1)} images/s`;
+      }
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  }
   etat.hidden = badge === null;
   if (badge) badge.textContent = '…';
   window.__scene = {
