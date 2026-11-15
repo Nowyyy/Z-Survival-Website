@@ -1,0 +1,174 @@
+// Scène de l'accueil (lot 1) : point d'entrée de scene/index.html.
+// Paramètres : ?cadrage=A|B|C (caméra), ?format=paysage|portrait (cadre 16:9 ou 9:16), ?t=secondes (image fixe à cet instant),
+// ?capture=1&w=…&h=… (rendu à une taille exacte, pour la planche).
+import * as THREE from 'three';
+import { creerAmbiance } from './ambiance.js';
+import { DUREE } from './boucle.js';
+import { brumeEnBoucle } from './brume.js';
+import { CADRAGES, FORMATS } from './cadrages.js';
+import { enrichirPersonnages, texturesFines } from './enrichissements.js';
+import { creerFeu } from './feu.js';
+import { creerHelico } from './helico.js';
+import { chargerDonnees, construireMonde } from './monde.js';
+import { creerKit, posable } from './persos.js';
+import { ECHELLE_SCENE, appuiAt, poseP1, poseP2, poseZombie } from './poses.js';
+
+const q = new URLSearchParams(location.search);
+const etat = document.getElementById('etat');
+const toile = document.getElementById('toile');
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cadrage = CADRAGES[(q.get('cadrage') ?? 'A').toUpperCase()] ? (q.get('cadrage') ?? 'A').toUpperCase() : 'A';
+const format = FORMATS[q.get('format')] ? q.get('format') : 'paysage';
+const capture = q.get('capture') === '1';
+const nums = (s, def) => (s ? s.split(',').map(Number) : def);
+
+try {
+  const renderer = new THREE.WebGLRenderer({ canvas: toile, antialias: true, preserveDrawingBuffer: capture });
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
+
+  const d = await chargerDonnees();
+  // Groupe de mise en scène : origine au sol, dans la cour du bâtiment, au nord-est de l'hélicoptère ; +z vers la caméra.
+  const [sx, sz, syaw] = nums(q.get('stage'), [2000, 1180, 185]);
+  const stage = new THREE.Group();
+  stage.position.set(sx, 0, sz);
+  stage.rotation.y = (syaw * Math.PI) / 180;
+  stage.scale.setScalar(ECHELLE_SCENE);
+  stage.updateMatrixWorld(true);
+  // Le décor du jeu qui gênerait une des caméras (entre elle et la scène) est retiré.
+  const couloirs = Object.values(CADRAGES).flatMap((c) => [c.paysage, c.portrait]).map((v) => [stage.localToWorld(new THREE.Vector3(...v.cam)), stage.localToWorld(new THREE.Vector3(0, 0, -60))]);
+  const degage = (x, y) => couloirs.some(([a, b]) => {
+    const ab = new THREE.Vector2(b.x - a.x, b.z - a.z);
+    const ap = new THREE.Vector2(x - a.x, y - a.z);
+    const k = Math.max(0, Math.min(1, ap.dot(ab) / ab.lengthSq()));
+    return ap.sub(ab.multiplyScalar(k)).length() < 170;
+  });
+  const zonesLibres = couloirs.map(([a, b]) => ({ x: Math.min(a.x, b.x) - 60, y: Math.min(a.z, b.z) - 60, w: Math.abs(a.x - b.x) + 120, h: Math.abs(a.z - b.z) + 120 }));
+  const m = await construireMonde(d, renderer, { reduced, sansHelico: true, degage, zonesLibres });
+  const { world, palette, textures } = m;
+  const scene = world.scene;
+  scene.add(stage);
+
+  // Hélicoptère agrandi, à la place de celui du jeu, et son incendie.
+  const heli = creerHelico({ heli: m.helico, floor: m.layout.floor, palette, textures });
+  scene.add(heli);
+  const feuHelico = creerFeu({ foyers: heli.userData.foyers, spread: 16, scale: 1.1, palette, flames: 140, smoke: 90, seed: 3, wind: new THREE.Vector3(34, 0, 0), smokeColor: palette.smokeLight, smokeAlpha: 0.26 });
+  scene.add(feuHelico.group);
+
+  // Personnages : ceux du jeu, enrichis pour le plan rapproché (js/enrichissements.js).
+  const kit = creerKit(d, m.lookup, enrichirPersonnages(d.characters));
+  texturesFines(kit, [['joueur', 'riche'], ['marcheur', 'riche']]);
+  const p1 = posable(kit.create('player', 0, { outfit: 0 }), ECHELLE_SCENE);
+  const p2 = posable(kit.create('player', 0, { outfit: 1 }), ECHELLE_SCENE);
+  const zb = posable(kit.create('zombie', 0, { outfit: 3, wear: 2 }), ECHELLE_SCENE);
+  zb.char.setWound(1);
+  for (const p of [p1, p2, zb]) scene.add(p.root);
+
+  const ambiance = creerAmbiance({ world, palette, textures, stage, heli, lampes: [{ x: -96, z: -64, cap: 30 }, { x: 104, z: -118, cap: -35 }] });
+  const brume = brumeEnBoucle(world, { vitesse: 3, force: 1.3 });
+
+  const camera = new THREE.PerspectiveCamera(40, FORMATS[format], 2, 40000);
+  function placerCamera() {
+    const c = CADRAGES[cadrage][format];
+    const cam = nums(q.get('cam'), c.cam);
+    const vise = nums(q.get('vise'), c.vise);
+    camera.fov = Number(q.get('fov') ?? c.fov);
+    camera.position.copy(stage.localToWorld(new THREE.Vector3(...cam)));
+    camera.lookAt(stage.localToWorld(new THREE.Vector3(...vise)));
+    camera.updateProjectionMatrix();
+    world.setFog(camera.position.distanceTo(stage.localToWorld(new THREE.Vector3(...vise))) * 1.6);
+  }
+
+  // Taille du cadre : au format demandé, le plus grand possible dans la fenêtre (bandes noires autour).
+  function taille() {
+    const ratio = FORMATS[format];
+    let w;
+    let h;
+    if (capture && q.get('w')) {
+      w = Number(q.get('w'));
+      h = Number(q.get('h') ?? Math.round(w / ratio));
+      renderer.setPixelRatio(1);
+    } else {
+      w = innerWidth;
+      h = innerHeight;
+      if (w / h > ratio) w = Math.round(h * ratio);
+      else h = Math.round(w / ratio);
+      renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
+    }
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+
+  function poser(t) {
+    const appui = appuiAt(t);
+    poseP1(p1, stage, t);
+    poseZombie(zb, stage, t, appui);
+    zb.root.updateMatrixWorld(true);
+    poseP2(p2, zb, stage, t, appui);
+  }
+  function dessiner(t) {
+    const u = ((t % DUREE) + DUREE) % DUREE;
+    poser(u);
+    feuHelico.update(u);
+    ambiance.update(u);
+    brume.update(u);
+    renderer.render(scene, window.__plan ?? camera);
+  }
+
+  placerCamera();
+  taille();
+  // Outil de mise en place (?plan=x0,z0,x1,z1) : vue de dessus orthographique du monde, la scène et la caméra marquées.
+  if (q.get('plan')) {
+    const [x0, z0, x1, z1] = nums(q.get('plan'));
+    const ortho = new THREE.OrthographicCamera(x0, x1, -z0, -z1, 1, 5000);
+    ortho.position.set(0, 3000, 0);
+    ortho.up.set(0, 0, -1);
+    ortho.lookAt(0, 0, 0);
+    ortho.left = x0; ortho.right = x1; ortho.top = -z0; ortho.bottom = -z1;
+    ortho.updateProjectionMatrix();
+    const mark = (v, c) => { const s2 = new THREE.Mesh(new THREE.SphereGeometry(18), new THREE.MeshBasicMaterial({ color: c, fog: false })); s2.position.copy(v).setY(400); scene.add(s2); };
+    mark(stage.position, 0xff0000);
+    mark(camera.position, 0x00ff00);
+    mark(camera.position.clone().add(new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).multiplyScalar(300)), 0x0088ff);
+    scene.fog.near = 1e6; scene.fog.far = 2e6;
+    Object.assign(camera, {});
+    window.__plan = ortho;
+  }
+  addEventListener('resize', () => {
+    taille();
+    dessiner(tNow);
+  });
+  // Les matières sont compilées avant la première image.
+  renderer.compile(scene, camera);
+
+  const fixe = q.get('t') !== null ? Number(q.get('t')) : 0;
+  let tNow = fixe ?? 0;
+  const fps = { frames: 0, since: performance.now(), value: 0 };
+  const badge = q.get('fps') === '1' ? etat : null;
+  dessiner(tNow);
+  etat.hidden = badge === null;
+  if (badge) badge.textContent = '…';
+  window.__scene = {
+    ready: true,
+    duree: DUREE,
+    cadrage,
+    format,
+    // Rendu à l'instant t (secondes de la boucle), puis image du cadre (type : image/png ou image/webp).
+    image(t, type = 'image/webp', qualite = 0.9) {
+      tNow = t;
+      dessiner(t);
+      return toile.toDataURL(type, qualite);
+    },
+    rendre(t) {
+      tNow = t;
+      dessiner(t);
+    },
+    fps: () => fps.value,
+    info: () => ({ cadrage, format, duree: DUREE, taille: [toile.width, toile.height], triangles: renderer.info.render.triangles, appels: renderer.info.render.calls }),
+  };
+} catch (e) {
+  etat.textContent = `Erreur : ${e.message}`;
+  window.__sceneError = String(e?.stack ?? e);
+  throw e;
+}
