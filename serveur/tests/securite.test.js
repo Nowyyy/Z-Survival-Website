@@ -163,7 +163,7 @@ describe('serveur : connexion, limite, refus, CORS, entrées, secrets', () => {
     assert.equal(Number((await s.db.execute('SELECT COUNT(*) AS n FROM articles')).rows[0].n), 0);
   });
 
-  test('CORS : seulement le site (zsurvival-game.com, www et nowyyy.github.io pendant la transition) et localhost hors production', async () => {
+  test('CORS : seulement le site (https://zsurvival-game.com) et localhost hors production', async () => {
     const pre = await s.app.request('/api/admin/articles', {
       method: 'OPTIONS',
       headers: { Origin: ORIGINE, 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'authorization, content-type' },
@@ -183,15 +183,21 @@ describe('serveur : connexion, limite, refus, CORS, entrées, secrets', () => {
     const pub = await s.requete('GET', '/api/articles', { origine: ORIGINE });
     assert.equal(pub.entetes.get('access-control-allow-origin'), ORIGINE);
     assert.match(pub.entetes.get('vary'), /Origin/);
-    const www = await s.requete('GET', '/api/articles', { origine: ORIGINE_WWW });
-    assert.equal(www.entetes.get('access-control-allow-origin'), ORIGINE_WWW, 'www encore accepté');
-    const ancienne = await s.requete('GET', '/api/articles', { origine: ORIGINE_ANCIENNE });
-    assert.equal(ancienne.entetes.get('access-control-allow-origin'), ORIGINE_ANCIENNE, 'ancienne adresse encore acceptée');
-    const preAncienne = await s.app.request('/api/admin/articles', {
-      method: 'OPTIONS',
-      headers: { Origin: ORIGINE_ANCIENNE, 'Access-Control-Request-Method': 'POST' },
-    });
-    assert.equal(preAncienne.status, 204);
+    // Anciennes adresses (elles redirigent vers le domaine) : plus acceptées, ni en lecture, ni en préflight, ni pour l'admin.
+    for (const ancienne of [ORIGINE_WWW, ORIGINE_ANCIENNE]) {
+      const lecture = await s.requete('GET', '/api/articles', { origine: ancienne });
+      assert.equal(lecture.entetes.get('access-control-allow-origin'), null, ancienne);
+      const pre = await s.app.request('/api/admin/articles', {
+        method: 'OPTIONS',
+        headers: { Origin: ancienne, 'Access-Control-Request-Method': 'POST' },
+      });
+      assert.equal(pre.status, 403, ancienne);
+      const admin = await s.requete('POST', '/api/admin/connexion', {
+        corps: { identifiant: SECRETS_TEST.identifiant, mot_de_passe: SECRETS_TEST.motDePasse },
+        origine: ancienne,
+      });
+      assert.equal(admin.statut, 403, ancienne);
+    }
     for (const refusee of [
       'http://zsurvival-game.com', // http (sans s)
       'http://www.zsurvival-game.com',

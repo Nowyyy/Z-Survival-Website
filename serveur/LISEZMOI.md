@@ -127,6 +127,16 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Nowyyy/Z-Survival-Website/ma
 Le passage complet du script pose aussi la question (« Avez-vous le jeton GitHub des images… ? ») ; Entrée = plus tard.
 Le jeton expire au bout d'un an : refaire la même chose avec un nouveau jeton.
 
+### Webhook Discord des actualités (lot 3c)
+Pour annoncer chaque article publié dans un salon Discord : créer un webhook sur ce salon (pas à pas : `Docs/ref/admin.md`,
+« Annonce Discord »), puis coller cette ligne dans Cloud Shell, et l'adresse du webhook :
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/Nowyyy/Z-Survival-Website/main/serveur/deploiement/installer-gcp.sh) --discord
+```
+
+Le script vérifie l'adresse auprès de Discord, propose un message d'essai, la range et la donne au serveur.
+
 ### Relancer le script plus tard
 Le script peut être relancé autant de fois que voulu (même ligne) : il ne recrée pas ce qui existe. Pour chaque groupe de secrets,
 il demande « Les garder ? » : **Entrée** garde la valeur, **n** permet d'en taper une nouvelle (par exemple pour changer le mot de

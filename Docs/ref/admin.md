@@ -74,6 +74,12 @@ plus** (le serveur garde la liste en mémoire 60 secondes). Pour le voir : https
 
 - Modifier un article publié : changer le texte, puis **Enregistrer (reste publié)**.
 - Si le bandeau d'alerte de l'accueil est un jour mis en service, il annonce le dernier article publié.
+- **Annonce Discord** (lot 3c, une fois le webhook rangé : voir « Annonce Discord » plus bas) : à la **première** publication d'un
+  article, un message part dans le salon Discord choisi : « 📰 Nouvelle actualité · New post », puis une carte avec le titre
+  « 🇫🇷 titre français — 🇬🇧 titre anglais », le début du texte français puis celui du texte anglais (chacun avec son drapeau), l'image
+  et le lien vers l'article. Sans version anglaise, seulement le français. **Une seule fois par
+  article** : modifier, dépublier puis republier n'envoie rien de plus. Pour éviter une annonce : préparer l'article en brouillon et ne
+  le publier que lorsqu'il est prêt.
 
 ## 6. Dépublier, supprimer
 - **Dépublier** (après confirmation) : l'article disparaît du site et redevient un brouillon. Il peut être republié plus tard.
@@ -125,6 +131,36 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Nowyyy/Z-Survival-Website/ma
 Le script ne touche à rien d'autre. Il vérifie le jeton auprès de GitHub, le range et le donne au serveur.
 
 Message **« GitHub refuse le jeton des images »** dans l'admin : jeton expiré ou révoqué → en créer un nouveau et le ranger.
+
+## Annonce Discord (lot 3c)
+Chaque article publié pour la première fois est annoncé dans un salon de votre serveur Discord, par un **webhook** (une adresse
+secrète qui permet d'écrire dans ce salon, et seulement dans lui). Comme le jeton GitHub, elle est rangée dans Google Secret Manager,
+jamais dans le dépôt.
+
+**Créer le webhook** (sur ordinateur, avec le droit « Gérer les webhooks » sur le serveur Discord) :
+1. Discord → clic droit sur votre serveur → **Paramètres du serveur** → **Intégrations** → **Webhooks** → **Nouveau webhook**.
+2. Le renommer `Z-Survival` (le nom affiché vient de toute façon du serveur), choisir le **salon** des annonces (par exemple
+   `#actualités`), **Enregistrer les modifications**.
+3. **Copier l'URL du webhook** (`https://discord.com/api/webhooks/…`). Ne la collez nulle part ailleurs que dans le script ci-dessous :
+   n'importe qui la possédant peut écrire dans le salon.
+
+**La ranger** : console Google Cloud (projet `z-survival-website`) → Cloud Shell (**>_**) → coller cette ligne, puis l'adresse
+(rien ne s'affiche quand vous collez : normal) :
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/Nowyyy/Z-Survival-Website/main/serveur/deploiement/installer-gcp.sh) --discord
+```
+
+Le script vérifie l'adresse auprès de Discord (sans rien poster), propose un **message d'essai** dans le salon, la range et la donne au
+serveur. Il ne touche à rien d'autre.
+
+- **Changer de salon** : créer un nouveau webhook sur l'autre salon et refaire la même chose (l'ancienne adresse est remplacée).
+- **Arrêter les annonces** : supprimer le webhook dans Discord (Intégrations → Webhooks). Les publications continuent normalement.
+- **Adresse divulguée par erreur** : supprimer le webhook dans Discord (l'adresse ne marche plus), en créer un nouveau, le ranger.
+- Si Discord est en panne au moment de publier, l'article est publié quand même ; l'annonce n'est pas partie. Pour la relancer :
+  **Dépublier**, puis **Publier** à nouveau (un article jamais annoncé l'est à sa prochaine publication).
+- Le message ne notifie personne (pas de `@everyone`, même écrit dans un titre). Pour prévenir les membres, régler les notifications
+  du salon dans Discord.
 
 ## Pour le développeur
 - Fichiers : `admin/index.html`, `admin/admin.js`, `admin/admin.css` ; partagés avec le site : `js/config.js` (adresse du

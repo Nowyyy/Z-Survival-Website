@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Installation Google Cloud du serveur du site Z-Survival (lot 3a, jeton GitHub des images : lot 3b)
+# Installation Google Cloud du serveur du site Z-Survival (lot 3a, jeton GitHub des images : lot 3b, webhook Discord : lot 3c)
 # ============================================================================
 # À lancer dans Cloud Shell (icône >_ en haut de la console Google Cloud),
 # en collant CETTE LIGNE (pas le contenu du fichier : voir serveur/LISEZMOI.md) :
@@ -10,6 +10,10 @@
 # Pour ranger SEULEMENT le jeton GitHub des images (lot 3b), sans toucher au reste, ajouter « --jeton-github » :
 #
 #   bash <(curl -fsSL https://raw.githubusercontent.com/Nowyyy/Z-Survival-Website/main/serveur/deploiement/installer-gcp.sh) --jeton-github
+#
+# Pour ranger SEULEMENT l'adresse du webhook Discord des actualités (lot 3c : annonce de chaque article publié), ajouter « --discord » :
+#
+#   bash <(curl -fsSL https://raw.githubusercontent.com/Nowyyy/Z-Survival-Website/main/serveur/deploiement/installer-gcp.sh) --discord
 #
 # Ce que fait le script (relançable sans casse : chaque étape regarde d'abord ce qui existe) :
 #   1. vérifie le projet (z-survival-website) ;
@@ -32,11 +36,13 @@
 main() {
   set -Eeuo pipefail
   # --jeton-github : ne ranger QUE le jeton GitHub des images (le reste n'est ni vérifié ni modifié).
-  local JETON_SEUL=0
+  # --discord : ne ranger QUE l'adresse du webhook Discord des actualités (lot 3c).
+  local JETON_SEUL=0 DISCORD_SEUL=0
   case "${1:-}" in
     --jeton-github) JETON_SEUL=1 ;;
+    --discord) DISCORD_SEUL=1 ;;
     "") ;;
-    *) echo "✖ Option inconnue : $1 (seule option possible : --jeton-github)" >&2; exit 1 ;;
+    *) echo "✖ Option inconnue : $1 (options possibles : --jeton-github, --discord)" >&2; exit 1 ;;
   esac
   set +o history 2>/dev/null || true
   umask 077
@@ -59,11 +65,13 @@ main() {
   local S_URL="turso-url" S_JETON="turso-jeton" S_ID="admin-identifiant" S_EMPREINTE="admin-empreinte" S_CLE="cle-session"
   # Lot 3b : jeton GitHub des images des articles (facultatif ; sans lui, seul l'envoi d'images est refusé).
   local S_GITHUB="github-jeton-images"
+  # Lot 3c : adresse du webhook Discord du salon des actualités (facultatif ; sans elle, pas d'annonce).
+  local S_DISCORD="discord-webhook-actus"
   local IMAGE_ATTENTE="us-docker.pkg.dev/cloudrun/container/hello"
 
   local ETAPE="démarrage"
   trap 'echo; echo "✖ Arrêt pendant : ${ETAPE}. Rien de grave : corrigez si besoin, puis relancez la même ligne." >&2' ERR
-  trap 'unset turso_url turso_jeton identifiant mdp1 mdp2 jeton_github 2>/dev/null || true' EXIT
+  trap 'unset turso_url turso_jeton identifiant mdp1 mdp2 jeton_github webhook 2>/dev/null || true' EXIT
 
   titre() { printf '\n\033[1m== %s ==\033[0m\n' "$1"; ETAPE="$1"; }
   info() { printf '   %s\n' "$1"; }
@@ -201,6 +209,64 @@ main() {
       info "Service Cloud Run pas encore créé : relancez ce script sans option pour l'installation complète."
     fi
   }
+
+  # Demande l'adresse du webhook Discord (saisie masquée), la contrôle auprès de Discord (sans rien poster), propose un message
+  # d'essai, la range. Retour 1 si la personne remet à plus tard. L'adresse passe à curl par son entrée standard (-K -), jamais
+  # en argument : elle n'apparaît ni dans la liste des processus ni dans l'historique.
+  demander_webhook_discord() {
+    local webhook="" code
+    info "Discord → votre serveur → Paramètres du serveur → Intégrations → Webhooks → Nouveau webhook → choisir le salon des"
+    info "actualités → « Copier l'URL du webhook ». Elle commence par https://discord.com/api/webhooks/. Mode d'emploi : Docs/ref/admin.md."
+    while true; do
+      lire_masque webhook "   Adresse du webhook Discord (Entrée seule = plus tard) : "
+      webhook="$(printf '%s' "$webhook" | tr -d '[:space:]')"
+      if [[ -z "$webhook" ]]; then info "Webhook remis à plus tard : les articles publiés ne seront pas annoncés sur Discord."; return 1; fi
+      if [[ ! "$webhook" =~ ^https://(discord\.com|discordapp\.com|ptb\.discord\.com|canary\.discord\.com)/api/webhooks/[0-9]{5,25}/[A-Za-z0-9_-]{20,200}$ ]]; then
+        info "Adresse non reconnue : copiez-la en entier depuis Discord (https://discord.com/api/webhooks/…). Réessayez."
+        continue
+      fi
+      code="$(printf 'url = "%s"\n' "$webhook" | curl -s -o /dev/null -w '%{http_code}' --max-time 20 -K - 2>/dev/null || true)"
+      if [[ "$code" == "200" ]]; then
+        fait "Webhook accepté par Discord"
+        if oui_non "   Envoyer un message d'essai dans le salon ?" o; then
+          code="$(printf 'url = "%s?wait=true"\nheader = "Content-Type: application/json"\ndata = "{\\"username\\":\\"Z-Survival\\",\\"content\\":\\"Essai : les actualités publiées sur zsurvival-game.com seront annoncées ici.\\",\\"allowed_mentions\\":{\\"parse\\":[]}}"\n' "$webhook" \
+            | curl -s -o /dev/null -w '%{http_code}' --max-time 20 -K - 2>/dev/null || true)"
+          if [[ "$code" == "200" ]]; then fait "Message d'essai envoyé : regardez le salon"; else info "Message d'essai refusé (code ${code:-aucun})."; fi
+        fi
+        break
+      fi
+      info "Discord refuse cette adresse (code ${code:-aucun}) : webhook supprimé, ou adresse incomplète ?"
+      if oui_non "   La ranger quand même ?" n; then break; fi
+    done
+    printf '%s' "$webhook" | ranger "$S_DISCORD"
+    unset webhook
+    return 0
+  }
+  # Donne l'adresse du webhook au service Cloud Run (variable DISCORD_WEBHOOK_ACTUS, version « latest »). Crée une nouvelle révision.
+  brancher_webhook_discord() {
+    reessayer gcloud secrets add-iam-policy-binding "$S_DISCORD" --member="serviceAccount:${EMAIL_SERVEUR}" \
+      --role="roles/secretmanager.secretAccessor" --quiet >/dev/null
+    if existe gcloud run services describe "$SERVICE" --region="$REGION"; then
+      gcloud run services update "$SERVICE" --region="$REGION" \
+        --update-secrets="DISCORD_WEBHOOK_ACTUS=${S_DISCORD}:latest" --quiet >/dev/null
+      fait "Webhook Discord donné au serveur (nouvelle révision lancée : il le lit au démarrage)"
+    else
+      info "Service Cloud Run pas encore créé : relancez ce script sans option pour l'installation complète."
+    fi
+  }
+
+  if [[ "$DISCORD_SEUL" == 1 ]]; then
+    titre "Webhook Discord des actualités (saisie masquée : rien ne s'affiche quand vous collez, c'est normal)"
+    if a_une_valeur "$S_DISCORD"; then info "Une adresse est déjà rangée : la nouvelle va la remplacer."; fi
+    if demander_webhook_discord; then
+      brancher_webhook_discord
+      titre "Terminé"
+      info "Chaque article publié pour la première fois sera annoncé dans le salon (une seule fois par article)."
+      info "Pour arrêter les annonces : supprimez le webhook dans Discord (Intégrations → Webhooks)."
+    fi
+    ETAPE="fin"
+    return 0
+  fi
 
   if [[ "$JETON_SEUL" == 1 ]]; then
     titre "Jeton GitHub des images des articles (saisie masquée : rien ne s'affiche quand vous tapez, c'est normal)"
@@ -406,6 +472,22 @@ sys.stdout.write("pbkdf2$600000$" + base64.b64encode(sel).decode() + "$" + base6
     info "Jeton GitHub des images : plus tard (relancer avec --jeton-github). L'envoi d'images reste refusé en attendant."
   fi
 
+  # 6e. Webhook Discord des actualités (lot 3c, facultatif).
+  local discord_present=0 discord_change=0
+  if a_une_valeur "$S_DISCORD"; then
+    discord_present=1
+    if oui_non "   Le webhook Discord des actualités est déjà rangé. Le garder ?" o; then
+      fait "Webhook Discord : actuel gardé"
+    elif demander_webhook_discord; then
+      discord_change=1
+    fi
+  elif oui_non "   Voulez-vous annoncer les actualités publiées dans un salon Discord (lot 3c) ?" n && demander_webhook_discord; then
+    discord_present=1
+    discord_change=1
+  else
+    info "Webhook Discord : plus tard (relancer avec --discord). Les articles publiés ne sont pas annoncés en attendant."
+  fi
+
   titre "7. Accès du serveur à ses secrets (et à rien d'autre)"
   local s
   for s in "$S_URL" "$S_JETON" "$S_ID" "$S_EMPREINTE" "$S_CLE"; do
@@ -417,6 +499,11 @@ sys.stdout.write("pbkdf2$600000$" + base64.b64encode(sel).decode() + "$" + base6
     reessayer gcloud secrets add-iam-policy-binding "$S_GITHUB" --member="serviceAccount:${EMAIL_SERVEUR}" \
       --role="roles/secretmanager.secretAccessor" --quiet >/dev/null
     fait "… et le jeton GitHub des images"
+  fi
+  if [[ "$discord_present" == 1 ]]; then
+    reessayer gcloud secrets add-iam-policy-binding "$S_DISCORD" --member="serviceAccount:${EMAIL_SERVEUR}" \
+      --role="roles/secretmanager.secretAccessor" --quiet >/dev/null
+    fait "… et le webhook Discord des actualités"
   fi
 
   # --- Service Cloud Run -------------------------------------------------------
@@ -448,6 +535,16 @@ sys.stdout.write("pbkdf2$600000$" + base64.b64encode(sel).decode() + "$" + base6
       fait "Jeton GitHub des images donné au serveur (nouvelle révision)"
     else
       fait "Le serveur reçoit déjà le jeton GitHub des images"
+    fi
+  fi
+  # Webhook Discord (lot 3c) : même principe que le jeton GitHub.
+  if [[ "$discord_present" == 1 ]]; then
+    if [[ "$discord_change" == 1 ]] || ! lire gcloud run services describe "$SERVICE" --region="$REGION" \
+        --format='value(spec.template.spec.containers[0].env)' | grep -q DISCORD_WEBHOOK_ACTUS; then
+      gcloud run services update "$SERVICE" --region="$REGION" --update-secrets="DISCORD_WEBHOOK_ACTUS=${S_DISCORD}:latest" --quiet >/dev/null
+      fait "Webhook Discord donné au serveur (nouvelle révision)"
+    else
+      fait "Le serveur reçoit déjà le webhook Discord"
     fi
   fi
   # Accès public (la sécurité est gérée par l'application : jeton pour l'administration).

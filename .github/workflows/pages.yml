@@ -25,7 +25,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Récupérer le code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # musique/ : planche d'écoute du lot 1b (noindex, non reliée au site) et fichiers de musique.
       - name: Préparer le site (fichiers statiques, sans build)
@@ -43,13 +43,13 @@ jobs:
           rm -rf _site/scene/outils
 
       - name: Configurer Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Envoyer le site
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
       - name: Déployer
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
