@@ -16,7 +16,7 @@ import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { servirCopiePubliee } from '../copie-publiee.mjs';
+import { servirCopiePubliee, simulerActualites } from '../copie-publiee.mjs';
 import { DUREE_BOUCLE, IMAGES_PAR_SECONDE, TEMPS_AFFICHE, TEMPS_TIR } from '../../js/accueil-boucle.js';
 
 const require = createRequire(import.meta.url);
@@ -73,6 +73,7 @@ const SCRIPT_JOURNAL = () => {
 };
 
 async function ouvrir(contexte, adresse = base) {
+  if (copie) await simulerActualites(contexte); // lot 3b : serveur des actualités simulé en local (aucun article)
   const page = await contexte.newPage();
   const journal = { erreurs: [], manquants: [], requetes: [] };
   page.on('console', (m) => { if (m.type() === 'error') journal.erreurs.push(m.text()); });
