@@ -1,6 +1,8 @@
 // Temps de la boucle : toute la scène est une fonction du temps t (secondes), périodique de période DUREE.
 // Chaque mouvement utilise une fréquence entière de tours par boucle (n / DUREE) : la dernière image rejoint la première.
-export const DUREE = 8; // secondes (entre 6 et 10 : demande du lot 1)
+import { DUREE_BOUCLE } from '../../js/accueil-boucle.js';
+
+export const DUREE = DUREE_BOUCLE; // secondes (8 : lot 1) ; valeur partagée avec la vidéo et le site (js/accueil-boucle.js, lot 2b)
 const TAU = Math.PI * 2;
 
 // Onde sinusoïdale qui fait n tours par boucle (n entier), décalée de `phase` (en tours).

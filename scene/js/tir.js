@@ -3,8 +3,9 @@
 // Tout est fonction du temps de la boucle (js/boucle.js) : l'effet est terminé bien avant la fin de la boucle.
 import * as THREE from 'three';
 import { DUREE } from './boucle.js';
+import { TEMPS_TIR } from '../../js/accueil-boucle.js';
 
-export const TIR = 5.2; // instant du coup de feu (secondes de la boucle)
+export const TIR = TEMPS_TIR; // instant du coup de feu (5,2 s de la boucle) ; valeur partagée avec la vidéo et le site (js/accueil-boucle.js, lot 2b)
 const RECUL = 0.42; // durée du recul (secondes)
 const ECLAIR = 0.075; // durée de l'éclair : 2 images à 25 ou 30 images/s
 

@@ -1,2 +1,4 @@
 # Rendus intermédiaires de la musique (WAV flottants, ~30 Mo chacun) : regénérés par outils/musique/generer.mjs
 outils/musique/rendu/
+# Images rendues de la scène (PNG, ~1 Go) : regénérées par outils/video/fabriquer.mjs
+outils/video/rendu/
