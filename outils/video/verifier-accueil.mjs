@@ -299,7 +299,7 @@ for (const cas of CAS) {
     // Pour tous : encart en bas à gauche, en français puis en anglais, sans chevauchement ; HUD retiré ; logo du studio agrandi ;
     // ni Three.js ni scene/, aucune erreur.
     const LOGO = cas.vp.width >= 900 ? 112 : 76;
-    for (const [l, attendu] of [['fr', 'Disponible sur Navigateur'], ['en', 'Available on the Web']]) {
+    for (const [l, attendu] of [['fr', 'Disponible sur Navigateur'], ['en', 'Available on Browser']]) {
       const pe = await ouvrir(contexte, `${base}?lang=${l}`);
       await pe.page.waitForTimeout(1800);
       const e = await encart(pe.page);
