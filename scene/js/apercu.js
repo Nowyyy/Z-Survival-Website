@@ -8,7 +8,17 @@ if (q.get('t') !== null) sceneParams.set('t', q.get('t'));
 for (const k of ['p1', 'zb']) if (q.get(k)) sceneParams.set(k, q.get(k)); // réglages d'atelier du placement
 document.getElementById('scene').src = `index.html?${sceneParams}`;
 const site = document.getElementById('site');
-site.src = `../index.html${q.get('lang') ? `?lang=${encodeURIComponent(q.get('lang'))}` : ''}#accueil`;
+// Le site n'est chargé qu'une fois la scène 3D affichée (elle met plusieurs secondes à se construire) : son entrée en scène (grain VHS,
+// chute du Z, accroche qui s'écrit) se joue ainsi par-dessus la scène, et non sur un fond noir.
+const sceneFrameAttente = document.getElementById('scene');
+(function attendreScene() {
+  const w = sceneFrameAttente.contentWindow;
+  if (w?.__scene?.ready || w?.__sceneError) {
+    site.src = `../index.html${q.get('lang') ? `?lang=${encodeURIComponent(q.get('lang'))}` : ''}#accueil`;
+    return;
+  }
+  setTimeout(attendreScene, 100);
+}());
 
 const CSS = `
 html, body, .section-accueil { background: transparent !important; }
@@ -52,5 +62,5 @@ const note = document.getElementById('note');
 if (q.get('capture') === '1') note.remove();
 else setTimeout(() => note.classList.add('cachee'), 4000);
 window.__apercu = {
-  pret: () => Boolean(document.getElementById('scene').contentWindow?.__scene?.ready) && site.contentDocument?.readyState === 'complete',
+  pret: () => Boolean(document.getElementById('scene').contentWindow?.__scene?.ready) && /index\.html/.test(site.contentWindow?.location.href ?? '') && site.contentDocument?.readyState === 'complete',
 };

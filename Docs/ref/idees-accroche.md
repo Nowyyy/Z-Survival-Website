@@ -52,3 +52,9 @@ Toutes respectent « réduire les animations » et restent légères (HTML, CSS,
   (décalage, inclinaison) avec un dédoublement rouge et bleu (jetons `--color-action`, `--color-focus`), comme une interférence radio.
 - Mouvement réduit : texte fixe, ni écriture ni grésillement. Pas de son.
 - Variante non retenue pour l'instant : horloge de nuit (« 23:47 — aube dans 5 h 13 »).
+
+## Voir les effets sur la scène 3D
+- `scene/apercu.html` ne charge le site qu'une fois la scène 3D affichée : l'entrée en scène (grain VHS, chute du Z, accroche qui
+  s'écrit) se joue par-dessus la scène. Avant, le site arrivait en une fraction de seconde et son entrée se jouait sur fond noir, avant que la
+  scène (plusieurs secondes de construction) soit visible.
+- Pour revoir l'entrée : recharger la page de l'aperçu.
