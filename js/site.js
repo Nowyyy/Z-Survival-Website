@@ -8,6 +8,7 @@ import { poserLogo } from './logo.js';
 import { installerFlashTir } from './accueil-tir.js';
 import { lancerEntree } from './accueil-entree.js';
 import { taperAccroche } from './accueil-accroche.js';
+import { construireBandeau } from './accueil-bandeau.js';
 
 document.documentElement.lang = langueInitiale();
 
@@ -178,6 +179,7 @@ function rendre() {
   construirePersonnages();
   construireArmes();
   construireCredits();
+  construireBandeau();
   majLangue();
 }
 
