@@ -197,7 +197,8 @@
             <img class="studio-logo about-logo" src="img/no-way-studio.svg" alt="No Way Studio" data-t-alt="studio.logoAlt" width="824" height="628">
           </div>
           <div class="about-texte">
-            <p class="about-signature revele" style="--i:2" data-t="studio.signature"></p>
+            <!-- Titre modifiable depuis la page d'administration (js/a-propos.js) ; par défaut : studio.signature de js/textes.js. -->
+            <p class="about-signature revele" style="--i:2" id="about-signature" data-t="studio.signature"></p>
             <!-- Texte modifiable depuis la page d'administration (js/a-propos.js) ; par défaut : about.texte de js/textes.js. -->
             <div class="about-paragraphe actu-texte revele" style="--i:3" id="about-texte"></div>
             <dl class="about-credits revele" style="--i:4" id="about-credits"></dl>

@@ -578,7 +578,8 @@ console.log('\n# Page « À propos »');
   // Avant tout enregistrement : textes par défaut, plus d'encart « contenu provisoire ».
   {
     const { page, contexte, erreursInattendues } = await ouvrirAbout('fr');
-    verifier(await page.textContent('#titre-about') === 'À propos' && /^No Way Studio crée Z-Survival/.test(await page.textContent('#about-texte')), 'site, rien d’enregistré : titre et texte par défaut');
+    verifier(await page.textContent('#titre-about') === 'À propos' && await page.textContent('#about-signature') === 'Un jeu de No Way Studio'
+      && /^No Way Studio crée Z-Survival/.test(await page.textContent('#about-texte')), 'site, rien d’enregistré : titre sous le logo et texte par défaut');
     verifier(await page.locator('#about .marque-provisoire').count() === 0, 'À propos : plus d’encart jaune « contenu provisoire »');
     verifier(erreursInattendues().length === 0, `aucune erreur console (${erreursInattendues().join(' | ')})`);
     await contexte.close();
@@ -592,8 +593,8 @@ console.log('\n# Page « À propos »');
   await page.waitForSelector('#ecran-liste:not([hidden])');
   await page.click('#ouvrir-page-a-propos');
   await page.waitForSelector('#ecran-page:not([hidden])');
-  verifier(await page.inputValue('#page_titre_fr') === 'À propos' && /^No Way Studio crée/.test(await page.inputValue('#page_contenu_fr'))
-    && await page.inputValue('#page_titre_en') === 'About us' && /Texte d’origine/.test(await page.textContent('#page-statut')),
+  verifier(await page.inputValue('#page_titre_fr') === 'Un jeu de No Way Studio' && /^No Way Studio crée/.test(await page.inputValue('#page_contenu_fr'))
+    && await page.inputValue('#page_titre_en') === 'A No Way Studio game' && /Texte d’origine/.test(await page.textContent('#page-statut')),
     'admin : la page part des textes actuels du site (FR et EN), statut « Texte d’origine »');
   await page.fill('#page_titre_fr', 'Le studio');
   await page.fill('#page_contenu_fr', 'Intro');
@@ -610,8 +611,9 @@ console.log('\n# Page « À propos »');
   verifier(suivi.dialogues.at(-1)?.type === 'confirm' && await page.isVisible('#ecran-page'), 'admin : confirmation avant de quitter la page modifiée');
   await page.click('#page-apercu');
   await page.waitForSelector('#apercu-page[open]');
-  verifier(await page.textContent('#apercu-page-titre') === 'Le studio' && await page.locator('#apercu-page-texte strong').count() === 1 && await page.locator('#apercu-page-texte li').count() === 2,
-    'aperçu FR : titre, gras, liste');
+  verifier(await page.textContent('#apercu-page-titre') === 'À propos' && await page.textContent('#apercu-page-signature') === 'Le studio'
+    && await page.locator('#apercu-page-texte strong').count() === 1 && await page.locator('#apercu-page-texte li').count() === 2,
+    'aperçu FR : grand titre fixe, titre sous le logo modifié, gras, liste');
   await page.click('[data-apercu-page=en]');
   verifier(await page.isVisible('#apercu-page-texte .actu-mention-fr') && !(await page.isHidden('#apercu-page-note')), 'aperçu EN sans anglais : version française avec « (FR) »');
   await page.screenshot({ path: join(CAPTURES, 'admin-apercu-a-propos-375.png') });
@@ -627,6 +629,7 @@ console.log('\n# Page « À propos »');
     const v = await ouvrirAbout('fr', taille, reduit);
     const etat = await v.page.evaluate(() => ({
       titre: document.getElementById('titre-about').textContent,
+      signature: document.getElementById('about-signature').textContent,
       gras: document.querySelectorAll('#about-texte strong').length,
       puces: document.querySelectorAll('#about-texte li').length,
       liens: [...document.querySelectorAll('#about-texte a')].map((a) => `${a.href} ${a.rel}`),
@@ -634,8 +637,8 @@ console.log('\n# Page « À propos »');
       pirate: window.__pirate ?? null,
       nav: document.querySelector('.nav-sections a[data-section=about] .nav-nom').textContent,
     }));
-    verifier(etat.titre === 'Le studio' && etat.gras === 1 && etat.puces === 2 && etat.liens.join() === 'https://example.org/ noopener noreferrer' && etat.scripts === 0 && etat.pirate === null,
-      `site ${taille.join(' × ')}${reduit ? ' (mouvement réduit)' : ''} : titre et texte publiés, Markdown sûr`);
+    verifier(etat.titre === 'À propos' && etat.signature === 'Le studio' && etat.gras === 1 && etat.puces === 2 && etat.liens.join() === 'https://example.org/ noopener noreferrer' && etat.scripts === 0 && etat.pirate === null,
+      `site ${taille.join(' × ')}${reduit ? ' (mouvement réduit)' : ''} : grand titre fixe, titre sous le logo et texte publiés, Markdown sûr`);
     verifier(etat.nav === 'À propos', 'menu : l’entrée « 05 À propos » garde son intitulé');
     verifier(!(await debordement(v.page)), 'section À propos sans débordement horizontal');
     await v.page.screenshot({ path: join(CAPTURES, `site-a-propos-${taille[0]}${reduit ? '-reduit' : ''}.png`) });
@@ -644,7 +647,8 @@ console.log('\n# Page « À propos »');
   }
   {
     const v = await ouvrirAbout('en');
-    verifier(await v.page.textContent('#titre-about') === 'Le studio' && await v.page.getAttribute('#titre-about', 'lang') === 'fr' && await v.page.isVisible('#about-texte .actu-mention-fr'),
+    verifier(await v.page.textContent('#titre-about') === 'About us' && await v.page.textContent('#about-signature') === 'Le studio'
+      && await v.page.getAttribute('#about-signature', 'lang') === 'fr' && await v.page.isVisible('#about-texte .actu-mention-fr'),
       'site anglais sans version anglaise : texte français avec « (FR) »');
     await v.contexte.close();
   }
@@ -659,8 +663,8 @@ console.log('\n# Page « À propos »');
     const v = await ouvrirAbout('fr');
     await v.page.click('.entete .langue-bouton');
     await v.page.click('.entete .langue-choix[data-langue=en]');
-    await v.page.waitForFunction(() => document.getElementById('titre-about').textContent === 'The studio', null, { timeout: 8000 }).catch(() => {});
-    verifier(await v.page.textContent('#titre-about') === 'The studio' && await v.page.locator('#about-texte em').count() === 1 && !(await v.page.isVisible('#about-texte .actu-mention-fr')),
+    await v.page.waitForFunction(() => document.getElementById('about-signature').textContent === 'The studio', null, { timeout: 8000 }).catch(() => {});
+    verifier(await v.page.textContent('#titre-about') === 'About us' && await v.page.textContent('#about-signature') === 'The studio' && await v.page.locator('#about-texte em').count() === 1 && !(await v.page.isVisible('#about-texte .actu-mention-fr')),
       'site : changement de langue → version anglaise de la page');
     verifier(v.erreursInattendues().length === 0, `aucune erreur console (${v.erreursInattendues().join(' | ')})`);
     await v.contexte.close();
@@ -670,7 +674,23 @@ console.log('\n# Page « À propos »');
     const v = await nouvellePage({ brancher: { coupe: () => true } });
     await v.page.goto(`${banc.base}?lang=fr#about`);
     await v.page.waitForTimeout(800);
-    verifier(await v.page.textContent('#titre-about') === 'À propos' && /^No Way Studio crée/.test(await v.page.textContent('#about-texte')), 'serveur injoignable : textes par défaut de la page');
+    verifier(await v.page.textContent('#about-signature') === 'Un jeu de No Way Studio' && /^No Way Studio crée/.test(await v.page.textContent('#about-texte')), 'serveur injoignable : textes par défaut de la page');
+    await v.contexte.close();
+  }
+  // Ancien enregistrement (titre « À propos », quand le titre désignait la section) : la signature par défaut reste affichée.
+  {
+    await banc.api('PUT', '/api/admin/pages/a-propos', { jeton: await banc.connecter(), corps: { titre_fr: 'À propos', titre_en: 'About us', contenu_fr: 'Texte.', contenu_en: 'Text.' } });
+    const v = await ouvrirAbout('fr');
+    verifier(await v.page.textContent('#about-signature') === 'Un jeu de No Way Studio' && await v.page.textContent('#titre-about') === 'À propos',
+      'ancien enregistrement « À propos » : la ligne sous le logo reste « Un jeu de No Way Studio »');
+    await v.page.goto(`${banc.base}admin/`);
+    await v.page.fill('#identifiant', banc.identifiant);
+    await v.page.fill('#mot-de-passe', banc.motDePasse);
+    await v.page.click('#bouton-connexion');
+    await v.page.click('#ouvrir-page-a-propos');
+    await v.page.waitForSelector('#ecran-page:not([hidden])');
+    verifier(await v.page.inputValue('#page_titre_fr') === 'Un jeu de No Way Studio' && await v.page.inputValue('#page_titre_en') === 'A No Way Studio game',
+      'admin : un ancien titre « À propos » est présenté comme la signature par défaut');
     verifier(v.erreursInattendues(RESEAU_COUPE).length === 0, 'aucune autre erreur console');
     await v.contexte.close();
   }

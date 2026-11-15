@@ -217,3 +217,12 @@ Vérifications :
 - `outils/admin/verifier-actus.mjs` → **234/234** (27 nouveaux contrôles : textes par défaut et plus d'encart, admin pré-rempli,
   mise en forme, confirmation, aperçu FR / EN, enregistrement, site à 375 × 667, 320 × 568 en mouvement réduit et 1440 × 900, Markdown
   sûr, menu inchangé, repli « (FR) », changement de langue, serveur injoignable).
+
+### Correction (même jour) : le « titre » est la ligne sous le logo
+Précision du propriétaire : le titre à modifier n'est pas « À propos » mais « Un jeu de No Way Studio ».
+- Le titre enregistré dans l'admin remplace maintenant la **ligne en rouge sous le logo du studio** (`#about-signature`, par défaut
+  `studio.signature`) ; le grand titre « À propos » / « About us » redevient fixe. Aucun changement du serveur (champs `titre_fr` / `titre_en`).
+- L'admin part de « Un jeu de No Way Studio » / « A No Way Studio game » ; l'aperçu montre le grand titre fixe et la ligne modifiée.
+- Un enregistrement éventuel fait avant la correction avec le titre « À propos » / « About us » est ignoré pour la ligne sous le logo
+  (signature par défaut affichée, et proposée dans l'admin) ; l'admin refuse ce titre.
+- Vérifications : `verifier-actus.mjs` → **236/236** ; `verifier-site.mjs` → 158/158 ; `verifier-accueil.mjs` → 172/172 ; `npm test` inchangé (52/52).

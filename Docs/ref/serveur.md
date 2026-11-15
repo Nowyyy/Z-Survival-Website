@@ -68,7 +68,7 @@ Toutes les réponses sont en JSON. Erreurs : `{ "erreur": "message en français"
 
 | Route publique | Réponse |
 |---|---|
-| `GET /api/pages/a-propos?lang=fr\|en` | texte de la page « À propos » : `{ page: { cle, langue, titre, contenu, modifie_le } }`, ou **`{ page: null }`** tant que rien n'est enregistré (le site garde alors ses textes par défaut, `js/textes.js`) ; même règle de langue que les articles ; en cache 60 s ; 404 pour une autre clé |
+| `GET /api/pages/a-propos?lang=fr\|en` | texte de la page « À propos » (`titre` = ligne sous le logo du studio, `contenu` = texte) : `{ page: { cle, langue, titre, contenu, modifie_le } }`, ou **`{ page: null }`** tant que rien n'est enregistré (le site garde alors ses textes par défaut, `js/textes.js`) ; même règle de langue que les articles ; en cache 60 s ; 404 pour une autre clé |
 
 ### Administration (jeton obligatoire, jamais en cache)
 
