@@ -15,7 +15,7 @@ Mode d'emploi pas à pas (installation, lancement en local, tests) : `serveur/LI
         │  1. pages du site (HTML, CSS, JS)               2. données (JSON, en-tête Authorization pour l'admin)
         ▼                                                 ▼
  GitHub Pages                                      Google Cloud Run (europe-west3, Francfort)
- https://www.zsurvival-game.com/                   service « z-survival-serveur » (…run.app)
+ https://zsurvival-game.com/                       service « z-survival-serveur » (…run.app)
  (pages.yml, à chaque push sur main)               Node.js 24 + Hono, image dans Artifact Registry (europe-west3)
                                                           │  secrets lus au démarrage (Secret Manager → variables d'environnement)
                                                           ├──────────────► Turso (libSQL), base « z-survival-site », Francfort
@@ -24,7 +24,7 @@ Mode d'emploi pas à pas (installation, lancement en local, tests) : `serveur/LI
                                                                            commit sur main dans img/actus/ → pages.yml republie
 ```
 
-- **Site** (`www.zsurvival-game.com`, servi par GitHub Pages ; `Docs/ref/nom-de-domaine.md`) et **serveur** (run.app) n'ont pas le
+- **Site** (`zsurvival-game.com`, servi par GitHub Pages ; `Docs/ref/nom-de-domaine.md`) et **serveur** (run.app) n'ont pas le
   même domaine : le site appelle le serveur par `fetch` (CORS).
 - Le serveur **s'endort** quand personne ne l'appelle (0 instance) : le premier appel après un moment prend 1 à 3 secondes.
 - Rien n'est gardé en mémoire d'une visite à l'autre : tout ce qui doit durer (articles, compteur de tentatives) est dans Turso.
@@ -146,7 +146,7 @@ Un seul administrateur, avec un identifiant et un mot de passe.
 1. **Mot de passe jamais stocké en clair** : on stocke son empreinte **PBKDF2-SHA256, 600 000 itérations, sel aléatoire de 16 octets**,
    au format `pbkdf2$600000$<sel_base64>$<empreinte_base64>`. Elle est calculée **dans Cloud Shell** par le script d'installation.
    La vérification compare en **temps constant**.
-2. **Pas de cookie** : le site (`www.zsurvival-game.com`) et le serveur (run.app) n'ont pas le même domaine, et Safari bloque les cookies tiers.
+2. **Pas de cookie** : le site (`zsurvival-game.com`) et le serveur (run.app) n'ont pas le même domaine, et Safari bloque les cookies tiers.
    À la connexion, le serveur renvoie un **jeton signé** (HMAC-SHA256 avec la clé de session), valable **2 heures**, que la page
    d'administration envoie ensuite dans l'en-tête `Authorization: Bearer <jeton>`. Le jeton ne contient aucun secret
    (`{ sub: "admin", iat, exp }`). Changer la clé de session déconnecte immédiatement l'administrateur.
@@ -160,8 +160,8 @@ Un seul administrateur, avec un identifiant et un mot de passe.
    l'adresse ; les tentatives de plus de 24 heures sont supprimées. Réservation de la tentative en une seule instruction SQL :
    des requêtes simultanées ne passent pas la limite.
    Adresse IP : la **dernière** valeur de `X-Forwarded-For` (celle qu'ajoute le frontal de Google ; les précédentes peuvent venir du client).
-5. **CORS** : seules les origines du site sont autorisées : `https://www.zsurvival-game.com`, et `https://nowyyy.github.io` gardée
-   pendant la transition (constante `ORIGINES_SITE` de `serveur/src/app.js`), plus `http://localhost:*` et `http://127.0.0.1:*` hors
+5. **CORS** : seules les origines du site sont autorisées : `https://zsurvival-game.com`, et `https://www.zsurvival-game.com`
+   et `https://nowyyy.github.io` gardées pendant la transition (constante `ORIGINES_SITE` de `serveur/src/app.js`), plus `http://localhost:*` et `http://127.0.0.1:*` hors
    production, ou en production avec la variable `ORIGINES_LOCALES=1`). Une requête d'administration venant d'une autre origine est
    refusée (403). Pas de `Access-Control-Allow-Credentials` (aucun cookie).
 
