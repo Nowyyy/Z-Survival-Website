@@ -5,6 +5,7 @@
     { "id": "bientot", "actif": true, "fr": "Bientôt disponible sur navigateur", "en": "Coming soon in your browser" },
     { "id": "le-site-desormais-en-ligne", "actif": true, "fr": "Le site désormais en ligne !", "en": "The website is now live!" },
     { "id": "jeu-en-developpement", "actif": true, "fr": "Jeu en développement", "en": "Game under development" },
-    { "id": "n-oublie-pas-de-nous-rejoindre-sur-disco", "actif": true, "fr": "N'oublie pas de nous rejoindre sur Discord", "en": "Don't forget to join us on Discord" }
+    { "id": "n-oublie-pas-de-nous-rejoindre-sur-disco", "actif": true, "fr": "N'oublie pas de nous rejoindre sur Discord", "en": "Don't forget to join us on Discord" },
+    { "id": "gacha-shooter-vue-du-dessus-avec-des-hor", "actif": true, "fr": "Gacha-Shooter vue du dessus, avec des hordes de zombies !", "en": "Top-down gacha shooter with a lot of zombies !" }
   ]
 }
