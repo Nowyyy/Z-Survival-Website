@@ -32,7 +32,7 @@ export const PLACEMENT = {
   p1: { x: -30, z: 34, cap: 12 }, // personnage 1 : au premier plan à gauche ; cap en degrés (0 = face à la caméra, + = vers la droite de l'image)
   p1Vise: V(330, 64, 900), // point visé par le personnage 1 : au loin, à droite de la caméra
   zombie: { x: 22, z: -18, cap: -30 }, // bassin du zombie ; cap = direction de sa tête (0 : vers la caméra)
-  spectateur: V(-40, 42, 125), // point vers lequel le zombie tend le bras pour attraper (vers la caméra du cadrage B, un peu au-dessus : le bras se tend vers nous sans se dresser)
+  spectateur: V(-40, 24, 125), // point vers lequel le zombie tend le bras pour attraper (vers la caméra du cadrage B, à peine au-dessus : le bras se tend vers nous presque à l'horizontale)
   p2: { dx: -12, dz: 3, cap: 28 }, // personnage 2, dans le repère du zombie : à son flanc droit, à hauteur de la taille ; cap ajouté à celui du zombie
 };
 
