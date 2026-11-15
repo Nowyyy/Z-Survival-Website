@@ -11,6 +11,7 @@ import { lancerEntree } from './accueil-entree.js';
 import { taperAccroche } from './accueil-accroche.js';
 import { construireBandeau } from './accueil-bandeau.js';
 import { ouvrirArticle, rendreActualites, slugDeLAdresse } from './actualites.js';
+import { rendreAPropos } from './a-propos.js';
 
 document.documentElement.lang = langueInitiale();
 
@@ -164,6 +165,7 @@ function rendre() {
   construirePersonnages();
   construireArmes();
   construireCredits();
+  rendreAPropos();
   construireBandeau();
   majLangue();
 }

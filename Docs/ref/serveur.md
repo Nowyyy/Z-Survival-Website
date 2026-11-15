@@ -66,7 +66,15 @@ Toutes les réponses sont en JSON. Erreurs : `{ "erreur": "message en français"
   liens http(s) avec `rel="noopener noreferrer"`, paragraphes ; aucun HTML interprété).
 - Le public ne voit ni `id`, ni `statut`, ni les dates internes.
 
+| Route publique | Réponse |
+|---|---|
+| `GET /api/pages/a-propos?lang=fr\|en` | texte de la page « À propos » : `{ page: { cle, langue, titre, contenu, modifie_le } }`, ou **`{ page: null }`** tant que rien n'est enregistré (le site garde alors ses textes par défaut, `js/textes.js`) ; même règle de langue que les articles ; en cache 60 s ; 404 pour une autre clé |
+
 ### Administration (jeton obligatoire, jamais en cache)
+
+Pages du site (seule clé aujourd'hui : `a-propos`) : `GET /api/admin/pages/a-propos` → `{ page: null | { cle, titre_fr, titre_en,
+contenu_fr, contenu_en, modifie_le } }` ; `PUT /api/admin/pages/a-propos` avec `{ titre_fr, contenu_fr, titre_en?, contenu_en? }`
+(titre et texte français obligatoires, titres 120 caractères, textes 20 000, aucun autre champ) → crée ou remplace, `{ page }`.
 
 | Route | Rôle |
 |---|---|
@@ -130,6 +138,9 @@ Dates en texte ISO 8601 UTC, sauf `tentee_le` (millisecondes depuis 1970).
 | `cree_le`, `modifie_le` | TEXT | |
 
 **`tentatives_connexion`** : `id`, `ip_hachee` (HMAC-SHA256 de l'adresse IP, jamais l'adresse en clair), `tentee_le`.
+
+**`pages`** (migration `002_pages.sql`) : `cle` (clé, ex. `a-propos`), `titre_fr`, `titre_en`, `contenu_fr`, `contenu_en` (Markdown),
+`modifie_le` — textes de pages du site modifiables depuis l'administration ; sans ligne, le site garde ses textes par défaut.
 
 **`migrations`** : `version`, `nom`, `appliquee_le` — suivi des migrations appliquées.
 

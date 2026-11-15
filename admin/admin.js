@@ -8,7 +8,7 @@
 import { ADRESSE_SERVEUR } from '../js/config.js';
 import { TEXTES } from '../js/textes.js';
 import { construireArticle, construireCarte, imageValide, versionPublique } from '../js/article.js';
-import { lienSur } from '../js/markdown.js';
+import { lienSur, rendreMarkdown } from '../js/markdown.js';
 
 const CLE_SESSION = 'z-survival-admin.session';
 const DELAI_REVEIL_MS = 600;       // au-delà, « Connexion au serveur… » s'affiche (le serveur se réveille)
@@ -18,7 +18,7 @@ const TYPES_IMAGE = ['image/jpeg', 'image/png', 'image/webp'];
 const MOTIF_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const $ = (id) => document.getElementById(id);
-const ecrans = { connexion: $('ecran-connexion'), liste: $('ecran-liste'), editeur: $('ecran-editeur') };
+const ecrans = { connexion: $('ecran-connexion'), liste: $('ecran-liste'), editeur: $('ecran-editeur'), page: $('ecran-page') };
 
 // ---------- Messages ----------
 
@@ -80,6 +80,7 @@ let travailGarde = null;
 
 function deconnecter(raison) {
   if (ecrans.editeur.hidden === false && estModifie()) travailGarde = { id: courant?.id ?? null, formulaire: lireFormulaire() };
+  else if (pageModifiee()) travailGarde = { page: lireFormulairePage() };
   effacerSession();
   fermerApercu();
   montrerEcran('connexion');
@@ -210,7 +211,8 @@ async function entrer() {
     const garde = travailGarde;
     travailGarde = null;
     try {
-      await ouvrirEditeur(garde.id, { formulaire: garde.formulaire });
+      if (garde.page) await ouvrirPage({ formulaire: garde.page });
+      else await ouvrirEditeur(garde.id, { formulaire: garde.formulaire });
       annoncer('Votre texte non enregistré a été rouvert. Pensez à l’enregistrer.', { duree: 8000 });
       return;
     } catch (err) {
@@ -221,9 +223,10 @@ async function entrer() {
 }
 
 $('deconnexion').addEventListener('click', () => {
-  if (!ecrans.editeur.hidden && estModifie() && !window.confirm('Des modifications ne sont pas enregistrées. Se déconnecter quand même ?')) return;
+  if ((estModifie() || pageModifiee()) && !window.confirm('Des modifications ne sont pas enregistrées. Se déconnecter quand même ?')) return;
   travailGarde = null;
   definirReference();
+  referencePage = JSON.stringify(lireFormulairePage());
   deconnecter('Vous êtes déconnecté.');
 });
 
@@ -419,7 +422,7 @@ $('retour-liste').addEventListener('click', () => {
 
 // Alerte du navigateur si on quitte la page avec des modifications non enregistrées.
 window.addEventListener('beforeunload', (e) => {
-  if (!estModifie() && !travailGarde) return;
+  if (!estModifie() && !pageModifiee() && !travailGarde) return;
   e.preventDefault();
   e.returnValue = '';
 });
@@ -800,6 +803,7 @@ function rendreApercu() {
 function fermerApercu() {
   if ($('apercu').open) $('apercu').close();
   if ($('bibliotheque').open) $('bibliotheque').close();
+  if ($('apercu-page').open) $('apercu-page').close();
 }
 
 $('bouton-apercu').addEventListener('click', () => {
@@ -814,6 +818,147 @@ document.querySelectorAll('[data-apercu]').forEach((b) => b.addEventListener('cl
 }));
 $('apercu-fermer').addEventListener('click', fermerApercu);
 $('apercu').addEventListener('close', () => $('bouton-apercu').focus());
+
+// ---------- Page « À propos » du site (titre et texte, FR et EN) ----------
+// Sans page enregistrée, le formulaire part des textes par défaut du site (js/textes.js) ; « Enregistrer et publier »
+// met le texte en ligne (une minute au plus, le temps du cache du serveur).
+
+let referencePage = '';
+let pageEnregistree = null;
+
+function lireFormulairePage() {
+  return {
+    titre_fr: $('page_titre_fr').value.trim(),
+    titre_en: $('page_titre_en').value.trim(),
+    contenu_fr: $('page_contenu_fr').value,
+    contenu_en: $('page_contenu_en').value,
+  };
+}
+function remplirFormulairePage(p) {
+  $('page_titre_fr').value = p.titre_fr ?? '';
+  $('page_titre_en').value = p.titre_en ?? '';
+  $('page_contenu_fr').value = p.contenu_fr ?? '';
+  $('page_contenu_en').value = p.contenu_en ?? '';
+}
+function pageModifiee() { return !ecrans.page.hidden && JSON.stringify(lireFormulairePage()) !== referencePage; }
+const texteParDefaut = () => ({
+  titre_fr: TEXTES.fr.sections.about, titre_en: TEXTES.en.sections.about, contenu_fr: TEXTES.fr.about.texte, contenu_en: TEXTES.en.about.texte,
+});
+
+function majStatutPage() {
+  const s = $('page-statut');
+  s.dataset.statut = pageEnregistree ? 'publie' : 'nouveau';
+  s.textContent = pageEnregistree ? `En ligne · ${dateCourte(pageEnregistree.modifie_le)}` : 'Texte d’origine';
+}
+
+function choisirOngletPage(langue) {
+  for (const l of ['fr', 'en']) {
+    const actif = l === langue;
+    $(`page-onglet-${l}`).setAttribute('aria-selected', String(actif));
+    $(`page-onglet-${l}`).tabIndex = actif ? 0 : -1;
+    $(`page-panneau-${l}`).hidden = !actif;
+  }
+}
+document.querySelectorAll('[data-onglet-page]').forEach((b) => {
+  b.addEventListener('click', () => choisirOngletPage(b.dataset.ongletPage));
+  b.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const autre = b.dataset.ongletPage === 'fr' ? 'en' : 'fr';
+    choisirOngletPage(autre);
+    $(`page-onglet-${autre}`).focus();
+  });
+});
+
+async function ouvrirPage({ formulaire = null } = {}) {
+  try {
+    pageEnregistree = (await appel('GET', '/api/admin/pages/a-propos')).page;
+  } catch (err) {
+    if (!(err instanceof ErreurSession)) annoncer(messageErreur(err), { type: 'erreur', duree: 0 });
+    throw err;
+  }
+  remplirFormulairePage(pageEnregistree ?? texteParDefaut());
+  erreurDans('erreur-page', null);
+  choisirOngletPage('fr');
+  montrerEcran('page');
+  referencePage = JSON.stringify(lireFormulairePage());
+  if (formulaire) remplirFormulairePage(formulaire); // texte gardé pendant une expiration de session
+  majStatutPage();
+}
+
+$('ouvrir-page-a-propos').addEventListener('click', () => ouvrirPage().catch(() => {}));
+$('page-retour').addEventListener('click', () => {
+  if (pageModifiee() && !window.confirm('Des modifications ne sont pas enregistrées. Quitter quand même ?')) return;
+  referencePage = JSON.stringify(lireFormulairePage());
+  afficherListe();
+});
+
+$('page-enregistrer').addEventListener('click', async () => {
+  const f = lireFormulairePage();
+  let probleme = null;
+  if (!f.titre_fr) probleme = ['Le titre français est obligatoire.', 'page_titre_fr', 'fr'];
+  else if (!f.contenu_fr.trim()) probleme = ['Le texte français est obligatoire.', 'page_contenu_fr', 'fr'];
+  else if (f.contenu_en.trim() && !f.titre_en) probleme = ['Texte anglais sans titre anglais : ajoutez le titre anglais (sinon le texte anglais ne sera pas affiché).', 'page_titre_en', 'en'];
+  if (probleme) {
+    erreurDans('erreur-page', probleme[0]);
+    choisirOngletPage(probleme[2]);
+    $(probleme[1]).focus();
+    return;
+  }
+  const bouton = $('page-enregistrer');
+  bouton.disabled = true;
+  erreurDans('erreur-page', null);
+  try {
+    pageEnregistree = (await appel('PUT', '/api/admin/pages/a-propos', { corps: f })).page;
+    remplirFormulairePage(pageEnregistree);
+    referencePage = JSON.stringify(lireFormulairePage());
+    majStatutPage();
+    annoncer('Page « À propos » enregistrée : elle est sur le site (une minute au plus, le temps du cache).');
+  } catch (err) {
+    if (!(err instanceof ErreurSession)) erreurDans('erreur-page', `Enregistrement impossible : ${messageErreur(err)}`);
+  } finally {
+    bouton.disabled = false;
+  }
+});
+
+let langueApercuPage = 'fr';
+function rendreApercuPage() {
+  const f = lireFormulairePage();
+  const lang = langueApercuPage;
+  const traduit = Boolean(f[`titre_${lang}`]);
+  const titre = traduit ? f[`titre_${lang}`] : f.titre_fr;
+  const contenu = (traduit ? f[`contenu_${lang}`] : '') || f.contenu_fr;
+  $('apercu-page-titre').textContent = titre || TEXTES[lang].sections.about;
+  $('apercu-page-signature').textContent = TEXTES[lang].studio.signature;
+  const zone = $('apercu-page-texte');
+  const fragment = document.createDocumentFragment();
+  if (!traduit && lang !== 'fr') {
+    const mention = document.createElement('p');
+    mention.className = 'about-mention';
+    const badge = document.createElement('span');
+    badge.className = 'actu-mention-fr';
+    badge.textContent = TEXTES[lang].news.mentionFr;
+    mention.append(badge);
+    fragment.append(mention);
+  }
+  fragment.append(rendreMarkdown(contenu, { niveauTitre: 3 }));
+  zone.replaceChildren(fragment);
+  document.querySelectorAll('[data-apercu-page]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.apercuPage === lang)));
+  const note = (!traduit && lang !== 'fr') ? 'Pas de titre anglais : le site anglais montre la version française, avec la mention « (FR) ».' : '';
+  $('apercu-page-note').textContent = note;
+  $('apercu-page-note').hidden = !note;
+}
+$('page-apercu').addEventListener('click', () => {
+  langueApercuPage = 'fr';
+  rendreApercuPage();
+  $('apercu-page').showModal();
+  $('apercu-page').scrollTop = 0;
+});
+document.querySelectorAll('[data-apercu-page]').forEach((b) => b.addEventListener('click', () => {
+  langueApercuPage = b.dataset.apercuPage;
+  rendreApercuPage();
+}));
+$('apercu-page-fermer').addEventListener('click', () => $('apercu-page').close());
+$('apercu-page').addEventListener('close', () => $('page-apercu').focus());
 
 // ---------- Démarrage ----------
 

@@ -59,7 +59,7 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   News / Characters / Weapons / About us. Navigation : 01 Accueil à 05 About us. Actualités : articles publiés lus sur le serveur (lot 3b), cartes, article complet dans une fenêtre à l'adresse `#actu/<slug>`.
   Personnages et Armes :
   contenu provisoire atténué et inerte sous un encart « Prochainement » (« Coming soon » en anglais). Globe de langue aussi
-  dans l'en-tête ; « Bientôt disponible », bouton de son et globe en haut à droite de l'accueil comme dans l'en-tête (About us : logo animé du studio rejoué à chaque arrivée,
+  dans l'en-tête ; « Bientôt disponible », bouton de son et globe en haut à droite de l'accueil comme dans l'en-tête (About us : titre et texte modifiables depuis l'admin, `js/a-propos.js` ; logo animé du studio rejoué à chaque arrivée,
   puis pied de page). En-tête et navigation cachés sur l'accueil.
 - `main.html` : ancienne page principale, simple redirection vers `./#news` (garde l'ancre).
 - `admin/` (lot 3b) : page d'administration des actualités (noindex, non reliée au site, français seulement, CSP stricte),
@@ -69,6 +69,7 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   français pour les visiteurs francophones, anglais pour les autres ; aucune géolocalisation) ;
   `js/logo.js` : logo du jeu ;
   `js/config.js` : **adresse du serveur, seul endroit côté site** (la CSP d'`admin/index.html` doit autoriser la même) ;
+  `js/a-propos.js` : titre et texte de la section À propos lus sur le serveur (`GET /api/pages/a-propos`), textes de `js/textes.js` par défaut ;
   `js/actualites.js` : section Actualités (lecture du serveur, cartes, squelettes, erreur, liste vide, fenêtre de l'article, `#actu/<slug>`) ;
   `js/article.js` : carte et article complet (site et aperçu de l'admin) ; `js/markdown.js` : Markdown sûr, liste blanche, aucun HTML ;
   `css/actualites.css` : styles des actualités ;

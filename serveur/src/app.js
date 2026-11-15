@@ -12,7 +12,7 @@ import { appliquerMigrations, versionMigrations } from './base.js';
 import { verifierMotDePasse } from './mot-de-passe.js';
 import { creerJeton, verifierJeton } from './jeton.js';
 import { hacherIp, reserverTentative, effacerTentatives, nettoyerTentatives } from './limite.js';
-import { ErreurValidation, LANGUES, entierPositif, slugValide, validerArticle, validerConnexion } from './validation.js';
+import { ErreurValidation, LANGUES, PAGES, entierPositif, slugValide, validerArticle, validerConnexion, validerPage } from './validation.js';
 import {
   ErreurImage, TAILLE_MAX_IMAGE, COTE_MAX, cheminImage, enregistrerSurGithub, listerSurGithub, nomDansDossier, nomImageValide, preparerImage,
   supprimerSurGithub,
@@ -233,6 +233,37 @@ export function creerApp({ config, db, journal, maintenant = () => Date.now(), f
     );
     if (!article) throw new ErreurHttp(404, 'Article introuvable.');
     return c.json({ article: versPublic(article, lang) }, 200, { 'Cache-Control': CACHE_PUBLIC });
+  });
+
+  // --- Pages du site modifiables (page « À propos ») : { page: null } tant que rien n'est enregistré (le site garde alors
+  // ses textes par défaut). Même règle de langue que les articles : sans titre anglais, tout est en français.
+  function pageValide(c) {
+    const cle = c.req.param('cle');
+    if (!PAGES.includes(cle)) throw new ErreurHttp(404, 'Page introuvable.');
+    return cle;
+  }
+  async function lirePage(cle) {
+    const [page] = enObjets(await db.execute({
+      sql: 'SELECT cle, titre_fr, titre_en, contenu_fr, contenu_en, modifie_le FROM pages WHERE cle = ?', args: [cle],
+    }));
+    return page ?? null;
+  }
+  app.get('/api/pages/:cle', async (c) => {
+    const cle = pageValide(c);
+    const lang = c.req.query('lang') ?? 'fr';
+    if (!LANGUES.includes(lang)) throw new ErreurHttp(400, '« lang » doit valoir « fr » ou « en ».');
+    const p = await lirePage(cle);
+    if (!p) return c.json({ page: null }, 200, { 'Cache-Control': CACHE_PUBLIC });
+    const traduit = Boolean(p[`titre_${lang}`]);
+    return c.json({
+      page: {
+        cle,
+        langue: traduit ? lang : 'fr',
+        titre: traduit ? p[`titre_${lang}`] : p.titre_fr,
+        contenu: (traduit ? p[`contenu_${lang}`] : '') || p.contenu_fr,
+        modifie_le: p.modifie_le,
+      },
+    }, 200, { 'Cache-Control': CACHE_PUBLIC });
   });
 
   // --- Administration : configuration complète et jeton obligatoires (sauf pour se connecter). ---
@@ -488,6 +519,23 @@ export function creerApp({ config, db, journal, maintenant = () => Date.now(), f
     const r = await supprimerSurGithub({ config, nom, fetchGithub });
     journal.info('Image supprimée', { chemin });
     return c.json({ image: chemin, supprimee: true, deja_absente: r.deja_absente });
+  });
+
+  // --- Pages du site (administration) : lecture de tous les champs, enregistrement (création ou remplacement). ---
+  app.get('/api/admin/pages/:cle', async (c) => c.json({ page: await lirePage(pageValide(c)) }));
+
+  app.put('/api/admin/pages/:cle', limiteCorps(TAILLE_MAX_ARTICLE), async (c) => {
+    const cle = pageValide(c);
+    const p = validerPage(await lireJson(c));
+    const instantIso = new Date(maintenant()).toISOString();
+    await db.execute({
+      sql: `INSERT INTO pages (cle, titre_fr, titre_en, contenu_fr, contenu_en, modifie_le) VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT (cle) DO UPDATE SET titre_fr = excluded.titre_fr, titre_en = excluded.titre_en,
+            contenu_fr = excluded.contenu_fr, contenu_en = excluded.contenu_en, modifie_le = excluded.modifie_le`,
+      args: [cle, p.titre_fr, p.titre_en, p.contenu_fr, p.contenu_en, instantIso],
+    });
+    journal.info('Page enregistrée', { cle });
+    return c.json({ page: await lirePage(cle) });
   });
 
   // --- Introuvable et erreurs. ---

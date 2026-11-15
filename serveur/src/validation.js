@@ -78,6 +78,25 @@ export function validerArticle(corps, { creation }) {
   return propre;
 }
 
+// Pages du site modifiables depuis l'administration (lot « À propos ») : clés fixes.
+export const PAGES = Object.freeze(['a-propos']);
+const CHAMPS_PAGE = ['titre_fr', 'titre_en', 'contenu_fr', 'contenu_en'];
+const LIMITE_TITRE_PAGE = 120;
+const LIMITE_CONTENU_PAGE = 20_000;
+
+/** Valide le texte d'une page : les quatre champs, titre et texte français obligatoires (l'anglais est facultatif). */
+export function validerPage(corps) {
+  if (!corps || typeof corps !== 'object' || Array.isArray(corps)) throw new ErreurValidation('Objet JSON attendu.');
+  const inconnus = Object.keys(corps).filter((k) => !CHAMPS_PAGE.includes(k));
+  if (inconnus.length > 0) throw new ErreurValidation(`Champ inconnu : ${inconnus.slice(0, 3).map((k) => `« ${String(k).slice(0, 40)} »`).join(', ')}.`);
+  return {
+    titre_fr: texte(corps.titre_fr, 'titre_fr', LIMITE_TITRE_PAGE, { obligatoire: true }).trim(),
+    titre_en: texte(corps.titre_en ?? '', 'titre_en', LIMITE_TITRE_PAGE).trim(),
+    contenu_fr: texte(corps.contenu_fr, 'contenu_fr', LIMITE_CONTENU_PAGE, { obligatoire: true }),
+    contenu_en: texte(corps.contenu_en ?? '', 'contenu_en', LIMITE_CONTENU_PAGE),
+  };
+}
+
 /** Valide le corps de la connexion. Renvoie { identifiant, motDePasse }. */
 export function validerConnexion(corps) {
   if (!corps || typeof corps !== 'object' || Array.isArray(corps)) throw new ErreurValidation('Objet JSON attendu.');

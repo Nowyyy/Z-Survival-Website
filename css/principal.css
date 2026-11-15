@@ -322,6 +322,9 @@
 .about-texte { display: flex; flex-direction: column; gap: 10px; }
 .about-signature { font-family: var(--font-label); font-size: 1.05rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-action-text); }
 .about-paragraphe { color: var(--color-text); }
+/* Texte modifiable depuis l'administration (Markdown sûr) : paragraphes, listes, liens (styles de .actu-texte, css/actualites.css). */
+.about-paragraphe.actu-texte { font-size: 1rem; gap: 0.7em; }
+.about-mention { margin: 0; }
 .about-credits { display: grid; gap: 4px; margin: 0; }
 .about-credit { display: flex; gap: 10px; align-items: baseline; }
 .about-credit-titre { font-family: var(--font-label); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); }
@@ -396,7 +399,7 @@
   .about-logo { width: clamp(240px, 26vw, 380px); }
   .about-texte { max-width: 34rem; gap: 14px; }
   .about-signature { font-size: 1.4rem; }
-  .about-paragraphe { font-size: 1.1rem; }
+  .about-paragraphe, .about-paragraphe.actu-texte { font-size: 1.1rem; }
   .pied { margin-top: 0; }
   .pied-studio { width: 64px; }
   .pied-texte { font-size: 0.85rem; }
