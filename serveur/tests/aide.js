@@ -22,9 +22,8 @@ const cleSession = randomBytes(32).toString('base64');
 export const SECRETS_TEST = Object.freeze({ identifiant, motDePasse, empreinte, cleSession });
 
 export const ORIGINE = 'https://zsurvival-game.com';
-/** Ancienne adresse principale (www), qui redirige vers le domaine sans www : encore acceptée. */
+/** Anciennes adresses, qui redirigent vers le domaine : plus acceptées par le serveur. */
 export const ORIGINE_WWW = 'https://www.zsurvival-game.com';
-/** Ancienne adresse GitHub Pages, encore acceptée pendant la transition vers le nom de domaine. */
 export const ORIGINE_ANCIENNE = 'https://nowyyy.github.io';
 
 /** Crée une application de test complète sur une base neuve. */

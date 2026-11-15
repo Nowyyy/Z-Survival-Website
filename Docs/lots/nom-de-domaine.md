@@ -49,3 +49,12 @@ Branche `nom-de-domaine`, depuis `main` (`9354453`, lot 3b fusionné). Référen
   documentation mise à jour. Zone DNS inchangée.
 - Étape du propriétaire après le déploiement du serveur : Settings → Pages → *Custom domain* = `zsurvival-game.com` → Save, puis
   Enforce HTTPS dès que possible (nouveau certificat).
+
+## Nettoyage (15/11/2026)
+- Le site fonctionne sur https://zsurvival-game.com/ (HTTPS, redirections de `www` et de l'ancienne adresse : constaté par le propriétaire).
+- `ORIGINES_SITE` ne contient plus que `https://zsurvival-game.com` (branche `origines-et-actions`) ; tests : `www` et
+  `nowyyy.github.io` refusés en lecture, en préflight et pour la connexion admin.
+- Actions GitHub passées à des versions qui tournent sous Node.js 24 (avertissement « Node.js 20 is deprecated ») :
+  `actions/checkout@v7`, `actions/setup-node@v7`, `docker/login-action@v4`, `google-github-actions/auth@v3`,
+  `google-github-actions/setup-gcloud@v3`, `actions/configure-pages@v6`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`.
+  `upload-pages-artifact` v5 n'envoie plus les fichiers cachés : seul `.nojekyll` est concerné, inutile avec un déploiement par Actions.

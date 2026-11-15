@@ -171,8 +171,8 @@ Un seul administrateur, avec un identifiant et un mot de passe.
    l'adresse ; les tentatives de plus de 24 heures sont supprimées. Réservation de la tentative en une seule instruction SQL :
    des requêtes simultanées ne passent pas la limite.
    Adresse IP : la **dernière** valeur de `X-Forwarded-For` (celle qu'ajoute le frontal de Google ; les précédentes peuvent venir du client).
-5. **CORS** : seules les origines du site sont autorisées : `https://zsurvival-game.com`, et `https://www.zsurvival-game.com`
-   et `https://nowyyy.github.io` gardées pendant la transition (constante `ORIGINES_SITE` de `serveur/src/app.js`), plus `http://localhost:*` et `http://127.0.0.1:*` hors
+5. **CORS** : seule l'origine du site est autorisée : `https://zsurvival-game.com` (constante `ORIGINES_SITE` de
+   `serveur/src/app.js` ; `www` et l'ancienne adresse GitHub Pages redirigent vers elle), plus `http://localhost:*` et `http://127.0.0.1:*` hors
    production, ou en production avec la variable `ORIGINES_LOCALES=1`). Une requête d'administration venant d'une autre origine est
    refusée (403). Pas de `Access-Control-Allow-Credentials` (aucun cookie).
 
