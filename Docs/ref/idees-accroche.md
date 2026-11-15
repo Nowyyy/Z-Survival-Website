@@ -73,8 +73,8 @@ Toutes respectent « réduire les animations » et restent légères (HTML, CSS,
   près de l'accroche (les coulures du Z, à gauche, descendent au niveau de l'accroche sans la toucher).
 - **Code** : `js/accueil-bandeau.js` (activation par le paramètre, remplissage) ; `css/accueil.css` (« Bandeau d'alerte ») ;
   bloc `.accueil-bandeau` dans `index.html` (caché par défaut). L'aperçu transmet `?bandeau=1` au site.
-- **Textes** (`js/textes.js`, `accueil.bandeau`, français et anglais) : six messages fictifs, à valider ou remplacer par de vraies
-  actualités.
+- **Messages** : dans `contenus/bandeau.json` (français et anglais), modifiables sans toucher au code, et plus tard par l'interface
+  d'administration (`Docs/ref/contenus.md`). L'étiquette « Alerte » reste dans `js/textes.js`.
 - Lecteurs d'écran : la liste est lue une fois (la copie qui sert à boucler est cachée). Mouvement réduit : pas de défilement.
 - **Pour le garder** : retirer la condition `?bandeau=1` (`BANDEAU_ACTIF` dans `js/accueil-bandeau.js`). **Pour l'abandonner** : retirer
   le bloc de `index.html`, le module, ses styles et ses textes.

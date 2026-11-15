@@ -1,0 +1,12 @@
+{
+  "_aide": "Messages du bandeau d'alerte de l'accueil. Pour modifier : changer le texte entre guillemets (fr = français, en = anglais), mettre \"actif\": false pour cacher un message sans le supprimer, ou copier un bloc { … } pour en ajouter un (id unique, sans espace). Texte brut seulement (pas de HTML). Plus tard, l'interface d'administration remplira ce même format (Docs/ref/contenus.md).",
+  "version": 1,
+  "messages": [
+    { "id": "horde-hopital", "actif": true, "fr": "Horde signalée près de l’hôpital", "en": "Horde reported near the hospital" },
+    { "id": "couvre-feu", "actif": true, "fr": "Couvre-feu : restez à l’abri jusqu’à l’aube", "en": "Curfew: stay inside until dawn" },
+    { "id": "barricades", "actif": true, "fr": "Barricadez portes et fenêtres avec des planches", "en": "Board up your doors and windows" },
+    { "id": "helicoptere", "actif": true, "fr": "Un hélicoptère s’est écrasé près de l’avant-poste", "en": "A helicopter has crashed near the outpost" },
+    { "id": "munitions", "actif": true, "fr": "Gardez vos munitions : la nuit sera longue", "en": "Save your ammo: it will be a long night" },
+    { "id": "bientot", "actif": true, "fr": "Z-Survival — bientôt disponible sur navigateur", "en": "Z-Survival — coming soon in your browser" }
+  ]
+}

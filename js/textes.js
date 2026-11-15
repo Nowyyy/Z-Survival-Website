@@ -26,18 +26,11 @@ export const TEXTES = {
       sousTitre: 'Tenir jusqu’à l’aube.',
       entrer: 'En savoir plus',
       imageAVenir: 'Image animée — à venir',
-      // Bandeau d'alerte (essai, idée « catchy » n° 5 : affiché seulement avec ?bandeau=1 ; textes à valider).
+      // Bandeau d'alerte (idée « catchy » n° 5, affiché avec ?bandeau=1) : étiquette et nom accessible ; les messages sont dans
+      // contenus/bandeau.json (modifiables sans toucher au code, puis par l'interface d'administration).
       bandeau: {
         titre: 'Alerte',
         aria: 'Messages d’alerte',
-        messages: [
-          'Horde signalée près de l’hôpital',
-          'Couvre-feu : restez à l’abri jusqu’à l’aube',
-          'Barricadez portes et fenêtres avec des planches',
-          'Un hélicoptère s’est écrasé près de l’avant-poste',
-          'Gardez vos munitions : la nuit sera longue',
-          'Z-Survival — bientôt disponible sur navigateur',
-        ],
       },
     },
     sections: {
@@ -136,18 +129,11 @@ export const TEXTES = {
       sousTitre: 'Hold out until dawn.',
       entrer: 'Learn more',
       imageAVenir: 'Animated scene — coming soon',
-      // Alert ticker (trial, "catchy" idea no. 5: only shown with ?bandeau=1; texts to be approved).
+      // Alert ticker ("catchy" idea no. 5, shown with ?bandeau=1): label and accessible name; the messages live in
+      // contenus/bandeau.json (editable without touching the code, later through the admin interface).
       bandeau: {
         titre: 'Alert',
         aria: 'Alert messages',
-        messages: [
-          'Horde reported near the hospital',
-          'Curfew: stay inside until dawn',
-          'Board up your doors and windows',
-          'A helicopter has crashed near the outpost',
-          'Save your ammo: it will be a long night',
-          'Z-Survival — coming soon in your browser',
-        ],
       },
     },
     sections: {

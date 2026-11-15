@@ -51,12 +51,15 @@ publié sur https://nowyyy.github.io/Z-Survival/).
   `js/musique.js` : musique M2 et boutons de son à côté de chaque globe (règles : `Docs/ref/musique.md`, volume : constante `VOLUME`).
   `js/accueil-entree.js` : entrée en scène de l'accueil (grain VHS, chute du Z) à l'ouverture sur l'accueil ;
   `js/accueil-accroche.js` : accroche « radio de survie » (écriture lettre par lettre pendant l'entrée ; grésillement en CSS) ;
-  `js/accueil-bandeau.js` : bandeau d'alerte qui défile (à l'essai, affiché seulement avec `?bandeau=1`) ;
+  `js/accueil-bandeau.js` : bandeau d'alerte qui défile (affiché seulement avec `?bandeau=1` tant qu'il n'est pas mis en service) ;
   `js/accueil-tir.js` : flash du cadre rouge de l'accueil à l'événement `zs:tir` (coup de feu de l'image animée ;
   idées « catchy » suivies dans `Docs/ref/idees-accroche.md`).
 - `musique/` : propositions de musique (MP3 en boucle, points de boucle dans `boucles.json` ; **M2 retenue**, règles
   d'intégration dans `Docs/ref/musique.md`) et planche d'écoute
   `planche.html` (noindex, non reliée au site) ; `outils/musique/` : script qui génère la musique (`Docs/ref/musique.md`).
+- `contenus/` : contenus modifiables sans toucher au code, aujourd'hui sur GitHub, plus tard par une interface d'administration
+  (`bandeau.json` : messages du bandeau d'alerte ; format et marche à suivre : `Docs/ref/contenus.md`). Exception assumée à la règle
+  « textes dans `js/textes.js` », qui vaut pour les libellés fixes.
 - `fonts/` : polices du jeu (+ licences) ; `img/` : icônes et logos du studio (`no-way-studio.svg` fixe, `no-way-studio-anime.svg` animé).
 - `scene/` (lot 1) : atelier de la scène 3D de l'accueil, hors du site (noindex, aucun lien depuis l'accueil) :
   `scene/index.html` (la scène, `?cadrage=A|B|C&format=paysage|portrait|plein`, **B retenu**), `scene/planche.html` (planche),
