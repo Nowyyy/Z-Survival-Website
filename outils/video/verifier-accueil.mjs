@@ -329,7 +329,10 @@ await navigateur.close();
 copie?.fermer();
 
 // Raccord de la boucle : sur chaque vidéo décodée (ffmpeg, 480 px de large), écart moyen entre la dernière et la première image, comparé
-// aux écarts entre images voisines (tir exclu : il donne un pic attendu).
+// aux écarts entre images voisines (tirs exclus : ils donnent un pic attendu). La première image est forcément une image clé : à la jonction,
+// on passe de la fin d'un groupe d'images compressées à une image clé, comme toutes les 2 s dans la vidéo, ce qui ajoute un écart de
+// compression (la scène, elle, boucle parfaitement : scene/outils/verifier-boucle.mjs). La jonction est donc aussi admise jusqu'à 1,25 fois
+// le plus grand écart à une image clé interne ; jamais au-delà de 2,5 fois l'écart moyen.
 if (!args['en-ligne']) {
   console.log('\nRaccord de la boucle (vidéos décodées)');
   for (const [nom, l, h] of [['accueil-16x9', 480, 270], ['accueil-9x16', 270, 480]]) {
@@ -354,7 +357,10 @@ if (!args['en-ligne']) {
     verifier(pistes.length === 1 && pistes[0] === 'video', `${nom} : une seule piste, vidéo (aucun son)`);
     const tete = execFileSync('sh', ['-c', `head -c 4096 "${fichier}" | od -A n -c | tr -d ' \\n' | grep -o moov | head -1`], { encoding: 'utf8' }).trim();
     verifier(tete === 'moov', `${nom} : faststart (index moov en tête de fichier)`);
-    verifier(jonction <= max && jonction <= moyenne * 2.5, `${nom} : raccord ${jonction.toFixed(2)} (images voisines : moyenne ${moyenne.toFixed(2)}, max ${max.toFixed(2)})`);
+    const imagesCles = [];
+    for (let k = IMAGES_PAR_SECONDE * 2; k < n; k += IMAGES_PAR_SECONDE * 2) imagesCles.push(ecart(image(k - 1), image(k)));
+    const cle = Math.max(...imagesCles);
+    verifier(jonction <= Math.max(max, cle * 1.25) && jonction <= moyenne * 2.5, `${nom} : raccord ${jonction.toFixed(2)} (images voisines : moyenne ${moyenne.toFixed(2)}, max ${max.toFixed(2)} ; passage à une image clé : ${cle.toFixed(2)})`);
     console.log(`       ${nom}.mp4 : ${(octets / 1024 / 1024).toFixed(2)} Mo`);
   }
 }

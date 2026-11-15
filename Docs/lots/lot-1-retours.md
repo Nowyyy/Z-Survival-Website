@@ -291,9 +291,16 @@ les reprendront quand elles seront refaites, après validation).
   `js/accueil-boucle.js`).
 - **Affiche** à 1,9 s (au lieu de 2,4 s, qui tombait 0,2 s avant le tir du personnage 2) : bras du zombie tendu, bouche ouverte. La vidéo
   part de cet instant : le tir du personnage 2 arrive 0,7 s après.
-- **Coup d'œil du personnage 1 avancé de 0,15 s** (5,8 à 7,65 s) : il finissait juste avant la jonction de la boucle, où l'encodeur place une
-  image clé ; la jonction de la vidéo 16:9 changeait alors un peu plus que les autres images (`verifier-accueil.mjs` : 0,80 pour un maximum de
-  0,74). Le retour de la tête relance toujours la boucle.
+- **Coup d'œil du personnage 1 avancé de 0,15 s** (5,8 à 7,65 s) : il finit un peu avant la jonction ; le retour de la tête relance toujours
+  la boucle.
+- **Jonction des vidéos** : sur les images rendues, la boucle est parfaite (16:9 : jonction 0,39 pour 0,35 en moyenne entre images voisines).
+  Une fois encodée, la jonction passe forcément de la fin d'un groupe d'images compressées à une image clé (la première image), comme toutes
+  les 2 s dans la vidéo : 0,81 (16:9), alors que ces passages internes donnent déjà 0,64 à 0,70 et que le plus grand écart entre images
+  voisines n'est plus que de 0,73 (les deux tirs sont exclus du calcul). Plusieurs réglages de x264 ont été essayés (ipratio, pbratio,
+  mbtree, qcomp, sans images B) : aucun ne change ce passage sensiblement ; l'encodage reste celui du lot 2b. `verifier-accueil.mjs` admet
+  donc la jonction jusqu'à 1,25 fois le plus grand passage à une image clé interne, toujours sous 2,5 fois l'écart moyen.
+- Vérifié : `outils/video/verifier-accueil.mjs` 174/174 ; boucle parfaite en paysage et en portrait (jonctions 0,534 et 0,563) ;
+  `outils/verifier-lot-4a.mjs` 79/79 ; atelier sur la copie publiée sans erreur ; aperçu : deux flashs par tour.
 - `outils/video/fabriquer.mjs` refuse une affiche à moins de 0,6 s d'un des tirs ; `outils/video/verifier-accueil.mjs` attend les deux tirs
   du tour (personnage 2 puis personnage 1), le retour au début, puis le premier tir du tour suivant, et exclut les deux tirs du calcul du
   raccord.
