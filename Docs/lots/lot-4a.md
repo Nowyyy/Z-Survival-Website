@@ -86,6 +86,9 @@ Une demande du propriétaire arrivée pendant le lot est faite en **partie F** (
   crée Z-Survival. Rejoignez la communauté sur Discord pour suivre le développement du jeu. » (lien Discord).
 - Ordinateur : image et logo dans une même colonne, les deux textes alignés ; le logo du studio passe de 380 à 250 px de large au plus
   pour que les deux blocs tiennent dans l'écran. Téléphone : l'un sous l'autre ; la section dépasse l'écran et défile (dernière section).
+- **Retour du propriétaire (15/11/2026)** : plus d'espace entre les deux blocs (ordinateur 36 → 72 px, téléphone 32 → 48 px, paysage
+  16 → 28 px) et logo du studio agrandi pour approcher la taille de la photo du jeu (ordinateur : 90 % de la colonne de l'image ;
+  téléphone : 225 px au plus ; paysage : 160 px). Tout tient toujours dans l'écran à 1440 × 900 et 1024 × 768.
 - **Le bloc du jeu n'est pas modifiable depuis l'admin** : le serveur n'accepte que la page « a-propos » (`serveur/src/validation.js`),
   et un lot sur le site ne touche pas `serveur/`. Pour le rendre modifiable : un petit lot serveur + admin (ajouter une page « le-jeu »).
 
