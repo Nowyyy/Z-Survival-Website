@@ -80,7 +80,8 @@ Planche : https://nowyyy.github.io/Z-Survival-Website/musique/planche.html (noin
 - **M2 — Ambiante est retenue** pour le site (marquée « Retenue » sur la planche ; M1 et M3 y restent pour mémoire).
 - **Coupure mémorisée** : un visiteur qui coupe le son avec le petit bouton à côté de la langue le retrouve coupé ensuite.
 - **Le son ne part que par ce bouton.**
-- **Commutateur silencieux de l'iPhone respecté** : pour avoir le son, on clique sur le bouton (mode silencieux désactivé).
+- **Commutateur silencieux de l'iPhone respecté** : pour avoir le son, on clique sur le bouton (mode silencieux désactivé). — **annulé** (lot 2a).
+- **15/11/2026 (lot 2a)** : la règle du commutateur est annulée et remplacée : **le commutateur silencieux de l'iPhone est ignoré** (`navigator.audioSession.type = "playback"` avant la lecture, Safari 17 et plus ; plus ancien, le commutateur coupe le son, c'est accepté). La musique reste toujours coupée au chargement et ne part que par le bouton.
 - Pas de retouche demandée sur M2 ; volume de départ proposé (≈ 0,4) à régler au lot 2.
 Ces règles sont reportées dans `Docs/ref/musique.md` (partie 2).
 
