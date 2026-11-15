@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="css/principal.css">
   <link rel="stylesheet" href="css/accueil.css">
   <script type="module" src="js/site.js"></script>
+  <script type="module" src="js/musique.js"></script>
 </head>
 <body class="page-principale" data-section="accueil">
   <svg class="defs" aria-hidden="true" focusable="false">
@@ -30,6 +31,9 @@
     </div>
     <div class="entete-actions">
       <span class="bouton bouton-bientot" role="status" data-t="commun.bientot">Bientôt disponible</span>
+      <button class="son-bouton" type="button" data-son aria-pressed="false" data-t-aria="musique.activer" aria-label="Activer la musique">
+        <svg class="son-icone" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="son-hp" d="M3.5 9.25h3.25L11.5 5v14l-4.75-4.25H3.5z"/><path class="son-onde son-onde-1" d="M15 9.5a3.6 3.6 0 0 1 0 5"/><path class="son-onde son-onde-2" d="M17.75 6.75a7.4 7.4 0 0 1 0 10.5"/><path class="son-barre" d="M15.25 9.5l5 5m0-5l-5 5"/><circle class="son-attente" cx="17.75" cy="12" r="3.25"/></svg>
+      </button>
       <div class="langue langue-entete">
         <button class="langue-bouton" type="button" aria-expanded="false" aria-controls="langue-menu-entete" data-t-aria="commun.langue" aria-label="Langue">
           <svg class="globe-icone" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9.25"/><ellipse cx="12" cy="12" rx="4" ry="9.25"/><path d="M3 9h18M3 15h18"/></svg>
@@ -63,15 +67,20 @@
       <img class="studio-logo accueil-studio" src="img/no-way-studio.svg" alt="No Way Studio" data-t-alt="studio.logoAlt" width="824" height="628">
       <p class="marque-provisoire accueil-mention" data-t="accueil.imageAVenir">Image animée — à venir</p>
 
-      <div class="langue langue-accueil">
-        <button class="langue-bouton" type="button" aria-expanded="false" aria-controls="langue-menu-accueil" data-t-aria="commun.langue" aria-label="Langue">
-          <svg class="globe-icone" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9.25"/><ellipse cx="12" cy="12" rx="4" ry="9.25"/><path d="M3 9h18M3 15h18"/></svg>
-          <span class="langue-code">FR</span>
+      <div class="accueil-reglages">
+        <button class="son-bouton" type="button" data-son aria-pressed="false" data-t-aria="musique.activer" aria-label="Activer la musique">
+          <svg class="son-icone" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="son-hp" d="M3.5 9.25h3.25L11.5 5v14l-4.75-4.25H3.5z"/><path class="son-onde son-onde-1" d="M15 9.5a3.6 3.6 0 0 1 0 5"/><path class="son-onde son-onde-2" d="M17.75 6.75a7.4 7.4 0 0 1 0 10.5"/><path class="son-barre" d="M15.25 9.5l5 5m0-5l-5 5"/><circle class="son-attente" cx="17.75" cy="12" r="3.25"/></svg>
         </button>
-        <ul class="langue-menu" id="langue-menu-accueil" hidden>
-          <li><button type="button" class="langue-choix" data-langue="fr" lang="fr">Français</button></li>
-          <li><button type="button" class="langue-choix" data-langue="en" lang="en">English</button></li>
-        </ul>
+        <div class="langue langue-accueil">
+          <button class="langue-bouton" type="button" aria-expanded="false" aria-controls="langue-menu-accueil" data-t-aria="commun.langue" aria-label="Langue">
+            <svg class="globe-icone" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9.25"/><ellipse cx="12" cy="12" rx="4" ry="9.25"/><path d="M3 9h18M3 15h18"/></svg>
+            <span class="langue-code">FR</span>
+          </button>
+          <ul class="langue-menu" id="langue-menu-accueil" hidden>
+            <li><button type="button" class="langue-choix" data-langue="fr" lang="fr">Français</button></li>
+            <li><button type="button" class="langue-choix" data-langue="en" lang="en">English</button></li>
+          </ul>
+        </div>
       </div>
 
       <div class="accueil-contenu">

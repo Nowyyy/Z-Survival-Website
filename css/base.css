@@ -248,6 +248,69 @@ button { font: inherit; color: inherit; }
 .langue-choix:focus-visible { background: var(--color-surface-raised); }
 .langue-choix[aria-current="true"] { border-left-color: var(--color-action); color: var(--color-action-text); }
 
+/* ---------- Bouton de son (musique, js/musique.js) : à côté de chaque globe ; même allure que le globe ----------
+   Coupé : haut-parleur barré. Chargement : petit cercle en pointillés qui tourne. Lecture : ondes qui battent, halo rouge. */
+.son-bouton {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  padding: 0;
+  border: 1px solid rgb(244 241 236 / 35%);
+  border-radius: 999px;
+  background: rgb(5 5 5 / 55%);
+  color: var(--color-text);
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: border-color 150ms, color 150ms, box-shadow 150ms;
+}
+/* Zone de clic d'au moins 44 × 44 px, même quand le bouton est dessiné plus petit (en-tête). */
+.son-bouton::after {
+  content: "";
+  position: absolute;
+  inset: min(0px, calc((100% - var(--touch-target)) / 2));
+  border-radius: 999px;
+}
+.son-bouton:hover { border-color: var(--color-action); color: var(--color-action-text); }
+.son-bouton[aria-pressed="true"] { border-color: var(--color-action); box-shadow: 0 0 12px var(--color-action-glow); }
+.son-icone {
+  width: 22px;
+  height: 22px;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.son-hp { fill: currentColor; fill-opacity: 0.15; }
+.son-barre { stroke: var(--color-action-text); stroke-width: 1.9; }
+.son-onde, .son-attente { display: none; }
+.son-bouton[data-etat="chargement"] .son-barre,
+.son-bouton[data-etat="lecture"] .son-barre { display: none; }
+.son-bouton[data-etat="chargement"] .son-attente {
+  display: inline;
+  stroke: var(--color-action-text);
+  stroke-dasharray: 4 2.8;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: son-attente 0.9s linear infinite;
+}
+.son-bouton[data-etat="lecture"] .son-hp { fill: var(--color-action); fill-opacity: 1; stroke: var(--color-action); }
+.son-bouton[data-etat="lecture"] .son-onde { display: inline; animation: son-onde 1.6s ease-in-out infinite; }
+.son-bouton[data-etat="lecture"] .son-onde-2 { animation-delay: 0.3s; }
+@keyframes son-attente { to { transform: rotate(360deg); } }
+@keyframes son-onde {
+  0%, 100% { opacity: 0.3; }
+  45% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .son-bouton[data-etat="chargement"] .son-attente,
+  .son-bouton[data-etat="lecture"] .son-onde { animation: none; opacity: 1; }
+}
+
 /* ---------- Contenus provisoires : toujours visibles comme tels ---------- */
 .marque-provisoire {
   display: inline-block;

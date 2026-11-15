@@ -67,12 +67,15 @@
   white-space: nowrap;
 }
 
-/* Menu de langue : globe dans le coin haut droit (styles communs : css/base.css). */
-.langue-accueil {
+/* Coin haut droit : bouton de son et globe de langue (styles communs : css/base.css). */
+.accueil-reglages {
   position: absolute;
   z-index: 5;
   top: calc(26px + env(safe-area-inset-top));
   right: 26px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* ---------- Logo, sous-titre, « En savoir plus » ---------- */
@@ -140,7 +143,7 @@
   .accueil-scene::after { inset: 24px; border-radius: 28px; }
   .accueil-studio { top: 44px; left: 52px; width: 96px; }
   .accueil-mention { top: 48px; }
-  .langue-accueil { top: 48px; right: 52px; }
+  .accueil-reglages { top: 48px; right: 52px; }
   .accueil-sous-titre { font-size: 1rem; }
 }
 
