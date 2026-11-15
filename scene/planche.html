@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="dark">
+  <title>Z-Survival · Planche de cadrages (lot 1)</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="jeu/css/tokens.css">
+  <link rel="stylesheet" href="css/planche.css">
+</head>
+<body>
+  <header class="tete">
+    <p class="marque">Atelier · lot 1</p>
+    <h1 class="titre">Planche de cadrages</h1>
+    <p class="intro">Scène 3D de l'accueil, construite avec les éléments du jeu (copie figée de la branche <code>dev</code>).
+      Trois cadrages, chacun en <strong>paysage 16:9</strong> (ordinateur) et en <strong>portrait 9:16</strong> (téléphone).
+      Images fixes prises au début de la boucle (t = 0 s) ; la boucle dure <strong>8 secondes</strong>.</p>
+    <p class="provisoire">Provisoire : page de travail, hors du site (non indexée, aucun lien depuis l'accueil). Choisissez un cadrage ; la vidéo viendra au lot 2.</p>
+  </header>
+
+  <main class="planche">
+    <section class="cadrage" id="cadrage-a" aria-labelledby="titre-a">
+      <h2 class="cadrage-titre" id="titre-a"><span class="lettre">A</span> Plan large de face</h2>
+      <p class="cadrage-note">Les deux personnages en pied, le bâtiment à gauche, l'hélicoptère en flammes à droite, la lune.</p>
+      <div class="paire">
+        <figure class="vue vue-paysage">
+          <img src="planche/A-paysage.webp" width="1600" height="900" alt="Cadrage A, paysage : plan large de face de la scène" loading="eager">
+          <figcaption>Paysage 16:9 · <a href="index.html?cadrage=A&amp;format=paysage">Voir en mouvement</a></figcaption>
+        </figure>
+        <figure class="vue vue-portrait">
+          <img src="planche/A-portrait.webp" width="900" height="1600" alt="Cadrage A, portrait : plan large de face, recadré pour le téléphone" loading="lazy">
+          <figcaption>Portrait 9:16 · <a href="index.html?cadrage=A&amp;format=portrait">Voir en mouvement</a></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="cadrage" id="cadrage-b" aria-labelledby="titre-b">
+      <h2 class="cadrage-titre" id="titre-b"><span class="lettre">B</span> Contre-plongée rapprochée</h2>
+      <p class="cadrage-note">Caméra au ras du sol, plus menaçant : le personnage 1 domine, le zombie au premier plan.</p>
+      <div class="paire">
+        <figure class="vue vue-paysage">
+          <img src="planche/B-paysage.webp" width="1600" height="900" alt="Cadrage B, paysage : contre-plongée rapprochée" loading="lazy">
+          <figcaption>Paysage 16:9 · <a href="index.html?cadrage=B&amp;format=paysage">Voir en mouvement</a></figcaption>
+        </figure>
+        <figure class="vue vue-portrait">
+          <img src="planche/B-portrait.webp" width="900" height="1600" alt="Cadrage B, portrait : contre-plongée rapprochée, recadrée pour le téléphone" loading="lazy">
+          <figcaption>Portrait 9:16 · <a href="index.html?cadrage=B&amp;format=portrait">Voir en mouvement</a></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="cadrage" id="cadrage-c" aria-labelledby="titre-c">
+      <h2 class="cadrage-titre" id="titre-c"><span class="lettre">C</span> Trois quarts</h2>
+      <p class="cadrage-note">La scène vue légèrement de côté : la pose du pied sur le dos se lit mieux, le bâtiment passe à droite.</p>
+      <div class="paire">
+        <figure class="vue vue-paysage">
+          <img src="planche/C-paysage.webp" width="1600" height="900" alt="Cadrage C, paysage : la scène de trois quarts" loading="lazy">
+          <figcaption>Paysage 16:9 · <a href="index.html?cadrage=C&amp;format=paysage">Voir en mouvement</a></figcaption>
+        </figure>
+        <figure class="vue vue-portrait">
+          <img src="planche/C-portrait.webp" width="900" height="1600" alt="Cadrage C, portrait : trois quarts, recadré pour le téléphone" loading="lazy">
+          <figcaption>Portrait 9:16 · <a href="index.html?cadrage=C&amp;format=portrait">Voir en mouvement</a></figcaption>
+        </figure>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pied">
+    <p>« Voir en mouvement » fait tourner la scène en direct dans le navigateur (lourd sur téléphone : elle n'est pas faite pour tourner sur le site).
+      Avec le réglage « réduire les animations », la scène reste fixe.</p>
+  </footer>
+</body>
+</html>

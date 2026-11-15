@@ -4,17 +4,17 @@ export const CADRAGES = {
   A: {
     nom: 'Plan large de face',
     paysage: { cam: [4, 44, 225], vise: [10, 40, -50], fov: 36 },
-    portrait: { cam: [-6, 40, 250], vise: [2, 44, -30], fov: 52 },
+    portrait: { cam: [-12, 40, 182], vise: [-6, 40, -30], fov: 50 },
   },
   B: {
     nom: 'Contre-plongée rapprochée',
     paysage: { cam: [-46, 8, 122], vise: [4, 50, -30], fov: 44 },
-    portrait: { cam: [-40, 8, 150], vise: [-2, 52, -20], fov: 64 },
+    portrait: { cam: [-34, 8, 118], vise: [0, 50, -20], fov: 62 },
   },
   C: {
     nom: 'Trois quarts',
-    paysage: { cam: [150, 40, 160], vise: [-6, 36, -30], fov: 38 },
-    portrait: { cam: [140, 38, 175], vise: [-6, 42, -20], fov: 56 },
+    paysage: { cam: [150, 40, 160], vise: [6, 42, -40], fov: 38 },
+    portrait: { cam: [96, 34, 158], vise: [-14, 40, -6], fov: 54 },
   },
 };
 export const FORMATS = { paysage: 16 / 9, portrait: 9 / 16 };

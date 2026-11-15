@@ -1,0 +1,34 @@
+/* Planche de cadrages (lot 1) : page de travail hors du site. Téléphone d'abord (375 px), puis ordinateur.
+   Couleurs : jetons du jeu (jeu/css/tokens.css, mêmes noms que css/base.css du site). Polices du site (../fonts, OFL). */
+@font-face { font-family: 'Barlow'; src: url('../../fonts/barlow-latin-400-normal.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Barlow'; src: url('../../fonts/barlow-latin-700-normal.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Rubik Wet Paint'; src: url('../../fonts/rubik-wet-paint-latin-400-normal.woff2') format('woff2'); font-display: swap; }
+@font-face { font-family: 'Rubik Dirt'; src: url('../../fonts/rubik-dirt-latin-400-normal.woff2') format('woff2'); font-display: swap; }
+
+* { box-sizing: border-box; }
+html { background: var(--color-bg); color: var(--color-text); }
+body { margin: 0; padding: 16px; font: 16px/1.5 'Barlow', system-ui, sans-serif; max-width: 1280px; margin-inline: auto; }
+a { color: var(--color-action-text); font-weight: 700; }
+a:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+code { font-size: 0.95em; }
+.tete { margin-bottom: 24px; }
+.marque { margin: 0; font-family: 'Rubik Dirt', system-ui, sans-serif; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); font-size: 0.85rem; }
+.titre { margin: 4px 0 12px; font-family: 'Rubik Wet Paint', system-ui, sans-serif; font-weight: 400; color: var(--color-action); text-shadow: 0 0 18px var(--color-action-glow); font-size: clamp(2rem, 8vw, 3.2rem); line-height: 1.1; }
+.intro { margin: 0 0 12px; color: var(--color-text-muted); }
+.provisoire { margin: 0; padding: 10px 12px; border: 2px dashed var(--color-warning); border-radius: 8px; color: var(--color-warning); }
+.cadrage { padding: 20px 0 28px; border-top: 1px solid var(--color-border); }
+.cadrage-titre { display: flex; align-items: center; gap: 12px; margin: 0 0 6px; font-family: 'Rubik Dirt', system-ui, sans-serif; font-weight: 400; text-transform: uppercase; font-size: 1.25rem; }
+.lettre { display: inline-grid; place-items: center; width: 48px; height: 48px; border-radius: 8px; background: var(--color-action); color: var(--color-text); font-family: 'Rubik Wet Paint', system-ui, sans-serif; font-size: 1.9rem; text-transform: none; flex: none; }
+.cadrage-note { margin: 0 0 14px; color: var(--color-text-muted); }
+.paire { display: grid; gap: 16px; grid-template-columns: 1fr; }
+.vue { margin: 0; }
+.vue img { display: block; width: 100%; height: auto; border-radius: 8px; background: var(--color-surface); border: 1px solid var(--color-surface-raised); }
+.vue-portrait { width: min(100%, 360px); justify-self: center; }
+.vue figcaption { margin-top: 8px; font-size: 0.95rem; color: var(--color-text-muted); }
+.vue figcaption a { display: inline-block; padding: 8px 0; min-height: 44px; line-height: 28px; }
+.pied { padding: 16px 0 24px; border-top: 1px solid var(--color-border); color: var(--color-text-muted); font-size: 0.95rem; }
+@media (min-width: 900px) {
+  body { padding: 32px; }
+  .paire { grid-template-columns: minmax(0, 16fr) minmax(0, 5.06fr); align-items: start; }
+  .vue-portrait { width: 100%; }
+}

@@ -92,8 +92,27 @@ function piquet(textures, x, z, hauteur = 58) {
   return mesh;
 }
 
+// Lueur chaude derrière les planches des fenêtres du bâtiment (des lampes à huile allumées à l'intérieur) : un plan émissif dans
+// l'ouverture, en retrait dans l'épaisseur du mur ; les planches du jeu, devant, le découpent. fenetres : world.json (side, x, y).
+function lueursFenetres(fenetres, palette, render, taille = 72) {
+  const group = new THREE.Group();
+  group.name = 'lueurs-fenetres';
+  const out = { nord: [0, -1], sud: [0, 1], est: [1, 0], ouest: [-1, 0] };
+  const mat = new THREE.MeshBasicMaterial({ color: new THREE.Color(palette.lampLight).multiplyScalar(0.75), side: THREE.FrontSide });
+  const h = render.lintelBottom - render.sillHeight;
+  for (const f of fenetres) {
+    const n = out[f.side];
+    if (!n) continue;
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(taille - 6, h - 2), mat);
+    m.position.set(f.x - n[0] * 22, render.sillHeight + h / 2, f.y - n[1] * 22);
+    m.lookAt(m.position.x + n[0], m.position.y, m.position.z + n[1]);
+    group.add(m);
+  }
+  return group;
+}
+
 // world : monde du jeu ; stage : groupe de mise en scène ; heli : groupe de l'hélicoptère (foyers) ; lampes : [{ x, z, cap }] (repère de la scène).
-export function creerAmbiance({ world, palette, textures, stage, heli, lampes = [] }) {
+export function creerAmbiance({ world, palette, textures, stage, heli, lampes = [], fenetres = [], render = null }) {
   const scene = world.scene;
   let ambient = null;
   let sun = null;
@@ -127,6 +146,7 @@ export function creerAmbiance({ world, palette, textures, stage, heli, lampes = 
   moon.position.copy(centre).add(dirW.clone().multiplyScalar(11000));
   moon.lookAt(centre);
   scene.add(moon);
+  if (render) scene.add(lueursFenetres(fenetres, palette, render));
   // Lueur chaude de l'incendie sur l'horizon, du côté de l'hélicoptère.
   const toHeli = heli.userData.centre.clone().sub(centre).setY(0).normalize();
   sky.material.uniforms.uGlowDir.value.copy(toHeli);

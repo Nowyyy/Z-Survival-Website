@@ -65,7 +65,7 @@ try {
   zb.char.setWound(1);
   for (const p of [p1, p2, zb]) scene.add(p.root);
 
-  const ambiance = creerAmbiance({ world, palette, textures, stage, heli, lampes: [{ x: -96, z: -64, cap: 30 }, { x: 104, z: -118, cap: -35 }] });
+  const ambiance = creerAmbiance({ world, palette, textures, stage, heli, lampes: [{ x: -96, z: -64, cap: 30 }, { x: 104, z: -118, cap: -35 }], fenetres: d.world.windows ?? [], render: m.render });
   const brume = brumeEnBoucle(world, { vitesse: 3, force: 1.3 });
 
   const camera = new THREE.PerspectiveCamera(40, FORMATS[format], 2, 40000);
