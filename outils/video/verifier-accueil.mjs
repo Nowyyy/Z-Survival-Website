@@ -4,10 +4,11 @@
 // chacun avec et sans prefers-reduced-motion.
 // - la bonne vidéo selon la forme de l'écran, et le changement quand on tourne l'écran ; mouvement réduit : aucune requête vidéo ni son,
 //   affiche visible ; ni Three.js ni rien de scene/ ;
-// - tir à 5,2 s (tolérance 0,1 s) : flash du cadre (220 ms), munitions 30 → 29 ; tour suivant : 30 et heure + 1 min ; aucun double ;
+// - tir à 5,2 s (tolérance 0,1 s) : flash du cadre (220 ms) ; retour au début repéré ; aucun double ;
 // - coup de feu : jamais sans le son activé, présent avec le son activé, absent onglet caché ;
 // - entrée : première visite de la session seulement, 1,5 s au plus, passable d'un clic, forcée par ?intro=1 ;
-// - HUD sans chevauchement ; bouton vivant (survol, toucher, coulure de temps en temps) ;
+// - encart « Disponible sur navigateur » en bas à gauche, traduit, sans chevauchement ; HUD du lot 2b retiré ; logo du studio agrandi ;
+//   bouton vivant (survol, toucher, coulure de temps en temps) ;
 // - raccord de la boucle (dernière image → première, sur les vidéos décodées par ffmpeg) ; aucune erreur console, aucun fichier manquant.
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, statSync } from 'node:fs';
@@ -42,7 +43,7 @@ if (!args['en-ligne']) {
 const navigateur = await chromium.launch();
 
 // Journal posé avant tout script de la page : entrée (classe entree-accueil posée / retirée), première lecture de la vidéo, et chaque
-// « zs:tir » / « zs:tour » (lu après les écouteurs du site : instant de l'image, flash du cadre, munitions, heure).
+// « zs:tir » / « zs:tour » (lu après les écouteurs du site : instant de l'image, flash du cadre).
 const SCRIPT_JOURNAL = () => {
   window.__entree = { posee: null, retiree: null };
   window.__releve = [];
@@ -65,9 +66,6 @@ const SCRIPT_JOURNAL = () => {
       flash: section.classList.contains('est-tir'),
       dureeFlash: getComputedStyle(cadre, '::after').animationDuration,
       animFlash: getComputedStyle(cadre, '::after').animationName,
-      munitions: section.querySelector('[data-hud="munitions"]').textContent,
-      heure: section.querySelector('[data-hud="heure"]').textContent,
-      sursaut: section.querySelector('.hud-munitions').classList.contains('est-sursaut'),
     });
   });
   document.addEventListener('zs:tir', noter('tir'));
@@ -110,22 +108,27 @@ async function cacherOnglet(page, cache) {
 }
 const releve = (page) => page.evaluate(() => window.__releve);
 
-// HUD : aucun bloc ne recoupe les logos, les réglages, le titre, l'accroche, le bouton ni la flèche ; tous dans l'écran.
-function chevauchementsHud(page) {
+// Encart « Disponible sur navigateur » : en bas à gauche, dans le cadre, sans recouper les logos, les réglages, le titre, l'accroche, le
+// bouton ni la flèche ; textes et taille du logo du studio relevés au passage.
+function encart(page) {
   return page.evaluate(() => {
-    const autres = ['.accueil-studio', '.accueil-reglages', '.accueil-titre', '.accueil-sous-titre', '.accueil-entrer', '.accueil-fleche']
-      .map((s) => [s, document.querySelector(s).getBoundingClientRect()]);
-    const blocs = [...document.querySelectorAll('.accueil-hud .hud-bloc')].filter((b) => b.getClientRects().length && getComputedStyle(b).visibility !== 'hidden');
+    const el = document.querySelector('.accueil-plateforme');
+    const r = el.getBoundingClientRect();
     const W = document.documentElement.clientWidth; const H = document.documentElement.clientHeight;
-    const fautes = [];
     const coupe = (a, b) => a.right > b.left + 0.5 && b.right > a.left + 0.5 && a.bottom > b.top + 0.5 && b.bottom > a.top + 0.5;
-    const rects = blocs.map((b) => [b.className.replace('hud-bloc ', ''), b.getBoundingClientRect()]);
-    for (const [n, r] of rects) {
-      if (r.left < 8 || r.top < 8 || r.right > W - 8 || r.bottom > H - 8) fautes.push(`${n} hors du cadre`);
-      for (const [s, a] of autres) if (coupe(r, a)) fautes.push(`${n} sur ${s}`);
+    const fautes = [];
+    if (r.left < 8 || r.bottom > H - 8 || r.right > W - 8 || r.width === 0) fautes.push('hors du cadre');
+    if (r.left > W / 2 || r.top < H / 2) fautes.push('pas en bas à gauche');
+    for (const sel of ['.accueil-studio', '.accueil-reglages', '.accueil-titre', '.accueil-sous-titre', '.accueil-entrer', '.accueil-fleche']) {
+      if (coupe(r, document.querySelector(sel).getBoundingClientRect())) fautes.push(`sur ${sel}`);
     }
-    for (let i = 0; i < rects.length; i += 1) for (let j = i + 1; j < rects.length; j += 1) if (coupe(rects[i][1], rects[j][1])) fautes.push(`${rects[i][0]} sur ${rects[j][0]}`);
-    return { fautes, blocs: rects.map(([n]) => n) };
+    return {
+      fautes,
+      texte: el.textContent.replace(/\s+/g, ' ').trim(),
+      taille: `${Math.round(r.width)} × ${Math.round(r.height)}`,
+      logo: Math.round(document.querySelector('.accueil-studio').getBoundingClientRect().width),
+      hud: document.querySelectorAll('.accueil-hud, [data-hud]').length,
+    };
   });
 }
 
@@ -171,20 +174,19 @@ for (const cas of CAS) {
       const tir1 = r.find((e) => e.nom === 'tir');
       verifier(Boolean(tir1) && Math.abs(tir1.temps - TEMPS_TIR) <= 0.1, `tir à ${tir1 ? tir1.temps.toFixed(3) : '?'} s (attendu ${TEMPS_TIR} s ± 0,1)`);
       verifier(tir1?.flash && tir1.animFlash === 'cadre-tir' && tir1.dureeFlash === '0.22s', `flash du cadre au tir (animation ${tir1?.animFlash}, ${tir1?.dureeFlash})`);
-      verifier(tir1?.munitions === '29' && tir1.sursaut, `munitions 30 → 29 avec sursaut (${tir1?.munitions})`);
       await page.screenshot({ path: join(CAPTURES, `${cas.court}-tir.png`) });
       const m0 = await musique(page);
       verifier(m0.tirsJoues === 0 && sons().length === 0, `son coupé : aucun coup de feu joué, aucun fichier son téléchargé (${m0.tirsJoues}, ${sons().length})`);
 
       if (cas.complet) {
-        // Tour suivant : munitions 30, heure + 1 min ; second tir, aucun double.
+        // Tour suivant (retour au début repéré) ; second tir, aucun double.
         r = await attendre(page, releve, (x) => x.filter((e) => e.nom === 'tir').length >= 2, 10000);
         const tour = r.find((e) => e.nom === 'tour');
-        verifier(tour?.munitions === '30' && tour.heure === '23:48', `retour au début : munitions ${tour?.munitions}, heure ${tour?.heure} (30, 23:48)`);
+        verifier(Boolean(tour) && tour.temps < 0.5, `retour au début de la boucle repéré (${tour?.temps?.toFixed(3)} s)`);
         const ordre = r.map((e) => e.nom).join(' → ');
         verifier(ordre === 'tir → tour → tir', `un seul tir par tour : ${ordre}`);
         const tir2 = r.filter((e) => e.nom === 'tir')[1];
-        verifier(Boolean(tir2) && Math.abs(tir2.temps - TEMPS_TIR) <= 0.1 && tir2.munitions === '29', `second tir à ${tir2?.temps.toFixed(3)} s, munitions ${tir2?.munitions}`);
+        verifier(Boolean(tir2) && Math.abs(tir2.temps - TEMPS_TIR) <= 0.1 && tir2.flash, `second tir à ${tir2?.temps.toFixed(3)} s, avec flash`);
         const a = await accueil(page);
         verifier(a.tirs === 2 && a.tours === 1, `compteurs : ${a.tirs} tirs, ${a.tours} tour (suivi : ${a.suivi})`);
 
@@ -225,8 +227,8 @@ for (const cas of CAS) {
         await page.waitForTimeout(400);
         const ar = await accueil(page);
         verifier(ar.tirs === tirsAvant + 1, `après la rotation : un seul tir de plus (${ar.tirs - tirsAvant})`);
-        const hr = await chevauchementsHud(page);
-        verifier(hr.fautes.length === 0, `HUD après rotation : aucun chevauchement${hr.fautes.length ? ` (${hr.fautes.join(', ')})` : ''}`);
+        const er = await encart(page);
+        verifier(er.fautes.length === 0, `encart après rotation : en bas à gauche, aucun chevauchement${er.fautes.length ? ` (${er.fautes.join(', ')})` : ''}`);
         await page.setViewportSize(cas.vp);
         await page.waitForTimeout(500);
       }
@@ -274,7 +276,7 @@ for (const cas of CAS) {
       verifier(await autre.page.evaluate(() => window.__entree.posee !== null), 'nouvel onglet (nouvelle session) : entrée jouée');
       await autre.page.close();
     } else {
-      // Mouvement réduit : affiche seule, aucune vidéo ni son téléchargés, HUD fixe, pas d'entrée.
+      // Mouvement réduit : affiche seule, aucune vidéo ni son téléchargés, aucun tir, pas d'entrée.
       await page.waitForTimeout(TEMPS_TIR * 1000 - TEMPS_AFFICHE * 1000 + 1500);
       const aff = await page.evaluate(() => {
         const img = document.querySelector('.accueil-affiche img');
@@ -287,22 +289,29 @@ for (const cas of CAS) {
       await page.waitForTimeout(1500);
       verifier(mp4().length === 0 && sons().length === 0, `aucune requête vidéo ni son de tir (${mp4().length + sons().length}), même son activé`);
       const a = await accueil(page);
-      const hud = await page.evaluate(() => ({ m: document.querySelector('[data-hud="munitions"]').textContent, h: document.querySelector('[data-hud="heure"]').textContent, rec: getComputedStyle(document.querySelector('.hud-rec')).animationName }));
-      verifier(a.tirs === 0 && hud.m === '30' && hud.h === '23:47' && hud.rec === 'none', `HUD fixe : ${hud.m} munitions, ${hud.h}, aucun tir`);
+      verifier(a.tirs === 0, `aucun tir (${a.tirs})`);
       verifier(await page.evaluate(() => window.__entree.posee === null), 'aucune entrée en scène');
       const coulure = await page.evaluate(() => getComputedStyle(document.querySelector('.entrer-coulure')).display);
       verifier(coulure === 'none', 'bouton : pas de coulure');
       await page.click('.accueil-reglages [data-son]');
     }
 
-    // Pour tous : HUD sans chevauchement, ni Three.js ni scene/, aucune erreur.
-    const pageHud = await ouvrir(contexte);
-    await pageHud.page.waitForTimeout(1800);
-    const h = await chevauchementsHud(pageHud.page);
-    verifier(h.fautes.length === 0 && h.blocs.length >= 2, `HUD (${h.blocs.join(', ')}) : aucun chevauchement${h.fautes.length ? ` (${h.fautes.join(', ')})` : ''}`);
-    await pageHud.page.screenshot({ path: join(CAPTURES, `${cas.court}${reduit ? '-reduit' : ''}.png`) });
-    for (const j of [pageHud.journal]) { journal.erreurs.push(...j.erreurs); journal.manquants.push(...j.manquants); journal.requetes.push(...j.requetes); }
-    await pageHud.page.close();
+    // Pour tous : encart en bas à gauche, en français puis en anglais, sans chevauchement ; HUD retiré ; logo du studio agrandi ;
+    // ni Three.js ni scene/, aucune erreur.
+    const LOGO = cas.vp.width >= 900 ? 112 : 76;
+    for (const [l, attendu] of [['fr', 'Disponible sur Navigateur'], ['en', 'Available on the Web']]) {
+      const pe = await ouvrir(contexte, `${base}?lang=${l}`);
+      await pe.page.waitForTimeout(1800);
+      const e = await encart(pe.page);
+      verifier(e.fautes.length === 0 && e.texte === attendu, `encart (${l}) « ${e.texte} », ${e.taille} px, en bas à gauche, aucun chevauchement${e.fautes.length ? ` (${e.fautes.join(', ')})` : ''}`);
+      if (l === 'fr') {
+        verifier(e.hud === 0, 'HUD (manche, heure, balles) retiré');
+        verifier(e.logo === LOGO, `logo du studio : ${e.logo} px de large (attendu ${LOGO})`);
+        await pe.page.screenshot({ path: join(CAPTURES, `${cas.court}${reduit ? '-reduit' : ''}.png`) });
+      }
+      journal.erreurs.push(...pe.journal.erreurs); journal.manquants.push(...pe.journal.manquants); journal.requetes.push(...pe.journal.requetes);
+      await pe.page.close();
+    }
     verifier(SANS_ATELIER(journal.requetes).length === 0, `ni Three.js ni scene/ chargés${SANS_ATELIER(journal.requetes).length ? ` (${SANS_ATELIER(journal.requetes).join(', ')})` : ''}`);
     verifier(journal.erreurs.length === 0, `aucune erreur console${journal.erreurs.length ? ` (${journal.erreurs.join(' | ')})` : ''}`);
     verifier(journal.manquants.length === 0, `aucun fichier manquant${journal.manquants.length ? ` (${journal.manquants.join(' | ')})` : ''}`);

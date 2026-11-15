@@ -50,7 +50,7 @@ publié sur https://nowyyy.github.io/Z-Survival/).
   dans `serveur/migrations/` (nouveau fichier `NNN_…sql`, jamais modifier une migration déployée).
 
 ## Organisation
-- `index.html` : **page unique**. Accueil plein écran (vidéo en boucle de la scène sur son affiche, HUD de jeu, logo du studio, globe
+- `index.html` : **page unique**. Accueil plein écran (vidéo en boucle de la scène sur son affiche, encart « Disponible sur navigateur » en bas à gauche, logo du studio, globe
   Français / English, « En savoir plus » + flèche qui descend vers News), puis les sections plein écran
   News / Characters / Weapons / About us. Navigation : 01 Accueil à 05 About us. Personnages et Armes :
   contenu provisoire atténué et inerte sous un encart « Prochainement » (« Coming soon » en anglais). Globe de langue aussi
@@ -69,8 +69,7 @@ publié sur https://nowyyy.github.io/Z-Survival/).
   première visite de la session, `?intro=1` la force) ;
   `js/accueil-accroche.js` : accroche « radio de survie » (écriture lettre par lettre pendant l'entrée ; grésillement en CSS) ;
   `js/accueil-bandeau.js` : bandeau d'alerte qui défile (affiché seulement avec `?bandeau=1` tant qu'il n'est pas mis en service) ;
-  `js/accueil-tir.js` : suit le temps de la vidéo et, à `TEMPS_TIR`, flash du cadre rouge, HUD (munitions 30 → 29 ; manche, heure de nuit)
-  et coup de feu du jeu si le son est activé (idées « catchy » suivies dans `Docs/ref/idees-accroche.md`).
+  `js/accueil-tir.js` : suit le temps de la vidéo et, à `TEMPS_TIR`, flash du cadre rouge et coup de feu du jeu si le son est activé (idées « catchy » suivies dans `Docs/ref/idees-accroche.md`).
 - `musique/` : propositions de musique (MP3 en boucle, points de boucle dans `boucles.json` ; **M2 retenue**, règles
   d'intégration dans `Docs/ref/musique.md`) et planche d'écoute
   `planche.html` (noindex, non reliée au site) ; `outils/musique/` : script qui génère la musique (`Docs/ref/musique.md`).

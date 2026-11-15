@@ -97,8 +97,8 @@ La scène 3D (`scene/`) ne charge rien depuis le jeu en ligne : les fichiers du 
   par la fabrication des vidéos (`outils/video/fabriquer.mjs`) et par le site (`js/accueil-video.js`, `js/accueil-tir.js`). Module pur, sans
   DOM : Node le lit aussi.
 - Sur le site, `js/accueil-tir.js` suit le temps de la vidéo (`requestVideoFrameCallback`, sinon `currentTime`) et, une fois par tour, à
-  `TEMPS_TIR` (à une demi-image près), envoie `zs:tir` : flash du cadre rouge (220 ms), munitions du HUD 30 → 29, coup de feu du jeu si le son
-  du site est activé. Au retour au début de la boucle, `zs:tour` : munitions à 30, heure de nuit + 1 minute. Un saut de plus d'une seconde
+  `TEMPS_TIR` (à une demi-image près), envoie `zs:tir` : flash du cadre rouge (220 ms) et coup de feu du jeu si le son du site est activé. Au retour au
+  début de la boucle, `zs:tour` (compté ; le HUD de jeu qui s'en servait a été retiré après le lot 2b, à la demande du propriétaire). Un saut de plus d'une seconde
   (rotation, reprise) recale le suivi sans effet.
 - L'aperçu de l'atelier (`scene/apercu.html`) ouvre le site avec `?video=0` (pas de vidéo, la scène 3D en direct dessous) et envoie lui-même
   `zs:tir` et `zs:tour` au rythme de la scène.
@@ -143,4 +143,3 @@ Origine : dépôt `Nowyyy/Z-Survival`, branche **`dev`**, commit **`10a9e6b90f39
 |---|---|---|
 | `sons/coup-de-feu.wav` (64,6 Kio, PCM 16 bits mono 44,1 kHz, 0,75 s) | son `tir` de `data/game/sounds.json` (version 1 sur 3), calculé par `js/core/synth.js` du jeu (le jeu n'a aucun fichier audio) ; origine et empreinte : `sons/ORIGINE.json` ; refaire : `node outils/sons/copier-tir.mjs <clone>` | coup de feu joué au tir de la vidéo si le son du site est activé (`VOLUME_TIR` = 0,3 dans `js/musique.js`) |
 | `css/accueil-chute-z.css` | images clés `e7-chute` et `e7-secousse` de `css/menu.css` (écran de chargement ; dernier changement du fichier : `b73e6f4`), telles quelles | chute du Z de l'entrée en scène de l'accueil |
-| `css/base.css` (jetons `--hud-bg`, `--hud-bg-alpha`, `--hud-border`, `--hud-radius`, `--hud-gap`) | `css/tokens.css` (mêmes noms, mêmes valeurs) | puces du HUD de l'accueil |

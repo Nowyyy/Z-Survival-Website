@@ -186,6 +186,27 @@ Les vidéos restent sous les 3 Mo visés, **sans perte de qualité visible**, fl
 8. **Données mobiles** : environ 2,5 Mo par ouverture de l'accueil (une seule vidéo selon l'orientation). Vérifie que le titre et les boutons
    s'affichent tout de suite, avant la vidéo.
 
+## Retour du propriétaire (15/11/2026, branche `accueil-plateforme`)
+1. **HUD retiré** : plus de manche, d'heure ni de balles. Le tir garde le flash du cadre et le coup de feu (son activé). Le module repère
+   toujours le retour au début de la boucle (`zs:tour`). Les jetons `--hud-*`, ajoutés pour le HUD, sont retirés de `css/base.css`.
+2. **Encart « Disponible sur navigateur »** en bas à gauche, à la manière des badges « disponible sur… » des boutiques et des consoles, sans aucun de
+   leurs logos :
+   - pastille sombre à contour os, flou d'arrière-plan ;
+   - icône de fenêtre de navigateur dessinée en SVG, avec son curseur rouge ;
+   - petite ligne « DISPONIBLE SUR », puis « Navigateur » en gras. En anglais : « AVAILABLE ON THE » puis « Web » (clés
+     `accueil.plateforme.petit` et `accueil.plateforme.grand` dans `js/textes.js`) ;
+   - c'est une simple information, pas un lien ;
+   - placement : sur téléphone en portrait, à gauche de la flèche ; sur ordinateur et téléphone en paysage, dans le coin du bas. Il remonte au-dessus
+     du bandeau d'alerte quand celui-ci est affiché ;
+   - jusqu'à 360 px, il est un peu plus compact : à 320 px en anglais, il touchait la flèche.
+3. **Logo du studio de l'accueil un peu plus grand** : 64 → 76 px sur téléphone, 96 → 112 px sur ordinateur.
+
+Vérifications :
+- `outils/video/verifier-accueil.mjs`, adapté : **172/172**. L'encart est en bas à gauche, en français et en anglais, sans chevauchement, à
+  toutes les tailles et après rotation. Le HUD est absent, le logo mesure 76 ou 112 px, et tout le reste du lot (vidéo, tir, son, entrée, bouton)
+  est vérifié comme avant.
+- `outils/musique/verifier-site.mjs` : **158/158**, dont la rangée du haut de l'accueil sans chevauchement de 320 à 1440 px avec le logo agrandi.
+
 ## État git
 - Commits `lot-2b A` à `lot-2b E` sur la branche `lot-2b`, PR vers `main` fusionnée par l'agent (règle de `CLAUDE.md`).
 - Tag `lot-2b` créé en local ; push du tag refusé (403) par l'environnement.
