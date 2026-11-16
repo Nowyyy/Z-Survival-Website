@@ -160,8 +160,11 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
   points d'aimantation ajoutés dans la section (#80) ne suffisaient pas sur iPhone (retour en haut une fois au pied de page) : **À propos
   fait maintenant la hauteur de l'écran et son contenu défile à l'intérieur**, sans aimantation (un nouveau glissé vers le bas, en haut
   de son contenu, ramène à Armes ; le contenu revient en haut quand on quitte la section). Le grand « 05 » reste à sa place, au bas de la
-  section. Vérifié dans Chromium (iPhone 13, iPhone SE, Pixel 7 simulés, glissés tactiles ; molette et clavier sur ordinateur) ;
-  **pas sur un vrai Safari** (à tester sur iPhone).
+  section. Retour suivant (gestes rapides qui « refusent » de descendre ou de ramener à la section précédente : iOS donne le nouveau
+  glissé au défilement encore en mouvement) : un glissé franc dans À propos qui n'a presque rien fait défiler est rejoué par le script
+  (descendre ou remonter dans le contenu ; depuis le haut du contenu, retour à Armes). Vérifié dans Chromium (iPhone 13, iPhone SE,
+  Pixel 7 simulés, glissés tactiles, gestes « perdus » simulés ; molette et clavier sur ordinateur) ; **pas sur un vrai Safari** (à
+  tester sur iPhone).
 
 ---
 
