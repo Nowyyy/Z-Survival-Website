@@ -291,6 +291,47 @@ function defilerDansSection(sens, part) {
   return true;
 }
 
+// Glissés rapides dans À propos (retour du propriétaire, iPhone) : la section défile à l'intérieur d'elle-même, dans le conteneur des
+// sections qui défile aussi. Quand les gestes s'enchaînent vite, iOS donne parfois le nouveau glissé au défilement encore en mouvement
+// (le conteneur qui finit d'arriver sur la section, ou le contenu qui finit de remonter) : le geste ne fait alors rien (« refuse de
+// descendre », « refuse de me ramener à la section précédente »). Rattrapage : un glissé franc qui n'a presque rien fait défiler est
+// rejoué par le script (descendre ou remonter dans le contenu ; depuis le haut du contenu, section précédente).
+const GLISSE_FRANC = 50; // px de doigt
+function rattraperGlisses(s) {
+  let geste = null;
+  const positions = () => ({ dedans: s.scrollTop, conteneur: conteneur.scrollTop });
+  s.addEventListener('touchstart', (e) => {
+    geste = e.touches.length === 1 ? { y0: e.touches[0].clientY, y: e.touches[0].clientY, ...positions() } : null;
+  }, { passive: true });
+  s.addEventListener('touchmove', (e) => {
+    if (geste && e.touches.length === 1) geste.y = e.touches[0].clientY;
+  }, { passive: true });
+  s.addEventListener('touchcancel', () => { geste = null; }, { passive: true });
+  s.addEventListener('touchend', () => {
+    const g = geste;
+    geste = null;
+    if (!g || !defileElleMeme(s)) return;
+    const doigt = g.y - g.y0; // > 0 : doigt vers le bas, on veut remonter
+    if (Math.abs(doigt) < GLISSE_FRANC) return;
+    const p = positions();
+    const bouge = Math.abs(p.dedans - g.dedans) + Math.abs(p.conteneur - g.conteneur);
+    if (bouge >= Math.abs(doigt) / 3) return; // le geste a bien fait défiler quelque chose
+    if (Math.abs(s.getBoundingClientRect().top) > 30) return; // section pas encore (ou plus) en place : laisser l'aimantation faire
+    const h = conteneur.clientHeight;
+    const pas = Math.max(Math.abs(doigt) * 2, h * 0.4);
+    const comportement = mouvementReduit() ? 'auto' : 'smooth';
+    if (doigt < 0) {
+      const reste = s.scrollHeight - s.clientHeight - s.scrollTop;
+      if (reste > 2) s.scrollBy({ top: Math.min(reste, pas), behavior: comportement });
+    } else if (s.scrollTop > 2) {
+      s.scrollBy({ top: -Math.min(s.scrollTop, pas), behavior: comportement });
+    } else {
+      allerA(sections.indexOf(s) - 1);
+    }
+  }, { passive: true });
+}
+sections.forEach((s) => { if (getComputedStyle(s).overflowY === 'auto') rattraperGlisses(s); });
+
 liens.forEach((a) => {
   a.addEventListener('click', (e) => {
     e.preventDefault();
