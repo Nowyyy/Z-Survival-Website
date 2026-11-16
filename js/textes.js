@@ -117,9 +117,6 @@ export const TEXTES = {
         imageAlt: 'Z-Survival en jeu, vu de dessus : le survivant tire sur des zombies qui l’encerclent.',
       },
       texte: 'No Way Studio crée Z-Survival. Rejoignez la communauté sur [Discord](https://discord.gg/4bBRJNzwwB) pour suivre le développement du jeu.',
-      credits: [
-        { titre: 'Création', noms: ['Nowy'] },
-      ],
       licences: 'Polices : Barlow, Rubik Wet Paint et Rubik Dirt (licence SIL OFL 1.1).',
     },
   },
@@ -233,9 +230,6 @@ export const TEXTES = {
         imageAlt: 'Z-Survival gameplay, seen from above: the survivor shoots the zombies closing in.',
       },
       texte: 'No Way Studio makes Z-Survival. Join the community on [Discord](https://discord.gg/4bBRJNzwwB) to follow the game’s development.',
-      credits: [
-        { titre: 'Created by', noms: ['Nowy'] },
-      ],
       licences: 'Fonts: Barlow, Rubik Wet Paint and Rubik Dirt (SIL OFL 1.1 license).',
     },
   },

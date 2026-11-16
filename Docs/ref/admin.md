@@ -108,7 +108,7 @@ En haut de l'écran, au-dessus de la liste des articles : **Pages du site** → 
    à « En ligne · date ».
 
 - Seuls les **titres** et les **textes** des deux blocs changent : le grand titre « À propos » (« About us »), l'image du jeu, le logo du
-  studio, les crédits, le pied de page et l'entrée « 05 À propos » du menu restent tels quels.
+  studio, le pied de page et l'entrée « 05 À propos » du menu restent tels quels.
 - Si le serveur ne répond pas, le site affiche les textes d'origine (rien n'est cassé).
 
 ---

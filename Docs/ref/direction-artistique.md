@@ -23,7 +23,7 @@ lecture seule. Le site reprend la DA du jeu : thème « sang noir ».
   - en-tête, à gauche du logo du jeu, séparé par un trait (à partir de 600 px de large ; 44 px de haut,
     60 px sur ordinateur) ;
   - coin haut gauche de l'accueil, dans le cadre rouge ;
-  - section **About us** : grand logo **animé**, signature, crédits ; pied de page (petit logo fixe, © et licences).
+  - section **About us** : grand logo **animé**, signature ; pied de page (petit logo fixe, © et licences).
 - `img/no-way-studio-anime.svg` : copie du logo animé du jeu (`assets/studio/no-way-studio-logo-anime.svg`,
   animations CSS, aucun script ni ressource externe), **sans son**. Joué quand About us occupe 30 % de l'écran,
   rejoué à chaque retour (adresse Blob neuve à chaque fois, sinon l'animation ne repart pas). Mouvement réduit :
