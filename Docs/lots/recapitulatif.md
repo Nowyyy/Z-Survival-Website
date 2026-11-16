@@ -155,16 +155,14 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
   parcourent une section haute au clavier (#74).
 - **Actualités sur téléphone** : position « 01 / 02 », barre de progression et flèches sous le carrousel ; bloc « Rejoindre le Discord » en
   bas de la section (#76).
-- **À propos sur téléphone, retour du propriétaire** (« le défilement me ramène en haut de la partie », #80 puis suite) : la pastille
-  « Défiler » captait le doigt ; elle est devenue un simple repère qui laisse passer le toucher. Crédits « Création Nowy » retirés. Les
-  points d'aimantation ajoutés dans la section (#80) ne suffisaient pas sur iPhone (retour en haut une fois au pied de page) : **À propos
-  fait maintenant la hauteur de l'écran et son contenu défile à l'intérieur**, sans aimantation (un nouveau glissé vers le bas, en haut
-  de son contenu, ramène à Armes ; le contenu revient en haut quand on quitte la section). Le grand « 05 » reste à sa place, au bas de la
-  section. Retour suivant (gestes rapides qui « refusent » de descendre ou de ramener à la section précédente : iOS donne le nouveau
-  glissé au défilement encore en mouvement) : un glissé franc dans À propos qui n'a presque rien fait défiler est rejoué par le script
-  (descendre ou remonter dans le contenu ; depuis le haut du contenu, retour à Armes). Vérifié dans Chromium (iPhone 13, iPhone SE,
-  Pixel 7 simulés, glissés tactiles, gestes « perdus » simulés ; molette et clavier sur ordinateur) ; **pas sur un vrai Safari** (à
-  tester sur iPhone).
+- **À propos sur téléphone, retours du propriétaire** (« le défilement me ramène en haut de la partie », #80 à #82, puis carrousel) :
+  la pastille « Défiler » laisse passer le toucher ; crédits « Création Nowy » retirés. Safari gérait mal l'aimantation des sections
+  avec une section plus haute que l'écran : ni des points d'aimantation intérieurs (#80), ni un défilement à l'intérieur de la section
+  (#81, avec rattrapage des gestes rapides #82) n'ont suffi sur iPhone (retour en haut, puis gestes rapides ignorés). Solution retenue,
+  à la demande du propriétaire : **sur téléphone, les deux blocs forment un carrousel horizontal, comme les actualités** (le studio à
+  droite du jeu, position « 01 / 02 », barre et flèches ; en paysage, sans cette ligne) ; image, logo et texte resserrés sur les écrans
+  bas, pour que la section tienne dans l'écran, sans défilement vertical (vérifié de 540 à 940 px de haut en portrait, et en paysage).
+  #81 et #82 annulés. Ordinateur inchangé. Un texte d'À propos beaucoup plus long (admin) pourrait de nouveau dépasser de l'écran.
 
 ---
 

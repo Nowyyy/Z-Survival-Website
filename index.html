@@ -293,7 +293,8 @@
           <span class="section-num" aria-hidden="true">05</span>
           <h2 class="section-titre" id="titre-about" data-t="sections.about">À propos</h2>
         </header>
-        <!-- Deux blocs de même forme (image, titre, texte) : le jeu, puis le studio (demande du propriétaire, lot 4a). -->
+        <!-- Deux blocs de même forme (image, titre, texte) : le jeu, puis le studio (demande du propriétaire, lot 4a). Sur téléphone : carrousel
+             horizontal (le studio à droite du jeu), pour que la section tienne dans l'écran. -->
         <div class="about-blocs">
           <!-- Le jeu : titre et texte modifiables depuis la page d'administration (lot 3e, js/a-propos.js, page « a-propos-jeu ») ;
                par défaut : about.jeu.* de js/textes.js. Image : clip du jeu (lot 4b, 8 s en boucle, img/a-propos/, outils/clip-jeu/) posé sur son
@@ -322,6 +323,17 @@
               <div class="about-paragraphe actu-texte revele" style="--i:6" id="about-texte"></div>
             </div>
           </div>
+        </div>
+        <!-- Téléphone : position « 01 / 02 », barre de progression et flèches du carrousel, comme pour les actualités (js/site.js). -->
+        <div class="news-carrousel about-carrousel revele" style="--i:7" id="about-carrousel" hidden>
+          <button class="news-fleche" type="button" data-sens="-1" data-t-aria="about.precedent" aria-label="Bloc précédent">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 6l-6 6 6 6"/></svg>
+          </button>
+          <span class="news-compteur" aria-hidden="true"><span class="news-position" id="about-position">01</span> / <span id="about-total">02</span></span>
+          <span class="news-progression" aria-hidden="true"><span class="news-progression-barre" id="about-progression-barre"></span></span>
+          <button class="news-fleche" type="button" data-sens="1" data-t-aria="about.suivant" aria-label="Bloc suivant">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
         </div>
         <footer class="pied revele" style="--i:8">
           <img class="studio-logo pied-studio" src="img/no-way-studio.svg" alt="" width="824" height="628">

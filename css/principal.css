@@ -182,35 +182,6 @@
 .section-news { background: radial-gradient(90% 60% at 0% 0%, rgb(216 20 20 / 10%), transparent 60%), var(--color-bg); }
 .section-characters { background: radial-gradient(90% 60% at 100% 30%, rgb(216 20 20 / 12%), transparent 60%), #0a0a0b; }
 .section-about { background: radial-gradient(90% 60% at 100% 100%, rgb(216 20 20 / 10%), transparent 60%), #0a0a0b; }
-/* À propos est plus haute que l'écran sur téléphone. Avec l'aimantation stricte des sections, Safari ramenait au haut de la section à la
-   fin des gestes, même arrivé au pied de page (retour du propriétaire). La section fait donc exactement la hauteur de l'écran (un point
-   d'aimantation comme les autres) et son contenu défile à l'intérieur, sans aucune aimantation. Arrivé en haut de son contenu, un nouveau
-   glissé vers le bas passe au conteneur des sections et ramène à Armes, comme avant. */
-.section-about {
-  display: block;
-  height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior-y: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-.section-about::-webkit-scrollbar { display: none; }
-.section-about .section-interieur { min-height: 100%; }
-/* Grand numéro « 05 » : dans une section qui défile, un élément en position absolue resterait au bas du premier écran et ajouterait du
-   défilement. Il est donc posé à la fin du contenu (hauteur nulle dans la mise en page), décalé jusqu'au bas de la section : même place
-   et même coupe qu'avant (bas du chiffre coupé de 0,15 em). */
-.section-about::after {
-  position: relative;
-  display: block;
-  inset: auto;
-  top: calc(var(--nav-h) + env(safe-area-inset-bottom) + var(--marge));
-  height: 0.85em;
-  margin-top: -0.85em;
-  margin-right: calc(-1 * max(var(--marge), env(safe-area-inset-right)) - 0.05em);
-  overflow: hidden;
-  text-align: right;
-}
 .section-weapons { background: radial-gradient(90% 60% at 0% 100%, rgb(216 20 20 / 10%), transparent 60%), var(--color-bg); }
 
 .section-interieur {
@@ -361,9 +332,26 @@
 .js .est-a-venir.est-visible .a-venir-encart { opacity: 1; transform: translate(-50%, -50%) rotate(-4deg); }
 
 /* ---------- About us ----------
-   Deux blocs de même forme (lot 4a) : le jeu (affiche de l'accueil), puis le studio (logo animé). Téléphone : l'un sous l'autre. */
-.about-blocs { display: flex; flex-direction: column; gap: 48px; } /* 32 → 48 px : jeu et studio mieux séparés (retour du propriétaire) */
-.about-corps { display: flex; flex-direction: column; gap: 16px; }
+   Deux blocs de même forme (lot 4a) : le jeu (clip du jeu), puis le studio (logo animé).
+   Téléphone : carrousel horizontal, comme les actualités (retour du propriétaire) : le studio est à droite du jeu, on glisse pour
+   l'atteindre. La section tient ainsi dans l'écran, sans défilement vertical (l'aimantation des sections, dans Safari, gérait mal une
+   section plus haute que l'écran). Ordinateur : l'un sous l'autre (règles de la largeur 900 px). */
+.about-blocs {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 86%;
+  gap: 16px;
+  margin: 0 calc(-1 * var(--marge));
+  padding: 0 var(--marge) 4px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 var(--marge);
+  scrollbar-width: none;
+}
+.about-blocs::-webkit-scrollbar { display: none; }
+.about-corps { display: flex; flex-direction: column; gap: 14px; min-width: 0; scroll-snap-align: start; }
+.about-carrousel { margin-top: -2px; }
 .about-visuel { align-self: center; }
 .about-logo { width: min(60vw, 225px); filter: drop-shadow(0 6px 24px rgb(0 0 0 / 70%)); }
 /* Lot 4b : clip du jeu (vidéo en boucle) posé sur son affiche, dans le cadre rouge. La vidéo reste invisible tant qu'elle ne joue pas
@@ -530,7 +518,7 @@
   .arme-stats { flex: 1; align-content: center; gap: 18px; }
 
   .section-about .section-interieur { justify-content: center; }
-  .about-blocs { gap: 72px; margin-block: auto; }
+  .about-blocs { display: flex; flex-direction: column; gap: 72px; margin: auto 0; padding: 0; overflow: visible; }
   .about-corps { flex-direction: row; align-items: center; gap: 56px; }
   /* Même colonne pour l'image du jeu et le logo du studio : les deux textes s'alignent. */
   .about-visuel { flex: none; display: flex; justify-content: center; width: clamp(240px, 24vw, 340px); }
@@ -560,6 +548,44 @@
   .about-visuel { flex: none; display: flex; justify-content: center; width: 180px; }
   .about-logo { width: 160px; }
   .about-jeu-media { width: 100%; }
+  /* À propos tient dans l'écran (carrousel) : image et texte resserrés, pied de page compact. */
+  .about-visuel { width: 150px; }
+  .about-logo { width: 128px; }
+  .about-paragraphe.actu-texte { font-size: 0.9rem; line-height: 1.45; }
+  .about-texte { gap: 6px; }
+  .about-signature { font-size: 0.95rem; }
+  /* Pas de place pour la ligne « 01 / 02 » : le bord du bloc suivant, visible à droite, montre qu'on peut glisser. */
+  .about-carrousel:not([hidden]) { display: none; }
+  .section-about .pied { padding-top: 8px; }
+  .section-about .pied-studio { width: 40px; }
+  .section-about .pied-texte { font-size: 0.72rem; }
+}
+
+/* Téléphone en portrait, écran bas : À propos (carrousel) doit tenir dans l'écran, sans défilement vertical. */
+@media (max-width: 899px) and (min-height: 521px) and (max-height: 720px) {
+  .about-corps { gap: 10px; }
+  .about-jeu-media { width: min(56vw, 210px); }
+  .about-logo { width: min(44vw, 165px); }
+  .about-texte { gap: 6px; }
+  .about-paragraphe.actu-texte { font-size: 0.95rem; line-height: 1.5; }
+  .section-about .section-interieur { gap: 10px; }
+}
+@media (max-width: 899px) and (min-height: 521px) and (max-height: 620px) {
+  .about-jeu-media { width: min(46vw, 175px); }
+  .about-logo { width: min(36vw, 135px); }
+  .about-paragraphe.actu-texte { font-size: 0.9rem; line-height: 1.45; }
+  .about-signature { font-size: 0.95rem; }
+  .about-carrousel .news-fleche { width: 40px; height: 40px; }
+  .section-about .pied { padding-top: 10px; }
+  .section-about .pied-studio { width: 40px; }
+  .section-about .pied-texte { font-size: 0.72rem; }
+}
+@media (max-width: 899px) and (min-height: 521px) and (max-height: 570px) {
+  .about-jeu-media { width: min(40vw, 150px); }
+  .about-logo { width: min(30vw, 115px); }
+  .about-paragraphe.actu-texte { font-size: 0.86rem; line-height: 1.4; }
+  .section-about .section-titre { font-size: 2.3rem; }
+  .section-about .section-interieur, .about-corps { gap: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -194,13 +194,55 @@ let dansAbout = false;
 // une section collée au bord de l'écran compte encore comme « en intersection », avec une surface nulle).
 new IntersectionObserver(([e]) => {
   if (e.intersectionRatio >= 0.3 && !dansAbout) { dansAbout = true; jouerLogoStudio(); }
-  else if (e.intersectionRatio < 0.05) {
-    dansAbout = false;
-    e.target.scrollTop = 0; // section sortie de l'écran : on y reviendra par son haut (son contenu défile à l'intérieur)
-  }
+  else if (e.intersectionRatio < 0.05) dansAbout = false;
 }, { root: conteneur, threshold: [0, 0.05, 0.3] }).observe(document.getElementById('about'));
 chargerLogoAnime();
 installerClipJeu({ racine: conteneur }); // lot 4b : clip du jeu dans le bloc du jeu d’À propos
+
+// ---------- À propos sur téléphone : carrousel horizontal (le jeu, puis le studio), comme les actualités ----------
+// Position « 01 / 02 », barre de progression et flèches ; caché quand les deux blocs tiennent sans glisser (ordinateur).
+(function carrouselAPropos() {
+  const blocs = document.querySelector('.about-blocs');
+  const nav = document.getElementById('about-carrousel');
+  const position = document.getElementById('about-position');
+  const total = document.getElementById('about-total');
+  const barre = document.getElementById('about-progression-barre');
+  const fleches = [...nav.querySelectorAll('.news-fleche')];
+  const items = [...blocs.children];
+  const deuxChiffres = (n) => String(n).padStart(2, '0');
+  let demande = 0;
+  const gauche = () => blocs.getBoundingClientRect().left + parseFloat(getComputedStyle(blocs).paddingLeft);
+  function indexCourant() {
+    if (blocs.scrollLeft >= blocs.scrollWidth - blocs.clientWidth - 2) return items.length - 1;
+    const g = gauche();
+    let meilleur = 0;
+    items.forEach((c, i) => {
+      if (Math.abs(c.getBoundingClientRect().left - g) < Math.abs(items[meilleur].getBoundingClientRect().left - g)) meilleur = i;
+    });
+    return meilleur;
+  }
+  function maj() {
+    demande = 0;
+    const utile = items.length > 1 && blocs.scrollWidth > blocs.clientWidth + 2;
+    nav.hidden = !utile;
+    if (!utile) return;
+    const i = indexCourant();
+    position.textContent = deuxChiffres(i + 1);
+    total.textContent = deuxChiffres(items.length);
+    barre.style.setProperty('--part', String((i + 1) / items.length));
+    fleches[0].disabled = blocs.scrollLeft <= 2;
+    fleches[1].disabled = blocs.scrollLeft >= blocs.scrollWidth - blocs.clientWidth - 2;
+  }
+  const demander = () => { if (!demande) demande = requestAnimationFrame(maj); };
+  blocs.addEventListener('scroll', demander, { passive: true });
+  window.addEventListener('resize', demander);
+  new ResizeObserver(demander).observe(blocs);
+  fleches.forEach((b) => b.addEventListener('click', () => {
+    const cible = items[Math.max(0, Math.min(items.length - 1, indexCourant() + Number(b.dataset.sens)))];
+    blocs.scrollBy({ left: cible.getBoundingClientRect().left - gauche(), behavior: mouvementReduit() ? 'auto' : 'smooth' });
+  }));
+  demander();
+})();
 
 // ---------- Section affichée : navigation + apparition ----------
 
@@ -245,11 +287,6 @@ const MARGE_INDICE = 24; // px : en dessous, la section est considérée comme e
 let indiceDemande = 0;
 indice.hidden = false;
 
-// Section qui défile à l'intérieur d'elle-même (À propos, plus haute que l'écran) plutôt que dans le conteneur des sections.
-function defileElleMeme(s) {
-  return s.scrollHeight - s.clientHeight > 1 && /^(auto|scroll)$/.test(getComputedStyle(s).overflowY);
-}
-
 function majIndice() {
   indiceDemande = 0;
   const s = sections[indexActif];
@@ -257,14 +294,8 @@ function majIndice() {
   let auDebut = false;
   if (s && s.id !== 'accueil') {
     const b = s.getBoundingClientRect();
-    if (defileElleMeme(s)) {
-      // À propos : la section a la hauteur de l'écran et défile à l'intérieur (css/principal.css).
-      visible = Math.abs(b.top) < MARGE_INDICE && s.scrollHeight - s.clientHeight - s.scrollTop > MARGE_INDICE;
-      auDebut = visible && s.scrollTop < MARGE_INDICE;
-    } else {
-      visible = b.bottom - conteneur.clientHeight > MARGE_INDICE && b.top < MARGE_INDICE;
-      auDebut = visible && b.top > -MARGE_INDICE;
-    }
+    visible = b.bottom - conteneur.clientHeight > MARGE_INDICE && b.top < MARGE_INDICE;
+    auDebut = visible && b.top > -MARGE_INDICE;
   }
   indice.classList.toggle('est-visible', visible);
   indice.classList.toggle('au-debut', auDebut);
@@ -273,64 +304,21 @@ function demanderIndice() {
   if (!indiceDemande) indiceDemande = requestAnimationFrame(majIndice);
 }
 conteneur.addEventListener('scroll', demanderIndice, { passive: true });
-sections.forEach((s) => s.addEventListener('scroll', demanderIndice, { passive: true }));
 window.addEventListener('resize', demanderIndice);
-// Textes d'À propos et actualités arrivent du serveur après l'affichage : la hauteur des sections (ou de leur contenu) change.
+// Textes d'À propos et actualités arrivent du serveur après l'affichage : la hauteur des sections change.
 const observateurTaille = new ResizeObserver(demanderIndice);
-sections.forEach((s) => { observateurTaille.observe(s); if (s.firstElementChild) observateurTaille.observe(s.firstElementChild); });
+sections.forEach((s) => observateurTaille.observe(s));
 
 // Défile dans la section affichée, vers le bas (sens 1) ou le haut (-1), sans dépasser son bord ; faux s'il n'y a plus rien à défiler.
 function defilerDansSection(sens, part) {
   const s = sections[Math.max(0, indexActif)];
-  const h = conteneur.clientHeight;
-  const interieur = defileElleMeme(s);
   const b = s.getBoundingClientRect();
-  const reste = interieur ? (sens > 0 ? s.scrollHeight - s.clientHeight - s.scrollTop : s.scrollTop) : (sens > 0 ? b.bottom - h : -b.top);
+  const h = conteneur.clientHeight;
+  const reste = sens > 0 ? b.bottom - h : -b.top;
   if (reste <= 2) return false;
-  (interieur ? s : conteneur).scrollBy({ top: sens * Math.min(reste, Math.round(h * part)), behavior: mouvementReduit() ? 'auto' : 'smooth' });
+  conteneur.scrollBy({ top: sens * Math.min(reste, Math.round(h * part)), behavior: mouvementReduit() ? 'auto' : 'smooth' });
   return true;
 }
-
-// Glissés rapides dans À propos (retour du propriétaire, iPhone) : la section défile à l'intérieur d'elle-même, dans le conteneur des
-// sections qui défile aussi. Quand les gestes s'enchaînent vite, iOS donne parfois le nouveau glissé au défilement encore en mouvement
-// (le conteneur qui finit d'arriver sur la section, ou le contenu qui finit de remonter) : le geste ne fait alors rien (« refuse de
-// descendre », « refuse de me ramener à la section précédente »). Rattrapage : un glissé franc qui n'a presque rien fait défiler est
-// rejoué par le script (descendre ou remonter dans le contenu ; depuis le haut du contenu, section précédente).
-const GLISSE_FRANC = 50; // px de doigt
-function rattraperGlisses(s) {
-  let geste = null;
-  const positions = () => ({ dedans: s.scrollTop, conteneur: conteneur.scrollTop });
-  s.addEventListener('touchstart', (e) => {
-    geste = e.touches.length === 1 ? { y0: e.touches[0].clientY, y: e.touches[0].clientY, ...positions() } : null;
-  }, { passive: true });
-  s.addEventListener('touchmove', (e) => {
-    if (geste && e.touches.length === 1) geste.y = e.touches[0].clientY;
-  }, { passive: true });
-  s.addEventListener('touchcancel', () => { geste = null; }, { passive: true });
-  s.addEventListener('touchend', () => {
-    const g = geste;
-    geste = null;
-    if (!g || !defileElleMeme(s)) return;
-    const doigt = g.y - g.y0; // > 0 : doigt vers le bas, on veut remonter
-    if (Math.abs(doigt) < GLISSE_FRANC) return;
-    const p = positions();
-    const bouge = Math.abs(p.dedans - g.dedans) + Math.abs(p.conteneur - g.conteneur);
-    if (bouge >= Math.abs(doigt) / 3) return; // le geste a bien fait défiler quelque chose
-    if (Math.abs(s.getBoundingClientRect().top) > 30) return; // section pas encore (ou plus) en place : laisser l'aimantation faire
-    const h = conteneur.clientHeight;
-    const pas = Math.max(Math.abs(doigt) * 2, h * 0.4);
-    const comportement = mouvementReduit() ? 'auto' : 'smooth';
-    if (doigt < 0) {
-      const reste = s.scrollHeight - s.clientHeight - s.scrollTop;
-      if (reste > 2) s.scrollBy({ top: Math.min(reste, pas), behavior: comportement });
-    } else if (s.scrollTop > 2) {
-      s.scrollBy({ top: -Math.min(s.scrollTop, pas), behavior: comportement });
-    } else {
-      allerA(sections.indexOf(s) - 1);
-    }
-  }, { passive: true });
-}
-sections.forEach((s) => { if (getComputedStyle(s).overflowY === 'auto') rattraperGlisses(s); });
 
 liens.forEach((a) => {
   a.addEventListener('click', (e) => {
