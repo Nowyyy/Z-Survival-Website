@@ -368,10 +368,6 @@
 /* Texte modifiable depuis l'administration (Markdown sûr) : paragraphes, listes, liens (styles de .actu-texte, css/actualites.css). */
 .about-paragraphe.actu-texte { font-size: 1rem; gap: 0.7em; }
 .about-mention { margin: 0; }
-.about-credits { display: grid; gap: 4px; margin: 0; }
-.about-credit { display: flex; gap: 10px; align-items: baseline; }
-.about-credit-titre { font-family: var(--font-label); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); }
-.about-credit-noms { margin: 0; font-weight: 700; }
 
 /* Pied de page (dernière section), comme le bas de page des sites de jeux : logo du studio + mentions. */
 .pied {
@@ -433,7 +429,10 @@
   transform: translateY(6px);
   transition: opacity 250ms ease, transform 250ms ease;
 }
-.indice-defiler.au-debut .indice-defiler-bouton { opacity: 1; transform: none; pointer-events: auto; }
+.indice-defiler.au-debut .indice-defiler-bouton { opacity: 1; transform: none; }
+/* La pastille est un simple repère (retour du propriétaire) : fixée hors de la zone qui défile, elle captait le doigt, et un glissé commencé
+   dessus (là où le pouce se pose) ne faisait pas défiler la section. Elle laisse maintenant passer le toucher (pointer-events: none hérité). */
+.indice-defiler-bouton { pointer-events: none; cursor: default; }
 .indice-defiler-bouton svg {
   width: 22px;
   height: 22px;
@@ -541,6 +540,19 @@
   .sections { scroll-behavior: auto; }
   .indice-defiler, .indice-defiler-bouton { transition: none; }
   .indice-defiler-bouton svg { animation: none; }
+}
+
+/* À propos, plus haute que l'écran sur téléphone (retour du propriétaire : « le défilement me ramène en haut de la partie ») : avec
+   l'aimantation stricte par sections, Safari ramène à la fin d'un geste au point d'aimantation le plus proche, ici le haut de la section.
+   Deux points d'aimantation de plus, dans la section : le haut du bloc du studio (sous l'en-tête) et le bas de la section (pied de page,
+   au-dessus de la navigation). Chromium laisse en plus défiler librement entre eux (section plus haute que l'écran). */
+.section-about .about-corps-studio {
+  scroll-snap-align: start;
+  scroll-margin-top: calc(var(--entete-h) + env(safe-area-inset-top) + 8px);
+}
+.section-about .pied {
+  scroll-snap-align: end;
+  scroll-margin-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + var(--marge));
 }
 
 /* Pied de page : adresse de contact du studio (lot 3f), lien mailto. */

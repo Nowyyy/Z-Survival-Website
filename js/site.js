@@ -99,16 +99,6 @@ function construireArmes() {
   choisir(choix.arme);
 }
 
-function construireCredits() {
-  const dl = document.getElementById('about-credits');
-  dl.replaceChildren();
-  t('about.credits').forEach((c) => {
-    const ligne = element('div', 'about-credit');
-    ligne.append(element('dt', 'about-credit-titre', c.titre), element('dd', 'about-credit-noms', c.noms.join(', ')));
-    dl.append(ligne);
-  });
-}
-
 // ---------- Menus de langue (globe de l'accueil et globe de l'en-tête) ----------
 
 const menusLangue = [...document.querySelectorAll('.langue')].map((bloc) => ({
@@ -165,7 +155,6 @@ function rendre() {
   rendreActualites();
   construirePersonnages();
   construireArmes();
-  construireCredits();
   rendreAPropos();
   construireBandeau();
   majLangue();
@@ -285,7 +274,6 @@ function defilerDansSection(sens, part) {
   conteneur.scrollBy({ top: sens * Math.min(reste, Math.round(h * part)), behavior: mouvementReduit() ? 'auto' : 'smooth' });
   return true;
 }
-indice.querySelector('.indice-defiler-bouton').addEventListener('click', () => defilerDansSection(1, 0.6));
 
 liens.forEach((a) => {
   a.addEventListener('click', (e) => {
