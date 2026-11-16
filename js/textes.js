@@ -118,6 +118,8 @@ export const TEXTES = {
       },
       texte: 'No Way Studio crée Z-Survival. Rejoignez la communauté sur [Discord](https://discord.gg/4bBRJNzwwB) pour suivre le développement du jeu.',
       licences: 'Polices : Barlow, Rubik Wet Paint et Rubik Dirt (licence SIL OFL 1.1).',
+      precedent: 'Bloc précédent',
+      suivant: 'Bloc suivant',
     },
   },
 
@@ -231,6 +233,8 @@ export const TEXTES = {
       },
       texte: 'No Way Studio makes Z-Survival. Join the community on [Discord](https://discord.gg/4bBRJNzwwB) to follow the game’s development.',
       licences: 'Fonts: Barlow, Rubik Wet Paint and Rubik Dirt (SIL OFL 1.1 license).',
+      precedent: 'Previous block',
+      suivant: 'Next block',
     },
   },
 };

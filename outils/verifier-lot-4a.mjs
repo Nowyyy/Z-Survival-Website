@@ -271,27 +271,33 @@ for (const lang of ['fr', 'en']) {
   }
 }
 
-console.log('F. À propos : le jeu au-dessus du studio');
+console.log('F. À propos : le jeu au-dessus du studio (ordinateur), à sa gauche dans un carrousel (téléphone)');
 for (const [l, h] of [[375, 667], [1440, 900]]) {
   for (const lang of ['fr', 'en']) {
     const { page, contexte } = await ouvrir(l, h, `?lang=${lang}#about`);
-    const r = await page.evaluate(() => {
+    const telephone = l < 900;
+    const r = await page.evaluate((telephone) => {
       const blocs = [...document.querySelectorAll('#about .about-corps')];
       const jeu = document.querySelector('.about-corps-jeu');
       const studioBloc = document.querySelector('.about-corps-studio');
+      const a = jeu?.getBoundingClientRect();
+      const b = studioBloc?.getBoundingClientRect();
+      const section = document.getElementById('about');
       return {
         n: blocs.length,
-        ordre: jeu && studioBloc && jeu.getBoundingClientRect().bottom <= studioBloc.getBoundingClientRect().top,
+        ordre: a && b && (telephone ? a.right <= b.left : a.bottom <= b.top),
+        // Téléphone : la section tient dans l'écran (pas de défilement vertical), position « 01 / 02 » montrée.
+        tient: !telephone || (section.offsetHeight <= innerHeight + 1 && !document.getElementById('about-carrousel').hidden),
         titre: jeu?.querySelector('.about-signature')?.textContent,
         texte: jeu?.querySelector('.about-paragraphe')?.textContent,
         alt: jeu?.querySelector('img')?.alt,
         image: jeu?.querySelector('img')?.complete && jeu.querySelector('img').naturalWidth > 0,
         studio: studioBloc?.querySelector('#about-signature') && studioBloc.querySelector('#about-texte') && studioBloc.querySelector('.about-logo') ? 1 : 0,
       };
-    });
+    }, telephone);
     const J = TEXTES[lang].about.jeu;
-    verifier(r.n === 2 && r.ordre && r.titre === J.titre && r.texte === J.texte && r.alt === J.imageAlt && r.studio === 1,
-      `${l} × ${h} ${lang} : deux blocs, « ${r.titre} » au-dessus du studio (titre, texte et logo du studio en place)`);
+    verifier(r.n === 2 && r.ordre && r.tient && r.titre === J.titre && r.texte === J.texte && r.alt === J.imageAlt && r.studio === 1,
+      `${l} × ${h} ${lang} : deux blocs, « ${r.titre} » ${telephone ? 'à gauche du studio (carrousel, section qui tient dans l’écran)' : 'au-dessus du studio'} (titre, texte et logo du studio en place)`);
     if (!EN_LIGNE || r.image) verifier(r.image, `${l} × ${h} ${lang} : image du jeu chargée`);
     await contexte.close();
   }

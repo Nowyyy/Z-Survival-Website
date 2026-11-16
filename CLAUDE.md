@@ -73,7 +73,7 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   Personnages et Armes :
   contenu provisoire atténué et inerte sous un encart « Prochainement » (« Coming soon » en anglais). Globe de langue aussi
   dans l'en-tête ; « Bientôt disponible », lien Discord (https://discord.gg/4bBRJNzwwB, logo en SVG, nouvel onglet), bouton de son et globe en haut à droite de l'accueil comme dans l'en-tête (About us : ligne sous le logo du studio et texte modifiables depuis l'admin, `js/a-propos.js` ; grand titre fixe ; logo animé du studio rejoué à chaque arrivée,
-  puis pied de page). À propos a **deux blocs de même forme** (image, titre, texte) : le jeu (clip du vrai jeu en boucle, lot 4b) au-dessus du studio ;
+  puis pied de page). À propos a **deux blocs de même forme** (image, titre, texte) : le jeu (clip du vrai jeu en boucle, lot 4b) au-dessus du studio (sur téléphone : carrousel horizontal, le studio à droite, pour que la section tienne dans l'écran) ;
   titres et textes des deux blocs modifiables depuis l'admin (lot 3e : pages `a-propos-jeu` et `a-propos` du serveur ; par défaut
   `about.jeu.*`, `studio.signature`, `about.texte`). En-tête et navigation cachés sur l'accueil.
   Tête de page : titre et description français (= `meta.*`), aperçu de partage Open Graph / Twitter Card (titre et description modifiables
