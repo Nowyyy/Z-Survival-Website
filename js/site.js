@@ -258,7 +258,6 @@ function activer(index) {
   });
   document.body.dataset.section = id;
   fermerMenusLangue();
-  demanderIndice();
   // Adresse partageable : #news, #weapons… ; rien pour l'accueil. Article ouvert (#actu/<slug>, js/actualites.js) : adresse gardée.
   const voulu = id === 'accueil' ? '' : `#${id}`;
   if (window.location.hash !== voulu && !slugDeLAdresse()) history.replaceState(null, '', `${window.location.pathname}${window.location.search}${voulu}`);
@@ -279,35 +278,6 @@ function allerA(index) {
   const i = Math.max(0, Math.min(sections.length - 1, index));
   sections[i].scrollIntoView({ behavior: mouvementReduit() ? 'auto' : 'smooth', block: 'start' });
 }
-
-// ---------- Indice « Défiler » : section plus haute que l'écran (À propos sur téléphone) ----------
-// Dégradé en bas tant qu'il reste du contenu sous l'écran ; flèche « Défiler » tant qu'on est au début de la section.
-const indice = document.getElementById('indice-defiler');
-const MARGE_INDICE = 24; // px : en dessous, la section est considérée comme entièrement visible / pas encore défilée
-let indiceDemande = 0;
-indice.hidden = false;
-
-function majIndice() {
-  indiceDemande = 0;
-  const s = sections[indexActif];
-  let visible = false;
-  let auDebut = false;
-  if (s && s.id !== 'accueil') {
-    const b = s.getBoundingClientRect();
-    visible = b.bottom - conteneur.clientHeight > MARGE_INDICE && b.top < MARGE_INDICE;
-    auDebut = visible && b.top > -MARGE_INDICE;
-  }
-  indice.classList.toggle('est-visible', visible);
-  indice.classList.toggle('au-debut', auDebut);
-}
-function demanderIndice() {
-  if (!indiceDemande) indiceDemande = requestAnimationFrame(majIndice);
-}
-conteneur.addEventListener('scroll', demanderIndice, { passive: true });
-window.addEventListener('resize', demanderIndice);
-// Textes d'À propos et actualités arrivent du serveur après l'affichage : la hauteur des sections change.
-const observateurTaille = new ResizeObserver(demanderIndice);
-sections.forEach((s) => observateurTaille.observe(s));
 
 // Défile dans la section affichée, vers le bas (sens 1) ou le haut (-1), sans dépasser son bord ; faux s'il n'y a plus rien à défiler.
 function defilerDansSection(sens, part) {

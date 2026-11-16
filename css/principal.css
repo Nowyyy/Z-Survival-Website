@@ -399,73 +399,6 @@
 .pied-texte { display: flex; flex-direction: column; gap: 2px; font-size: 0.78rem; color: var(--color-text-muted); }
 .pied-copyright { color: var(--color-text); font-weight: 700; }
 
-/* ---------- Indice « Défiler » (js/site.js) ----------
-   Section plus haute que l'écran (À propos sur téléphone) : dégradé au-dessus de la barre de navigation, signe qu'il reste du contenu,
-   et flèche « Défiler » qui rebondit tant qu'on n'a pas commencé à défiler dans la section. Un toucher sur la flèche fait descendre. */
-.indice-defiler {
-  position: fixed;
-  z-index: 15;
-  left: 0;
-  right: 0;
-  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom));
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  height: 72px;
-  padding-bottom: 2px;
-  background: linear-gradient(to bottom, rgb(5 5 5 / 0%), rgb(5 5 5 / 85%));
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 250ms ease;
-}
-.indice-defiler[hidden] { display: none; }
-.indice-defiler.est-visible { opacity: 1; }
-.indice-defiler-bouton {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 1px;
-  min-width: var(--touch-target);
-  min-height: var(--touch-target);
-  margin-bottom: 6px;
-  padding: 7px 16px 2px;
-  border: 1px solid rgb(216 20 20 / 45%);
-  border-radius: 999px;
-  background: rgb(5 5 5 / 90%);
-  box-shadow: 0 0 14px rgb(216 20 20 / 25%);
-  color: var(--color-action-text);
-  font-family: var(--font-label);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  line-height: 1;
-  text-transform: uppercase;
-  text-shadow: 0 0 8px var(--color-action-glow);
-  cursor: pointer;
-  opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 250ms ease, transform 250ms ease;
-}
-.indice-defiler.au-debut .indice-defiler-bouton { opacity: 1; transform: none; }
-/* La pastille est un simple repère (retour du propriétaire) : fixée hors de la zone qui défile, elle captait le doigt, et un glissé commencé
-   dessus (là où le pouce se pose) ne faisait pas défiler la section. Elle laisse maintenant passer le toucher (pointer-events: none hérité). */
-.indice-defiler-bouton { pointer-events: none; cursor: default; }
-.indice-defiler-bouton svg {
-  width: 22px;
-  height: 22px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 0 6px var(--color-action-glow));
-  animation: indice-rebond 1.4s ease-in-out infinite;
-}
-@keyframes indice-rebond {
-  0%, 100% { transform: translateY(-3px); opacity: 0.6; }
-  50%      { transform: translateY(4px); opacity: 1; }
-}
-
 /* ---------- Ordinateur ---------- */
 @media (min-width: 900px) {
   :root { --marge: 32px; --entete-h: 84px; --nav-h: 0px; }
@@ -593,8 +526,6 @@
   .js .est-a-venir .a-venir-encart { opacity: 1; transform: translate(-50%, -50%) rotate(-4deg); }
   .js .section:not(.est-visible) .arme-stat-remplissage { transform: scaleX(var(--valeur, 0)); }
   .sections { scroll-behavior: auto; }
-  .indice-defiler, .indice-defiler-bouton { transition: none; }
-  .indice-defiler-bouton svg { animation: none; }
 }
 
 /* Pied de page : adresse de contact du studio (lot 3f), lien mailto. */

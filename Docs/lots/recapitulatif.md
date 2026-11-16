@@ -163,6 +163,8 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
   droite du jeu, position « 01 / 02 », barre et flèches ; en paysage, sans cette ligne) ; image, logo et texte resserrés sur les écrans
   bas, pour que la section tienne dans l'écran, sans défilement vertical (vérifié de 540 à 940 px de haut en portrait, et en paysage).
   #81 et #82 annulés. Ordinateur inchangé. Un texte d'À propos beaucoup plus long (admin) pourrait de nouveau dépasser de l'écran.
+- **Pastille « Défiler » retirée** (dégradé et flèche en bas des sections plus hautes que l'écran), à la demande du propriétaire : À propos
+  tient maintenant dans l'écran sur téléphone. Les touches du clavier parcourent toujours une section haute avant de passer à la voisine.
 
 ---
 
