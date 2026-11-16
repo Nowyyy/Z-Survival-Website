@@ -155,11 +155,13 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
   parcourent une section haute au clavier (#74).
 - **Actualités sur téléphone** : position « 01 / 02 », barre de progression et flèches sous le carrousel ; bloc « Rejoindre le Discord » en
   bas de la section (#76).
-- **À propos sur téléphone, retour du propriétaire** (« le défilement me ramène en haut de la partie ») : la pastille « Défiler », fixée
-  au-dessus de la section là où le pouce se pose, captait le doigt (un glissé commencé dessus ne faisait rien) : elle est maintenant un
-  simple repère qui laisse passer le toucher. Deux points d'aimantation ajoutés dans la section (haut du bloc du studio, bas avec le pied
-  de page), pour que Safari ne ramène plus en haut à la fin d'un geste. Crédits « Création Nowy » retirés. Vérifié dans Chromium
-  (iPhone 13, iPhone SE, Pixel 7 simulés, glissés tactiles) ; **pas sur un vrai Safari** (à tester sur iPhone).
+- **À propos sur téléphone, retour du propriétaire** (« le défilement me ramène en haut de la partie », #80 puis suite) : la pastille
+  « Défiler » captait le doigt ; elle est devenue un simple repère qui laisse passer le toucher. Crédits « Création Nowy » retirés. Les
+  points d'aimantation ajoutés dans la section (#80) ne suffisaient pas sur iPhone (retour en haut une fois au pied de page) : **À propos
+  fait maintenant la hauteur de l'écran et son contenu défile à l'intérieur**, sans aimantation (un nouveau glissé vers le bas, en haut
+  de son contenu, ramène à Armes ; le contenu revient en haut quand on quitte la section). Le grand « 05 » reste à sa place, au bas de la
+  section. Vérifié dans Chromium (iPhone 13, iPhone SE, Pixel 7 simulés, glissés tactiles ; molette et clavier sur ordinateur) ;
+  **pas sur un vrai Safari** (à tester sur iPhone).
 
 ---
 
