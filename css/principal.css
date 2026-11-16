@@ -182,6 +182,35 @@
 .section-news { background: radial-gradient(90% 60% at 0% 0%, rgb(216 20 20 / 10%), transparent 60%), var(--color-bg); }
 .section-characters { background: radial-gradient(90% 60% at 100% 30%, rgb(216 20 20 / 12%), transparent 60%), #0a0a0b; }
 .section-about { background: radial-gradient(90% 60% at 100% 100%, rgb(216 20 20 / 10%), transparent 60%), #0a0a0b; }
+/* À propos est plus haute que l'écran sur téléphone. Avec l'aimantation stricte des sections, Safari ramenait au haut de la section à la
+   fin des gestes, même arrivé au pied de page (retour du propriétaire). La section fait donc exactement la hauteur de l'écran (un point
+   d'aimantation comme les autres) et son contenu défile à l'intérieur, sans aucune aimantation. Arrivé en haut de son contenu, un nouveau
+   glissé vers le bas passe au conteneur des sections et ramène à Armes, comme avant. */
+.section-about {
+  display: block;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.section-about::-webkit-scrollbar { display: none; }
+.section-about .section-interieur { min-height: 100%; }
+/* Grand numéro « 05 » : dans une section qui défile, un élément en position absolue resterait au bas du premier écran et ajouterait du
+   défilement. Il est donc posé à la fin du contenu (hauteur nulle dans la mise en page), décalé jusqu'au bas de la section : même place
+   et même coupe qu'avant (bas du chiffre coupé de 0,15 em). */
+.section-about::after {
+  position: relative;
+  display: block;
+  inset: auto;
+  top: calc(var(--nav-h) + env(safe-area-inset-bottom) + var(--marge));
+  height: 0.85em;
+  margin-top: -0.85em;
+  margin-right: calc(-1 * max(var(--marge), env(safe-area-inset-right)) - 0.05em);
+  overflow: hidden;
+  text-align: right;
+}
 .section-weapons { background: radial-gradient(90% 60% at 0% 100%, rgb(216 20 20 / 10%), transparent 60%), var(--color-bg); }
 
 .section-interieur {
@@ -540,19 +569,6 @@
   .sections { scroll-behavior: auto; }
   .indice-defiler, .indice-defiler-bouton { transition: none; }
   .indice-defiler-bouton svg { animation: none; }
-}
-
-/* À propos, plus haute que l'écran sur téléphone (retour du propriétaire : « le défilement me ramène en haut de la partie ») : avec
-   l'aimantation stricte par sections, Safari ramène à la fin d'un geste au point d'aimantation le plus proche, ici le haut de la section.
-   Deux points d'aimantation de plus, dans la section : le haut du bloc du studio (sous l'en-tête) et le bas de la section (pied de page,
-   au-dessus de la navigation). Chromium laisse en plus défiler librement entre eux (section plus haute que l'écran). */
-.section-about .about-corps-studio {
-  scroll-snap-align: start;
-  scroll-margin-top: calc(var(--entete-h) + env(safe-area-inset-top) + 8px);
-}
-.section-about .pied {
-  scroll-snap-align: end;
-  scroll-margin-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + var(--marge));
 }
 
 /* Pied de page : adresse de contact du studio (lot 3f), lien mailto. */

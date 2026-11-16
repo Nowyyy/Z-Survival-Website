@@ -194,7 +194,10 @@ let dansAbout = false;
 // une section collée au bord de l'écran compte encore comme « en intersection », avec une surface nulle).
 new IntersectionObserver(([e]) => {
   if (e.intersectionRatio >= 0.3 && !dansAbout) { dansAbout = true; jouerLogoStudio(); }
-  else if (e.intersectionRatio < 0.05) dansAbout = false;
+  else if (e.intersectionRatio < 0.05) {
+    dansAbout = false;
+    e.target.scrollTop = 0; // section sortie de l'écran : on y reviendra par son haut (son contenu défile à l'intérieur)
+  }
 }, { root: conteneur, threshold: [0, 0.05, 0.3] }).observe(document.getElementById('about'));
 chargerLogoAnime();
 installerClipJeu({ racine: conteneur }); // lot 4b : clip du jeu dans le bloc du jeu d’À propos
@@ -242,6 +245,11 @@ const MARGE_INDICE = 24; // px : en dessous, la section est considérée comme e
 let indiceDemande = 0;
 indice.hidden = false;
 
+// Section qui défile à l'intérieur d'elle-même (À propos, plus haute que l'écran) plutôt que dans le conteneur des sections.
+function defileElleMeme(s) {
+  return s.scrollHeight - s.clientHeight > 1 && /^(auto|scroll)$/.test(getComputedStyle(s).overflowY);
+}
+
 function majIndice() {
   indiceDemande = 0;
   const s = sections[indexActif];
@@ -249,8 +257,14 @@ function majIndice() {
   let auDebut = false;
   if (s && s.id !== 'accueil') {
     const b = s.getBoundingClientRect();
-    visible = b.bottom - conteneur.clientHeight > MARGE_INDICE && b.top < MARGE_INDICE;
-    auDebut = visible && b.top > -MARGE_INDICE;
+    if (defileElleMeme(s)) {
+      // À propos : la section a la hauteur de l'écran et défile à l'intérieur (css/principal.css).
+      visible = Math.abs(b.top) < MARGE_INDICE && s.scrollHeight - s.clientHeight - s.scrollTop > MARGE_INDICE;
+      auDebut = visible && s.scrollTop < MARGE_INDICE;
+    } else {
+      visible = b.bottom - conteneur.clientHeight > MARGE_INDICE && b.top < MARGE_INDICE;
+      auDebut = visible && b.top > -MARGE_INDICE;
+    }
   }
   indice.classList.toggle('est-visible', visible);
   indice.classList.toggle('au-debut', auDebut);
@@ -259,19 +273,21 @@ function demanderIndice() {
   if (!indiceDemande) indiceDemande = requestAnimationFrame(majIndice);
 }
 conteneur.addEventListener('scroll', demanderIndice, { passive: true });
+sections.forEach((s) => s.addEventListener('scroll', demanderIndice, { passive: true }));
 window.addEventListener('resize', demanderIndice);
-// Textes d'À propos et actualités arrivent du serveur après l'affichage : la hauteur des sections change.
+// Textes d'À propos et actualités arrivent du serveur après l'affichage : la hauteur des sections (ou de leur contenu) change.
 const observateurTaille = new ResizeObserver(demanderIndice);
-sections.forEach((s) => observateurTaille.observe(s));
+sections.forEach((s) => { observateurTaille.observe(s); if (s.firstElementChild) observateurTaille.observe(s.firstElementChild); });
 
 // Défile dans la section affichée, vers le bas (sens 1) ou le haut (-1), sans dépasser son bord ; faux s'il n'y a plus rien à défiler.
 function defilerDansSection(sens, part) {
   const s = sections[Math.max(0, indexActif)];
-  const b = s.getBoundingClientRect();
   const h = conteneur.clientHeight;
-  const reste = sens > 0 ? b.bottom - h : -b.top;
+  const interieur = defileElleMeme(s);
+  const b = s.getBoundingClientRect();
+  const reste = interieur ? (sens > 0 ? s.scrollHeight - s.clientHeight - s.scrollTop : s.scrollTop) : (sens > 0 ? b.bottom - h : -b.top);
   if (reste <= 2) return false;
-  conteneur.scrollBy({ top: sens * Math.min(reste, Math.round(h * part)), behavior: mouvementReduit() ? 'auto' : 'smooth' });
+  (interieur ? s : conteneur).scrollBy({ top: sens * Math.min(reste, Math.round(h * part)), behavior: mouvementReduit() ? 'auto' : 'smooth' });
   return true;
 }
 
