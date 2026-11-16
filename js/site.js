@@ -290,6 +290,59 @@ function defilerDansSection(sens, part) {
   return true;
 }
 
+// ---------- Molette (ordinateur) : une section par geste, toujours dans le sens de la molette ----------
+// Retour du propriétaire : la molette vers le haut ramenait parfois vers le bas. Avec l'aimantation stricte, un cran donné pendant que la
+// page se cale encore sur une section (passage rapide de Personnages à Actualités, puis cran vers le haut pour l'accueil) faisait choisir au
+// navigateur la section la plus proche, parfois celle d'en dessous. Le script prend donc la molette en main : un geste va à la section
+// voisine dans son sens, comptée depuis la section visée si la page est encore en mouvement. Un geste = des crans rapprochés (ou l'élan
+// d'un pavé tactile) fait un pas ; une molette tournée sans pause en refait un toutes les 450 ms environ, l'élan d'un pavé tactile non. Une section plus haute que l'écran est d'abord
+// parcourue (comme au clavier). Molette horizontale (carrousels) et zoom (Ctrl) : laissés au navigateur.
+const SEUIL_MOLETTE = 40; // px cumulés pour déclencher un pas (un cran de souris suffit ; quelques événements d'un pavé tactile)
+const PAUSE_MOLETTE = 160; // ms sans molette : le geste suivant peut partir
+const REPRISE_MOLETTE = 450; // ms : molette tournée sans pause, un nouveau pas (crans francs seulement, pas l'élan d'un pavé tactile)
+const CRAN_FRANC = 50; // px : un cran de souris (l'élan d'un pavé tactile retombe vite sous ce seuil)
+let dernierPasMolette = 0;
+let cibleMolette = null; // section visée par le dernier pas, tant que la page bouge
+let cumulMolette = 0;
+let sensMolette = 0;
+let verrouMolette = false;
+let finGesteMolette = 0;
+let finMouvement = 0;
+function pasMolette(sens) {
+  if (cibleMolette === null && defilerDansSection(sens, 0.6)) return;
+  const depart = cibleMolette ?? Math.max(0, indexActif);
+  const suivante = Math.max(0, Math.min(sections.length - 1, depart + sens));
+  if (suivante === depart) return;
+  cibleMolette = suivante;
+  allerA(suivante);
+  // Filet : si la page ne bouge pas (déjà sur place), la section visée est oubliée au bout d'une seconde.
+  clearTimeout(finMouvement);
+  finMouvement = setTimeout(() => { cibleMolette = null; }, 1000);
+}
+conteneur.addEventListener('wheel', (e) => {
+  if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY) || !e.deltaY) return;
+  if (document.getElementById('actu-vue').open) return;
+  e.preventDefault();
+  const sens = e.deltaY > 0 ? 1 : -1;
+  const px = Math.abs(e.deltaY) * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? conteneur.clientHeight : 1);
+  if (sens !== sensMolette) { sensMolette = sens; cumulMolette = 0; verrouMolette = false; }
+  clearTimeout(finGesteMolette);
+  finGesteMolette = setTimeout(() => { verrouMolette = false; cumulMolette = 0; }, PAUSE_MOLETTE);
+  if (verrouMolette && !(px >= CRAN_FRANC && e.timeStamp - dernierPasMolette >= REPRISE_MOLETTE)) return;
+  if (verrouMolette) cumulMolette = SEUIL_MOLETTE;
+  cumulMolette += px;
+  if (cumulMolette < SEUIL_MOLETTE) return;
+  cumulMolette = 0;
+  verrouMolette = true;
+  dernierPasMolette = e.timeStamp;
+  pasMolette(sens);
+}, { passive: false });
+// La page s'est arrêtée : la section visée est atteinte (ou le défilement a été repris autrement).
+conteneur.addEventListener('scroll', () => {
+  clearTimeout(finMouvement);
+  finMouvement = setTimeout(() => { cibleMolette = null; }, 150);
+}, { passive: true });
+
 liens.forEach((a) => {
   a.addEventListener('click', (e) => {
     e.preventDefault();

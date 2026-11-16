@@ -169,6 +169,11 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
   la plupart des portables), À propos dépassait de l'écran (jusqu'à 230 px), et l'aimantation des sections se trompait de sens. Sur ces
   écrans, À propos prend aussi le carrousel (flèches et « 01 / 02 ») ; sur un écran plus haut, les blocs restent l'un sous l'autre. Toutes
   les sections tiennent dans l'écran à partir de 600 px de haut (Personnages dépasse encore un peu en dessous).
+- **Molette, suite** (passage rapide de Personnages à Actualités, puis cran vers le haut avant la fin du mouvement : retour vers le bas) :
+  le navigateur choisissait la section la plus proche pendant que la page se calait encore. Le script prend la molette en main
+  (`js/site.js`) : un geste va toujours à la section voisine dans le sens de la molette, comptée depuis la section visée si la page bouge
+  encore ; molette tournée sans pause : une section toutes les 450 ms environ ; élan d'un pavé tactile : une section ; molette horizontale
+  (carrousels) et zoom laissés au navigateur. Le défilement au doigt (téléphone) n'est pas concerné.
 
 ---
 
