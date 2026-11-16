@@ -82,7 +82,7 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
 - `main.html` : ancienne page principale, simple redirection vers `./#news` (garde l'ancre).
 - `admin/` (lot 3b) : page d'administration des actualités (noindex, non reliée au site, français seulement, CSP stricte),
   mode d'emploi `Docs/ref/admin.md` ; « Pages du site » : page « À propos », bandeau d'alerte (lot 3d), aperçu de partage (lot 3f).
-- `css/`, `js/` : styles et scripts ; `js/site.js` : script de la page ; `js/textes.js` : tous les textes
+- `css/`, `js/` : styles et scripts ; `js/site.js` : script de la page (molette prise en main sur ordinateur : une section par geste, dans le sens de la molette) ; `js/textes.js` : tous les textes
   (blocs `fr` et `en`, mêmes clés) ; `js/i18n.js` : langue (priorité : `?lang=`, puis choix gardé du globe, puis langue du navigateur :
   français pour les visiteurs francophones, anglais pour les autres ; aucune géolocalisation) ;
   `js/logo.js` : logo du jeu ;
