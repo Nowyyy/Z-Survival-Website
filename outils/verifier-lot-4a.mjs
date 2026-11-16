@@ -271,11 +271,12 @@ for (const lang of ['fr', 'en']) {
   }
 }
 
-console.log('F. À propos : le jeu au-dessus du studio (ordinateur), à sa gauche dans un carrousel (téléphone)');
-for (const [l, h] of [[375, 667], [1440, 900]]) {
+console.log('F. À propos : le jeu au-dessus du studio (grand écran), à sa gauche dans un carrousel (téléphone, écran bas)');
+for (const [l, h] of [[375, 667], [1366, 768], [1440, 900]]) {
   for (const lang of ['fr', 'en']) {
     const { page, contexte } = await ouvrir(l, h, `?lang=${lang}#about`);
-    const telephone = l < 900;
+    // Carrousel sur téléphone et sur un écran d'ordinateur bas (860 px ou moins), blocs l'un sous l'autre au-delà.
+    const telephone = l < 900 || h <= 860;
     const r = await page.evaluate((telephone) => {
       const blocs = [...document.querySelectorAll('#about .about-corps')];
       const jeu = document.querySelector('.about-corps-jeu');
@@ -286,7 +287,7 @@ for (const [l, h] of [[375, 667], [1440, 900]]) {
       return {
         n: blocs.length,
         ordre: a && b && (telephone ? a.right <= b.left : a.bottom <= b.top),
-        // Téléphone : la section tient dans l'écran (pas de défilement vertical), position « 01 / 02 » montrée.
+        // Carrousel : la section tient dans l'écran (pas de défilement vertical), position « 01 / 02 » montrée.
         tient: !telephone || (section.offsetHeight <= innerHeight + 1 && !document.getElementById('about-carrousel').hidden),
         titre: jeu?.querySelector('.about-signature')?.textContent,
         texte: jeu?.querySelector('.about-paragraphe')?.textContent,

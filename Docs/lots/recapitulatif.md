@@ -165,6 +165,10 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
   #81 et #82 annulés. Ordinateur inchangé. Un texte d'À propos beaucoup plus long (admin) pourrait de nouveau dépasser de l'écran.
 - **Pastille « Défiler » retirée** (dégradé et flèche en bas des sections plus hautes que l'écran), à la demande du propriétaire : À propos
   tient maintenant dans l'écran sur téléphone. Les touches du clavier parcourent toujours une section haute avant de passer à la voisine.
+- **Molette qui ramenait parfois vers le bas** (retour du propriétaire, ordinateur) : sur un écran bas (fenêtre de 860 px de haut ou moins,
+  la plupart des portables), À propos dépassait de l'écran (jusqu'à 230 px), et l'aimantation des sections se trompait de sens. Sur ces
+  écrans, À propos prend aussi le carrousel (flèches et « 01 / 02 ») ; sur un écran plus haut, les blocs restent l'un sous l'autre. Toutes
+  les sections tiennent dans l'écran à partir de 600 px de haut (Personnages dépasse encore un peu en dessous).
 
 ---
 
