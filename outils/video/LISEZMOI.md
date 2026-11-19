@@ -22,6 +22,21 @@ node outils/video/fabriquer.mjs
   pour essayer d'autres réglages d'encodage) ; `--nettoyer` (efface les images rendues, environ 1 Go, dans `outils/video/rendu/`,
   dossier non suivi par git).
 
+## Scène v2 (lot 5a, en coulisses)
+
+Par défaut, le script fabrique la vidéo de la **v1** (`scene/`), celle de l'accueil public, exactement comme avant. L'option `--scene=v2`
+rend la scène v2 (`scene-v2/`, nouvelles armes du jeu, `Docs/ref/scene-accueil-v2.md`) avec les mêmes réglages, mais écrit ses fichiers
+dans **`outils/video/sortie-v2/`** (non suivi par git) : `img/accueil/` n'est jamais touché par la v2. La mise en place sur le site se fera
+dans un lot ultérieur, sur demande (copier les quatre fichiers de `sortie-v2/` dans `img/accueil/`, puis relancer
+`outils/video/verifier-accueil.mjs`).
+
+```bash
+node outils/video/fabriquer.mjs --scene=v2
+```
+
+Contrôle sans rien fabriquer : `--images=0,57,156` rend seulement ces images (dans `outils/video/rendu/`, ou `rendu/v2/` pour la v2), sans
+encoder ni toucher aux fichiers de sortie ; deux exécutions doivent donner des PNG identiques au bit près.
+
 ## Méthode
 
 1. **Copie publiée** : le script sert une copie exacte de ce que publie `.github/workflows/pages.yml` (`outils/copie-publiee.mjs`),

@@ -5,6 +5,9 @@ Image animée plein écran de la page d'accueil : construite en 3D avec les él�
 au lot 2b (`img/accueil/`, voir « Vidéos de l'accueil » plus bas). La page d'accueil ne charge pas Three.js :
 la scène sert uniquement à fabriquer la vidéo.
 
+> Version 2, en coulisses (lot 5a : nouvelles armes du jeu, suivra les skins et la carte) : `scene-v2/`, voir `Docs/ref/scene-accueil-v2.md`.
+> La v1 décrite ici reste celle de la vidéo publique.
+
 ## Composition
 - **Personnage 1** — au premier plan, **de face**, il **vise au loin** (arme épaulée,
   regard au-delà de la caméra).
