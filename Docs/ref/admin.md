@@ -34,6 +34,10 @@ Ce que vous écrivez ici apparaît dans la section **Actualités** du site, en f
    | **↳•** | sous-puce, rangée sous la puce du dessus (un nouvel appui la remet en puce simple) | `  - sous-élément` (deux espaces avant le tiret) |
    | **Lien** | lien (la page demande l'adresse, qui doit commencer par `https://`) | `[mots](https://…)` |
 
+   Au clavier, dans le texte (pas dans le titre) : sur une ligne de puce, **Tab** la décale en sous-puce (trois niveaux au plus) et
+   **Maj + Tab** la remonte ; sur une ligne vide, Tab pose le décalage avant de taper `- `. Sur une ligne de texte ordinaire, Tab passe au
+   champ suivant ; **Échap puis Tab** sort toujours du texte.
+
    Une ligne vide sépare deux paragraphes. Aucun autre code n'est interprété : si vous collez du HTML, il s'affiche tel quel.
 4. Onglet **English** (facultatif) : titre et texte en anglais. **Sans titre anglais**, le site anglais affiche la version
    française avec la petite mention **« (FR) »**.

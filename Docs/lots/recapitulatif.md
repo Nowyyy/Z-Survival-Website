@@ -176,7 +176,8 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
   (carrousels) et zoom laissés au navigateur. Le défilement au doigt (téléphone) n'est pas concerné.
 - **Sous-puces dans l'admin** (demande du propriétaire) : une puce précédée de deux espaces (`  - sous-élément`) se range sous la puce du
   dessus (rond vide, puis carré au troisième niveau, trois niveaux au plus) ; bouton **↳•** dans la barre de mise en forme (articles et
-  page « À propos »), qui décale la ligne ou la remet en puce simple. Mode d'emploi : `Docs/ref/admin.md`.
+  page « À propos »), qui décale la ligne ou la remet en puce simple. Mode d'emploi : `Docs/ref/admin.md`. Au clavier, **Tab** décale une
+  puce et **Maj + Tab** la remonte (dans le texte seulement ; ligne ordinaire ou Échap puis Tab : champ suivant).
 
 ---
 
