@@ -1,4 +1,4 @@
-/* Planche de cadrages (lot 1) : page de travail hors du site. Téléphone d'abord (375 px), puis ordinateur.
+/* Planche (lot 1, reprise pour la planche v1 / v2 de la scène v2, lot 5a) : page de travail hors du site. Téléphone d'abord (375 px), puis ordinateur.
    Couleurs : jetons du jeu (jeu/css/tokens.css, mêmes noms que css/base.css du site). Polices du site (../fonts, OFL). */
 @font-face { font-family: 'Barlow'; src: url('../../fonts/barlow-latin-400-normal.woff2') format('woff2'); font-weight: 400; font-display: swap; }
 @font-face { font-family: 'Barlow'; src: url('../../fonts/barlow-latin-700-normal.woff2') format('woff2'); font-weight: 700; font-display: swap; }
@@ -34,3 +34,18 @@ code { font-size: 0.95em; }
 }
 /* Aperçu téléphone : dans un cadre arrondi, comme un écran de téléphone. */
 .vue-telephone img { border: 6px solid var(--color-surface-raised); border-radius: 28px; }
+
+/* Planche v1 / v2 (lot 5a) : paires côte à côte, liens, historique. */
+.lettre { min-width: 48px; width: auto; padding-inline: 8px; }
+.instant { margin: 18px 0 8px; font-size: 1rem; font-weight: 700; color: var(--color-text); }
+.duo { display: grid; gap: 12px; grid-template-columns: 1fr; }
+.duo-portrait { grid-template-columns: 1fr 1fr; max-width: 760px; }
+.liens { margin: 0 0 16px; padding-left: 1.2em; }
+.liens a { display: inline-block; padding: 8px 0; min-height: 44px; line-height: 28px; }
+.historique { margin: 0; padding-left: 1.4em; }
+.historique > li { margin-bottom: 14px; }
+.historique .quand { margin: 0 0 4px; }
+.historique ul { margin: 0; padding-left: 1.2em; color: var(--color-text-muted); }
+@media (min-width: 700px) {
+  .duo { grid-template-columns: 1fr 1fr; }
+}

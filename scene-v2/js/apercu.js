@@ -1,11 +1,11 @@
-// Aperçu de l'accueil (retours du lot 1) : scene/index.html (cadrage B, plein écran) dessous, ../index.html (le site, sans modification)
+// Aperçu de l'accueil avec la scène v2 (lot 5a ; même principe que scene/apercu.html, retours du lot 1) : scene-v2/index.html (cadrage B, plein écran) dessous, ../index.html (le site, sans modification)
 // dessus. Le site est de la même origine : une feuille de style est ajoutée dans l'aperçu seulement pour rendre son fond transparent,
 // masquer l'image animée du site (affiche ; la vidéo n'est pas chargée : ?video=0, lot 2b) et rester sur l'accueil.
 // Paramètres transmis : ?t= (image fixe de la scène), ?lang=fr|en (langue du site), ?capture=1 (sans la note).
 const q = new URLSearchParams(location.search);
 const sceneParams = new URLSearchParams({ cadrage: q.get('cadrage') ?? 'B', format: 'plein' });
 if (q.get('t') !== null) sceneParams.set('t', q.get('t'));
-for (const k of ['p1', 'zb', 'zombie', 'p2', 'details']) if (q.get(k)) sceneParams.set(k, q.get(k)); // réglages d'atelier : placement, essais (?zombie=face, ?p2=civil, ?details=0)
+for (const k of ['p1', 'zb', 'zombie', 'p2', 'details', 'p1vise']) if (q.get(k)) sceneParams.set(k, q.get(k)); // réglages d'atelier : placement, essais (?zombie=face, ?p2=civil, ?details=0)
 document.getElementById('scene').src = `index.html?${sceneParams}`;
 
 const CSS = `

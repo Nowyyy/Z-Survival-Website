@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="dark">
+  <title>Z-Survival · Aperçu de l'accueil avec la scène v2 (atelier)</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="jeu/css/tokens.css">
+  <link rel="stylesheet" href="css/apercu.css">
+  <script type="module" src="js/apercu.js"></script>
+</head>
+<body>
+  <!-- Aperçu de la scène v2 (lot 5a, en coulisses : nouvelles armes du jeu) : la scène v2 (cadrage B) en fond, plein écran, et par-dessus la
+       vraie page d'accueil du site, chargée telle quelle (?video=0 : sans sa vidéo) ; son fond est rendu transparent dans l'aperçu seulement.
+       Le site n'est pas modifié et ne charge rien de scene-v2/. -->
+  <iframe id="scene" class="couche" title="Scène 3D de l'accueil (cadrage B)" tabindex="-1"></iframe>
+  <!-- Le cadre du site (#site) est créé par js/apercu.js une fois la scène prête. Pendant que la scène se construit, la même neige que
+       l'entrée en scène du site couvre l'écran ; elle s'efface quand la neige du site prend le relais. -->
+  <div id="neige" class="neige-attente" aria-hidden="true"></div>
+  <p id="note" class="note">Aperçu provisoire de la scène v2 (Kar98k et Colt), en direct derrière l'accueil du site : la vidéo publique ne change pas</p>
+</body>
+</html>
