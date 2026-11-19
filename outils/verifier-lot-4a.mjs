@@ -148,7 +148,7 @@ const locs = [...plan.corps.toString().matchAll(/<loc>([^<]*)<\/loc>/g)].map((m)
 verifier(plan.statut === 200 && /xml/.test(plan.type) && plan.corps.toString().includes('http://www.sitemaps.org/schemas/sitemap/0.9') && locs.join() === DOMAINE,
   `sitemap.xml servi, une seule adresse : ${locs.join(', ')}`);
 // Pages de travail : noindex. Liste : toutes les pages HTML publiées (copie locale) ; en ligne, la liste connue.
-const pagesTravail = ['admin/', 'main.html', 'musique/planche.html', 'scene/index.html', 'scene/apercu.html', 'scene/planche.html'];
+const pagesTravail = ['admin/', 'main.html', 'musique/planche.html', 'scene/index.html', 'scene/apercu.html', 'scene/planche.html', 'scene-v2/index.html', 'scene-v2/apercu.html', 'scene-v2/planche.html'];
 if (copie) {
   const { readdirSync, statSync } = await import('node:fs');
   const { join, relative } = await import('node:path');

@@ -268,6 +268,8 @@ try {
     tir: TIR,
     tirs: details ? [TIR, TIR_P2] : [TIR], // détails : le tir du personnage 2 fait aussi flasher le cadre
     fps: () => fps.value,
+    // v2 (contrôle, scene-v2/outils/verifier.mjs) : éclair visible au canon de chaque tireur [personnage 1, personnage 2] à l'image affichée.
+    eclairs: () => [tir, tir2].map((x) => Boolean(x?.group.children[0].visible)),
     atelier: { p1, p2, zb, stage, THREE, kar, colt, ATELIER, FUSIL, PRISES, manoeuvreAt },
     armes: { p1: { id: kar.id, nom: kar.nom, variante: kar.variante, triangles: kar.triangles }, p2: { id: colt.id, nom: colt.nom, variante: colt.variante, triangles: colt.triangles } },
     info: () => ({ cadrage, format, duree: DUREE, taille: [toile.width, toile.height], triangles: renderer.info.render.triangles, appels: renderer.info.render.calls }),
