@@ -1,0 +1,379 @@
+{
+ "_note": "Copie figée du jeu pour la scène v2 de l’accueil (lot 5a). Fichiers repris TELS QUELS, jamais retouchés. Refaire : node outils/scene/copier-jeu.mjs (outils/scene/LISEZMOI.md) ; vérifier : node outils/scene/copier-jeu.mjs --verifier.",
+ "depot": "Nowyyy/Z-Survival",
+ "branche": "dev",
+ "commit": "622df2c9ec4f3e045233f6c1406acfd1cbf97d95",
+ "date": "2026-11-19T21:42:40+00:00",
+ "titre": "Merge branch 'lot-9e' into dev",
+ "copieLe": "2026-11-19",
+ "precedent": null,
+ "changements": null,
+ "absentsDuJeu": [],
+ "fichiers": [
+  {
+   "chemin": "js/core/armes/armes.js",
+   "sha256": "252b7443d53f9e1ac0be44bef5c4e847318bda23cf8fad742a18bdde0f2e97d2",
+   "octets": 18250
+  },
+  {
+   "chemin": "js/core/armes/atlas.js",
+   "sha256": "c161220dfab193bc32fe2d46d3e547381b0a3b49291397f07750a2141d6dfe0b",
+   "octets": 7815
+  },
+  {
+   "chemin": "js/core/armes/geometrie.js",
+   "sha256": "17950a4c7e75dad6dbdc86a9a6dad62d0b20a531965dca5e148e168d9726c5c9",
+   "octets": 12515
+  },
+  {
+   "chemin": "js/core/armes/modeles.js",
+   "sha256": "c1fd5790dfdaf02380cc136471d343f15b86c62cc4a899dc6886729ffdf6d65f",
+   "octets": 23573
+  },
+  {
+   "chemin": "js/core/armes/partie.js",
+   "sha256": "a8dd5d93c82c9ffca516184c4d306502973eafb12fe7312f37aadfaa5b3f090b",
+   "octets": 10402
+  },
+  {
+   "chemin": "js/core/camera.js",
+   "sha256": "11c924644e1e40ebe2b28a037d354fc7b2167273ea05ef54f5a4830201340777",
+   "octets": 3359
+  },
+  {
+   "chemin": "js/core/character-parts.js",
+   "sha256": "4733fdc133b779cb6625c87db0509fd181c63b8acba18f02eaf8d9ae0b9eaee6",
+   "octets": 39917
+  },
+  {
+   "chemin": "js/core/collision.js",
+   "sha256": "01f47a03c25e98a8168321c687c844fb7bccb4560b77a639854f917598795d77",
+   "octets": 13331
+  },
+  {
+   "chemin": "js/core/color.js",
+   "sha256": "4a92c5ae8942ac667075273bf8e69ada16ec6aad0e1849f2468bf79e05f711d1",
+   "octets": 2792
+  },
+  {
+   "chemin": "js/core/decor-interieur.js",
+   "sha256": "631d08a1c7d23a74991dbbb2466efff8d1ceed8d5053e375b172301b83358968",
+   "octets": 22155
+  },
+  {
+   "chemin": "js/core/decor-vivant.js",
+   "sha256": "736feea3753de678838b0653820f88be77ce30300f6cfe856dbfa183528bb345",
+   "octets": 8768
+  },
+  {
+   "chemin": "js/core/decor.js",
+   "sha256": "1fa4f5695a6e468f59b6794e816c61c4fc7f21d84bc97cf650484f4b95af11a7",
+   "octets": 12741
+  },
+  {
+   "chemin": "js/core/epaves.js",
+   "sha256": "3086189af9655040f3c0b4234cc04ee98722fc40d4800a7880c5831a536dca97",
+   "octets": 34179
+  },
+  {
+   "chemin": "js/core/floors.js",
+   "sha256": "9d41eb8a32a2a753d56a3c585d5a0be1859b9112cf6b5ceed7576e0b3257ce5e",
+   "octets": 4416
+  },
+  {
+   "chemin": "js/core/fog.js",
+   "sha256": "45556d482d7ccd6080ca545d378675d20f13fcc2df25c644e26fb30d2975910e",
+   "octets": 2072
+  },
+  {
+   "chemin": "js/core/furniture-model.js",
+   "sha256": "565c5ed899fdbaf5c3c6f77ffdd1c8d8f98f704753312963c3527f7f01850101",
+   "octets": 5757
+  },
+  {
+   "chemin": "js/core/gabarit.js",
+   "sha256": "72a8d98bf650896035bf7e894fbc7f84ef053fcf917fe9cdfa3a49129da36167",
+   "octets": 6988
+  },
+  {
+   "chemin": "js/core/lamps.js",
+   "sha256": "255a6f7cb6362ff438586bdc1cb68956383e8e25da17fc0d66025b0daaf00930",
+   "octets": 33876
+  },
+  {
+   "chemin": "js/core/layout.js",
+   "sha256": "65c5a6c64d8698d416e84789d012415a1bc4a39494934b46be84463854d20ed7",
+   "octets": 17267
+  },
+  {
+   "chemin": "js/core/maps.js",
+   "sha256": "14a2eeebda32edd699116424eb88c05732136c3b6cfc82f38f35b71d1326433a",
+   "octets": 42801
+  },
+  {
+   "chemin": "js/core/mobilier-aspect.js",
+   "sha256": "07276af585c3895ed5f591a4e1b3fbfcf9e432a8f0478b3fa1fe0f199b267ad7",
+   "octets": 13411
+  },
+  {
+   "chemin": "js/core/movement.js",
+   "sha256": "3a5d00c335d7f320ba035fa8e6670b7bd355c12fe3760317da3a23cd2fcae615",
+   "octets": 1497
+  },
+  {
+   "chemin": "js/core/persos-variants.js",
+   "sha256": "c42c595a9d6feeaf04e78c09a4dbfe81ad5b7bda56bb244fc635b94fd6244424",
+   "octets": 6665
+  },
+  {
+   "chemin": "js/core/plank-layout.js",
+   "sha256": "06806deb39d4d8b1382463518f708262a7b197c5dc2b4ea94577ccc7f373d4a8",
+   "octets": 19298
+  },
+  {
+   "chemin": "js/core/portes-aspect.js",
+   "sha256": "163a9c2b3e06a95cea20a61411af9725073d5aa1111248803905d16ab272af92",
+   "octets": 7269
+  },
+  {
+   "chemin": "js/core/pose-v2.js",
+   "sha256": "61233daebc5ada97105b52d7f7f6e640cfef76ae0ad810d2f5865da43856929b",
+   "octets": 44076
+  },
+  {
+   "chemin": "js/core/rng.js",
+   "sha256": "c26bb15cea4361774135cc61ebc85e1ef2e74e93cce8ec19da51835bc4a42b87",
+   "octets": 910
+  },
+  {
+   "chemin": "js/core/see-through.js",
+   "sha256": "9aa60d95e903572165f975fb4500d96deb11027f8364bd1e40c7b0fb366fc6f2",
+   "octets": 5003
+  },
+  {
+   "chemin": "js/core/shape.js",
+   "sha256": "87dc55c0218dffe3134cbe4b329af17147fce74eca763bf4bb11b4c2b0294d8c",
+   "octets": 7423
+  },
+  {
+   "chemin": "js/core/texgen-persos.js",
+   "sha256": "a2fe640458546afdc5134fc36bc5d075c07efdb796f8058ea286eeca3e18c2f2",
+   "octets": 6389
+  },
+  {
+   "chemin": "js/core/texgen.js",
+   "sha256": "a7b676693fbdae18e98820a7ef8ebe3b3afd034276a87a50c3a5782fac0063c6",
+   "octets": 45581
+  },
+  {
+   "chemin": "js/core/vec.js",
+   "sha256": "5cabba7f4a96f0a3f3c8915b5898347f55fb11395d9e56d7e6dc372dcf0133a2",
+   "octets": 1474
+  },
+  {
+   "chemin": "js/core/viewport.js",
+   "sha256": "8255eafed09fc7a003ace6e82e49a01c17ef8f5999c436ea7bdd6bad47be5a15",
+   "octets": 5039
+  },
+  {
+   "chemin": "js/core/windows.js",
+   "sha256": "5995d8a582b50e1c394e068c4c564175a6ff07fbc9d2248371913576a17fb3b2",
+   "octets": 9043
+  },
+  {
+   "chemin": "js/core/zones.js",
+   "sha256": "9fb0844c3e265347f956aa842853e7fdc88e68a57001887b58b2ca59e57a4581",
+   "octets": 17808
+  },
+  {
+   "chemin": "js/game/character-v2.js",
+   "sha256": "7492405ddee1d3b1fcfae1e66e8eddb052debdc209ac081b829a585d17c64f0e",
+   "octets": 44242
+  },
+  {
+   "chemin": "js/game/fire.js",
+   "sha256": "094af5774a31ea31fc2bbab13434c2670b66eb017341295a8e8989a2fa6c9e78",
+   "octets": 11627
+  },
+  {
+   "chemin": "js/game/lamps.js",
+   "sha256": "745410e8ce68520b6c74386b16c5bf750d90d43926e5d16dc627606d5b2ab871",
+   "octets": 7528
+  },
+  {
+   "chemin": "js/game/lights.js",
+   "sha256": "71a5bea3d225d24c0ad835556005fde89e1ae4733cfcf2d9512b761d2ab22565",
+   "octets": 20405
+  },
+  {
+   "chemin": "js/game/mist.js",
+   "sha256": "188374dd826ec9f1a9161d71ec4a52ed63ebfe61f3a80c165a1ab173aae6b8c0",
+   "octets": 3599
+  },
+  {
+   "chemin": "js/game/palette.js",
+   "sha256": "a4cffe06906a93d233f3f201b85c33074d8653ae58c96839edd5936e7baeced1",
+   "octets": 1752
+  },
+  {
+   "chemin": "js/game/see-through.js",
+   "sha256": "953d74af5b42ddfd94c7185074ca32e27c617c9af3e5a4aa92bc08af6cecef9f",
+   "octets": 3183
+  },
+  {
+   "chemin": "js/game/textures.js",
+   "sha256": "69bcf84bb94c233a19bc54af06b785f2f81c7a9328570720ed4f6652fdc71b2e",
+   "octets": 4462
+  },
+  {
+   "chemin": "js/game/windows-mesh.js",
+   "sha256": "28bed5866ba61cef04d552006f817f27df05c75ddf49e1292600dae383844036",
+   "octets": 17710
+  },
+  {
+   "chemin": "js/game/world.js",
+   "sha256": "73004e92155af95823a526005b6fe7f350d57cfb06cfc9d95d7a56e10ef4c257",
+   "octets": 92216
+  },
+  {
+   "chemin": "data/game/characters-v2.json",
+   "sha256": "4befc14a07cfe4867f812638bd00503547d32909196ac25eb282cbdd8aa195d8",
+   "octets": 299199
+  },
+  {
+   "chemin": "data/game/poses-v2.json",
+   "sha256": "814fc1b376d52f07e90e535fa3355d47d9e68aaeeb89b65328dbd082bb66794a",
+   "octets": 14645
+  },
+  {
+   "chemin": "data/game/persos-choix.json",
+   "sha256": "ebfff83d7818fc920094d55cc906bda1d876ceccfddf626953a0da2ac746fecb",
+   "octets": 2121
+  },
+  {
+   "chemin": "data/game/zombie-variants.json",
+   "sha256": "db4e7ff51e3a36dbac6931804af4b7f6d7bc0e582996bee75353cb145e247c34",
+   "octets": 1339
+  },
+  {
+   "chemin": "data/game/render.json",
+   "sha256": "9ccd2d5472c74b245680f248884caf01d16e0e5e604d816eb420b874fc068aac",
+   "octets": 1876
+  },
+  {
+   "chemin": "data/game/textures.json",
+   "sha256": "ecd2b71399f860e98bbca6699b8fe0080748ab28b1a75217225a819cec7421d4",
+   "octets": 11875
+  },
+  {
+   "chemin": "data/game/camera.json",
+   "sha256": "cf19097821fe4a7b37e11bd6d1b38267104004ab6056f4a428a2c9e0f7972185",
+   "octets": 376
+  },
+  {
+   "chemin": "data/game/windows.json",
+   "sha256": "abbdbb2d54bdba562f6fb703dd9c73872d6305b411917edf6070f8442f9fbc9d",
+   "octets": 2549
+  },
+  {
+   "chemin": "data/game/lumieres.json",
+   "sha256": "36056e09d2af51d1de2db42ab8ab721b72e2750fa4cde5174e7d5d4921aca911",
+   "octets": 3504
+  },
+  {
+   "chemin": "data/game/maps/rez-de-chaussee/world.json",
+   "sha256": "ad875ce1f4cf22aec622edd286f42a9efe5c0c304b39130b8230715081828354",
+   "octets": 11357
+  },
+  {
+   "chemin": "data/game/maps/rez-de-chaussee/decor.json",
+   "sha256": "34a548c3014168d5d49d9bf43f07b3e661aaa23bb0c93cf3d4c9e0af178bab8f",
+   "octets": 3532
+  },
+  {
+   "chemin": "data/game/maps/rez-de-chaussee/zones.json",
+   "sha256": "bf13db497b688240321b91f3e9485431782487e2495cea865f3c7baae50bfa1e",
+   "octets": 5343
+  },
+  {
+   "chemin": "data/game/maps/rez-de-chaussee/etage.world.json",
+   "sha256": "430a099f0f0c58ada6a4a365d3617142d912505701f9e800c89025e0cfafa31f",
+   "octets": 7526
+  },
+  {
+   "chemin": "data/game/maps/rez-de-chaussee/decor-interieur.world.json",
+   "sha256": "a189570d5867a89ca42e993b657e99258bcade14fcd343be68e52fbd25051949",
+   "octets": 27562
+  },
+  {
+   "chemin": "data/game/maps/rez-de-chaussee/mobilier.world.json",
+   "sha256": "ce40b6ada53e722174db16d58823657fdc7ca781747ba35a39a5a42a396699ce",
+   "octets": 50184
+  },
+  {
+   "chemin": "data/game/maps/rez-de-chaussee/feux.json",
+   "sha256": "ac765e660ac4d9669a99e99ca4a8619921624eb5ca20b8b33e3fb67edd810981",
+   "octets": 406
+  },
+  {
+   "chemin": "data/game/maps/rez-de-chaussee/lampes.world.json",
+   "sha256": "2f06d078f4d42ed9b8f174499cffc2831c43e93ff9386edafd95a8f2186275d3",
+   "octets": 6933
+  },
+  {
+   "chemin": "data/game/maps/rez-de-chaussee/epaves.json",
+   "sha256": "79c7da91fb541273beadfad8654ced4b82782f6455074df4e98608914f9a2b54",
+   "octets": 1752
+  },
+  {
+   "chemin": "data/armes/armes.json",
+   "sha256": "d48da5667eacfe842cf7eba20bf45786f7ce889ee91e37396383b6e4c95b5be5",
+   "octets": 11962
+  },
+  {
+   "chemin": "data/armes/armes-choix.json",
+   "sha256": "f30f1706256299dfa6125255219cd58933e73325dc6a9785613ebb213f8ac7c3",
+   "octets": 744
+  },
+  {
+   "chemin": "data/armes/poses.json",
+   "sha256": "1b3b25e1c20ee732b4f266203df56cd04981d53f163cc109d811c1ea2463357e",
+   "octets": 24012
+  },
+  {
+   "chemin": "data/game/armes-partie.json",
+   "sha256": "087b12adee0d8c1bddc1017df12f85511fefb653fa4b338907f4caf524979a1f",
+   "octets": 10622
+  },
+  {
+   "chemin": "css/tokens.css",
+   "sha256": "a7ff91384bef55c9d033949e2c79fa771ca703c97e10a1ea42867cf5563e4e55",
+   "octets": 24050
+  },
+  {
+   "chemin": "css/armes.css",
+   "sha256": "d45448678b08adaf06288cfe37abaf05995e1c8c0a36718de5884867b6a3f8aa",
+   "octets": 2586
+  },
+  {
+   "chemin": "vendor/three/three.module.js",
+   "sha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea",
+   "octets": 662772
+  },
+  {
+   "chemin": "vendor/three/three.core.js",
+   "sha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6",
+   "octets": 1458113
+  },
+  {
+   "chemin": "vendor/three/LICENSE-three.txt",
+   "sha256": "8b378ebe60e2fe500158cb0ac71cb5e8b7d92953c2abcc63a0eb90499653b5bc",
+   "octets": 1081
+  },
+  {
+   "chemin": "vendor/three/version.json",
+   "sha256": "0e232a90e7361681ed314eb712ef318386881a44239593fe2a463a2f02ccf03a",
+   "octets": 38
+  }
+ ]
+}
