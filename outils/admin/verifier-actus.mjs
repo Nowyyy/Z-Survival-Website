@@ -163,6 +163,29 @@ let imagePrincipale = '';
   };
   const etapes = [await sousPuce(), await sousPuce(), await sousPuce()];
   verifier(JSON.stringify(etapes) === JSON.stringify(['  - clous', '- clous', '  - clous']), `bouton sous-puce : décale, puis remet en puce simple (${JSON.stringify(etapes)})`);
+  // Tab sur une ligne de liste : décale (quatre espaces au plus) ; Maj + Tab : remonte. Ligne ordinaire, ou Échap puis Tab : champ suivant.
+  const touche = async (t) => {
+    await page.focus('#contenu_fr');
+    await page.evaluate(() => { const z = document.getElementById('contenu_fr'); const d = z.value.lastIndexOf('clous'); z.setSelectionRange(d, d); });
+    await page.keyboard.press(t);
+    return (await page.inputValue('#contenu_fr')).split('\n').at(-1);
+  };
+  const tabs = [];
+  for (const t of ['Shift+Tab', 'Tab', 'Tab', 'Tab', 'Shift+Tab']) tabs.push(await touche(t));
+  const resteDansLeChamp = await page.evaluate(() => document.activeElement?.id === 'contenu_fr');
+  verifier(JSON.stringify(tabs) === JSON.stringify(['- clous', '  - clous', '    - clous', '    - clous', '  - clous']) && resteDansLeChamp,
+    `Tab / Maj + Tab sur une puce : décalage dans le champ (${JSON.stringify(tabs)})`);
+  const avantSortie = await page.inputValue('#contenu_fr');
+  await page.evaluate(() => { const z = document.getElementById('contenu_fr'); const d = z.value.indexOf('*mot*'); z.focus(); z.setSelectionRange(d, d); });
+  await page.keyboard.press('Tab');
+  const sortieTexte = await page.evaluate(() => document.activeElement?.id !== 'contenu_fr');
+  await page.evaluate(() => { const z = document.getElementById('contenu_fr'); const d = z.value.lastIndexOf('clous'); z.focus(); z.setSelectionRange(d, d); });
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('Tab');
+  const sortieEchap = await page.evaluate(() => document.activeElement?.id !== 'contenu_fr');
+  verifier(sortieTexte && sortieEchap && (await page.inputValue('#contenu_fr')) === avantSortie,
+    `Tab sur une ligne ordinaire, ou Échap puis Tab : passe au champ suivant, texte inchangé (${sortieTexte}, ${sortieEchap})`);
+  await page.focus('#contenu_fr');
   await page.evaluate(() => { const z = document.getElementById('contenu_fr'); z.setSelectionRange(z.value.length, z.value.length); });
   await page.keyboard.type('\n\nVoir le ');
   suivi.reponses.push('https://example.org/guide');

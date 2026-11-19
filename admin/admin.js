@@ -500,7 +500,50 @@ document.querySelectorAll('.admin-outils').forEach((barre) => {
     b.addEventListener('pointerdown', (e) => e.preventDefault());
     b.addEventListener('click', () => formats[b.dataset.format](zone));
   });
+  zone.addEventListener('keydown', (e) => decalerAuTab(zone, e));
 });
+
+// Tab dans le texte (demande du propriétaire) : sur une ligne de liste, Tab décale la puce de deux espaces (sous-puce, trois niveaux au
+// plus) et Maj + Tab la remonte ; sur une ligne vide, Tab pose deux espaces (on tape ensuite « - »). Sur une ligne de texte ordinaire,
+// Tab garde son rôle (champ suivant). Échap puis Tab sort toujours de la zone au clavier. Les titres ne sont pas concernés.
+const RETRAIT_MAX = 4; // espaces : troisième niveau (js/markdown.js)
+const MOTIF_LIGNE_LISTE = /^[ \t]*(?:[-*+]|\d{1,9}[.)])[ \t]/;
+let sortieAuTab = false;
+function decalerAuTab(zone, e) {
+  if (e.key === 'Escape') { sortieAuTab = true; return; }
+  if (e.key !== 'Tab' || e.altKey || e.ctrlKey || e.metaKey) { sortieAuTab = false; return; }
+  if (sortieAuTab) { sortieAuTab = false; return; }
+  const { selectionStart: d, selectionEnd: f, value: v } = zone;
+  const debut = v.lastIndexOf('\n', d - 1) + 1;
+  const finLigne = v.indexOf('\n', f > d && v[f - 1] === '\n' ? f - 1 : f);
+  const fin = finLigne === -1 ? v.length : finLigne;
+  const lignes = v.slice(debut, fin).split('\n');
+  const listes = lignes.every((l) => MOTIF_LIGNE_LISTE.test(l));
+  const vide = lignes.length === 1 && !lignes[0].trim();
+  if (!listes && !(vide && !e.shiftKey)) return; // texte ordinaire : Tab passe au champ suivant
+  e.preventDefault();
+  if (vide) {
+    const espaces = Math.min(2, RETRAIT_MAX - lignes[0].length);
+    if (espaces > 0) remplacer(zone, d, d, ' '.repeat(espaces), d + espaces, d + espaces);
+    return;
+  }
+  const largeur = (l) => l.match(/^[ \t]*/)[0].replace(/\t/g, '  ').length;
+  const nouvelles = lignes.map((l) => {
+    const corps = l.replace(/^[ \t]*/, '');
+    const retrait = e.shiftKey ? Math.max(0, largeur(l) - 2) : Math.min(RETRAIT_MAX, largeur(l) + 2);
+    return ' '.repeat(retrait - (retrait % 2)) + corps;
+  });
+  const nouveau = nouvelles.join('\n');
+  if (nouveau === v.slice(debut, fin)) return;
+  if (lignes.length === 1) {
+    // Le curseur garde sa place dans le texte de la ligne.
+    const ecart = nouvelles[0].length - lignes[0].length;
+    const pos = (x) => Math.max(debut, x + ecart);
+    remplacer(zone, debut, fin, nouveau, pos(d), pos(f));
+  } else {
+    remplacer(zone, debut, fin, nouveau, debut, debut + nouveau.length);
+  }
+}
 
 // ---------- Image ----------
 
