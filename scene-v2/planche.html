@@ -15,9 +15,10 @@
     <p class="marque">Atelier · lot 5a · accueil v2, en coulisses</p>
     <h1 class="titre">Scène v1 / v2</h1>
     <p class="intro">La <strong>v2</strong> de la scène de l'accueil suit le jeu : copie fraîche de sa branche <code>dev</code> et
-      <strong>nouvelles armes</strong>. Personnage 1, à genou : le <strong>Kar98k</strong>, épaulé, joue sur la crosse ; au tir (5,2 s), recul,
-      éclair, puis il manœuvre le verrou (la douille sort quand la culasse est tirée). Personnage 2, le pied sur le zombie : le
-      <strong>Colt M1911</strong>, pointé sur lui. Même cadrage B, même boucle de 8 s, mêmes instants de tir (2,6 et 5,2 s).</p>
+      <strong>nouvelles armes</strong>. Personnage 1, à genou : le <strong>Kar98k</strong>, épaulé <strong>en gaucher</strong>, joue sur la crosse,
+      il vise à droite de l'écran ; au tir (5,2 s), il ferme l'œil droit, recul, éclair, puis il manœuvre le verrou (la douille sort quand la
+      culasse est tirée et s'envole hors de l'image). Personnage 2, le pied sur le zombie : le
+      <strong>Colt M1911</strong>, pointé sur lui (sa douille s'envole aussi hors de l'image). Même cadrage B, même boucle de 8 s, mêmes instants de tir (2,6 et 5,2 s).</p>
     <p class="provisoire">Provisoire : page de travail, hors du site (non indexée, aucun lien depuis l'accueil). L'accueil public garde la
       vidéo actuelle (v1) ; la vidéo v2 sera fabriquée plus tard, sur demande.</p>
   </header>
@@ -31,7 +32,7 @@
         <li><a href="apercu.html">Aperçu : la v2 sous l'accueil du site</a></li>
         <li><a href="index.html?cadrage=B&amp;format=paysage">La scène v2 seule, paysage (ordinateur)</a></li>
         <li><a href="index.html?cadrage=B&amp;format=portrait">La scène v2 seule, portrait (téléphone)</a></li>
-        <li><a href="index.html?cadrage=B&amp;format=paysage&amp;p1vise=330,64,900">Essai : le Kar98k visant à droite, comme le pistolet de la v1</a></li>
+        <li><a href="apercu.html?tireur=droitier">Essai : la première version (tireur droitier, visée à gauche de l'écran)</a></li>
       </ul>
       <div class="paire">
         <figure class="vue vue-paysage">
@@ -81,11 +82,20 @@
         en haut. Détail des fichiers : <code>scene-v2/jeu/ORIGINE.json</code>.</p>
       <ol class="historique" reversed>
         <li>
+          <p class="quand"><strong>19/11/2026</strong> · <code>dev</code> @ <code>622df2c</code> (copie inchangée) · retours du propriétaire</p>
+          <ul>
+            <li>Personnage 1 <strong>gaucher</strong> : il vise à droite de l'écran (comme la v1), visage visible, œil droit fermé au tir ;
+              la main droite manœuvre le verrou.</li>
+            <li>Douilles des deux armes : elles volent jusqu'à sortir de l'image (plus de disparition en l'air) ; celle du Colt est
+              maintenant visible.</li>
+          </ul>
+        </li>
+        <li>
           <p class="quand"><strong>19/11/2026</strong> · <code>dev</code> @ <code>622df2c</code> (« Merge branch 'lot-9e' into dev ») · première copie</p>
           <ul>
             <li>Armes refaites du jeu (lot 9c et 9e du jeu) : le <strong>Kar98k</strong> (personnage 1, verrou animé) et le
               <strong>Colt M1911</strong> (personnage 2) remplacent l'ancien pistolet.</li>
-            <li>Kar98k épaulé, joue sur la crosse ; il vise à gauche de la caméra (la v1 visait à droite) pour que son visage reste visible.</li>
+            <li>Kar98k épaulé à droite, joue sur la crosse ; il visait à gauche de la caméra pour que son visage reste visible.</li>
             <li>Par rapport à la copie de la v1 (<code>dev</code> @ <code>3c25e3a</code>) : 11 fichiers ajoutés (armes, corps long), 16
               modifiés (personnages, squelettes, hélicoptère, carte, fenêtres, textures, couleurs).</li>
             <li>« Corps long » du jeu (épaules plus étroites, bras plus longs) pas encore pris : la scène garde ses propres proportions.</li>

@@ -8,8 +8,8 @@ armes. **L'accueil public ne change pas** : même vidéo, même tir, même compo
 - **Planche v1 / v2** : https://zsurvival-game.com/scene-v2/planche.html
 - **La v2 sous l'accueil du site** (en direct, plein écran) : https://zsurvival-game.com/scene-v2/apercu.html
 - La scène v2 seule : https://zsurvival-game.com/scene-v2/index.html?cadrage=B&format=portrait (ou `format=paysage`)
-- Pour comparer, le Kar98k visant à droite comme le pistolet de la v1 :
-  https://zsurvival-game.com/scene-v2/apercu.html?p1vise=330,64,900
+- Pour comparer, la première version (droitier, visée à gauche de l'écran) :
+  https://zsurvival-game.com/scene-v2/apercu.html?tireur=droitier
 
 ## Ce qui a été fait
 
@@ -101,6 +101,22 @@ armes. **L'accueil public ne change pas** : même vidéo, même tir, même compo
 4. **Corps long du jeu** (épaules plus étroites, bras plus longs) : le prendre maintenant, ou attendre les nouveaux skins des personnages ?
 5. **Variantes des armes** : celles retenues dans le jeu (Colt phosphaté, Kar98k noyer avec bretelle) ; une autre variante pour l'accueil
    (Colt bronzé, Kar98k hêtre clair) ?
+
+## Retours du propriétaire (19/11/2026, branche `accueil-v2-retours`)
+1. « Le personnage 1 ne peut-il pas regarder vers la droite de l'écran ? » → **oui, en gaucher** : crosse à l'épaule gauche, joue gauche sur la
+   crosse, il vise à droite de l'écran comme le pistolet de la v1, et **ferme l'œil droit** au tir (paupière droite ajoutée). Vu de la caméra
+   basse, son visage reste devant le fusil (épaulé à droite, sa main et son bras le cachaient). Le levier du Kar98k étant à droite, c'est la
+   main droite (sous le garde-main) qui manœuvre le verrou. Son corps reprend l'orientation de la v1. `?tireur=droitier` : la première
+   version.
+2. **Douille du Kar98k** : elle vole maintenant **jusqu'à sortir de l'image** (vers le bord de l'image du côté de la fenêtre d'éjection, vers le
+   haut, puis pesanteur), au lieu de disparaître en l'air au bout de 0,55 s : cachée seulement une fois hors du champ de la caméra.
+3. **Douille du Colt** : même vol jusqu'à la sortie de l'image ; plus grande (au moins 2,1 de long au lieu de 0,9 à l'échelle du jeu, où elle
+   ne se voyait pas) et en laiton qui accroche la lumière.
+
+Vérifications : `node scene-v2/outils/verifier.mjs` (racine et `--sous-dossier`), boucle complète, `verifier-accueil.mjs`, `verifier-site.mjs` :
+voir la PR. Trajectoires mesurées (position dans l'image toutes les 0,05 s) : en paysage et en portrait, les deux douilles sortent par le bord
+gauche de l'image, toujours au-dessus du sol ; celle du Colt passe un instant derrière le personnage 1.
+La question 1 (« direction du tir ») est tranchée : à droite de l'écran.
 
 ## État git
 - Commits `accueil-v2 A` à `accueil-v2 E` sur la branche `accueil-v2` (poussée), PR vers `main` fusionnée par l'agent (règle de
