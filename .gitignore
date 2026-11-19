@@ -4,3 +4,5 @@ outils/musique/rendu/
 outils/video/rendu/
 # Dépendances des outils (opentype.js, wawoff2 : outils/icones/), réinstallées par npm ci
 outils/icones/node_modules/
+# Vidéo de la scène v2 (lot 5a), fabriquée en coulisses par outils/video/fabriquer.mjs --scene=v2 : jamais dans img/accueil/ sans demande
+outils/video/sortie-v2/

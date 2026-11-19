@@ -6,6 +6,7 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /scene/
+Disallow: /scene-v2/
 Disallow: /musique/planche.html
 Disallow: /outils/
 Disallow: /main.html

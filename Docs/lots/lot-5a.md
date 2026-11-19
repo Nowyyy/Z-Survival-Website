@@ -1,0 +1,108 @@
+# Lot 5a — Accueil v2 : nouvelle scène en coulisses (Kar98k, Colt)
+
+Branche `accueil-v2`, depuis `main` (`e80c9cb`). Le jeu a refait toutes ses armes : l'ancien pistolet de la scène de l'accueil n'existe
+plus. Une **v2** de la scène est préparée **en coulisses** dans `scene-v2/`, avec une copie fraîche du jeu (branche `dev`) et ses nouvelles
+armes. **L'accueil public ne change pas** : même vidéo, même tir, même comportement. Référence : `Docs/ref/scene-accueil-v2.md`.
+
+## Adresses à ouvrir sur ton téléphone
+- **Planche v1 / v2** : https://zsurvival-game.com/scene-v2/planche.html
+- **La v2 sous l'accueil du site** (en direct, plein écran) : https://zsurvival-game.com/scene-v2/apercu.html
+- La scène v2 seule : https://zsurvival-game.com/scene-v2/index.html?cadrage=B&format=portrait (ou `format=paysage`)
+- Pour comparer, le Kar98k visant à droite comme le pistolet de la v1 :
+  https://zsurvival-game.com/scene-v2/apercu.html?p1vise=330,64,900
+
+## Ce qui a été fait
+
+### A — Copie fraîche du jeu et outil de mise à jour
+- **`outils/scene/copier-jeu.mjs`** (mode d'emploi : `outils/scene/LISEZMOI.md`) : sans argument, il clone `dev` dans un dossier
+  temporaire du système (hors du dépôt, lecture seule), recopie **tels quels** dans `scene-v2/jeu/` les fichiers dont la scène a besoin
+  (suivi des imports des modules de départ + liste de données : personnages, zombies, **armes**, carte, hélicoptère, lampes, matériaux,
+  couleurs, Three.js), écrit `scene-v2/jeu/ORIGINE.json` (commit, date, titre, liste des fichiers avec empreinte SHA-256 et taille), puis
+  efface le clone.
+- À chaque relance, il affiche les fichiers **ajoutés**, **modifiés**, **disparus de la copie**, et ceux **disparus du jeu** (la scène devra
+  être adaptée). `--essai` : rien n'est écrit. `--verifier` : aucun fichier copié n'a été retouché. Refuse un clone sur une autre branche
+  que `dev`, ou placé dans le dépôt.
+- Première copie : **`dev` @ `622df2c`** (19/11/2026, « Merge branch 'lot-9e' into dev »), 73 fichiers, 3,5 Mo. Par rapport à la copie de la
+  v1 (`3c25e3a`) : 11 fichiers ajoutés (armes du jeu, « corps long »), 16 modifiés (personnages, squelettes, hélicoptère, carte, fenêtres,
+  textures, couleurs). `scene/jeu/` n'est pas touché.
+
+### B — Scène v2 avec les nouvelles armes
+- `scene-v2/` reprend le code de mise en scène de `scene/` (cadrage B, nuit, bâtiment, hélicoptère en flammes, lune, lampes, brume, mêmes
+  paramètres `?cadrage=` et `?format=`), branché sur `scene-v2/jeu/`. La scène v1 n'est pas modifiée.
+- **Armes du jeu** (`scene-v2/js/armes.js`) : construites par le code du jeu copié (pièces, atlas généré, variantes retenues dans le jeu :
+  Colt « Service, phosphaté », Kar98k « Noyer, bretelle »), aux tailles du jeu, accrochées à l'os `prop` des personnages ; l'ancien
+  pistolet est retiré.
+- **Personnage 1, à genou, Kar98k** : buste de biais, crosse au creux de l'épaule droite, **joue sur la crosse** (tête penchée, œil droit sur
+  la ligne de mire), main droite au poignet de la crosse, **main gauche sous le garde-main**. Au tir (**5,2 s**) : œil gauche fermé comme
+  avant, recul dans l'épaule, canon qui se relève, éclair, fumée ; puis **réarmement** de 5,6 à 6,6 s environ (levier relevé, culasse
+  tirée : **la douille sort**, repoussée, levier rabattu, main de retour), avec les clés de la manœuvre du jeu, un peu ralenties.
+- **Personnage 2, Colt** : pied sur le dos du zombie, Colt tenu à deux mains et pointé sur sa tête ; tir à **2,6 s** (douille éjectée).
+- Inchangé : zombie qui se débat et tend le bras, tir du personnage 2 sur le zombie, coups d'œil, clin d'œil, tenues, visages.
+- **Ajusté à cause du fusil** : le personnage 1 vise maintenant **à gauche de la caméra** (voir « Questions ») ; son corps est tourné de 18°
+  de plus vers la gauche de l'image ; point visé réglé par format pour que la bouche du fusil et l'éclair restent dans l'image.
+- **Temps inchangés** : `TEMPS_TIR` = 5,2 s, `TEMPS_TIR_P2` = 2,6 s, boucle de 8 s (`js/accueil-boucle.js` n'a pas changé) ; aucune arme
+  n'a imposé un autre temps.
+
+### C — Pages d'aperçu
+- **`scene-v2/apercu.html`** : la v2 en direct sous la vraie page d'accueil (même principe que `scene/apercu.html`) ; flash du cadre aux deux
+  tirs. Aucun ajout dans le code du site : l'aperçu utilise `?video=0`, qui existait déjà.
+- **`scene-v2/planche.html`** : la v2 sous l'accueil (ordinateur, téléphone), puis la comparaison **v1 / v2** en images fixes (cadrage B,
+  paysage et portrait, **avant le tir** à 4,7 s et **pendant** à 5,24 s), liens « Voir en mouvement », **historique** en bas (date, commit
+  de `dev`, ce qui a changé). Lisible à 375 px, sans défilement horizontal. Images refaites par `node scene-v2/outils/planche.mjs`.
+- `scene-v2/` est publié par `pages.yml` (sans `scene-v2/outils/`), pages en `noindex`, `Disallow: /scene-v2/` dans `robots.txt`.
+
+### D — Préparer la future vidéo (sans la fabriquer)
+- `outils/video/fabriquer.mjs --scene=v2` : mêmes réglages que la v1, sortie dans **`outils/video/sortie-v2/`** (non suivi par git) ; sans
+  option (`--scene=v1` par défaut), il fabrique la v1 exactement comme avant, dans `img/accueil/`. `--images=0,57,156` rend seulement
+  quelques images, sans encoder (contrôle).
+- **Aucune vidéo fabriquée**, aucun fichier de `img/accueil/` remplacé.
+- Documentation : `Docs/ref/scene-accueil-v2.md` (ce qu'est la v2, choix des armes et des poses, mise à jour, ce qui reste à venir côté
+  jeu), renvoi en tête de `Docs/ref/scene-accueil.md`, `outils/video/LISEZMOI.md`, `CLAUDE.md`.
+
+## Vérifications
+- **`node scene-v2/outils/verifier.mjs`** (copie exacte de ce que publie le workflow, à la racine et avec `--sous-dossier`) : **47/47** :
+  - `scene-v2/index.html` (B paysage et portrait), `apercu.html` (390 × 844, 1440 × 900), `planche.html` (375 et 1280 px) : aucune erreur
+    console, aucun fichier manquant, aucune requête hors du site, `noindex` ; planche sans défilement horizontal, 10 images chargées ;
+  - armes Kar98k et Colt en place ; **image à 8 s identique à l'image à 0 s** ; jonction 0,45 (paysage) et 0,46 (portrait) pour des écarts
+    entre images voisines de 0,31 à 0,50 : **boucle sans saut** ;
+  - **éclairs à 2,6 s (personnage 2) et 5,2 s (personnage 1)**, absents juste avant, finis en 2 images ; verrou manœuvré après le tir et
+    revenu avant la fin de la boucle ;
+  - **accueil public** (375 × 667, 1440 × 900) : aucune requête vers `scene-v2/` ni `scene/`, aucun lien, vidéo v1 de `img/accueil/` ;
+    fichiers du site et de `scene/` identiques à `origin/main` ; **empreintes de `img/accueil/` égales à `fabrication.json`** ;
+    `robots.txt` interdit `/scene-v2/` ; `scene-v2/jeu/` conforme à `ORIGINE.json` ; aucun chemin qui commence par « / ».
+- **Boucle complète** (`scene-v2/outils/verifier-boucle.mjs`, 200 images) : B paysage jonction 0,515 pour une moyenne de 0,542 ; B portrait
+  0,542 pour 0,598 ; le seul pic est le coup de feu (attendu).
+- **Accueil inchangé** : `outils/video/verifier-accueil.mjs` **174/174** ; `outils/musique/verifier-site.mjs` **158/158** ;
+  `outils/verifier-lot-4a.mjs` **87/87** (les trois pages de `scene-v2/` ajoutées à sa liste des pages de travail, contrôlées `noindex`).
+- **La v1 sait toujours se fabriquer** : les images 0, 57, 156 (le tir) et 239 du format téléphone, rendues par le nouveau script sans
+  option, sont **identiques au bit près** à celles rendues par le script de `main` (copie de travail de `main` hors du dépôt).
+
+## Limites
+- **Réencodage des vidéos v1 dans ce conteneur** : le script de `main` lui-même, relancé ici, ne redonne pas les mêmes MP4 que ceux du dépôt
+  (versions de Chromium et ffmpeg différentes de celles du lot 2b, limite déjà notée dans `outils/video/LISEZMOI.md`). Ce lot ne refait
+  aucune vidéo ; les images rendues, elles, sont identiques avant et après.
+- **Main droite du Kar98k pendant le réarmement** : vue de la caméra du cadrage B, elle passe en partie derrière le fusil (le levier est du
+  côté droit, la caméra voit le côté gauche) ; la douille se voit.
+- **Colt plus petit** que l'ancien pistolet (taille du jeu : 9 unités contre environ 17) : il se lit moins de loin ; les mains du jeu (une
+  sphère et une boîte de doigts) l'enveloppent largement.
+- **Joue sur la crosse** : les têtes du jeu sont grandes ; l'œil est placé un peu au-dessus de la ligne de mire pour que la tête ne rentre
+  pas dans la crosse.
+- Le « corps long » du jeu (lot 9e du jeu) n'est pas pris (voir « Questions »).
+- Testé dans Chromium seulement, en rendu logiciel ; la v2 tourne en direct, lourde sur téléphone (comme l'aperçu de la v1).
+
+## Questions à trancher
+1. **Direction du tir du personnage 1** : épaulé à droite et visant à droite de la caméra basse (comme le pistolet de la v1), sa main et son
+   bras cachaient son visage et l'œil qu'il ferme. J'ai fait viser le Kar98k **à gauche** de la caméra. Garder ce choix, ou revenir à droite
+   (`?p1vise=330,64,900` pour voir) en acceptant un visage caché, ou essayer autre chose (le faire tirer de l'épaule gauche) ?
+2. **Taille des armes** : celle du jeu (Kar98k à 31 unités, soit 0,8 fois la taille réelle comme toutes les armes du jeu ; Colt à 1,2 fois).
+   Pour le gros plan, faut-il un Kar98k à la taille réelle (plus long) et un Colt plus gros ?
+3. **Réarmement** : la manœuvre du verrou (5,6 à 6,6 s) pendant que le personnage 1 tourne la tête (coup d'œil de 5,8 à 7,65 s, inchangé) :
+   ça te va, ou faut-il décaler le coup d'œil après le réarmement ?
+4. **Corps long du jeu** (épaules plus étroites, bras plus longs) : le prendre maintenant, ou attendre les nouveaux skins des personnages ?
+5. **Variantes des armes** : celles retenues dans le jeu (Colt phosphaté, Kar98k noyer avec bretelle) ; une autre variante pour l'accueil
+   (Colt bronzé, Kar98k hêtre clair) ?
+
+## État git
+- Commits `accueil-v2 A` à `accueil-v2 E` sur la branche `accueil-v2` (poussée), PR vers `main` fusionnée par l'agent (règle de
+  `CLAUDE.md`) : rien n'est visible des visiteurs.
+- Tag `lot-5a` créé en local ; **son push est refusé par l'environnement** (connexion coupée par le serveur), comme pour les lots précédents.

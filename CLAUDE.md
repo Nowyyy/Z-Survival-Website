@@ -126,7 +126,12 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   `scene/index.html` (la scène, `?cadrage=A|B|C&format=paysage|portrait|plein`, **B retenu**), `scene/planche.html` (planche),
   `scene/apercu.html` (la scène sous la vraie page d'accueil, pour juger le rendu),
   `scene/jeu/` (copie figée du jeu, jamais retouchée), `scene/js/` (scène, poses, enrichissements), `scene/outils/`
-  (copie, captures, vérification de la boucle ; Node + Playwright, non publiés).
+  (copie, captures, vérification de la boucle ; Node + Playwright, non publiés). **La v1 reste celle de la vidéo publique : ne pas la modifier.**
+- `scene-v2/` (lot 5a) : scène v2 de l'accueil, **en coulisses** (noindex, `Disallow` dans `robots.txt`, reliée à rien) : nouvelles armes du jeu
+  (Kar98k, Colt), suivra les skins et la carte (`Docs/ref/scene-accueil-v2.md`) ; `scene-v2/jeu/` : copie figée refaite par
+  `node outils/scene/copier-jeu.mjs` (lecture seule de `dev`, `ORIGINE.json` avec empreintes) ; `planche.html` (v1 / v2, historique),
+  `apercu.html` ; vérification `node scene-v2/outils/verifier.mjs`. Sa vidéo (`outils/video/fabriquer.mjs --scene=v2`) ne va dans
+  `img/accueil/` que sur demande du propriétaire.
 - `outils/admin/` (lot 3b) : banc local des actualités (`banc.mjs` : serveur sur SQLite, API GitHub simulée) et vérification
   de bout en bout `verifier-actus.mjs` (site et admin) et `verifier-bandeau.mjs` (bandeau d'alerte, lot 3d) ; `outils/copie-publiee.mjs` : copie publiée + `simulerActualites()`.
 - `Docs/ref/` : documents de référence ; `Docs/lots/` : bilans de lot.

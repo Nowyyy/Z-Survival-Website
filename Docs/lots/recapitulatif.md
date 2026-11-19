@@ -22,6 +22,7 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
 | **3e** | À propos : bloc du jeu (titre et texte) modifiable depuis l'admin, comme le studio | #67 | `lot-3e.md` |
 | **4b** | À propos : clip du vrai jeu (le survivant tire sur des zombies, 8 s en boucle), puis 3 retours sur le pilotage | #71, #72, #75, #77 | `lot-4b.md` |
 | **3f** | Admin : texte de l'aperçu de partage modifiable ; nouveau texte ; encart de l'accueil en mode application ; e-mail de contact | voir `lot-3f.md` | `lot-3f.md` |
+| **5a** | Accueil v2 **en coulisses** : copie fraîche du jeu, Kar98k et Colt, aperçu et planche v1 / v2 (accueil public inchangé) | voir `lot-5a.md` | `lot-5a.md` |
 | — | Scène de l'accueil : retours 11 à 19 (zombie, militaire, détails, deuxième tir), vidéos refaites | #55, #57, #62, #63, #66, #68 → #70, #73 | `lot-1-retours.md` |
 | — | Petits ajouts hors lot : lien Discord, « Pages du site » en haut de l'admin, bandeau en service, serveur limité au domaine, À propos plus aéré, indice « Défiler », carrousel des actualités | #53, #54, #57, #58, #64, #74, #76 | voir plus bas |
 

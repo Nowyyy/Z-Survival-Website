@@ -1,0 +1,80 @@
+# Scène de l'accueil, version 2 (lot 5a) — en coulisses
+
+La **v2** de la scène de l'accueil suit le jeu au fur et à mesure de ses évolutions (armes refaites, puis skins des personnages,
+skins des zombies, carte). Elle vit dans **`scene-v2/`**, à côté de la v1 (`scene/`, `Docs/ref/scene-accueil.md`), sans la toucher :
+**l'accueil public garde la vidéo de la v1** (`img/accueil/`). La vidéo v2 sera fabriquée et mise en place dans un lot ultérieur,
+sur demande du propriétaire.
+
+## Adresses (pages cachées : `noindex`, interdites dans `robots.txt`, reliées à rien sur le site)
+- Planche v1 / v2 : https://zsurvival-game.com/scene-v2/planche.html
+- La v2 sous l'accueil du site : https://zsurvival-game.com/scene-v2/apercu.html
+- La scène seule : https://zsurvival-game.com/scene-v2/index.html (`?cadrage=B&format=paysage|portrait|plein`, `?t=` image fixe,
+  `?details=0`, `?p2=civil`, `?zombie=face`, `?isoler=p1|p2|zb`, comme la v1 ; en plus `?p1vise=x,y,z` : point visé par le personnage 1)
+
+## Ce qui change par rapport à la v1
+| | v1 (vidéo publique) | v2 |
+|---|---|---|
+| Copie du jeu | `scene/jeu/`, `dev` @ `3c25e3a` (14/11/2026) | `scene-v2/jeu/`, `dev` @ `622df2c` (19/11/2026), voir `scene-v2/jeu/ORIGINE.json` |
+| Personnage 1 (à genou) | ancien pistolet du jeu (enrichi), tenu bras tendus | **Kar98k** du jeu, épaulé |
+| Personnage 2 (pied sur le zombie) | ancien pistolet | **Colt M1911** du jeu |
+| Visée du personnage 1 | au loin, à droite de la caméra | au loin, **à gauche** de la caméra (voir plus bas) |
+| Tirs | 2,6 s (personnage 2) et 5,2 s (personnage 1) | **mêmes instants** : `js/accueil-boucle.js` n'a pas changé |
+| Boucle | 8 s, parfaite | 8 s, parfaite (vérifié) |
+
+Tout le reste est repris tel quel de la v1 (code copié de `scene/js/` dans `scene-v2/js/`) : cadrage B, nuit, bâtiment, hélicoptère en
+flammes, lune, lampes, brume, zombie qui se débat et tend le bras, tir du personnage 2 sur le zombie, coups d'œil, clin d'œil du
+personnage 1, tenues, visages, barbe, gilets.
+
+## Armes (`scene-v2/js/armes.js`)
+- Modèles **du jeu**, construits par son propre code copié tel quel (`scene-v2/jeu/js/core/armes/` : pièces, atlas de textures généré en
+  code, variantes) avec la variante retenue dans le jeu (`data/armes/armes-choix.json` : Colt « Service, phosphaté », Kar98k « Noyer,
+  bretelle »), aux tailles du jeu (Kar98k à × 0,8 comme toutes les armes du jeu, Colt à × 1,2).
+- Seule différence avec la partie : pas d'élargissement « vue de dessus » (`echelle.largeur` du jeu, fait pour la caméra lointaine).
+- Accrochées à l'os `prop` de chaque personnage ; l'ancien pistolet du joueur est retiré (`sansPistolet` du kit du jeu).
+- **Kar98k** : verrou animé comme dans le jeu (levier relevé autour de l'axe de la culasse, culasse tirée), avec les **clés de la manœuvre du
+  jeu** (`data/game/armes-partie.json` → `kar98k.manoeuvre`), jouées 1,3 fois plus lentement pour se lire dans la vidéo (`MANOEUVRE` dans
+  `scene-v2/js/tir.js`).
+
+## Poses (`scene-v2/js/poses.js`)
+- **Personnage 1, tir à genou au Kar98k** (jambes de la v1) : buste de biais (le fusil vise 17° à gauche de l'avant du buste, comme la pose
+  de tenue du jeu), épaule droite un peu relevée, **crosse au creux de l'épaule droite**, **joue sur la crosse** (tête penchée vers la droite,
+  œil droit sur la ligne de mire : le fusil est placé depuis l'œil, puis glissé le long du canon jusqu'à l'épaule), main droite au poignet
+  de la crosse, **main gauche sous le garde-main**, paume en haut. Réglages : `FUSIL` et `PRISES.kar98k`.
+- **Au tir (5,2 s)** : œil gauche fermé (comme la v1), recul dans l'épaule (le buste part en arrière, le canon se relève autour de la
+  crosse), éclair un peu plus grand que celui du pistolet, fumée ; puis, de 5,6 à 6,6 s environ, **réarmement** : la main droite quitte la
+  crosse, relève le levier, tire la culasse (**la douille sort à ce moment**, comme dans le jeu), la repousse, rabat le levier et revient à
+  la crosse. Tout est fini bien avant la fin de la boucle.
+- **Visée à gauche de la caméra** : épaulé à droite et visant à droite de la caméra basse du cadrage B (comme le pistolet de la v1), sa main
+  droite et son bras passaient devant son visage, et l'œil qu'il ferme pour tirer ne se voyait plus. Visant à gauche, son visage est en
+  pleine vue, le fusil passe derrière. Le point visé est réglé par format (`placement.p1Vise` dans `scene-v2/js/cadrages.js`) pour que la
+  bouche du fusil et l'éclair restent dans l'image. L'ancienne direction se voit avec `?p1vise=330,64,900`.
+- **Personnage 2 au Colt** : même pose que la v1 (pied sur le dos du zombie, canon pointé sur sa tête), mains aux prises du Colt
+  (`PRISES.m1911` : poing droit autour de la poignée, main gauche qui l'enveloppe), arme un peu plus près du corps (le Colt est plus petit
+  que l'ancien pistolet). Douille éjectée au coup de feu (2,6 s).
+- **Corps** : le jeu a maintenant un « corps long » (épaules à 9 au lieu de 11,5, bras × 1,2). La v2 ne le prend pas encore (`corps: null`
+  dans `scene-v2/js/persos.js`) : elle garde les épaules d'avant et ses propres bras allongés (22, presque la longueur du corps long : 22,8),
+  dont dépendent ses poses de près. À revoir avec les nouveaux skins.
+
+## Mettre à jour la v2 quand le jeu change
+1. `node outils/scene/copier-jeu.mjs` (mode d'emploi : `outils/scene/LISEZMOI.md`) : clone `dev` dans un dossier temporaire hors du dépôt,
+   recopie les fichiers tels quels dans `scene-v2/jeu/`, écrit `scene-v2/jeu/ORIGINE.json` et affiche les fichiers **ajoutés**, **modifiés** et
+   **disparus**. `--essai` montre les changements sans rien écrire ; `--verifier` contrôle qu'aucun fichier copié n'a été retouché.
+2. Ouvrir `scene-v2/index.html` et `scene-v2/apercu.html` ; retoucher les poses si les nouvelles proportions l'imposent (`scene-v2/js/poses.js`).
+3. Refaire les images de la planche : `node scene-v2/outils/planche.mjs`.
+4. Ajouter une ligne à l'historique en bas de `scene-v2/planche.html`.
+5. Vérifier : `node scene-v2/outils/verifier.mjs` (pages sans erreur, boucle, tir, accueil public inchangé).
+
+## Vidéo (plus tard, sur demande)
+- `node outils/video/fabriquer.mjs --scene=v2` fabrique les deux vidéos et leurs affiches de la v2 dans `outils/video/sortie-v2/` (non suivi
+  par git), avec les mêmes réglages que la v1 (`outils/video/LISEZMOI.md`). Sans option, le script fabrique toujours la v1, à l'identique.
+- Mise en place (lot ultérieur) : copier ces fichiers dans `img/accueil/`, relancer `outils/video/verifier-accueil.mjs`. Les instants de
+  tir étant les mêmes (`TEMPS_TIRS`), le site n'a rien d'autre à changer. L'affiche (`TEMPS_AFFICHE` = 1,9 s) convient aussi à la v2.
+
+## À venir côté jeu
+- **Skins des personnages** : nouvelles pièces et proportions des survivants. À reprendre : enrichissements (visage, paupière, barbe, gilets,
+  tenue « militaire » construite dans la scène, `scene-v2/js/enrichissements.js`), prises des armes et poses ; décider s'il faut passer au
+  corps long.
+- **Skins des zombies** : visage, bouche, yeux et épaules ajoutés par la scène ; pose à plat ventre et bras tendu.
+- **Carte** : la scène est posée dans la cour du bâtiment (`stage` dans `scene-v2/js/scene.js`), décor dégagé devant les caméras ;
+  hélicoptère agrandi et déplacé (`scene-v2/js/helico.js`). Une nouvelle carte demandera sans doute de reposer la scène, d'ajouter ses fichiers
+  à la liste de `outils/scene/copier-jeu.mjs` (`DONNEES`) et de revoir les cadrages.
