@@ -174,6 +174,9 @@ Dépôt : `Nowyyy/Z-Survival-Website` · Bilans détaillés : un fichier par lot
   (`js/site.js`) : un geste va toujours à la section voisine dans le sens de la molette, comptée depuis la section visée si la page bouge
   encore ; molette tournée sans pause : une section toutes les 450 ms environ ; élan d'un pavé tactile : une section ; molette horizontale
   (carrousels) et zoom laissés au navigateur. Le défilement au doigt (téléphone) n'est pas concerné.
+- **Sous-puces dans l'admin** (demande du propriétaire) : une puce précédée de deux espaces (`  - sous-élément`) se range sous la puce du
+  dessus (rond vide, puis carré au troisième niveau, trois niveaux au plus) ; bouton **↳•** dans la barre de mise en forme (articles et
+  page « À propos »), qui décale la ligne ou la remet en puce simple. Mode d'emploi : `Docs/ref/admin.md`.
 
 ---
 

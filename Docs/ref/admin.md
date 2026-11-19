@@ -31,6 +31,7 @@ Ce que vous écrivez ici apparaît dans la section **Actualités** du site, en f
    | *I* | italique | `*mots*` |
    | **T** | intertitre (toute la ligne) | `## Intertitre` |
    | **•≡** | liste à puces (une puce par ligne) | `- élément` |
+   | **↳•** | sous-puce, rangée sous la puce du dessus (un nouvel appui la remet en puce simple) | `  - sous-élément` (deux espaces avant le tiret) |
    | **Lien** | lien (la page demande l'adresse, qui doit commencer par `https://`) | `[mots](https://…)` |
 
    Une ligne vide sépare deux paragraphes. Aucun autre code n'est interprété : si vous collez du HTML, il s'affiche tel quel.

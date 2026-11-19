@@ -91,7 +91,7 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   `js/a-propos-clip.js` : clip du jeu du bloc « Le jeu » (lot 4b : source posée seulement quand le bloc est visible, pause hors de l'écran,
   affiche seule en mouvement réduit) ;
   `js/actualites.js` : section Actualités (lecture du serveur, cartes, squelettes, erreur, liste vide, fenêtre de l'article, `#actu/<slug>`) ;
-  `js/article.js` : carte et article complet (site et aperçu de l'admin) ; `js/markdown.js` : Markdown sûr, liste blanche, aucun HTML ;
+  `js/article.js` : carte et article complet (site et aperçu de l'admin) ; `js/markdown.js` : Markdown sûr, liste blanche, aucun HTML (sous-puces : deux espaces avant le tiret, trois niveaux au plus) ;
   `css/actualites.css` : styles des actualités ;
   `js/musique.js` : musique M2 et boutons de son à côté de chaque globe (règles : `Docs/ref/musique.md`, volume : constante `VOLUME`).
   `js/accueil-boucle.js` : **seules valeurs de temps** de la boucle (`DUREE_BOUCLE`, **`TEMPS_TIR` = 5,2 s**, **`TEMPS_TIR_P2` = 2,6 s**,
