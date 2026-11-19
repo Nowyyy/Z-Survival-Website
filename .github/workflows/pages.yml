@@ -31,7 +31,7 @@ jobs:
       - name: Préparer le site (fichiers statiques, sans build)
         run: |
           mkdir -p _site
-          cp -r index.html main.html favicon.ico site.webmanifest robots.txt sitemap.xml admin css js fonts img musique sons scene contenus .nojekyll _site/
+          cp -r index.html main.html favicon.ico site.webmanifest robots.txt sitemap.xml admin css js fonts img musique sons scene scene-v2 contenus .nojekyll _site/
           # favicon.ico, site.webmanifest : icônes et manifeste (lot 4a, outils/icones/fabriquer.mjs), à la racine du site.
           # robots.txt, sitemap.xml : référencement (lot 4a, Docs/ref/referencement.md), une seule page indexable.
           # img/accueil/ : vidéos et affiches de l'accueil (lot 2b) ; sons/ : coup de feu du jeu, copie figée (lot 2b).
@@ -40,7 +40,8 @@ jobs:
           # contenus/ : contenus modifiables sans toucher au code (bandeau d'alerte…), lus par le site (Docs/ref/contenus.md).
           # scene/ : atelier de la scène 3D de l'accueil (lot 1) ; pages en noindex, non reliées au site.
           # Les outils de capture (scene/outils/, Node + Playwright) ne sont pas publiés.
-          rm -rf _site/scene/outils
+          # scene-v2/ : scène v2 de l'accueil, en coulisses (lot 5a : nouvelles armes du jeu) ; noindex, interdite dans robots.txt, reliée à rien.
+          rm -rf _site/scene/outils _site/scene-v2/outils
 
       - name: Configurer Pages
         uses: actions/configure-pages@v6
