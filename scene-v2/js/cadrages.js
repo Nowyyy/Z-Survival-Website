@@ -12,10 +12,11 @@ export const CADRAGES = {
     nom: 'Contre-plongée rapprochée',
     // Angle d'origine du cadrage B. Sur ordinateur, le zombie (et le personnage 2 qui le suit) est décalé de 54 vers la droite de l'image et
     // 8 vers le fond : le titre centré de l'accueil ne le cache plus, même tourné vers le personnage 1 (sa tête passe alors plus à gauche). Le personnage 1, à genou, garde sa place d'origine, au centre.
-    // v2 (lot 5a) : point visé par le personnage 1 au Kar98k (p1Vise), propre au format : à gauche de la caméra, assez bas pour que la bouche
-    // du fusil et l'éclair du tir restent dans l'image (js/poses.js, PLACEMENT.p1Vise).
-    paysage: { cam: [-46, 8, 122], vise: [4, 42, -30], fov: 44, placement: { zombie: { x: 75.8, z: -8.8 }, p1Vise: [-800, 0, 700] } },
-    portrait: { cam: [-40, 8, 126], vise: [-8, 31, -20], fov: 62, placement: { p1Vise: [-300, 0, 900] } },
+    // v2 (lot 5a) : orientation (p1Cap, degrés) et point visé (p1Vise) du personnage 1 au Kar98k, par tireur et par format : gaucher (par
+    // défaut) à droite de la caméra, droitier (?tireur=droitier) à gauche ; assez bas pour que la bouche du fusil et l'éclair du tir restent
+    // dans l'image (js/poses.js, TIREUR, PLACEMENT.p1Vise).
+    paysage: { cam: [-46, 8, 122], vise: [4, 42, -30], fov: 44, placement: { zombie: { x: 75.8, z: -8.8 }, p1Cap: { gaucher: 12, droitier: -6 }, p1Vise: { gaucher: [330, 0, 900], droitier: [-800, 0, 700] } } },
+    portrait: { cam: [-40, 8, 126], vise: [-8, 31, -20], fov: 62, placement: { p1Cap: { gaucher: 12, droitier: -6 }, p1Vise: { gaucher: [200, 0, 900], droitier: [-300, 0, 900] } } },
   },
   C: {
     nom: 'Trois quarts',

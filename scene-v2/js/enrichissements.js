@@ -33,10 +33,14 @@ function visageSurvivant({ colere = false } = {}) {
 // portée par une articulation à elle, « paupiereL », posée au ras du haut de l'œil ; son échelle verticale ferme l'œil (1) ou le laisse
 // ouvert (presque 0 : la paupière rentre sous l'arcade).
 export const PAUPIERE = { id: 'paupiereL', parent: 'head', offset: [1.65, 5.78, 4.48] };
+// v2 (lot 5a) : paupière droite aussi, pour le tireur gaucher (il ferme l'œil droit) ; même pièce, en miroir.
+export const PAUPIERE_R = { id: 'paupiereR', parent: 'head', offset: [-1.65, 5.78, 4.48] };
 function paupiere() {
   return [
     sphere('paupiereL', PAUPIERE.id, 'peau', [1.08, 0.7, 0.62], [0, -0.64, 0.02], { skin: true }),
     box('cilsL', PAUPIERE.id, 'sombre', [1.9, 0.24, 0.3], [0, -1.2, 0.58], [0, 0, 0.08]),
+    sphere('paupiereR', PAUPIERE_R.id, 'peau', [1.08, 0.7, 0.62], [0, -0.64, 0.02], { skin: true }),
+    box('cilsR', PAUPIERE_R.id, 'sombre', [1.9, 0.24, 0.3], [0, -1.2, 0.58], [0, 0, -0.08]),
   ];
 }
 // Bouche du zombie, qui s'ouvre quand il tend le bras (retour du propriétaire, js/poses.js) : une cavité sombre arrondie, logée dans le
@@ -50,7 +54,7 @@ export const YEUX = { id: 'yeuxZ', parent: 'head', offset: [0, 5.0, 4.62] };
 export function enrichirPoses(poses) {
   const p = structuredClone(poses);
   const joints = p.skeletons?.v2?.joints;
-  for (const j of [PAUPIERE, BOUCHE, YEUX]) if (Array.isArray(joints) && !joints.some((x) => x.id === j.id)) joints.push({ ...j, range: null });
+  for (const j of [PAUPIERE, PAUPIERE_R, BOUCHE, YEUX]) if (Array.isArray(joints) && !joints.some((x) => x.id === j.id)) joints.push({ ...j, range: null });
   return p;
 }
 // Visage d'un zombie : orbites creuses et sombres, yeux pâles, bouche ouverte, dents.

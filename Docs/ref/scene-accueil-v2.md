@@ -9,15 +9,18 @@ sur demande du propriétaire.
 - Planche v1 / v2 : https://zsurvival-game.com/scene-v2/planche.html
 - La v2 sous l'accueil du site : https://zsurvival-game.com/scene-v2/apercu.html
 - La scène seule : https://zsurvival-game.com/scene-v2/index.html (`?cadrage=B&format=paysage|portrait|plein`, `?t=` image fixe,
-  `?details=0`, `?p2=civil`, `?zombie=face`, `?isoler=p1|p2|zb`, comme la v1 ; en plus `?p1vise=x,y,z` : point visé par le personnage 1)
+  `?details=0`, `?p2=civil`, `?zombie=face`, `?isoler=p1|p2|zb`, comme la v1 ; en plus `?tireur=droitier` : première version, épaule droite
+  et visée à gauche, et `?p1vise=x,y,z` : point visé par le personnage 1)
 
 ## Ce qui change par rapport à la v1
 | | v1 (vidéo publique) | v2 |
 |---|---|---|
 | Copie du jeu | `scene/jeu/`, `dev` @ `3c25e3a` (14/11/2026) | `scene-v2/jeu/`, `dev` @ `622df2c` (19/11/2026), voir `scene-v2/jeu/ORIGINE.json` |
-| Personnage 1 (à genou) | ancien pistolet du jeu (enrichi), tenu bras tendus | **Kar98k** du jeu, épaulé |
+| Personnage 1 (à genou) | ancien pistolet du jeu (enrichi), tenu bras tendus | **Kar98k** du jeu, épaulé **en gaucher** |
 | Personnage 2 (pied sur le zombie) | ancien pistolet | **Colt M1911** du jeu |
-| Visée du personnage 1 | au loin, à droite de la caméra | au loin, **à gauche** de la caméra (voir plus bas) |
+| Visée du personnage 1 | au loin, à droite de la caméra | au loin, à droite de la caméra (comme la v1) |
+| Clin d'œil | œil gauche fermé au tir | œil **droit** fermé au tir (gaucher) |
+| Douilles | petite douille du personnage 1 qui disparaît en l'air | douilles des deux armes qui s'envolent **hors de l'image** |
 | Tirs | 2,6 s (personnage 2) et 5,2 s (personnage 1) | **mêmes instants** : `js/accueil-boucle.js` n'a pas changé |
 | Boucle | 8 s, parfaite | 8 s, parfaite (vérifié) |
 
@@ -36,21 +39,29 @@ personnage 1, tenues, visages, barbe, gilets.
   `scene-v2/js/tir.js`).
 
 ## Poses (`scene-v2/js/poses.js`)
-- **Personnage 1, tir à genou au Kar98k** (jambes de la v1) : buste de biais (le fusil vise 17° à gauche de l'avant du buste, comme la pose
-  de tenue du jeu), épaule droite un peu relevée, **crosse au creux de l'épaule droite**, **joue sur la crosse** (tête penchée vers la droite,
-  œil droit sur la ligne de mire : le fusil est placé depuis l'œil, puis glissé le long du canon jusqu'à l'épaule), main droite au poignet
-  de la crosse, **main gauche sous le garde-main**, paume en haut. Réglages : `FUSIL` et `PRISES.kar98k`.
-- **Au tir (5,2 s)** : œil gauche fermé (comme la v1), recul dans l'épaule (le buste part en arrière, le canon se relève autour de la
-  crosse), éclair un peu plus grand que celui du pistolet, fumée ; puis, de 5,6 à 6,6 s environ, **réarmement** : la main droite quitte la
-  crosse, relève le levier, tire la culasse (**la douille sort à ce moment**, comme dans le jeu), la repousse, rabat le levier et revient à
-  la crosse. Tout est fini bien avant la fin de la boucle.
-- **Visée à gauche de la caméra** : épaulé à droite et visant à droite de la caméra basse du cadrage B (comme le pistolet de la v1), sa main
-  droite et son bras passaient devant son visage, et l'œil qu'il ferme pour tirer ne se voyait plus. Visant à gauche, son visage est en
-  pleine vue, le fusil passe derrière. Le point visé est réglé par format (`placement.p1Vise` dans `scene-v2/js/cadrages.js`) pour que la
-  bouche du fusil et l'éclair restent dans l'image. L'ancienne direction se voit avec `?p1vise=330,64,900`.
+- **Personnage 1, tir à genou au Kar98k, en gaucher** (jambes de la v1, `TIREUR.gaucher`) : buste de biais (le fusil vise 17° à droite de
+  l'avant du buste, comme la pose de tenue du jeu en miroir), épaule gauche un peu relevée, **crosse au creux de l'épaule gauche**, **joue sur
+  la crosse** (tête penchée vers la gauche, œil gauche sur la ligne de mire : le fusil est placé depuis l'œil, puis glissé le long du canon
+  jusqu'à l'épaule), main gauche au poignet de la crosse, **main droite sous le garde-main**, paume en haut. Réglages : `FUSIL` et
+  `PRISES.kar98k` (écrits pour un droitier, appliqués en miroir).
+- **Pourquoi gaucher** : il vise à droite de notre écran (comme le pistolet de la v1). Épaulé à droite, sa main et son bras de tir passaient
+  devant son visage, vu de la caméra basse du cadrage B, et l'œil qu'il ferme ne se voyait plus ; épaulé à gauche, son visage reste devant le
+  fusil. Première version (droitier, visée à gauche de l'écran) : `?tireur=droitier`.
+- **Au tir (5,2 s)** : **œil droit fermé** (paupière droite ajoutée dans `scene-v2/js/enrichissements.js`, mêmes durées que la v1), recul dans
+  l'épaule (le buste part en arrière, le canon se relève autour de la crosse), éclair un peu plus grand que celui du pistolet, fumée ; puis,
+  de 5,6 à 6,6 s environ, **réarmement** : le levier du Kar98k est à droite, c'est la main droite qui quitte le garde-main, relève le levier,
+  tire la culasse (**la douille sort à ce moment**, comme dans le jeu), la repousse, rabat le levier et revient. Tout est fini bien avant la
+  fin de la boucle.
+- Point visé et orientation du personnage 1 réglés par tireur et par format (`placement.p1Cap`, `placement.p1Vise` dans
+  `scene-v2/js/cadrages.js`) pour que la bouche du fusil et l'éclair restent dans l'image.
 - **Personnage 2 au Colt** : même pose que la v1 (pied sur le dos du zombie, canon pointé sur sa tête), mains aux prises du Colt
   (`PRISES.m1911` : poing droit autour de la poignée, main gauche qui l'enveloppe), arme un peu plus près du corps (le Colt est plus petit
-  que l'ancien pistolet). Douille éjectée au coup de feu (2,6 s).
+  que l'ancien pistolet).
+- **Douilles** (`scene-v2/js/tir.js`, `DOUILLE`) : éjectées du côté droit de l'arme, vers le bord de l'image de ce côté et vers le haut, puis
+  pesanteur ; elles volent **jusqu'à sortir de l'image** (elles sont cachées seulement une fois hors du champ de la caméra, jamais en l'air)
+  et restent au-dessus du sol. Kar98k : quand la culasse est tirée (vers 6,0 s), sortie par le bord gauche en 0,3 s environ ; Colt : au coup
+  de feu (2,6 s), elle traverse l'image vers la gauche (0,8 s environ). Taille lisible (au moins 2,1 de long), laiton qui accroche la
+  lumière. Toujours cachées avant la fin de la boucle.
 - **Corps** : le jeu a maintenant un « corps long » (épaules à 9 au lieu de 11,5, bras × 1,2). La v2 ne le prend pas encore (`corps: null`
   dans `scene-v2/js/persos.js`) : elle garde les épaules d'avant et ses propres bras allongés (22, presque la longueur du corps long : 22,8),
   dont dépendent ses poses de près. À revoir avec les nouveaux skins.

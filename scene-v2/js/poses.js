@@ -181,11 +181,15 @@ function placeRoot(p, stage, x, z, cap, y = 0) {
 const local = (p, x, y, z) => p.root.localToWorld(V(x, y, z));
 
 // --- Personnage 1 : au premier plan, tir à genou au Kar98k (scène v2), vise au loin à côté de la caméra -----------------------------
-// Jambes comme en v1 : genou droit au sol, orteils repliés derrière ; pied gauche à plat devant, genou levé. Buste un peu de biais (épaule
-// gauche vers la cible, comme la pose de tenue du jeu : torse tourné de 15°), crosse au creux de l'épaule droite, joue posée sur la crosse
-// (tête penchée vers la droite, œil droit sur la ligne de mire), main droite au poignet de la crosse, main gauche sous le garde-main.
-// Œil gauche fermé pour le tir seulement (js/tir.js). Au tir (5,2 s) : recul dans l'épaule, canon qui se relève ; puis la main droite
-// manœuvre le verrou (levier relevé, culasse tirée : la douille sort, repoussée, levier rabattu) et revient à la crosse (js/tir.js).
+// Jambes comme en v1 : genou droit au sol, orteils repliés derrière ; pied gauche à plat devant, genou levé. Buste un peu de biais (comme la
+// pose de tenue du jeu : torse tourné de 15°), crosse au creux de l'épaule, joue posée sur la crosse (tête penchée vers la crosse, œil sur la
+// ligne de mire), main de tir au poignet de la crosse, autre main sous le garde-main. L'autre œil se ferme pour le tir seulement (js/tir.js).
+// Au tir (5,2 s) : recul dans l'épaule, canon qui se relève ; puis la main droite manœuvre le verrou (levier relevé, culasse tirée : la douille
+// sort, repoussée, levier rabattu) et revient à sa place (js/tir.js).
+// GAUCHER (par défaut, retour du propriétaire) : il vise à DROITE de notre écran, comme le pistolet de la v1 ; crosse à l'épaule gauche, œil
+// droit fermé ; vue de la caméra basse du cadrage B, son visage reste devant le fusil. Le verrou du Kar98k est à droite : c'est la main droite
+// (sous le garde-main) qui le manœuvre. ?tireur=droitier : épaule droite, visée à gauche de l'écran (première version du lot 5a).
+export const TIREUR = { gaucher: true };
 const GENOU = { bassin: 16.4, genouD: [-6.2, -5], chevilleD: [-6.4, 7.7, -15.6], piedG: [6.5, 13.5] };
 export const FUSIL = {
   lacet: 0.3, // le fusil vise 17° à gauche de l'avant du buste (buste de biais)
@@ -213,6 +217,9 @@ function tournerBuste(p, cap) {
 
 export function poseP1(p, stage, t, arme = null) {
   const P = PLACEMENT.p1;
+  const g = TIREUR.gaucher ? -1 : 1; // miroir gauche / droite (repères du personnage et de l'arme : +x vers sa gauche)
+  const mx = (v) => V(g * v.x, v.y, v.z);
+  const OEIL = mx(OEIL_D); // œil qui vise : le droit (droitier) ou le gauche (gaucher)
   p.reset();
   placeRoot(p, stage, P.x, P.z, P.cap);
   const kp = p.root.scale.x; // unités du monde par unité du personnage
@@ -232,39 +239,39 @@ export function poseP1(p, stage, t, arme = null) {
   leg(p, 'R', local(p, ...GENOU.chevilleD), local(p, kx, -8, kz + 6), dirWorld(p.root, V(0, -1, -0.35)), dirWorld(p.root, V(0, 0.25, 1)));
   const vise = toWorld(stage, PLACEMENT.p1Vise).add(V(derive * 6 * K, bruit(t, 2, 1) * 4 * K, 0));
   if (!arme) return;
-  // Buste de biais : son avant à 15° à droite de la visée ; au tir, il part un peu en arrière (le recul passe par l'épaule).
+  // Buste de biais : son avant à 17° de la visée, du côté de l'épaule de tir ; au tir, il part un peu en arrière (le recul passe par l'épaule).
   const chest = p.bones.get('chest');
   const v0 = vise.clone().sub(worldPos(chest));
-  tournerBuste(p, Math.atan2(v0.x, v0.z) - FUSIL.lacet);
+  tournerBuste(p, Math.atan2(v0.x, v0.z) - g * FUSIL.lacet);
   chest.rotateX(-0.06 * r);
   chest.updateMatrixWorld(true);
-  // Tête : cou penché vers l'avant, tête dans l'axe de la visée, penchée vers la droite (joue sur la crosse).
+  // Tête : cou penché vers l'avant, tête dans l'axe de la visée, penchée vers la crosse (joue sur la crosse).
   const neck = p.bones.get('neck');
   const head = p.bones.get('head');
-  p.bones.get('shoulderR').position.y += FUSIL.haussement;
-  euler(neck, FUSIL.cou, 0.5 * FUSIL.lacet, -0.2);
+  p.bones.get(g > 0 ? 'shoulderR' : 'shoulderL').position.y += FUSIL.haussement;
+  euler(neck, FUSIL.cou, g * 0.5 * FUSIL.lacet, -g * 0.2);
   neck.updateMatrixWorld(true);
-  let f = vise.clone().sub(head.localToWorld(OEIL_D.clone())).normalize();
+  let f = vise.clone().sub(head.localToWorld(OEIL.clone())).normalize();
   const poserTete = () => {
     const cote = f.clone().cross(UP).normalize(); // droite de la visée
     const avant = f.clone().applyAxisAngle(cote, -FUSIL.tete); // tête un peu baissée
-    pointBone(head, V(0, 0, 1), avant, V(0, 1, 0), UP.clone().applyAxisAngle(avant, FUSIL.joue)); // + : le haut de la tête part vers sa droite
+    pointBone(head, V(0, 0, 1), avant, V(0, 1, 0), UP.clone().applyAxisAngle(avant, g * FUSIL.joue)); // g > 0 : le haut de la tête part vers sa droite
   };
   for (let i = 0; i < 2; i += 1) {
     poserTete();
-    f = vise.clone().sub(head.localToWorld(OEIL_D.clone())).normalize();
+    f = vise.clone().sub(head.localToWorld(OEIL.clone())).normalize();
   }
   poserTete();
   const qTeteVisee = head.quaternion.clone();
   const qCouVisee = neck.quaternion.clone();
   // Fusil : ligne de mire qui passe par l'œil droit, vers le point visé ; puis glissé le long du canon pour que la plaque de couche arrive
   // au creux de l'épaule (le recul le repousse un peu en arrière et relève le canon, autour de la crosse).
-  const oeil = head.localToWorld(OEIL_D.clone());
-  const Q = lookQuat(f, UP.clone().applyAxisAngle(f, FUSIL.cant));
+  const oeil = head.localToWorld(OEIL.clone());
+  const Q = lookQuat(f, UP.clone().applyAxisAngle(f, g * FUSIL.cant));
   const O = oeil.clone().sub(FUSIL.oeil.clone().multiplyScalar(kp).applyQuaternion(Q));
   const crosse = arme.prises.crosse.clone().multiplyScalar(kp);
   const B = O.clone().add(crosse.clone().applyQuaternion(Q));
-  const creux = chest.localToWorld(FUSIL.epaule.clone());
+  const creux = chest.localToWorld(mx(FUSIL.epaule));
   const glisse = Math.max(-6 * kp, Math.min(6 * kp, creux.clone().sub(B).dot(f)));
   O.addScaledVector(f, glisse - 0.9 * r * kp);
   if (r > 0) {
@@ -279,10 +286,14 @@ export function poseP1(p, stage, t, arme = null) {
   prop.scale.setScalar(1);
   const tool = p.bones.get('tool');
   if (tool) tool.scale.setScalar(0.001);
-  // Mains : droite au poignet de la crosse (ou au levier du verrou pendant la manœuvre), gauche sous le garde-main.
+  // Mains : main de tir au poignet de la crosse, l'autre sous le garde-main (prises du droitier, en miroir pour le gaucher) ; pendant la
+  // manœuvre, la main droite va au levier du verrou (à droite de l'arme).
   const toW = (v) => v.clone().applyQuaternion(Q);
-  const R = mainDe(arme, 'droite');
-  const L = mainDe(arme, 'gauche');
+  const miroir = (h) => ({ at: mx(h.at), dir: mx(h.dir), up: mx(h.up) });
+  const tir = miroir(mainDe(arme, 'droite'));
+  const appui = miroir(mainDe(arme, 'gauche'));
+  const R = g > 0 ? tir : appui;
+  const L = g > 0 ? appui : tir;
   const m = manoeuvreAt(t, arme);
   arme.verrou?.poser(m.lift, m.back);
   let wR = prop.localToWorld(R.at.clone());
@@ -298,10 +309,16 @@ export function poseP1(p, stage, t, arme = null) {
     upR = upR.lerp(toW(V(0.5, 0.2, -0.3)), lisse).normalize();
   }
   const right = V(-1, 0, 0).transformDirection(chest.matrixWorld);
-  // Coude droit écarté mais pas levé (il ne passe pas devant le visage, vu de la caméra basse du cadrage B).
-  const coudeR = worldPos(p.bones.get('shoulderR')).addScaledVector(right, 7 * kp).add(V(0, -9 * kp, 0)).addScaledVector(f, -1 * kp);
+  const cote = right.clone().multiplyScalar(g); // côté de l'épaule de tir
+  // Coude de tir écarté mais pas levé (il ne passe pas devant le visage, vu de la caméra basse du cadrage B) ; coude d'appui sous le fusil.
+  const epTir = worldPos(p.bones.get(g > 0 ? 'shoulderR' : 'shoulderL'));
+  const epAppui = worldPos(p.bones.get(g > 0 ? 'shoulderL' : 'shoulderR'));
+  const coudeTir = epTir.addScaledVector(cote, 7 * kp).add(V(0, -9 * kp, 0)).addScaledVector(f, -1 * kp);
+  const coudeAppui = epAppui.add(V(0, -14 * kp, 0)).addScaledVector(f, 6 * kp).addScaledVector(cote, -2 * kp);
+  const coudeR = g > 0 ? coudeTir : coudeAppui;
+  const coudeL = g > 0 ? coudeAppui : coudeTir;
+  if (m.main > 0 && g < 0) coudeR.add(V(0, -3 * kp, 0)).addScaledVector(f, -4 * kp); // gaucher : le bras d'appui recule vers le levier
   arm(p, 'R', wR, coudeR, dirR, upR);
-  const coudeL = worldPos(p.bones.get('shoulderL')).add(V(0, -14 * kp, 0)).addScaledVector(f, 6 * kp).addScaledVector(right, -2 * kp);
   arm(p, 'L', prop.localToWorld(L.at.clone()), coudeL, toW(L.dir), toW(L.up));
   // Détails : après son tir, il tourne la tête vers sa droite (notre gauche), comme pour regarder hors champ, puis revient à la visée
   // (la joue quitte la crosse pendant ce coup d'œil). La tête mène, le cou suit avec un léger retard (0,08 s).
@@ -314,11 +331,14 @@ export function poseP1(p, stage, t, arme = null) {
     head.quaternion.slerpQuaternions(qTeteVisee, head.quaternion.clone(), Math.min(1, rp1 * 1.2));
     head.updateMatrixWorld(true);
   }
-  // Œil gauche : fermé seulement pour le tir (js/tir.js).
-  const lid = p.bones.get('paupiereL');
-  if (lid) lid.scale.set(1, Math.max(0.001, oeilFerme(t)), 1);
+  // L'œil qui ne vise pas (le gauche du droitier, le droit du gaucher) : fermé seulement pour le tir (js/tir.js) ; l'autre paupière reste
+  // rentrée sous l'arcade.
+  const ferme = p.bones.get(g > 0 ? 'paupiereL' : 'paupiereR');
+  const ouverte = p.bones.get(g > 0 ? 'paupiereR' : 'paupiereL');
+  if (ferme) ferme.scale.set(1, Math.max(0.001, oeilFerme(t)), 1);
+  if (ouverte) ouverte.scale.set(1, 0.001, 1);
   // Atelier : écart entre la plaque de couche et le creux de l'épaule (unités du personnage).
-  ATELIER.crosse = chest.worldToLocal(O.clone().add(crosse.clone().applyQuaternion(Q))).sub(FUSIL.epaule);
+  ATELIER.crosse = chest.worldToLocal(O.clone().add(crosse.clone().applyQuaternion(Q))).sub(mx(FUSIL.epaule));
   ATELIER.glisse = glisse / kp;
 }
 export const ATELIER = { crosse: null };

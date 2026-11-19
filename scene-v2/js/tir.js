@@ -123,7 +123,12 @@ function jet() {
 // palette : readPalette() ; laiton : couleur de la douille ; echelle : celle de la mise en scène (stage).
 // arme (scène v2, js/armes.js) : bout du canon (pointe), douille (dimensions du jeu), instant de l'éjection (secondes depuis le tir), et
 // fenêtre d'éjection (repère de l'arme) ; force : taille de l'éclair (1 : celle de la v1).
-export function creerTir({ palette, laiton, echelle = 1, instant = TIR, lumiereMax = 3200, arme = null, ejection = 0.02, fenetre = null, force = 1 }) {
+// Douille (retour du propriétaire) : elle vole jusqu'à SORTIR DE L'IMAGE (jamais de disparition en l'air) : vitesse d'éjection vers le côté de
+// l'arme et vers le bord de l'image de ce côté, vers le haut, puis pesanteur ; cachée dès qu'elle est hors du champ de la caméra, ou au plus tard
+// VOL_MAX après l'éjection (et toujours avant la fin de la boucle : la boucle reste parfaite). Vitesses en unités du personnage par seconde.
+const DOUILLE = { cote: 150, haut: 125, arriere: 25, pesanteur: 320, volMax: 1.8 };
+export function creerTir({ palette, laiton, echelle = 1, instant = TIR, lumiereMax = 3200, arme = null, ejection = 0.02, fenetre = null, force = 1, camera = null, vol: volDouille = {} }) {
+  const J = { ...DOUILLE, ...volDouille }; // vitesses de la douille propres à l'arme
   const group = new THREE.Group();
   group.name = 'tir';
   const muzzle = new THREE.Color(palette.muzzle);
@@ -137,10 +142,12 @@ export function creerTir({ palette, laiton, echelle = 1, instant = TIR, lumiereM
     flamme.add(m);
   }
   const lumiere = new THREE.PointLight(muzzle, 0, 500 * echelle, 1.4);
-  // Douille : dimensions du jeu (data/game/armes-partie.json → douille : largeur, hauteur, longueur, déjà grossies pour la vue de dessus :
-  // ramenées à 0,6), couchée en travers de l'arme.
+  // Douille : proportions du jeu (data/game/armes-partie.json → douille : largeur, hauteur, longueur), à une taille lisible de près (au moins
+  // 2,1 de long : celle du Colt, à l'échelle, se perdait), couchée en travers de l'arme ; laiton qui accroche un peu la lumière (lisible la nuit).
   const [dl, , dL] = arme?.douille ?? [0.9, 0.9, 1.5];
-  const douille = new THREE.Mesh(new THREE.CylinderGeometry(0.3 * dl, 0.3 * dl, 0.6 * dL, 10).rotateZ(Math.PI / 2), new THREE.MeshLambertMaterial({ color: laiton }));
+  const longueur = Math.max(2.1, 0.66 * dL);
+  const rayon = Math.max(0.5, (0.5 * longueur * dl) / dL);
+  const douille = new THREE.Mesh(new THREE.CylinderGeometry(rayon, rayon, longueur, 10).rotateZ(Math.PI / 2), new THREE.MeshLambertMaterial({ color: laiton, emissive: laiton.clone().multiplyScalar(0.35) }));
   douille.castShadow = true;
   // Fumée du canon : quelques bouffées (points du feu, mélange prémultiplié).
   const fumee = new THREE.Sprite(new THREE.SpriteMaterial({ map: eclat(0), color: new THREE.Color(palette.smokeLight), transparent: true, depthWrite: false, opacity: 0, fog: false }));
@@ -150,6 +157,13 @@ export function creerTir({ palette, laiton, echelle = 1, instant = TIR, lumiereM
   const upV = new THREE.Vector3();
   const side = new THREE.Vector3();
   const q = new THREE.Quaternion();
+  const depart = new THREE.Vector3();
+  const vitesse = new THREE.Vector3();
+  const droiteCam = new THREE.Vector3();
+  const champ = new THREE.Frustum();
+  const pm = new THREE.Matrix4();
+  // Durée de vol permise : jamais au-delà de la fin de la boucle (la douille n'est plus là au retour à 0 s).
+  const volMax = Math.min(J.volMax, DUREE - ((instant + ejection) % DUREE) - 0.05);
   return {
     group,
     // prop : os de l'arme du personnage 1 (après la pose) ; k : échelle du personnage (unités du monde par unité du personnage).
@@ -175,14 +189,27 @@ export function creerTir({ palette, laiton, echelle = 1, instant = TIR, lumiereM
       }
       lumiere.position.copy(tip).addScaledVector(fwd, 4 * k);
       lumiere.intensity = d < 0.12 ? lumiereMax * (1 - d / 0.12) ** 2 : 0;
-      // Douille : éjectée vers la droite et vers le haut, retombe en 0,55 s, puis disparaît (au sol, hors de vue de la boucle).
+      // Douille : éjectée de la fenêtre de l'arme, vers le côté droit de l'arme et le bord de l'image de ce côté, vers le haut ; elle retombe
+      // (pesanteur) et vole jusqu'à sortir de l'image.
       const vol = d - ejection;
-      douille.visible = vol > 0 && vol < 0.55;
+      const cam = typeof camera === 'function' ? camera() : camera; // caméra de l'image (champ de vue)
+      douille.visible = vol > 0 && vol < volMax;
       if (douille.visible) {
-        douille.position.copy(fenetre ?? new THREE.Vector3(0, 0.8, -1.5)).applyMatrix4(prop.matrixWorld);
-        douille.position.addScaledVector(side, 38 * vol * k).addScaledVector(upV, (30 * vol - 60 * vol * vol) * k).addScaledVector(fwd, -6 * vol * k);
+        depart.copy(fenetre ?? new THREE.Vector3(0, 0.8, -1.5)).applyMatrix4(prop.matrixWorld);
+        vitesse.copy(side);
+        if (cam) {
+          droiteCam.set(1, 0, 0).applyQuaternion(cam.quaternion);
+          vitesse.addScaledVector(droiteCam, side.dot(droiteCam) >= 0 ? 1.1 : -1.1).setY(0).normalize();
+        }
+        douille.position.copy(depart).addScaledVector(vitesse, J.cote * vol * k).addScaledVector(fwd, -J.arriere * vol * k);
+        douille.position.y += (J.haut * vol - 0.5 * J.pesanteur * vol * vol) * k;
         douille.rotation.set(vol * 30, vol * 21, 0);
         douille.scale.setScalar(k);
+        if (cam) {
+          cam.updateMatrixWorld();
+          champ.setFromProjectionMatrix(pm.multiplyMatrices(cam.projectionMatrix, cam.matrixWorldInverse));
+          douille.visible = champ.containsPoint(douille.position) || vol < 0.05;
+        }
       }
       // Fumée : une bouffée claire qui monte et s'étale pendant 1,4 s.
       const fu = d - 0.03;

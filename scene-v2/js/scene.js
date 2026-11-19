@@ -16,7 +16,7 @@ import { TIR, TIR_P2, creerTir, ejectionKar, manoeuvreAt } from './tir.js';
 import { chargerArmes, creerFabriqueArmes } from './armes.js';
 import { chargerDonnees, construireMonde } from './monde.js';
 import { creerKit, posable } from './persos.js';
-import { ATELIER, DETAILS, ECHELLE_SCENE, FUSIL, PLACEMENT, PRISES, appuiAt, poseP1, poseP2, poseZombie } from './poses.js';
+import { ATELIER, DETAILS, ECHELLE_SCENE, FUSIL, PLACEMENT, PRISES, TIREUR, appuiAt, poseP1, poseP2, poseZombie } from './poses.js';
 
 const q = new URLSearchParams(location.search);
 const etat = document.getElementById('etat');
@@ -25,6 +25,8 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 // Détails (retours du propriétaire, validés : scène des vidéos de l'accueil) : rotor de queue qui tourne, tôle de l'hélicoptère, flamme des
 // lampes, regards des personnages, tir du personnage 2 sur le zombie, barbe, gilets texturés. ?details=0 : l'ancienne scène, pour comparer.
 const details = q.get('details') !== '0';
+// v2 : personnage 1 gaucher, visant à droite de l'écran (retour du propriétaire) ; ?tireur=droitier : épaule droite, visée à gauche.
+TIREUR.gaucher = q.get('tireur') !== 'droitier';
 DETAILS.actif = details;
 const cadrage = CADRAGES[(q.get('cadrage') ?? 'B').toUpperCase()] ? (q.get('cadrage') ?? 'B').toUpperCase() : 'B'; // B : cadrage retenu (retours du lot 1)
 // format=plein : la fenêtre entière, comme le serait la vidéo plein écran de l'accueil (réglage paysage ou portrait selon la fenêtre,
@@ -101,10 +103,10 @@ try {
   // Coup de feu du personnage 1 (un par boucle).
   const laiton = new THREE.Color().setRGB(...m.lookup('--perso-casque').map((c) => c / 255), THREE.SRGBColorSpace);
   // Kar98k : éclair un peu plus grand ; la douille sort de la fenêtre d'éjection quand la culasse est tirée (manœuvre du verrou).
-  const tir = creerTir({ palette, laiton, echelle: ECHELLE_SCENE, arme: kar, ejection: ejectionKar(kar), fenetre: new THREE.Vector3(-0.7, 1.1, -2.2), force: 1.15 });
+  const tir = creerTir({ palette, laiton, echelle: ECHELLE_SCENE, arme: kar, ejection: ejectionKar(kar), fenetre: new THREE.Vector3(-0.7, 1.1, -2.2), force: 1.15, camera: () => window.__plan ?? camera, vol: { cote: 180, haut: 70 } });
   scene.add(tir.group);
   // Détails : coup de feu du personnage 2 sur le zombie (TIR_P2).
-  const tir2 = details ? creerTir({ palette, laiton, echelle: ECHELLE_SCENE, instant: TIR_P2, lumiereMax: 1100, arme: colt, fenetre: new THREE.Vector3(-0.6, 1.9, 0.6), force: 0.8 }) : null; // canon vers le bas, tout près de lui : éclat plus faible
+  const tir2 = details ? creerTir({ palette, laiton, echelle: ECHELLE_SCENE, instant: TIR_P2, lumiereMax: 1100, arme: colt, fenetre: new THREE.Vector3(-0.6, 1.9, 0.6), force: 0.8, camera: () => window.__plan ?? camera, vol: { cote: 250, haut: 120 } }) : null; // canon vers le bas, tout près de lui : éclat plus faible
   if (tir2) scene.add(tir2.group);
 
   // Lampe frontale du personnage 2 (variante B du jeu) : un faisceau faible vers la tête du zombie.
@@ -126,7 +128,10 @@ try {
     Object.assign(PLACEMENT.zombie, PLACEMENT_BASE.zombie, pl.zombie ?? {}, xz(q.get('zb'), {}));
     // Atelier : point visé par le personnage 1 (?p1vise=x,y,z, repère de la scène).
     PLACEMENT.p1Vise.copy(PLACEMENT_BASE.p1Vise);
-    if (pl.p1Vise) PLACEMENT.p1Vise.set(...pl.p1Vise); // v2 : point visé propre au format (l'éclair du Kar98k reste dans l'image)
+    // v2 : orientation et point visé propres au tireur et au format (l'éclair du Kar98k reste dans l'image), js/cadrages.js.
+    const tireur = TIREUR.gaucher ? 'gaucher' : 'droitier';
+    if (pl.p1Cap?.[tireur] !== undefined) PLACEMENT.p1.cap = pl.p1Cap[tireur];
+    if (pl.p1Vise?.[tireur]) PLACEMENT.p1Vise.set(...pl.p1Vise[tireur]);
     if (q.get('p1vise')) PLACEMENT.p1Vise.set(...nums(q.get('p1vise')));
     // Le zombie, et le personnage 2 qui le cloue au sol, sont tournés vers le personnage 1, comme si le zombie rampait vers lui ; il tend
     // le bras vers le personnage 1 (retenu par le propriétaire). ?zombie=face : l'ancienne orientation (vers la caméra), pour comparer.
@@ -270,7 +275,7 @@ try {
     fps: () => fps.value,
     // v2 (contrôle, scene-v2/outils/verifier.mjs) : éclair visible au canon de chaque tireur [personnage 1, personnage 2] à l'image affichée.
     eclairs: () => [tir, tir2].map((x) => Boolean(x?.group.children[0].visible)),
-    atelier: { p1, p2, zb, stage, THREE, kar, colt, ATELIER, FUSIL, PRISES, manoeuvreAt },
+    atelier: { p1, p2, zb, stage, THREE, kar, colt, ATELIER, FUSIL, PRISES, manoeuvreAt, tir, tir2, camera },
     armes: { p1: { id: kar.id, nom: kar.nom, variante: kar.variante, triangles: kar.triangles }, p2: { id: colt.id, nom: colt.nom, variante: colt.variante, triangles: colt.triangles } },
     info: () => ({ cadrage, format, duree: DUREE, taille: [toile.width, toile.height], triangles: renderer.info.render.triangles, appels: renderer.info.render.calls }),
   };
