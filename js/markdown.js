@@ -1,5 +1,6 @@
 // Markdown des articles, affiché de façon SÛRE (lot 3b) : petit moteur maison à liste blanche.
-// - Blocs : paragraphes, intertitres (#, ## ; ### pour un sous-titre), listes à puces (-, *, +) et numérotées (1. ou 1)).
+// - Blocs : paragraphes, intertitres (#, ## ; ### pour un sous-titre), listes à puces (-, *, +) et numérotées (1. ou 1)) ;
+//   sous-liste : la puce précédée de deux espaces (ou d'une tabulation) de plus que celle du dessus, trois niveaux au plus.
 // - En ligne : **gras**, *italique* ou _italique_, [texte](https://adresse), \ pour écrire un caractère tel quel.
 // - AUCUN HTML : le texte n'est jamais interprété comme du HTML (pas d'innerHTML) ; chaque élément est créé par
 //   document.createElement et le texte posé par textContent. « <script> », « onerror=… » restent du texte visible.
@@ -8,8 +9,15 @@
 // Utilisé par le site (js/actualites.js) et par l'aperçu de la page d'administration (admin/admin.js).
 
 const MOTIF_TITRE = /^(#{1,6})[ \t]+(.*?)[ \t#]*$/;
-const MOTIF_PUCE = /^[ \t]*[-*+][ \t]+(.*)$/;
-const MOTIF_NUMERO = /^[ \t]*(\d{1,9})[.)][ \t]+(.*)$/;
+const MOTIF_PUCE = /^([ \t]*)[-*+][ \t]+(.*)$/;
+const MOTIF_NUMERO = /^([ \t]*)(\d{1,9})[.)][ \t]+(.*)$/;
+const NIVEAUX_LISTE = 3; // liste, sous-liste, sous-sous-liste
+
+/** Niveau d'une puce d'après son retrait : deux espaces (ou une tabulation) par niveau. */
+function niveauRetrait(retrait) {
+  const largeur = [...retrait].reduce((n, c) => n + (c === '\t' ? 2 : 1), 0);
+  return Math.min(NIVEAUX_LISTE - 1, Math.floor(largeur / 2));
+}
 const ECHAPPABLES = '\\`*_{}[]()#+-.!>~|';
 
 /** Adresse de lien acceptée (http ou https, absolue), ou null. */
@@ -24,7 +32,10 @@ export function lienSur(adresse) {
   }
 }
 
-/** Découpe le texte en blocs : { type: 'titre', niveau, texte } | { type: 'liste', ordonnee, depart, elements } | { type: 'para', texte }. */
+/**
+ * Découpe le texte en blocs : { type: 'titre', niveau, texte } | { type: 'liste', ordonnee, depart, elements } | { type: 'para', texte }.
+ * Élément de liste : { texte, niveau (0 = liste, 1 = sous-liste…), ordonnee, numero }.
+ */
 function blocs(source) {
   const lignes = String(source ?? '').replace(/\r\n?/g, '\n').split('\n');
   const resultat = [];
@@ -43,17 +54,22 @@ function blocs(source) {
     const numero = puce ? null : MOTIF_NUMERO.exec(ligne);
     if (puce || numero) {
       const ordonnee = Boolean(numero);
-      if (!liste || liste.ordonnee !== ordonnee) {
+      // Un niveau de plus que l'élément du dessus au plus ; le premier élément d'une liste est au niveau 0.
+      const precedent = liste?.elements.at(-1);
+      let niveau = precedent ? Math.min(niveauRetrait((puce ?? numero)[1]), precedent.niveau + 1) : 0;
+      // Puce de premier niveau d'une autre sorte (puces ↔ numéros) : nouvelle liste.
+      if (!liste || (niveau === 0 && liste.ordonnee !== ordonnee)) {
         para = null;
-        liste = { type: 'liste', ordonnee, depart: ordonnee ? Number(numero[1]) : 1, elements: [] };
+        niveau = 0;
+        liste = { type: 'liste', ordonnee, depart: ordonnee ? Number(numero[2]) : 1, elements: [] };
         resultat.push(liste);
       }
-      liste.elements.push(puce ? puce[1] : numero[2]);
+      liste.elements.push({ texte: puce ? puce[2] : numero[3], niveau, ordonnee, numero: ordonnee ? Number(numero[2]) : 1 });
       continue;
     }
     if (liste) {
       // Ligne qui suit un élément de liste sans puce : elle le continue.
-      liste.elements[liste.elements.length - 1] += ` ${ligne.trim()}`;
+      liste.elements.at(-1).texte += ` ${ligne.trim()}`;
       continue;
     }
     if (para) para.texte += ` ${ligne.trim()}`;
@@ -183,10 +199,21 @@ export function rendreMarkdown(source, { niveauTitre = 3, doc = document } = {})
     } else if (b.type === 'liste') {
       const el = doc.createElement(b.ordonnee ? 'ol' : 'ul');
       if (b.ordonnee && b.depart !== 1) el.start = b.depart;
+      // Pile des listes ouvertes : [liste, sous-liste, …] ; une sous-liste se range dans le dernier élément du niveau du dessus.
+      const pile = [el];
+      let dernier = null;
       for (const element of b.elements) {
+        while (pile.length - 1 > element.niveau) pile.pop();
+        if (element.niveau > pile.length - 1 && dernier) {
+          const sous = doc.createElement(element.ordonnee ? 'ol' : 'ul');
+          if (element.ordonnee && element.numero !== 1) sous.start = element.numero;
+          dernier.append(sous);
+          pile.push(sous);
+        }
         const li = doc.createElement('li');
-        li.append(versDom(enLigne(element), doc));
-        el.append(li);
+        li.append(versDom(enLigne(element.texte), doc));
+        pile.at(-1).append(li);
+        dernier = li;
       }
       fragment.append(el);
     } else {
@@ -208,7 +235,7 @@ export function extrait(source, max = 160) {
   const tous = blocs(source);
   const corps = tous.some((b) => b.type !== 'titre') ? tous.filter((b) => b.type !== 'titre') : tous;
   const texte = corps
-    .flatMap((b) => (b.type === 'liste' ? b.elements : [b.texte]))
+    .flatMap((b) => (b.type === 'liste' ? b.elements.map((e) => e.texte) : [b.texte]))
     .map((t) => texteDe(enLigne(t)))
     .join(' ')
     .replace(/\s+/g, ' ')

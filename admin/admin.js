@@ -456,7 +456,20 @@ function prefixerLignes(zone, prefixe, motif) {
   const fin = finLigne === -1 ? v.length : finLigne;
   const lignes = v.slice(debut, fin).split('\n');
   const toutes = lignes.every((l) => motif.test(l));
-  const nouveau = lignes.map((l) => (toutes ? l.replace(motif, '') : `${prefixe}${l.replace(/^(#{1,6} |[-*+] )/, '')}`)).join('\n');
+  const nouveau = lignes.map((l) => (toutes ? l.replace(motif, '') : `${prefixe}${l.replace(/^(#{1,6} |[ \t]*[-*+] )/, '')}`)).join('\n');
+  remplacer(zone, debut, fin, nouveau, debut, debut + nouveau.length);
+}
+
+// Sous-puce : la ligne devient une puce décalée de deux espaces, rangée sous la puce du dessus (js/markdown.js) ; un nouvel appui sur des
+// lignes déjà en sous-puce les remet en puces simples.
+function sousPuces(zone) {
+  const { selectionStart: d, selectionEnd: f, value: v } = zone;
+  const debut = v.lastIndexOf('\n', d - 1) + 1;
+  const finLigne = v.indexOf('\n', f);
+  const fin = finLigne === -1 ? v.length : finLigne;
+  const lignes = v.slice(debut, fin).split('\n');
+  const toutes = lignes.every((l) => /^ {2}[-*+] /.test(l));
+  const nouveau = lignes.map((l) => (toutes ? l.replace(/^ {2}/, '') : `  - ${l.replace(/^(#{1,6} |[ \t]*[-*+] )/, '')}`)).join('\n');
   remplacer(zone, debut, fin, nouveau, debut, debut + nouveau.length);
 }
 
@@ -465,6 +478,7 @@ const formats = {
   italique: (z) => entourer(z, '*', 'texte en italique'),
   titre: (z) => prefixerLignes(z, '## ', /^## /),
   liste: (z) => prefixerLignes(z, '- ', /^- /),
+  sousliste: (z) => sousPuces(z),
   lien: (z) => {
     const { selectionStart: d, selectionEnd: f, value: v } = z;
     const saisie = window.prompt('Adresse du lien (commence par https://) :', 'https://');

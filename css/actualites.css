@@ -342,6 +342,10 @@
 .actu-texte ol { list-style: decimal; }
 .actu-texte li + li { margin-top: 0.3em; }
 .actu-texte li::marker { color: var(--color-action-text); }
+/* Sous-listes (puce précédée de deux espaces) : rond vide, puis carré ; un peu d'air au-dessus. */
+.actu-texte li > ul, .actu-texte li > ol { margin-top: 0.3em; }
+.actu-texte ul ul { list-style: circle; }
+.actu-texte ul ul ul { list-style: square; }
 .actu-texte a { color: var(--color-action-text); text-underline-offset: 3px; }
 .actu-texte a:hover { color: var(--color-action-hover); }
 .actu-texte strong { color: var(--color-text); }

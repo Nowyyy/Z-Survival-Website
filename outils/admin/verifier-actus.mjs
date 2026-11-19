@@ -155,13 +155,21 @@ let imagePrincipale = '';
   await page.keyboard.type('\nplanches\nclous');
   await page.evaluate(() => { const z = document.getElementById('contenu_fr'); z.setSelectionRange(z.value.lastIndexOf('planches'), z.value.length); });
   await page.click('#panneau-fr [data-format=liste]');
+  // Sous-puce : « clous » passe sous « planches » ; un nouvel appui la remet en puce simple, un troisième la redécale.
+  const sousPuce = async () => {
+    await page.evaluate(() => { const z = document.getElementById('contenu_fr'); const d = z.value.lastIndexOf('clous'); z.setSelectionRange(d, d); });
+    await page.click('#panneau-fr [data-format=sousliste]');
+    return (await page.inputValue('#contenu_fr')).split('\n').at(-1);
+  };
+  const etapes = [await sousPuce(), await sousPuce(), await sousPuce()];
+  verifier(JSON.stringify(etapes) === JSON.stringify(['  - clous', '- clous', '  - clous']), `bouton sous-puce : décale, puis remet en puce simple (${JSON.stringify(etapes)})`);
   await page.evaluate(() => { const z = document.getElementById('contenu_fr'); z.setSelectionRange(z.value.length, z.value.length); });
   await page.keyboard.type('\n\nVoir le ');
   suivi.reponses.push('https://example.org/guide');
   await page.click('#panneau-fr [data-format=lien]');
   const texte = await page.inputValue('#contenu_fr');
-  verifier(texte === '**Intro**\n*mot*\n## Intertitre\n- planches\n- clous\n\nVoir le [texte du lien](https://example.org/guide)',
-    `barre de mise en forme : gras, italique, titre, liste, lien (${JSON.stringify(texte)})`);
+  verifier(texte === '**Intro**\n*mot*\n## Intertitre\n- planches\n  - clous\n\nVoir le [texte du lien](https://example.org/guide)',
+    `barre de mise en forme : gras, italique, titre, liste, sous-puce, lien (${JSON.stringify(texte)})`);
   const tailles = await page.$$eval('#panneau-fr .admin-outils button', (l) => l.map((b) => Math.min(b.offsetWidth, b.offsetHeight)));
   verifier(tailles.every((t) => t >= 44), `boutons de mise en forme utilisables au pouce (≥ 44 px : ${tailles.join(', ')})`);
 
