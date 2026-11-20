@@ -85,7 +85,8 @@ try {
     const origine = stage.localToWorld(new THREE.Vector3(...nums(q.get('projecteur'), [320, 0, -1300]))).setY(60);
     const versStage = stage.position.clone().sub(origine);
     anim.push(creerFaisceau({ origine, capMilieu: Math.atan2(versStage.x, versStage.z) + Number(q.get('faisceau') ?? 0.2), palette, elevation: 0.95, amplitude: 0.55 }));
-    anim.push(creerParachute({ epoque: m.epoque, lookup: m.lookup, position: stage.localToWorld(new THREE.Vector3(...nums(q.get('parachute'), [240, 0, -160]))), cap: Number(q.get('parachutecap') ?? 0.8), k: Number(q.get('parachutek') ?? 2.2) }));
+    // Parachute : retiré (choix du propriétaire) ; ?parachute=x,0,z le remet, pour essayer.
+    if (q.get('parachute')) anim.push(creerParachute({ epoque: m.epoque, lookup: m.lookup, position: stage.localToWorld(new THREE.Vector3(...nums(q.get('parachute'), [240, 0, -160]))), cap: Number(q.get('parachutecap') ?? 0.8), k: Number(q.get('parachutek') ?? 2.2) }));
     for (const a of anim) scene.add(a.group);
   }
 

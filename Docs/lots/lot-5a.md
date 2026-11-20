@@ -225,6 +225,12 @@ recule puis revient) ; boucle parfaite (paysage 0,50 pour une moyenne de 0,56 ; 
 - Vérifications : `node scene-v2/outils/verifier.mjs` 53/53 ; boucle parfaite (paysage 0,54 pour une moyenne de 0,62 ; portrait 0,44 pour 0,59) ;
   planche refaite.
 
+## Parachute retiré, tôle hors du sol (20/11/2026, branche `accueil-v2-anim-3`)
+- « Retire le parachute » : retiré (il reste disponible avec `?parachute=x,0,z`).
+- « Vérifie que le clapet ne va pas non plus dans le sol » : il y allait (6,4 unités sous le sol vers 4,5 s). Sa course est maintenant limitée aux
+  angles où tous ses coins restent au-dessus du sol : point le plus bas à 2,1 sur toute la boucle. Contrôle ajouté à `verifier.mjs`.
+- Vérifications : `node scene-v2/outils/verifier.mjs` 55/55 ; boucle parfaite ; planche refaite.
+
 ## État git
 - Commits `accueil-v2 A` à `accueil-v2 E` sur la branche `accueil-v2` (poussée), PR vers `main` fusionnée par l'agent (règle de
   `CLAUDE.md`) : rien n'est visible des visiteurs.

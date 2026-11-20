@@ -190,13 +190,29 @@ export function creerAvion({ epoque, avion, lookup, floor, palette, textures, re
     pivot.add(pan);
     group.add(pivot);
     const TAU = Math.PI * 2;
+    // Retour du propriétaire (« le clapet ne doit pas aller dans le sol ») : course du volet limitée aux angles où tous ses coins restent au
+    // moins à 1,5 au-dessus du sol (le groupe est posé tel quel dans le monde : y = 0 au sol). Les battements sont ramenés dans cette course.
+    const coins = [];
+    const g = pan.geometry.attributes.position;
+    for (let i = 0; i < g.count; i += 1) coins.push(new THREE.Vector3().fromBufferAttribute(g, i));
+    pivot.updateMatrixWorld(true);
+    const bas = (angle) => {
+      const m = new THREE.Matrix4().multiplyMatrices(pivot.matrixWorld, new THREE.Matrix4().makeRotationZ(angle));
+      return Math.min(...coins.map((q) => q.clone().applyMatrix4(m).y));
+    };
+    const COURSE = [-1.3, 0.35];
+    const permis = [];
+    for (let i = 0; i <= 165; i += 1) { const x = COURSE[0] + (i / 165) * (COURSE[1] - COURSE[0]); if (bas(x) >= 1.5) permis.push(x); }
+    const [amin, amax] = permis.length ? [Math.min(...permis), Math.max(...permis)] : [0, 0];
     group.userData.tole = {
+      course: [amin, amax],
+      bas,
       pivot,
       update(t) {
         const u = t / 8;
         // Angle autour de la charnière (0 : dans le plan de l'aile, prolongé) : de −1,3 à +0,35 rad, jamais replié vers l'aile.
-        const a = -0.5 + 0.7 * Math.sin(TAU * 4 * u) ** 3 + 0.12 * Math.sin(TAU * 9 * u + 0.7);
-        pan.rotation.z = a;
+        const a = -0.5 + 0.7 * Math.sin(TAU * 4 * u) ** 3 + 0.12 * Math.sin(TAU * 9 * u + 0.7); // de −1,32 à +0,32
+        pan.rotation.z = amin + ((a - COURSE[0]) / (COURSE[1] - COURSE[0])) * (amax - amin);
       },
     };
   }

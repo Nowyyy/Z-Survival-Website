@@ -146,14 +146,15 @@ personnage 1, tenues, visages, barbe, gilets.
   sur la boucle de 8 s (nombre entier de cycles), `?animations=0` pour les retirer :
   - **tôle qui bat au vent** sur l'aile plantée à gauche (`userData.tole`, `scene-v2/js/avion.js`) : volet de tôle de l'avion accroché par une
     charnière au **bord de fuite** de l'aile, qui pend au-delà ; 4 battements par boucle et un frémissement, angle de −1,3 à +0,35 rad autour
-    du bord : il ne rentre jamais dans l'aile (retour « le clapet traverse l'aile ») ; `?tolepos=` le déplace le long du bord ;
+    du bord : il ne rentre jamais dans l'aile (retour « le clapet traverse l'aile »), et sa course est limitée aux angles où il reste au moins
+    à 1,5 au-dessus du sol (retour « ni dans le sol » ; de −1,3 à −0,18 rad, point le plus bas à 2,1, contrôlé par `verifier.mjs`) ;
+    `?tolepos=` le déplace le long du bord ;
   - **faisceau du projecteur** (`creerFaisceau`, `scene-v2/js/animations.js`) : le projecteur du jeu est éteint et derrière les caméras ; un cône
     de lumière part de loin derrière la scène et balaie le ciel, un aller-retour par boucle (`?projecteur=x,0,z`, `?faisceau=` : décalage du cap) ;
   - **braises et étincelles** (`creerBraises`) qui montent du feu de l'avion en tournoyant (vies de 8/3 à 8/7 s), et **fumée plus épaisse et plus
     sombre** (mélange des jetons de fumée du jeu) ;
-  - **parachute du jeu** : sa voilure est accrochée à un **arbre mort** (modèle du jeu : tronc, trois branches, suspentes, harnais vide ;
-    `creerParachute`), replacé à droite du personnage 2 pour que le tronc se voie (retour « comment il tient ? »), plus grand ; la voilure ondule
-    au vent (2 et 3 cycles par boucle) ; `?parachute=x,0,z`, `?parachutek=`, `?parachutecap=`. Hors du cadre sur téléphone.
+  - **parachute** : essayé puis **retiré** (choix du propriétaire) ; `?parachute=x,0,z` le remet pour essayer (modèle du jeu, voilure sur un
+    arbre mort, qui ondule ; `creerParachute`, `?parachutek=`, `?parachutecap=`).
 - `?decor=avant` : l'ancien décor (hélicoptère agrandi, voitures), comme le réglage `?test=1&decor=avant` du jeu. Atelier : `?avionlacet=degrés`
   fait pivoter l'épave autour du nez (essais à 140, 180, 220° : l'avion passait derrière le personnage 2 et le mur ; orientation du jeu gardée).
 
