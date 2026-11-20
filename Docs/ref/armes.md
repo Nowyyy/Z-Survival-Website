@@ -30,21 +30,39 @@ Elle est **en coulisses** tant que la mise à jour du jeu n'est pas sortie : les
 - `armes/jeu/` : copie figée (fichiers tels quels, jamais publiés), origine et empreintes dans `armes/jeu/ORIGINE.json`.
 - Outils : `outils/armes/` (mode d'emploi détaillé : `outils/armes/LISEZMOI.md`).
 
-| Ordre | id | Nom (jeu) | Catégorie | Famille |
-|---|---|---|---|---|
-| 1 | `m1911` | Colt M1911 | pistolet | poing |
-| 2 | `kar98k` | Kar98k | fusil à verrou | épaule |
-| 3 | `winchester1897` | Winchester M1897 | fusil à pompe | épaule |
-| 4 | `thompson` | Thompson M1928 | pistolet-mitrailleur | épaule |
-| 5 | `garand` | M1 Garand | fusil semi-automatique | épaule |
-| 6 | `stg44` | StG 44 | fusil d'assaut | épaule |
-| 7 | `bar` | BAR M1918 | fusil-mitrailleur | épaule |
-| 8 | `mg42` | MG42 | mitrailleuse | lourde |
-| 9 | `panzerschreck` | Panzerschreck | lance-roquettes | spéciale |
-| 10 | `m2lanceflammes` | Lance-flammes M2 (anglais : M2 Flamethrower) | lance-flammes | spéciale |
+| Ordre | id | Nom (jeu) | Catégorie | Famille | Chapitre | Prochainement |
+|---|---|---|---|---|---|---|
+| 1 | `m1911` | Colt M1911 | pistolet | Poing | 1 | |
+| 2 | `kar98k` | Kar98k | fusil à verrou | Carabine | 1 | |
+| 3 | `winchester1897` | Winchester M1897 | fusil à pompe | Pompe | 1 | |
+| 4 | `thompson` | Thompson M1928 | pistolet-mitrailleur | Mitraillette | 1 | |
+| 5 | `garand` | M1 Garand | fusil semi-automatique | Carabine | 1 | |
+| 6 | `stg44` | StG 44 | fusil d'assaut | Fusil d'assaut | 1 | |
+| 7 | `bar` | BAR M1918 | fusil-mitrailleur | Fusil d'assaut | 1 | |
+| 8 | `mg42` | MG42 | mitrailleuse | Lourde | 1 | |
+| 9 | `panzerschreck` | Panzerschreck | lance-roquettes | Spéciale | 1 | oui |
+| 10 | `m2lanceflammes` | Lance-flammes M2 (anglais : M2 Flamethrower) | lance-flammes | Spéciale | 1 | oui |
 
-Famille : classe du jeu (`poing`, `epaule`, `lourde`), les deux armes spéciales du jeu à part (`speciale`). La liste des miniatures est
-rangée par famille (petit titre au-dessus de chaque groupe).
+**Familles** (retour du propriétaire : « Épaule » était trop vaste) : `poing`, `carabine`, `pompe`, `mitraillette`, `assaut` (fusil d'assaut),
+`lourde`, `speciale` ; libellés FR / EN dans `weapons.familles` de `js/textes.js`. La liste des miniatures est rangée par famille (petit
+titre au-dessus de chaque groupe), dans l'ordre où chaque famille apparaît, puis par `ordre` : Poing, Carabine (Kar98k, M1 Garand), Pompe,
+Mitraillette, Fusil d'assaut (StG 44, BAR M1918), Lourde, Spéciale. La famille se règle arme par arme dans `contenus/armes.json` (le BAR,
+fusil-mitrailleur, est rangé avec les fusils d'assaut ; `"famille": "lourde"` le mettrait avec la MG42). Nouvelle famille : ajouter son
+libellé dans `weapons.familles` (français et anglais) et, si besoin, sa place dans `FAMILLES` de `js/section-armes.js`.
+
+**Armes « prochainement »** (`"prochainement": true` ; retour du propriétaire : le lance-flammes et le Panzerschreck, pas encore utilisables
+dans le jeu, restent marqués « Prochainement » jusqu'au bout, même une fois la section publiée) : grand visuel en silhouette sombre à liseré
+rouge avec l'encart « Prochainement », gros « ? » rouge sur la miniature (silhouette elle aussi), mention dans le nom accessible. Nom,
+catégorie et description restent affichés. Pour la dévoiler : `"prochainement": false`.
+
+**Chapitres** (prévu pour plus tard : choisir un chapitre pour n'afficher que ses armes ; aujourd'hui le chapitre 1) : chaque arme a
+`"chapitres": [1]` ; la liste `"chapitres"` en tête du fichier donne les chapitres connus, avec un nom facultatif. Un sélecteur dans
+l'en-tête de la section (« Chapitre 1 » / « Chapter 1 ») montre les armes du chapitre choisi ; le dernier chapitre de la liste est affiché
+d'abord. Ajouter un chapitre : `{ "id": 2, "nom": { "fr": "…", "en": "…" } }` dans `"chapitres"` (sans nom : « Chapitre 2 »), puis `2` dans
+les `"chapitres"` des armes concernées (une arme peut être dans plusieurs chapitres : `[1, 2]`). Un chapitre sans arme n'est pas proposé.
+
+**Noms** : un nom ne se coupe qu'entre deux mots (« Lance-flammes / M2 », « Winchester / M1897 » sur les miniatures, deux lignes au plus),
+jamais au milieu d'un mot ni tronqué.
 
 ## Après une évolution des armes du jeu
 
@@ -57,7 +75,10 @@ node outils/armes/fabriquer-visuels.mjs
 ```
 
 1. `copier-armes.mjs` refait la copie figée, met à jour `contenus/armes.json` et affiche les armes **ajoutées**, **modifiées** (nom,
-   catégorie, famille, modèle 3D) et **disparues**. Il ne touche jamais aux descriptions, à l'ordre, au nom anglais ni aux stats.
+   catégorie, modèle 3D, arme devenue utilisable dans le jeu) et **disparues**. Il ne touche jamais aux descriptions, à la famille, à
+   l'ordre, aux chapitres, à « prochainement », au nom anglais ni aux stats. Une arme nouvelle reçoit une famille proposée d'après sa
+   catégorie, le dernier chapitre, et `"prochainement": true` si le jeu ne la rend pas encore utilisable. Fichier illisible : l'outil
+   s'arrête sans rien écrire.
    `--essai` montre ce qui changerait sans rien écrire.
 2. S'il le signale : ajouter les libellés de catégorie ou de famille dans `js/textes.js` (`weapons.categories`, `weapons.familles`,
    français **et** anglais) ; écrire les descriptions des armes ajoutées.
@@ -68,7 +89,7 @@ node outils/armes/fabriquer-visuels.mjs
 
 ```json
 {
-  "id": "kar98k", "nom": "Kar98k", "nomEn": null, "categorie": "fusil-a-verrou", "famille": "epaule", "ordre": 2, "aRelire": true, "stats": null,
+  "id": "kar98k", "nom": "Kar98k", "nomEn": null, "categorie": "fusil-a-verrou", "famille": "carabine", "ordre": 2, "aRelire": true, "stats": null, "chapitres": [1], "prochainement": false,
   "description": {
     "fr": "Un fusil à verrou d’une précision redoutable. Chaque balle compte : visez la tête, réarmez, recommencez.",
     "en": "A deadly accurate bolt-action rifle. Every round counts: aim for the head, work the bolt, repeat."
@@ -82,9 +103,9 @@ node outils/armes/fabriquer-visuels.mjs
 3. Une fois la description relue, mettre `"aRelire": false` (simple repère pour s'y retrouver ; rien ne change à l'écran).
 4. « Commit changes » sur `main` : le site est republié en une minute environ.
 
-Champs que l'on peut régler : `description` (fr, en), `aRelire`, `ordre` (rang d'affichage, 1 = premier ; à l'intérieur de chaque famille),
-`nomEn` (nom en anglais s'il diffère du nom du jeu ; `null` sinon). Champs réécrits par l'outil à chaque relevé : `id`, `nom`, `categorie`,
-`famille`. `retirees` : armes disparues du jeu, gardées pour leurs textes, jamais affichées. Fichier illisible : la section affiche
+Champs que l'on peut régler : `description` (fr, en), `aRelire`, `famille`, `ordre` (rang d'affichage, 1 = premier ; à l'intérieur de
+chaque famille), `chapitres`, `prochainement`, `nomEn` (nom en anglais s'il diffère du nom du jeu ; `null` sinon), et la liste `chapitres` en
+tête du fichier. Champs réécrits par l'outil à chaque relevé : `id`, `nom`, `categorie`. `retirees` : armes disparues du jeu, gardées pour leurs textes, jamais affichées. Fichier illisible : la section affiche
 « Les armes n’ont pas pu être chargées. » (seulement si elle est allumée ou en aperçu).
 
 ## Ajouter les statistiques plus tard

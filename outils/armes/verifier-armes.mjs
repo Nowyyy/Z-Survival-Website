@@ -112,6 +112,24 @@ for (const [w, h, tactile] of TAILLES) {
         verifier(`${nom} : ${ARMES.length} armes et leurs miniatures`, etat.miniatures === ARMES.length && etat.imagesMini === ARMES.length, JSON.stringify(etat));
         verifier(`${nom} : stats sans aucun chiffre, « ${etat.tampon} »`, etat.chiffresStats === 0 && etat.tampon === (lang === 'fr' ? 'Prochainement' : 'Coming soon'));
         verifier(`${nom} : textes traduits`, etat.categorie === (lang === 'fr' ? 'Pistolet' : 'Pistol') && etat.nom === 'Colt M1911', `${etat.categorie} / ${etat.nom}`);
+        // Retours du propriétaire : armes « prochainement », chapitres, noms jamais coupés au milieu d'un mot ni tronqués.
+        const retours = await page.evaluate(() => {
+          const s = document.getElementById('weapons');
+          const mini = [...s.querySelectorAll('.arsenal-miniature')];
+          const silhouette = (img) => getComputedStyle(img).filter.includes('brightness(0)');
+          const motsCoupes = [...s.querySelectorAll('.arsenal-nom .arsenal-mot, .arsenal-miniature-nom .arsenal-mot')].filter((m) => m.getClientRects().length > 1).length;
+          const tronques = mini.filter((b) => { const n = b.querySelector('.arsenal-miniature-nom'); const r = n.getBoundingClientRect(); const rb = b.getBoundingClientRect(); return n.scrollWidth > n.clientWidth + 1 || r.bottom > rb.bottom + 1 || r.left < rb.left - 1 || r.right > rb.right + 1; }).map((b) => b.dataset.arme);
+          return {
+            mysteres: mini.filter((b) => b.querySelector('.arsenal-miniature-mystere')).map((b) => b.dataset.arme).sort().join(','),
+            silhouettes: mini.filter((b) => silhouette(b.querySelector('img'))).map((b) => b.dataset.arme).sort().join(','),
+            chapitres: [...s.querySelectorAll('.section-entete .arsenal-chapitre')].map((b) => `${b.textContent}:${b.getAttribute('aria-pressed')}`).join(','),
+            motsCoupes, tronques,
+          };
+        });
+        const attendues = ARMES.filter((a) => a.prochainement).map((a) => a.id).sort().join(',');
+        verifier(`${nom} : « ? » et silhouette seulement sur les armes à venir (${attendues})`, retours.mysteres === attendues && retours.silhouettes === attendues, JSON.stringify(retours));
+        verifier(`${nom} : sélecteur « ${lang === 'fr' ? 'Chapitre' : 'Chapter'} 1 »`, retours.chapitres === `${lang === 'fr' ? 'Chapitre' : 'Chapter'} 1:true`, retours.chapitres);
+        verifier(`${nom} : noms ni coupés au milieu d'un mot ni tronqués`, retours.motsCoupes === 0 && !retours.tronques.length, JSON.stringify(retours));
         verifier(`${nom} : aucun chevauchement, rien ne dépasse`, !etat.chevauchent.length && !etat.debordent.length && !etat.descriptionTronquee && etat.sceneH >= 60, JSON.stringify(etat));
         if (allume) {
           const { ctx: c2, page: p2 } = await ouvrir({ w, h, tactile, reduit, lang, requete: 'apercu=armes' });
@@ -139,10 +157,21 @@ for (const [w, h, tactile] of TAILLES) {
         await page.keyboard.press('ArrowLeft');
         await page.keyboard.press('ArrowLeft');
         const apresGauche = await choisie();
-        const ids = ARMES.map((a) => a.id);
+        const ids = await page.$$eval('.arsenal-miniature', (bs) => bs.map((x) => x.dataset.arme)); // ordre affiché (par famille, puis « ordre »)
         verifier(`${nom} : changement d'arme (${tactile ? 'toucher' : 'clic'}, flèche, clavier)`, apresMini === ids[3] && apresFleche === ids[4] && apresDroite === ids[5] && apresGauche === ids[3], `${apresMini} ${apresFleche} ${apresDroite} ${apresGauche}`);
         const section = await page.evaluate(() => document.body.dataset.section);
         verifier(`${nom} : les flèches ← → restent dans la section`, section === 'weapons', section);
+        const prochaine = ARMES.find((a) => a.prochainement);
+        if (prochaine) {
+          // Clic par le DOM : un clic Playwright ferait d'abord défiler la page jusqu'à la miniature (le vrai clic est testé plus haut).
+          await page.evaluate((id) => document.querySelector(`.arsenal-miniature[data-arme="${id}"]`).click(), prochaine.id);
+          const vue = await page.evaluate(() => ({
+            silhouette: getComputedStyle(document.querySelector('.arsenal-visuel')).filter.includes('brightness(0)'),
+            tampon: getComputedStyle(document.querySelector('.arsenal-scene-tampon')).display !== 'none' && document.querySelector('.arsenal-scene-tampon').textContent,
+            autres: [...document.querySelectorAll('.arsenal-miniature:not(.est-prochainement) img')].filter((i) => getComputedStyle(i).filter.includes('brightness(0)')).length,
+          }));
+          verifier(`${nom} : ${prochaine.id} choisie = silhouette + « Prochainement », les autres miniatures intactes`, vue.silhouette && vue.tampon === (lang === 'fr' ? 'Prochainement' : 'Coming soon') && vue.autres === 0, JSON.stringify(vue));
+        }
         verifier(`${nom} : console propre`, erreurs.length === 0, erreurs.join(' | '));
         await ctx.close();
       }

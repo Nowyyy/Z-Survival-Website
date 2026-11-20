@@ -3,6 +3,30 @@
    doigt. Ordinateur : visuel à gauche, carte à droite, miniatures dessous. Couleurs : jetons de css/base.css. */
 
 .section-arsenal .section-interieur { gap: 10px; }
+/* Un nom ne se coupe qu'entre deux mots (retour du propriétaire : « Lance- / flammes M2 » → « Lance-flammes / M2 »). */
+.arsenal-mot { white-space: nowrap; }
+
+/* ---------- Chapitres : dans l'en-tête de la section, à droite du titre ---------- */
+.section-arsenal .section-entete { flex-wrap: wrap; }
+.arsenal-chapitres { display: flex; gap: 6px; margin-left: auto; align-self: center; }
+.arsenal-chapitre {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--color-surface-raised);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-family: var(--font-label);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  position: relative;
+}
+.arsenal-chapitre::after { content: ""; position: absolute; inset: -6px 0; } /* zone de toucher de 44 px */
+.arsenal-chapitre[aria-pressed="true"] { border-color: var(--color-action); color: var(--color-text); box-shadow: 0 0 10px var(--color-action-glow); }
+.arsenal-chapitre:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 
 .arsenal {
   display: flex;
@@ -59,6 +83,28 @@
   user-select: none;
 }
 .arsenal-visuel-attente { opacity: 0; }
+/* Armes « prochainement » (lance-flammes, Panzerschreck) : silhouette sombre à liseré rouge, encart « Prochainement » posé dessus. */
+.arsenal.est-prochainement .arsenal-visuel { filter: brightness(0) drop-shadow(0 0 1px var(--color-action)) drop-shadow(0 0 10px var(--color-action-glow)); }
+.arsenal-scene-tampon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: none;
+  padding: 0.25em 0.9em 0.3em;
+  border-radius: var(--radius-sm);
+  background: var(--color-action);
+  color: var(--color-on-action);
+  font-family: var(--font-label);
+  font-size: clamp(1rem, 4.5vw, 1.8rem);
+  letter-spacing: 0.05em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: inset 0 0 0 2px rgb(0 0 0 / 30%), 0 0 22px var(--color-action-glow), 0 10px 22px rgb(0 0 0 / 60%);
+  transform: translate(-50%, -50%) rotate(-4deg);
+  pointer-events: none;
+}
+.arsenal.est-prochainement .arsenal-scene-tampon { display: block; }
 .arsenal-fleche {
   position: absolute;
   top: 50%;
@@ -156,12 +202,13 @@
 .arsenal-groupe-nom { font-size: 0.62rem; color: var(--color-text-muted); padding-left: 8px; border-left: 2px solid var(--color-action); line-height: 1.2; }
 .arsenal-groupe-armes { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .arsenal-miniature {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   width: 88px;
-  height: 62px;
+  height: 70px;
   padding: 3px 4px 4px;
   border: 1px solid var(--color-surface-raised);
   border-radius: var(--radius-md);
@@ -170,16 +217,33 @@
   scroll-snap-align: start;
   transition: border-color 200ms, background-color 200ms, box-shadow 200ms;
 }
-.arsenal-miniature-image { display: block; width: 100%; height: 36px; object-fit: contain; pointer-events: none; }
+.arsenal-miniature-image { display: block; width: 100%; height: 34px; flex: none; object-fit: contain; pointer-events: none; }
+/* Nom sur deux lignes au plus, coupé entre deux mots (« Winchester / M1897 »), jamais tronqué. */
 .arsenal-miniature-nom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 0.28em;
   max-width: 100%;
-  overflow: hidden;
-  font-size: 0.66rem;
+  font-size: 0.64rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.1;
+  text-align: center;
   color: var(--color-text-muted);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+/* Armes « prochainement » : miniature en silhouette, gros « ? » par-dessus. */
+.arsenal-miniature.est-prochainement .arsenal-miniature-image { filter: brightness(0) drop-shadow(0 0 1px var(--color-action)); opacity: 0.8; }
+.arsenal-miniature-mystere {
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  line-height: 1;
+  color: var(--color-action);
+  text-shadow: 0 0 10px var(--color-action-glow), 0 2px 4px rgb(0 0 0 / 80%);
+  pointer-events: none;
 }
 .arsenal-miniature:hover { border-color: var(--color-border); }
 .arsenal-miniature[aria-pressed="true"] {
@@ -216,8 +280,11 @@
   .arsenal-stats-titre { display: none; }
   .arsenal-stats-grille { grid-template-columns: repeat(4, 1fr); gap: 4px 8px; }
   .arsenal-stats-tampon { font-size: 0.85rem; top: 50%; }
-  .arsenal-miniature { width: 78px; height: 54px; }
-  .arsenal-miniature-image { height: 30px; }
+  .arsenal-miniature { width: 84px; height: 62px; }
+  .arsenal-miniature-image { height: 28px; }
+  .arsenal-miniature-nom { font-size: 0.6rem; }
+  .arsenal-miniature-mystere { font-size: 1.6rem; }
+  .arsenal-chapitre { min-height: 28px; padding: 0 10px; font-size: 0.66rem; }
 }
 @media (max-width: 360px) {
   .arsenal-nom { font-size: 1.55rem; }
@@ -247,9 +314,11 @@
   .arsenal-stats-tampon { font-size: 0.8rem; top: 50%; }
   .arsenal-fleche { width: 36px; height: 36px; }
   .arsenal-groupe-nom { display: none; }
-  .arsenal-miniature { width: 70px; height: 42px; padding: 2px 3px; }
-  .arsenal-miniature-image { height: 22px; }
-  .arsenal-miniature-nom { font-size: 0.58rem; }
+  .arsenal-miniature { width: 74px; height: 48px; padding: 2px 3px; }
+  .arsenal-miniature-image { height: 20px; }
+  .arsenal-miniature-nom { font-size: 0.56rem; line-height: 1.05; }
+  .arsenal-miniature-mystere { font-size: 1.3rem; top: 1px; }
+  .arsenal-chapitre { min-height: 28px; padding: 0 10px; font-size: 0.64rem; }
 }
 
 /* ---------- Ordinateur : visuel à gauche, carte d'infos à droite, miniatures dessous ---------- */
@@ -278,17 +347,19 @@
   .arsenal-fleche { width: var(--touch-target); height: var(--touch-target); }
   .arsenal-liste { grid-area: liste; margin-inline: 0; padding-inline: 0; gap: 18px; scroll-padding-inline: 0; }
   .arsenal-groupe-nom { font-size: 0.72rem; }
-  .arsenal-miniature { width: 104px; height: 76px; padding: 4px 6px 6px; } /* les dix tiennent sur une ligne à 1440 px */
-  .arsenal-miniature-image { height: 46px; }
-  .arsenal-miniature-nom { font-size: 0.75rem; }
+  .arsenal-miniature { width: 104px; height: 84px; padding: 4px 6px 6px; } /* les dix tiennent sur une ligne à 1440 px */
+  .arsenal-miniature-image { height: 44px; }
+  .arsenal-miniature-nom { font-size: 0.74rem; }
+  .arsenal-miniature-mystere { font-size: 2.6rem; }
+  .arsenal-chapitre { min-height: 36px; padding: 0 16px; font-size: 0.85rem; }
 }
 @media (min-width: 900px) and (max-height: 760px) {
   .arsenal-fiche { gap: 12px; }
   .arsenal-description { font-size: 1rem; line-height: 1.45; }
   .arsenal-stats { padding: 10px 14px 12px; }
   .arsenal-stats-grille { gap: 6px; }
-  .arsenal-miniature { height: 68px; }
-  .arsenal-miniature-image { height: 40px; }
+  .arsenal-miniature { height: 76px; }
+  .arsenal-miniature-image { height: 38px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

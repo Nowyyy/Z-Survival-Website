@@ -9,9 +9,10 @@
 // Le jeu est lu en LECTURE SEULE (jamais modifié, jamais poussé), toujours sur sa branche `dev` (jamais `main`, en retard).
 // - armes/jeu/ : fichiers du jeu recopiés TELS QUELS, à la même place que dans le jeu (modèles 3D des armes en code, atlas, rendu Three.js,
 //   données des armes, couleurs, Three.js). Servent à fabriquer les visuels (outils/armes/fabriquer-visuels.mjs) ; jamais publiés.
-// - contenus/armes.json : une entrée par arme. L'outil met à jour ce qui vient du jeu (nom, catégorie, famille) et ne touche JAMAIS à ce
-//   que le propriétaire règle (ordre, nom anglais, descriptions, « aRelire », stats). Arme nouvelle : ajoutée à la fin, description vide,
-//   « aRelire » vrai. Arme disparue du jeu : sortie de la liste et rangée dans « retirees » (descriptions gardées).
+// - contenus/armes.json : une entrée par arme. L'outil met à jour ce qui vient du jeu (nom, catégorie) et ne touche JAMAIS à ce que le
+//   propriétaire règle (famille, ordre, chapitres, « prochainement », nom anglais, descriptions, « aRelire », stats). Arme nouvelle : ajoutée
+//   à la fin, famille proposée d'après sa catégorie, « prochainement » si le jeu ne la rend pas encore utilisable, dernier chapitre,
+//   description vide, « aRelire » vrai. Arme disparue du jeu : sortie de la liste et rangée dans « retirees » (descriptions gardées).
 // - Aucune statistique de jeu n'est relevée : data/game/armes-partie.json (qui en contient) est lu pour la catégorie et l'ordre seulement,
 //   et n'est pas recopié.
 import crypto from 'node:crypto';
@@ -46,8 +47,14 @@ export const LUS = {
   'data/game/armes-partie.json': 'catégorie et ordre des armes (montée en puissance) ; contient les statistiques de jeu : jamais recopié',
 };
 
-// Familles (rangement de la section) : classe du jeu (poing, epaule, lourde) ; armes spéciales du jeu à part. Libellés : js/textes.js.
-export const FAMILLES = ['poing', 'epaule', 'lourde', 'speciale'];
+// Familles (rangement de la liste des miniatures, retour du propriétaire : « Épaule » trop vaste) : réglées par le propriétaire dans
+// contenus/armes.json ; pour une arme nouvelle, proposées d'après la catégorie du jeu. Libellés : weapons.familles de js/textes.js.
+export const FAMILLES = ['poing', 'carabine', 'pompe', 'mitraillette', 'assaut', 'lourde', 'speciale'];
+export const FAMILLE_DE_CATEGORIE = {
+  pistolet: 'poing', 'fusil-a-verrou': 'carabine', 'fusil-semi-automatique': 'carabine', 'fusil-a-pompe': 'pompe',
+  'pistolet-mitrailleur': 'mitraillette', 'fusil-d-assaut': 'assaut', 'fusil-mitrailleur': 'assaut', mitrailleuse: 'lourde',
+  'lance-roquettes': 'speciale', 'lance-flammes': 'speciale',
+};
 
 const empreinte = (donnees) => crypto.createHash('sha256').update(donnees).digest('hex');
 const empreinteFichier = (f) => empreinte(fs.readFileSync(f));
@@ -77,7 +84,7 @@ export function listerFichiers(source) {
 }
 
 // Relevé des armes depuis un dossier qui a la structure du jeu (le clone) :
-// [{ id, nom, categorieJeu, categorie, famille, ordreJeu, variante, empreinteDefinition, empreinteModele }].
+// [{ id, nom, categorieJeu, categorie, classeJeu, famille (proposée), active, ordreJeu, variante, empreinteDefinition, empreinteModele }].
 export async function releverArmes(source) {
   const { lireArmes, lireChoix, maillageArme, armeParId, varianteDe, SPECIALES } = await import(pathToFileURL(path.join(source, 'js/core/armes/armes.js')).href);
   const brut = lireJson(path.join(source, 'data/armes/armes.json'));
@@ -98,7 +105,9 @@ export async function releverArmes(source) {
       nom: noms[`game.armes.${a.id}`] ?? a.nom,
       categorieJeu,
       categorie: cleCategorie(categorieJeu),
-      famille: SPECIALES.includes(a.id) ? 'speciale' : a.classe,
+      classeJeu: SPECIALES.includes(a.id) ? 'speciale' : a.classe,
+      famille: FAMILLE_DE_CATEGORIE[cleCategorie(categorieJeu)] ?? (SPECIALES.includes(a.id) ? 'speciale' : a.classe),
+      active: partie[a.id]?.active !== false, // faux : arme pas encore utilisable dans le jeu (armes spéciales)
       ordreJeu: idx >= 0 ? idx : ordrePartie.length + i,
       variante: v.id,
       empreinteDefinition: empreinte(JSON.stringify({ arme: brut.armes.find((x) => x.id === a.id), variante: v.id })),
@@ -108,11 +117,15 @@ export async function releverArmes(source) {
 }
 
 const AIDE = 'Armes de la section Armes du site (lot 6a, Docs/ref/armes.md). Fichier mis à jour par node outils/armes/copier-armes.mjs : '
-  + 'l\'outil réécrit seulement id, nom (nom du jeu), categorie et famille ; il ne touche jamais à ordre, nomEn, description, aRelire ni stats. '
-  + 'ordre : rang d\'affichage (1 = première). nomEn : nom en anglais s\'il diffère du nom du jeu (null : le nom du jeu). '
+  + 'l\'outil réécrit seulement id, nom (nom du jeu) et categorie ; il ne touche jamais à famille, ordre, chapitres, prochainement, nomEn, description, aRelire ni stats. '
+  + 'famille : groupe de la liste des miniatures (poing, carabine, pompe, mitraillette, assaut, lourde, speciale). ordre : rang d\'affichage (1 = première, à l\'intérieur de sa famille). '
+  + 'chapitres : chapitres du jeu où l\'arme apparaît (liste de numéros ; sélecteur de chapitre de la section) ; la liste « chapitres » en tête du fichier peut donner un nom à chaque chapitre ({ "id": 2, "nom": { "fr": "…", "en": "…" } }). '
+  + 'prochainement : true = arme montrée en silhouette, marquée « Prochainement », « ? » sur sa miniature. '
+  + 'nomEn : nom en anglais s\'il diffère du nom du jeu (null : le nom du jeu). '
   + 'description : fr et en, texte brut, une ou deux phrases. aRelire : true tant que la description n\'est pas relue (mettre false une fois relue). '
   + 'stats : null pour l\'instant (aucune statistique affichée, panneau « Prochainement ») ; format prévu dans Docs/ref/armes.md. '
   + 'categorie et famille : clés des libellés weapons.categories et weapons.familles de js/textes.js. retirees : armes disparues du jeu, gardées pour leurs textes, jamais affichées.';
+const CHAPITRES_DEFAUT = [{ id: 1, nom: null }];
 
 // Fusionne le relevé avec contenus/armes.json existant. → { site, ajoutees, modifiees, disparues }
 export function fusionner(releve, existant, origineAvant) {
@@ -122,25 +135,29 @@ export function fusionner(releve, existant, origineAvant) {
   const ajoutees = [];
   const modifiees = [];
   let ordreMax = Math.max(0, ...[...avant.values()].map((a) => Number(a.ordre) || 0));
+  const chapitres = Array.isArray(existant?.chapitres) && existant.chapitres.length ? existant.chapitres : CHAPITRES_DEFAUT;
+  const dernierChapitre = chapitres[chapitres.length - 1].id;
   const armes = releve.map((r) => {
     const a = avant.get(r.id) ?? retireesAvant.get(r.id);
     if (!a) {
       ajoutees.push(r.id);
       ordreMax += 1;
-      return { id: r.id, nom: r.nom, nomEn: null, categorie: r.categorie, famille: r.famille, ordre: existant ? ordreMax : r.ordreJeu + 1, description: { fr: '', en: '' }, aRelire: true, stats: null };
+      return { id: r.id, nom: r.nom, nomEn: null, categorie: r.categorie, famille: r.famille, ordre: existant ? ordreMax : r.ordreJeu + 1, chapitres: [dernierChapitre], prochainement: !r.active, description: { fr: '', en: '' }, aRelire: true, stats: null };
     }
     const changes = [];
+    const e = empreintesAvant[r.id];
     if (a.nom !== r.nom) changes.push(`nom « ${a.nom} » → « ${r.nom} »`);
     if (a.categorie !== r.categorie) changes.push(`catégorie ${a.categorie} → ${r.categorie}`);
-    if (a.famille !== r.famille) changes.push(`famille ${a.famille} → ${r.famille}`);
-    const e = empreintesAvant[r.id];
+    if (a.prochainement && r.active && e?.active === false) changes.push('devenue utilisable dans le jeu (« prochainement » à retirer ?)');
     if (e && e.empreinteModele !== r.empreinteModele) changes.push('modèle 3D (refaire les visuels)');
     else if (e && e.empreinteDefinition !== r.empreinteDefinition) changes.push('définition dans le jeu (variante, dimensions…)');
     if (retireesAvant.has(r.id) && !avant.has(r.id)) changes.push('revenue dans le jeu');
     if (changes.length) modifiees.push(`${r.id} : ${changes.join(', ')}`);
     return {
-      id: r.id, nom: r.nom, nomEn: a.nomEn ?? null, categorie: r.categorie, famille: r.famille,
+      id: r.id, nom: r.nom, nomEn: a.nomEn ?? null, categorie: r.categorie, famille: a.famille ?? r.famille,
       ordre: Number(a.ordre) || ++ordreMax,
+      chapitres: Array.isArray(a.chapitres) && a.chapitres.length ? a.chapitres : [dernierChapitre],
+      prochainement: typeof a.prochainement === 'boolean' ? a.prochainement : !r.active,
       description: { fr: a.description?.fr ?? '', en: a.description?.en ?? '' },
       aRelire: a.aRelire !== false, stats: a.stats ?? null,
     };
@@ -152,7 +169,7 @@ export function fusionner(releve, existant, origineAvant) {
     ...disparues.map((id) => ({ ...avant.get(id), retireeLe: new Date().toISOString().slice(0, 10) })),
   ];
   armes.sort((a, b) => a.ordre - b.ordre);
-  return { site: { _aide: AIDE, version: 1, armes, retirees }, ajoutees, modifiees, disparues };
+  return { site: { _aide: AIDE, version: 1, chapitres, armes, retirees }, ajoutees, modifiees, disparues };
 }
 
 // JSON lisible : une arme par bloc, description sur ses lignes.
@@ -162,7 +179,8 @@ export function ecrireSite(site) {
     const tete = Object.entries(reste).map(([k, v]) => `${JSON.stringify(k)}: ${JSON.stringify(v)}`).join(', ');
     return `    {\n      ${tete},\n      "description": {\n        "fr": ${JSON.stringify(description?.fr ?? '')},\n        "en": ${JSON.stringify(description?.en ?? '')}\n      }\n    }`;
   };
-  return `{\n  "_aide": ${JSON.stringify(site._aide)},\n  "version": ${site.version},\n  "armes": [\n${site.armes.map(ligne).join(',\n')}\n  ],\n  "retirees": [${site.retirees.length ? `\n${site.retirees.map(ligne).join(',\n')}\n  ` : ''}]\n}\n`;
+  const chapitres = (site.chapitres ?? CHAPITRES_DEFAUT).map((c) => `    ${JSON.stringify(c).replace(/,"/g, ', "').replace(/":/g, '": ')}`).join(',\n');
+  return `{\n  "_aide": ${JSON.stringify(site._aide)},\n  "version": ${site.version},\n  "chapitres": [\n${chapitres}\n  ],\n  "armes": [\n${site.armes.map(ligne).join(',\n')}\n  ],\n  "retirees": [${site.retirees.length ? `\n${site.retirees.map(ligne).join(',\n')}\n  ` : ''}]\n}\n`;
 }
 
 // Catégories et familles sans libellé dans js/textes.js (à ajouter, en français et en anglais).
@@ -229,12 +247,14 @@ async function main() {
     const releve = await releverArmes(source);
     const origineAvant = lireJson(path.join(DEST, 'ORIGINE.json'));
     const existant = lireJson(DONNEES_SITE);
+    // Fichier présent mais illisible (virgule oubliée…) : on s'arrête, sinon les descriptions du propriétaire seraient perdues.
+    if (!existant && fs.existsSync(DONNEES_SITE)) throw new Error('contenus/armes.json est illisible (JSON invalide) : le corriger d’abord ; rien n’a été écrit.');
     const { site, ajoutees, modifiees, disparues } = fusionner(releve, existant, origineAvant);
 
     console.log(`\nJeu : dev @ ${commit.slice(0, 7)} (${date}) « ${titre} »`);
     console.log(origineAvant ? `Relevé précédent : dev @ ${origineAvant.commit.slice(0, 7)} (${origineAvant.date})` : 'Aucun relevé précédent : premier relevé.');
     console.log(`\n${releve.length} armes dans le jeu :`);
-    for (const r of releve) console.log(`  ${String(r.ordreJeu + 1).padStart(2)}. ${r.id.padEnd(16)} ${r.nom.padEnd(18)} ${r.categorieJeu} (${r.famille}, variante ${r.variante})`);
+    for (const r of releve) console.log(`  ${String(r.ordreJeu + 1).padStart(2)}. ${r.id.padEnd(16)} ${r.nom.padEnd(18)} ${r.categorieJeu} (classe ${r.classeJeu}, variante ${r.variante}${r.active ? '' : ', pas encore utilisable'})`);
     const bloc = (nom, l) => console.log(`${nom} (${l.length})${l.length ? `\n  ${l.join('\n  ')}` : ''}`);
     console.log('');
     bloc('Armes ajoutées (description à écrire dans contenus/armes.json)', existant ? ajoutees : []);
@@ -264,7 +284,7 @@ async function main() {
       precedent: origineAvant ? { commit: origineAvant.commit, date: origineAvant.date } : null,
       changements: origineAvant ? { ajoutees, modifiees, disparues } : null,
       absentsDuJeu: absents,
-      armes: Object.fromEntries(releve.map((r) => [r.id, { nom: r.nom, categorieJeu: r.categorieJeu, famille: r.famille, variante: r.variante, empreinteDefinition: r.empreinteDefinition, empreinteModele: r.empreinteModele }])),
+      armes: Object.fromEntries(releve.map((r) => [r.id, { nom: r.nom, categorieJeu: r.categorieJeu, classeJeu: r.classeJeu, active: r.active, variante: r.variante, empreinteDefinition: r.empreinteDefinition, empreinteModele: r.empreinteModele }])),
       lusSansCopie: lus,
       fichiers,
     };
