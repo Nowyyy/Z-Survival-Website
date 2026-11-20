@@ -142,6 +142,16 @@ personnage 1, tenues, visages, barbe, gilets.
   **plantée de biais dans le sol à gauche de l'image**, derrière la lampe (repère de la scène (−70 ; −130), inclinée de 55° autour de sa corde,
   cap 20°, enfouie au quart ; `AILE` dans `scene-v2/js/avion.js`) ; l'avion garde le moignon de l'aile. Atelier : `?aile=x,0,z`, `?aileinc=`,
   `?ailecap=`.
+- **Animations du décor** (retour « avant, le rotor de l'hélicoptère tournait ; là, il n'y a plus rien » ; propositions 2 à 5 retenues), toutes
+  sur la boucle de 8 s (nombre entier de cycles), `?animations=0` pour les retirer :
+  - **tôle qui bat au vent** sur l'aile plantée à gauche (`userData.tole`, `scene-v2/js/avion.js`) : pan de tôle de l'avion accroché par une
+    charnière, 4 battements par boucle et un frémissement ; `?tolepos=` le déplace le long de l'aile ;
+  - **faisceau du projecteur** (`creerFaisceau`, `scene-v2/js/animations.js`) : le projecteur du jeu est éteint et derrière les caméras ; un cône
+    de lumière part de loin derrière la scène et balaie le ciel, un aller-retour par boucle (`?projecteur=x,0,z`, `?faisceau=` : décalage du cap) ;
+  - **braises et étincelles** (`creerBraises`) qui montent du feu de l'avion en tournoyant (vies de 8/3 à 8/7 s), et **fumée plus épaisse et plus
+    sombre** (mélange des jetons de fumée du jeu) ;
+  - **parachute du jeu** (voilure sur un arbre mort ; `creerParachute`) replacé derrière le personnage 2, plus grand, la voilure ondule au vent
+    (2 et 3 cycles par boucle) ; `?parachute=x,0,z`, `?parachutek=`, `?parachutecap=`. Sur téléphone, il est presque caché par le personnage 2.
 - `?decor=avant` : l'ancien décor (hélicoptère agrandi, voitures), comme le réglage `?test=1&decor=avant` du jeu. Atelier : `?avionlacet=degrés`
   fait pivoter l'épave autour du nez (essais à 140, 180, 220° : l'avion passait derrière le personnage 2 et le mur ; orientation du jeu gardée).
 

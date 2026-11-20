@@ -13,6 +13,7 @@ import { MILITAIRE, enrichirPersonnages, enrichirPoses, peindreBarbe, texturerGi
 import { creerFeu } from './feu.js';
 import { creerHelico } from './helico.js';
 import { creerAvion } from './avion.js';
+import { creerBraises, creerFaisceau, creerParachute } from './animations.js';
 import { GLISSIERE, TIR, TIR_P2, creerTir, ejectionKar, finManoeuvre, glissiereAt, manoeuvreAt } from './tir.js';
 import { chargerArmes, creerFabriqueArmes } from './armes.js';
 import { chargerDonnees, construireMonde } from './monde.js';
@@ -69,8 +70,23 @@ try {
   // v2 : décor d'époque du jeu : l'avion écrasé (agrandi, en flammes) à la place de l'hélicoptère ; ?decor=avant : l'hélicoptère.
   const heli = m.avion ? creerAvion({ epoque: m.epoque, avion: m.avion, lookup: m.lookup, floor: m.layout.floor, palette, textures, renderer, lacet: q.get('avionlacet') !== null ? Number(q.get('avionlacet')) : null, aile: stage.localToWorld(new THREE.Vector3(...nums(q.get('aile'), [-70, 0, -130]))) }) : creerHelico({ heli: m.helico, floor: m.layout.floor, palette, textures, details, renderer });
   scene.add(heli);
-  const feuHelico = creerFeu({ foyers: heli.userData.foyers, spread: 16, scale: 1.1, palette, flames: 140, smoke: 90, seed: 3, wind: new THREE.Vector3(34, 0, 0), smokeColor: palette.smokeLight, smokeAlpha: 0.26 });
+  // Décor d'époque (avion) : fumée plus épaisse et plus sombre (huile et tôle qui brûlent) ; décor d'avant : celle de l'hélicoptère.
+  const fumeeAvion = m.avion ? new THREE.Color(palette.smokeLight).lerp(new THREE.Color(palette.smoke), 0.55) : null;
+  const feuHelico = creerFeu({ foyers: heli.userData.foyers, spread: 16, scale: 1.1, palette, flames: 140, smoke: m.avion ? 150 : 90, seed: 3, wind: new THREE.Vector3(34, 0, 0), smokeColor: fumeeAvion ?? palette.smokeLight, smokeAlpha: m.avion ? 0.36 : 0.26 });
   scene.add(feuHelico.group);
+  // Animations du décor d'époque (retours du propriétaire) : braises et étincelles du feu, faisceau du projecteur du jeu, parachute du jeu qui
+  // ondule (js/animations.js) ; la tôle de l'aile plantée est animée par js/avion.js. ?animations=0 : sans elles.
+  const anim = [];
+  if (m.avion && q.get('animations') !== '0') {
+    anim.push(creerBraises({ foyers: heli.userData.foyers, palette, k: ECHELLE_SCENE }));
+    // Le projecteur du jeu est derrière les caméras : le faisceau part de loin derrière la scène (au-delà du bâtiment), monte dans le ciel
+    // et balaie, penché vers nous.
+    const origine = stage.localToWorld(new THREE.Vector3(...nums(q.get('projecteur'), [320, 0, -1300]))).setY(60);
+    const versStage = stage.position.clone().sub(origine);
+    anim.push(creerFaisceau({ origine, capMilieu: Math.atan2(versStage.x, versStage.z) + Number(q.get('faisceau') ?? 0.2), palette, elevation: 0.95, amplitude: 0.55 }));
+    anim.push(creerParachute({ epoque: m.epoque, lookup: m.lookup, position: stage.localToWorld(new THREE.Vector3(...nums(q.get('parachute'), [190, 0, -160]))), cap: Number(q.get('parachutecap') ?? 0.8), k: Number(q.get('parachutek') ?? 2.2) }));
+    for (const a of anim) scene.add(a.group);
+  }
 
   // Personnages : ceux du jeu, enrichis pour le plan rapproché (js/enrichissements.js).
   // v2 : tenues d'époque du jeu (lot 9g du jeu : data/game/persos-epoque.json, choix dans persos-epoque-choix.json), construites par le code du jeu
@@ -216,6 +232,8 @@ try {
     tir.update(u, p1.bones.get('prop'), ECHELLE_SCENE);
     tir2?.update(u, p2.bones.get('prop'), ECHELLE_SCENE);
     colt.glissiere?.poser(details ? glissiereAt(u, TIR_P2) : 0); // glissière du Colt qui recule au tir
+    for (const a of anim) a.update(u);
+    heli.userData.tole?.update(u);
     // Rotor de queue : un tour par boucle (au ralenti), boucle parfaite.
     if (heli.userData.rotor) heli.userData.rotor.pivot.quaternion.setFromAxisAngle(heli.userData.rotor.axe, (2 * Math.PI * u) / DUREE);
     p2.bones.get('head').localToWorld(q.get('p2') === 'civil' ? frontale.position.set(0, 7, 5) : frontale.position.set(-5.2, 7.3, 2.4)); // lampe frontale ou lampe du casque
