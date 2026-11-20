@@ -101,6 +101,18 @@ Aucun chiffre, ton « survie » ; vouvoiement comme le reste du site.
   les deux armes à venir, arme à venir choisie sans toucher aux autres miniatures, sélecteur de chapitre, noms ni coupés ni tronqués) ;
   interrupteur éteint toujours identique (aucun fichier de la section téléchargé) ; `copier-armes.mjs --verifier` conforme.
 
+## Retours du propriétaire, deuxième série (branche `armes-v1-retours-2`)
+1. **Nom en filigrane qui dépassait** derrière l'arme : deux lignes au plus, coupé entre deux mots, taille calculée sur le cadre (unités de
+   conteneur) d'après la largeur du mot le plus long mesurée dans la police des titres. Un premier essai qui mesurait la page en
+   JavaScript se déréglait pendant les redimensionnements ; remplacé par ce calcul en CSS.
+2. **Lance-roquettes et lance-flammes** : « avec la forme et le nom, on sait ce que c'est » → plus de silhouette ni de nom : grand encart
+   « Prochainement » (gros « ? » en filigrane), nom « ? ? ? », catégorie « Arme à venir » / « Upcoming weapon », texte neutre ; leurs images
+   ne sont plus jamais téléchargées par la page.
+3. **Miniatures de ces deux armes** : juste un gros « ? » (ni forme noire, ni nom).
+- Vérifications : `node outils/armes/verifier-armes.mjs` **312/312** (contrôles ajoutés : miniature réduite au « ? », arme à venir choisie
+  sans forme ni nom ni texte qui la trahisse, images des armes à venir jamais demandées, filigrane de chaque arme sur deux lignes au plus et
+  dans le cadre, aux quatre tailles).
+
 ## Limites
 - Les images de `img/armes/` et `contenus/armes.json` sont publiés avec le site : **accessibles à qui connaît leur adresse**, même si rien
   n'y mène tant que l'interrupteur est éteint (comme `scene-v2/`).
