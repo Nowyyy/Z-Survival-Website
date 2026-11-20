@@ -102,11 +102,12 @@ try {
 
   // Coup de feu du personnage 1 (un par boucle).
   const laiton = new THREE.Color().setRGB(...m.lookup('--perso-casque').map((c) => c / 255), THREE.SRGBColorSpace);
-  // Kar98k : éclair un peu plus grand ; la douille sort de la fenêtre d'éjection quand la culasse est tirée (manœuvre du verrou).
+  // Colt (personnage 2, plus bas) : sa douille part vers le bord droit de l'image, tout proche (retour du propriétaire : elle traversait
+  // l'image vers la gauche). Kar98k : éclair un peu plus grand ; la douille sort de la fenêtre d'éjection quand la culasse est tirée (manœuvre du verrou).
   const tir = creerTir({ palette, laiton, echelle: ECHELLE_SCENE, arme: kar, ejection: ejectionKar(kar), fenetre: new THREE.Vector3(-0.7, 1.1, -2.2), force: 1.15, camera: () => window.__plan ?? camera, vol: { cote: 180, haut: 70 } });
   scene.add(tir.group);
   // Détails : coup de feu du personnage 2 sur le zombie (TIR_P2).
-  const tir2 = details ? creerTir({ palette, laiton, echelle: ECHELLE_SCENE, instant: TIR_P2, lumiereMax: 1100, arme: colt, fenetre: new THREE.Vector3(-0.6, 1.9, 0.6), force: 0.8, camera: () => window.__plan ?? camera, vol: { cote: 250, haut: 120 } }) : null; // canon vers le bas, tout près de lui : éclat plus faible
+  const tir2 = details ? creerTir({ palette, laiton, echelle: ECHELLE_SCENE, instant: TIR_P2, lumiereMax: 1100, arme: colt, fenetre: new THREE.Vector3(-0.6, 1.9, 0.6), force: 0.8, camera: () => window.__plan ?? camera, vol: { cote: 250, haut: 120, ecran: 1 } }) : null; // canon vers le bas, tout près de lui : éclat plus faible
   if (tir2) scene.add(tir2.group);
 
   // Lampe frontale du personnage 2 (variante B du jeu) : un faisceau faible vers la tête du zombie.

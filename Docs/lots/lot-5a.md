@@ -118,6 +118,15 @@ voir la PR. Trajectoires mesurées (position dans l'image toutes les 0,05 s) : e
 gauche de l'image, toujours au-dessus du sol ; celle du Colt passe un instant derrière le personnage 1.
 La question 1 (« direction du tir ») est tranchée : à droite de l'écran.
 
+## Deuxièmes retours (20/11/2026, branche `accueil-v2-retours-2`)
+1. **Téléphone** : personnage 1 décalé un peu vers la gauche (8 unités, `placement.p1` du cadrage B portrait) : un espace sépare maintenant les
+   deux personnages. Au-delà de 8, son dos sortait du cadre à gauche. Ordinateur inchangé.
+2. **Douille du Colt** : elle part maintenant vers le **bord droit** de l'image, tout proche du personnage 2 (option `ecran: 1` de
+   `creerTir`), au lieu de traverser toute l'image vers la gauche : sortie en 0,2 s en paysage, 0,6 s en portrait, toujours au-dessus du sol.
+
+Vérifications : `node scene-v2/outils/verifier.mjs` 47/47 ; boucle portrait parfaite (jonction 0,52 pour une moyenne de 0,66) ; planche
+refaite.
+
 ## État git
 - Commits `accueil-v2 A` à `accueil-v2 E` sur la branche `accueil-v2` (poussée), PR vers `main` fusionnée par l'agent (règle de
   `CLAUDE.md`) : rien n'est visible des visiteurs.
