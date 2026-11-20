@@ -3,7 +3,7 @@
 // jetons), le cratère et la traînée du jeu (js/core/epaves.js), mais AGRANDI et DÉCALÉ (enrichissement de la scène) pour se lire derrière les
 // personnages, à la place de l'hélicoptère, et en flammes (feu en boucle de la scène, js/feu.js). Dans la partie, l'avion fume sans brûler.
 import * as THREE from 'three';
-import { MATIERES, atlasEpoque, couleursEpoque, objet, specCratere } from '../jeu/js/core/decor-epoque.js';
+import { MATIERES, atlasEpoque, couleursEpoque, objet, regionUv, specCratere } from '../jeu/js/core/decor-epoque.js';
 import { craterTriangles, trailTriangles } from '../jeu/js/core/epaves.js';
 import { environnementNuit } from './helico.js';
 
@@ -158,6 +158,44 @@ export function creerAvion({ epoque, avion, lookup, floor, palette, textures, re
   const at = (x, y, z) => new THREE.Vector3(...place(poseEcrase([x, y, z], 'fuselage')));
   group.userData.foyers = [at(82, 32, 0), at(10, 9, -36), at(-5, 38, 0)];
   if (aile) group.userData.aile = new THREE.Vector3(aile.x, 0, aile.z);
+  // Tôle arrachée qui bat au vent au bout de l'aile plantée (retour du propriétaire : du mouvement dans la partie gauche) : un pan de tôle de la
+  // couleur de l'avion, accroché au point le plus haut de l'aile par une charnière (la corde de l'aile), qui claque : 4 battements par boucle, plus
+  // un frémissement (9 par boucle). userData.tole.update(t).
+  if (aile && aileTris.length) {
+    let haut = null;
+    for (const t of aileTris) for (const q of t.p) { const w = placeAile(q); if (!haut || w[1] > haut[1]) haut = w; }
+    const centre = new THREE.Vector3(...placeAile(c));
+    // Accrochée au milieu de l'aile, en vue (le bout relevé sort du cadre, en haut à gauche) ; ?tolepos= (0 à 1 vers le bout) pour la déplacer.
+    const envergure = new THREE.Vector3(...haut).sub(centre).normalize();
+    const bout = centre.clone().lerp(new THREE.Vector3(...haut), nombre('tolepos', 0));
+    const corde = new THREE.Vector3(...placeAile([c[0] + 1, c[1], c[2]])).sub(centre).normalize();
+    corde.sub(envergure.clone().multiplyScalar(corde.dot(envergure))).normalize();
+    const normale = new THREE.Vector3().crossVectors(envergure, corde).normalize();
+    const pivot = new THREE.Group();
+    pivot.name = 'tole-au-vent';
+    pivot.position.copy(bout);
+    pivot.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(corde, normale, envergure));
+    const pan = new THREE.Mesh(new THREE.BoxGeometry(26 * k, 0.6 * k, 20 * k).translate(0, 0, 10 * k), metal);
+    const rgb = teinte('avion');
+    const nb = pan.geometry.attributes.position.count;
+    pan.geometry.setAttribute('color', new THREE.Float32BufferAttribute(Array.from({ length: nb }, () => rgb).flat(), 3));
+    const atlasUv = pan.geometry.attributes.uv;
+    const r = regionUv('tole', img.width); // région « tôle » de l'atlas d'époque
+    for (let i = 0; i < atlasUv.count; i += 1) atlasUv.setXY(i, r.u0 + atlasUv.getX(i) * (r.u1 - r.u0), r.v0 + atlasUv.getY(i) * (r.v1 - r.v0));
+    pan.castShadow = true;
+    pan.receiveShadow = true;
+    pivot.add(pan);
+    group.add(pivot);
+    const TAU = Math.PI * 2;
+    group.userData.tole = {
+      pivot,
+      update(t) {
+        const u = t / 8;
+        const a = 0.9 + 0.75 * Math.sin(TAU * 4 * u) ** 3 + 0.15 * Math.sin(TAU * 9 * u + 0.7); // grands battements (lisibles de loin)
+        pan.rotation.x = -a;
+      },
+    };
+  }
   group.userData.centre = at(0, 25, 0);
   return group;
 }

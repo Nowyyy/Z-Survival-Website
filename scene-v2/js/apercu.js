@@ -8,7 +8,7 @@
 const q = new URLSearchParams(location.search);
 const sceneParams = new URLSearchParams({ cadrage: q.get('cadrage') ?? 'B', format: 'plein' });
 if (q.get('t') !== null) sceneParams.set('t', q.get('t'));
-for (const k of ['p1', 'zb', 'zombie', 'p2', 'details', 'p1vise', 'tireur', 'tenues', 'zbtenue', 'frontale', 'decor', 'avionlacet', 'aile', 'aileinc', 'ailecap']) if (q.get(k)) sceneParams.set(k, q.get(k)); // réglages d'atelier : placement, essais (?zombie=face, ?p2=civil, ?details=0)
+for (const k of ['p1', 'zb', 'zombie', 'p2', 'details', 'p1vise', 'tireur', 'tenues', 'zbtenue', 'frontale', 'decor', 'avionlacet', 'aile', 'aileinc', 'ailecap', 'animations', 'tolepos', 'projecteur', 'faisceau', 'parachute', 'parachutek', 'parachutecap']) if (q.get(k)) sceneParams.set(k, q.get(k)); // réglages d'atelier : placement, essais (?zombie=face, ?p2=civil, ?details=0)
 document.getElementById('scene').src = `index.html?${sceneParams}`;
 
 const CSS = `

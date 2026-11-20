@@ -209,6 +209,14 @@ recule puis revient) ; boucle parfaite (paysage 0,50 pour une moyenne de 0,56 ; 
 - Vérifications : `node scene-v2/outils/verifier.mjs` 53/53 ; boucle parfaite (paysage 0,44 pour une moyenne de 0,54 ; portrait 0,37 pour 0,53) ;
   planche refaite.
 
+## Animations du décor (20/11/2026, branche `accueil-v2-anim`)
+- Retour : « avant, il y avait l'hélice de l'hélicoptère qui tournait ; là, il n'y a plus rien ». Propositions faites, retenues : 2, 3, 4, 5.
+- **Tôle qui bat au vent** sur l'aile plantée à gauche ; **faisceau de projecteur** qui balaie le ciel (un aller-retour par boucle) ; **braises et
+  étincelles** du feu de l'avion et fumée plus épaisse ; **parachute** du jeu remis derrière le personnage 2, voilure qui ondule. Tout sur la
+  boucle de 8 s ; `?animations=0` pour comparer.
+- Vérifications : `node scene-v2/outils/verifier.mjs` 53/53 ; boucle parfaite (paysage 0,56 pour une moyenne de 0,63 ; portrait 0,45 pour 0,59) ;
+  planche refaite. Limite : sur téléphone, le parachute et une partie du feu sont derrière le personnage 2.
+
 ## État git
 - Commits `accueil-v2 A` à `accueil-v2 E` sur la branche `accueil-v2` (poussée), PR vers `main` fusionnée par l'agent (règle de
   `CLAUDE.md`) : rien n'est visible des visiteurs.
