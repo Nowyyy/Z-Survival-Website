@@ -57,3 +57,38 @@ node outils/armes/copier-armes.mjs --verifier
 | `vendor/three/` | Three.js 0.186.1, même version que le jeu |
 
 Les fichiers à recopier sont trouvés en suivant les imports de `ENTREES`, plus la liste `DONNEES` (en tête de l'outil).
+
+## 2. Fabriquer les visuels : `fabriquer-visuels.mjs`
+
+```bash
+node outils/armes/fabriquer-visuels.mjs
+```
+
+```bash
+node outils/armes/fabriquer-visuels.mjs --armes=kar98k,m1911
+```
+
+Pour chaque arme de `contenus/armes.json` (ou seulement celles de `--armes=`) : Chromium sans écran (Playwright déjà installé, WebGL
+logiciel) ouvre `outils/armes/rendu.html`, qui rend le **vrai modèle 3D du jeu** (copie figée `armes/jeu/`, variante retenue par le
+propriétaire dans `armes-choix.json`) avec Three.js, à deux fois la taille voulue, puis réduit l'image et l'encode en WebP avec
+transparence, sans métadonnées (encodeur de Chromium : la conversion par ffmpeg laissait un fond presque noir au lieu d'un fond
+transparent). Déterministe : mêmes fichiers d'entrée, mêmes images.
+
+- `img/armes/<id>.webp` : grande image, **1200 × 600** (≈ 10 à 18 Kio) ;
+- `img/armes/<id>-mini.webp` : miniature, **320 × 160** (≈ 3 à 6 Kio) ;
+- `img/armes/fabrication.json` : commit du jeu, réglages de la vue, poids (réécrit seulement quand toutes les armes sont refaites).
+
+Vue (constante `VUE` de `rendu.js`) : trois quarts du côté droit de l'arme (fenêtre d'éjection, levier), bouche vers la droite, un peu
+au-dessus (lacet 22°, hauteur 12°, champ 14°). L'arme remplit l'image (marge 5 %), sauf les armes courtes, un peu plus petites (le Colt :
+69 % de la largeur) pour garder une idée de leur taille. Pose « caisse » du jeu (arme entière, sans être couchée) ; lance-flammes en pose
+« main » (réservoirs placés comme portés sur le dos). Éclairage dans l'ambiance du site : lumière principale chaude en haut à gauche,
+appoint de face, contre-jour **rouge sang** (`--color-action` du site) derrière à droite, débouché froid en bas. Matière : l'atlas et les
+couleurs de sommet du jeu, un peu plus brillante que dans le jeu (vu de loin, mat).
+
+La page du site ne charge **jamais** Three.js pour la section Armes : seulement ces images.
+
+## Après une évolution des armes du jeu
+1. `node outils/armes/copier-armes.mjs` ; lire la liste des armes ajoutées, modifiées, disparues.
+2. Ajouter les libellés signalés dans `js/textes.js` (français et anglais), écrire les descriptions vides dans `contenus/armes.json`.
+3. `node outils/armes/fabriquer-visuels.mjs` (au moins pour les armes ajoutées ou au modèle modifié).
+4. Vérifier avec `?apercu=armes` (`Docs/ref/armes.md`).

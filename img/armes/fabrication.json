@@ -1,0 +1,113 @@
+{
+ "_note": "Visuels des armes (lot 6a), fabriqués par node outils/armes/fabriquer-visuels.mjs depuis armes/jeu/ (copie figée du jeu).",
+ "jeu": {
+  "depot": "Nowyyy/Z-Survival",
+  "branche": "dev",
+  "commit": "2f7716a313a589c3d266c9c6ce4ae1c3dff622ad"
+ },
+ "vue": {
+  "lacet": 22,
+  "hauteur": 12,
+  "champ": 14,
+  "marge": 0.05
+ },
+ "formats": {
+  "grande": {
+   "suffixe": "",
+   "largeur": 1200,
+   "hauteur": 600,
+   "qualite": 82
+  },
+  "mini": {
+   "suffixe": "-mini",
+   "largeur": 320,
+   "hauteur": 160,
+   "qualite": 80
+  }
+ },
+ "armes": {
+  "m1911": {
+   "variante": "a",
+   "empreinteModele": "f140684a4159a4fdd539949226e325ea3917b0bd31c73b764b7cb00b320f6c09",
+   "octets": {
+    "grande": 11462,
+    "mini": 3520
+   }
+  },
+  "kar98k": {
+   "variante": "a",
+   "empreinteModele": "b310f94e3f1fdac55264ac6dec943db8a1c36eb0e7a267c98ca39db1d1c66a70",
+   "octets": {
+    "grande": 14588,
+    "mini": 4720
+   }
+  },
+  "winchester1897": {
+   "variante": "a",
+   "empreinteModele": "ea47843d2d9e2501d1f9ae5d8a7e458bbc2c11e73e608d8fe20cb768d2db3f89",
+   "octets": {
+    "grande": 12748,
+    "mini": 3772
+   }
+  },
+  "thompson": {
+   "variante": "a",
+   "empreinteModele": "68d6dda9499d1f4dfe8c06024456f7d14aaa8b0f6a725f5515edd571f7edb9f6",
+   "octets": {
+    "grande": 13294,
+    "mini": 4148
+   }
+  },
+  "garand": {
+   "variante": "a",
+   "empreinteModele": "e50816304dd2d9a30f8eab00900f435d25615dbff1cfe26b58896ec71711b858",
+   "octets": {
+    "grande": 15234,
+    "mini": 5064
+   }
+  },
+  "stg44": {
+   "variante": "a",
+   "empreinteModele": "e0092a7df81e1dd1e894e4b271ac5f2f5124906aa390aafdff04dd420381bc73",
+   "octets": {
+    "grande": 14086,
+    "mini": 4494
+   }
+  },
+  "bar": {
+   "variante": "a",
+   "empreinteModele": "6c2365200968e728fe7300ec9985603fcb36c23e65d75006c75ce57c8230152b",
+   "octets": {
+    "grande": 14918,
+    "mini": 5246
+   }
+  },
+  "mg42": {
+   "variante": "a",
+   "empreinteModele": "5778158600a422a00e16298cdf5600818c8ce5b24416600a04c2dd98daf1b060",
+   "octets": {
+    "grande": 17842,
+    "mini": 5704
+   }
+  },
+  "panzerschreck": {
+   "variante": "a",
+   "empreinteModele": "13f7a7ad12669cfdc3e4ba3fd4d780eae10af4af87f9e14444d76683a0928ba3",
+   "octets": {
+    "grande": 10330,
+    "mini": 4002
+   }
+  },
+  "m2lanceflammes": {
+   "variante": "a",
+   "empreinteModele": "5ffdc2c642e78fecf8ff3f49c7ac0c954ba3365923d24ae11c0245c3b7e13b95",
+   "octets": {
+    "grande": 15756,
+    "mini": 6038
+   }
+  }
+ },
+ "poses": {
+  "m2lanceflammes": "main"
+ }
+}
