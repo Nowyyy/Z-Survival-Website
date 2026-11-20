@@ -5,8 +5,10 @@
 // (contenus/armes.json), ni les images (img/armes/) ne sont téléchargés, et la section reste l'encart « Prochainement ».
 // Données : contenus/armes.json (noms, catégories, familles, ordre, chapitres, « prochainement », descriptions FR / EN : Docs/ref/armes.md) ;
 // libellés fixes : weapons.* de js/textes.js.
-// Retours du propriétaire (lot 6a) : familles plus fines qu'« Épaule » ; armes « prochainement » (lance-flammes, Panzerschreck) marquées
-// jusqu'au bout (silhouette, encart, « ? » sur la miniature) ; noms qui passent à la ligne entre deux mots, jamais au milieu d'un mot ;
+// Retours du propriétaire (lot 6a) : familles plus fines qu'« Épaule » ; armes « prochainement » (lance-flammes, Panzerschreck) gardées
+// secrètes jusqu'au bout : ni forme, ni nom, ni catégorie, ni description (« ? ? ? », « Arme à venir », grand encart « Prochainement »,
+// miniature réduite à un « ? ») et leurs images ne sont jamais téléchargées ; nom en filigrane sur deux lignes au plus, rapetissé pour
+// tenir dans le cadre ; noms qui passent à la ligne entre deux mots, jamais au milieu d'un mot ;
 // chapitres (le chapitre 1 aujourd'hui) : un sélecteur dans l'en-tête de la section n'affiche que les armes du chapitre choisi.
 // Visuels : img/armes/<id>.webp (1200 × 600) et <id>-mini.webp (320 × 160), fabriqués depuis les modèles 3D du jeu (outils/armes/).
 // Aucun Three.js ici : seulement des images.
@@ -72,16 +74,27 @@ export function lireChapitres(json, armes) {
   const ids = [...new Set([...declares.map((c) => c.id), ...armes.flatMap((a) => a.chapitres)])];
   return ids.filter((id) => armes.some((a) => a.chapitres.includes(id))).map((id) => ({ id, nom: declares.find((c) => c.id === id)?.nom ?? null }));
 }
+// Largeur d'un mot dans la police des titres, en em (canvas ; avant le chargement de la police : 0,8 em par lettre, large).
+let mesureur = null;
+function largeurEm(mot) {
+  const police = getComputedStyle(document.documentElement).getPropertyValue('--font-display').trim() || 'sans-serif';
+  if (!document.fonts?.check(`100px ${police}`)) return mot.length * 0.8;
+  mesureur ??= document.createElement('canvas').getContext('2d');
+  mesureur.font = `100px ${police}`;
+  return mesureur.measureText(mot).width / 100;
+}
 const nomChapitre = (c) => (c.nom && (langue() === 'en' ? c.nom.en || c.nom.fr : c.nom.fr || c.nom.en)) || remplacer(t('weapons.chapitre'), { n: c.id });
 
-const nomDe = (a) => (langue() === 'en' && a.nomEn ? a.nomEn : a.nom);
-const descriptionDe = (a) => (langue() === 'en' ? a.description?.en || a.description?.fr : a.description?.fr || a.description?.en) || '';
+// Arme « prochainement » : textes neutres (weapons.mystere), rien qui permette de la reconnaître.
+const nomDe = (a) => (a.prochainement ? t('weapons.mystere.nom') : langue() === 'en' && a.nomEn ? a.nomEn : a.nom);
+const descriptionDe = (a) => (a.prochainement ? t('weapons.mystere.description')
+  : (langue() === 'en' ? a.description?.en || a.description?.fr : a.description?.fr || a.description?.en) || '');
 function libelle(groupe, cle) {
   const c = `weapons.${groupe}.${cle}`;
   const v = t(c);
   return v === c ? String(cle ?? '').replace(/-/g, ' ') : v;
 }
-const categorieDe = (a) => libelle('categories', a.categorie);
+const categorieDe = (a) => (a.prochainement ? t('weapons.mystere.categorie') : libelle('categories', a.categorie));
 
 // Installe la section dans <section id="weapons"> ; renvoie { majLangue() } (textes à refaire au changement de langue).
 export async function installerSectionArmes(section) {
@@ -134,6 +147,8 @@ export async function installerSectionArmes(section) {
   scene.style.setProperty('--i', '1');
   const filigrane = el('span', 'arsenal-filigrane');
   filigrane.setAttribute('aria-hidden', 'true');
+  const filigraneTexte = el('span', 'arsenal-filigrane-texte');
+  filigrane.append(filigraneTexte);
   const cadre = el('div', 'arsenal-cadre');
   const visuel = el('img', 'arsenal-visuel');
   visuel.width = 1200;
@@ -214,20 +229,21 @@ export async function installerSectionArmes(section) {
         const b = el('button', 'arsenal-miniature');
         b.type = 'button';
         b.dataset.arme = a.id;
-        const img = el('img', 'arsenal-miniature-image');
-        img.src = image(a.id, true);
-        img.alt = '';
-        img.width = 320;
-        img.height = 160;
-        img.loading = 'lazy';
-        img.decoding = 'async';
-        const n = el('span', 'arsenal-miniature-nom');
-        b.append(img, n);
         if (a.prochainement) {
+          // Arme à venir : juste un « ? » (ni image, ni nom).
           b.classList.add('est-prochainement');
           const mystere = el('span', 'arsenal-miniature-mystere', '?');
           mystere.setAttribute('aria-hidden', 'true');
           b.append(mystere);
+        } else {
+          const img = el('img', 'arsenal-miniature-image');
+          img.src = image(a.id, true);
+          img.alt = '';
+          img.width = 320;
+          img.height = 160;
+          img.loading = 'lazy';
+          img.decoding = 'async';
+          b.append(img, el('span', 'arsenal-miniature-nom'));
         }
         b.addEventListener('click', () => choisir(i, { focus: false }));
         li.append(b);
@@ -292,10 +308,14 @@ export async function installerSectionArmes(section) {
     categorie.textContent = categorieDe(a);
     compteur.textContent = `${deuxChiffres(courant + 1)} / ${deuxChiffres(armes.length)}`;
     poserNom(nom, n);
-    filigrane.textContent = n;
+    // Filigrane : deux lignes au plus, coupé entre deux mots ; sa taille (css/section-armes.css, unités du cadre) suit la largeur du mot le
+    // plus long, mesurée dans la police des titres.
+    const motsFiligrane = a.prochainement ? ['?'] : n.split(/\s+/);
+    poserNom(filigraneTexte, motsFiligrane.join(' '));
+    filigraneTexte.style.setProperty('--largeur-em', String(Math.max(...motsFiligrane.map(largeurEm)).toFixed(3)));
     description.textContent = descriptionDe(a);
     tamponScene.textContent = t('commun.comingSoon');
-    visuel.alt = a.prochainement ? `${n} — ${t('commun.comingSoon')}` : remplacer(t('weapons.visuelAlt'), { nom: n });
+    visuel.alt = a.prochainement ? '' : remplacer(t('weapons.visuelAlt'), { nom: n });
     annonce.textContent = `${remplacer(t('weapons.position'), { n: courant + 1, total: armes.length })} : ${n}, ${categorieDe(a)}${a.prochainement ? `, ${t('commun.comingSoon')}` : ''}`;
   }
 
@@ -309,26 +329,32 @@ export async function installerSectionArmes(section) {
       b.setAttribute('aria-pressed', String(k === j));
       b.tabIndex = k === j ? 0 : -1;
     });
+    corps.classList.toggle('est-prochainement', a.prochainement); // avant textes() : le filigrane se mesure avec sa taille
     textes();
     if (premiere) annonce.textContent = '';
     // Entrée animée sobre : l'image arrive du côté du changement, le texte remonte (rien en mouvement réduit).
     const n = ++jeton;
     corps.dataset.arme = a.id;
-    corps.classList.toggle('est-prochainement', a.prochainement);
     corps.style.setProperty('--sens', String(sens));
     if (!premiere && !mouvementReduit()) {
       corps.classList.remove('arsenal-change');
       void corps.offsetWidth;
       corps.classList.add('arsenal-change');
     }
-    visuel.classList.add('arsenal-visuel-attente');
-    visuel.onload = () => { if (n === jeton) visuel.classList.remove('arsenal-visuel-attente'); };
-    visuel.src = image(a.id);
-    if (visuel.complete) visuel.classList.remove('arsenal-visuel-attente');
+    if (a.prochainement) {
+      visuel.removeAttribute('src'); // arme à venir : son image n'est jamais téléchargée
+      visuel.hidden = true;
+    } else {
+      visuel.hidden = false;
+      visuel.classList.add('arsenal-visuel-attente');
+      visuel.onload = () => { if (n === jeton) visuel.classList.remove('arsenal-visuel-attente'); };
+      visuel.src = image(a.id);
+      if (visuel.complete) visuel.classList.remove('arsenal-visuel-attente');
+    }
     montrerMiniature(boutons[j]);
     if (focus) boutons[j].focus({ preventScroll: true });
     // Les voisines se chargent en avance, une fois l'image affichée.
-    if (!premiere) [j + 1, j - 1].forEach((k) => { new Image().src = image(armes[(k + armes.length) % armes.length].id); });
+    if (!premiere) [j + 1, j - 1].map((k) => armes[(k + armes.length) % armes.length]).filter((v) => !v.prochainement).forEach((v) => { new Image().src = image(v.id); });
   }
   corps.addEventListener('animationend', (e) => { if (e.animationName === 'arsenal-entree-visuel') corps.classList.remove('arsenal-change'); });
 
@@ -357,8 +383,9 @@ export async function installerSectionArmes(section) {
     fleches[1].setAttribute('aria-label', t('weapons.suivante'));
     boutons.forEach((b, i) => {
       const a = armes[i];
-      poserNom(b.querySelector('.arsenal-miniature-nom'), nomDe(a));
-      b.setAttribute('aria-label', `${nomDe(a)} — ${categorieDe(a)}${a.prochainement ? ` (${t('commun.comingSoon')})` : ''}`);
+      const n = b.querySelector('.arsenal-miniature-nom');
+      if (n) poserNom(n, nomDe(a));
+      b.setAttribute('aria-label', a.prochainement ? `${categorieDe(a)} — ${t('commun.comingSoon')}` : `${nomDe(a)} — ${categorieDe(a)}`);
     });
     textes();
     annonce.textContent = '';
@@ -366,5 +393,8 @@ export async function installerSectionArmes(section) {
 
   choisir(0, { premiere: true });
   majLangue();
+  // Police des titres chargée : la largeur du filigrane est remesurée.
+  const police = getComputedStyle(document.documentElement).getPropertyValue('--font-display').trim();
+  document.fonts?.load(`100px ${police}`).then(() => textes()).catch(() => {});
   return { majLangue };
 }

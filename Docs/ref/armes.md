@@ -50,10 +50,12 @@ Mitraillette, Fusil d'assaut (StG 44, BAR M1918), Lourde, Spéciale. La famille 
 fusil-mitrailleur, est rangé avec les fusils d'assaut ; `"famille": "lourde"` le mettrait avec la MG42). Nouvelle famille : ajouter son
 libellé dans `weapons.familles` (français et anglais) et, si besoin, sa place dans `FAMILLES` de `js/section-armes.js`.
 
-**Armes « prochainement »** (`"prochainement": true` ; retour du propriétaire : le lance-flammes et le Panzerschreck, pas encore utilisables
-dans le jeu, restent marqués « Prochainement » jusqu'au bout, même une fois la section publiée) : grand visuel en silhouette sombre à liseré
-rouge avec l'encart « Prochainement », gros « ? » rouge sur la miniature (silhouette elle aussi), mention dans le nom accessible. Nom,
-catégorie et description restent affichés. Pour la dévoiler : `"prochainement": false`.
+**Armes « prochainement »** (`"prochainement": true` ; retours du propriétaire : le lance-flammes et le Panzerschreck, pas encore utilisables
+dans le jeu, restent secrets jusqu'au bout, même une fois la section publiée) : **ni forme, ni nom, ni catégorie, ni description**. Grand
+encart « Prochainement » à la place du visuel (gros « ? » en filigrane), nom « ? ? ? », catégorie « Arme à venir », texte neutre
+(`weapons.mystere` de `js/textes.js`) ; miniature réduite à un gros « ? » rouge. Leurs images ne sont jamais téléchargées (elles restent
+publiées dans `img/armes/` : voir la limite plus bas). Leur nom et leur description, gardés dans `contenus/armes.json`, servent le jour où
+on les dévoile avec `"prochainement": false`.
 
 **Chapitres** (prévu pour plus tard : choisir un chapitre pour n'afficher que ses armes ; aujourd'hui le chapitre 1) : chaque arme a
 `"chapitres": [1]` ; la liste `"chapitres"` en tête du fichier donne les chapitres connus, avec un nom facultatif. Un sélecteur dans
@@ -62,7 +64,8 @@ d'abord. Ajouter un chapitre : `{ "id": 2, "nom": { "fr": "…", "en": "…" } }
 les `"chapitres"` des armes concernées (une arme peut être dans plusieurs chapitres : `[1, 2]`). Un chapitre sans arme n'est pas proposé.
 
 **Noms** : un nom ne se coupe qu'entre deux mots (« Lance-flammes / M2 », « Winchester / M1897 » sur les miniatures, deux lignes au plus),
-jamais au milieu d'un mot ni tronqué.
+jamais au milieu d'un mot ni tronqué. Nom en filigrane derrière l'arme : deux lignes au plus, taille calculée pour tenir dans le cadre (largeur du mot le plus
+long mesurée dans la police des titres).
 
 ## Après une évolution des armes du jeu
 

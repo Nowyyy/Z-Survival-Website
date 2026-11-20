@@ -81,7 +81,7 @@ for (const [w, h, tactile] of TAILLES) {
       // 2. Aperçu (et 3. interrupteur allumé, à une taille par appareil, avec capture comparée).
       for (const allume of reduit && lang === 'fr' ? [false, true] : [false]) {
         const nom = `${cas} ${allume ? 'allumé' : 'aperçu'}`;
-        const { ctx, page, erreurs } = await ouvrir({ w, h, tactile, reduit, lang, requete: allume ? '' : 'apercu=armes', allume });
+        const { ctx, page, erreurs, requetes } = await ouvrir({ w, h, tactile, reduit, lang, requete: allume ? '' : 'apercu=armes', allume });
         await page.waitForSelector('.arsenal[data-etat="pret"]');
         await page.waitForFunction(() => { const i = document.querySelector('.arsenal-visuel'); return i.complete && i.naturalWidth > 0; });
         await page.evaluate(() => Promise.all([...document.querySelectorAll('.arsenal-miniature-image')].map((i) => { i.loading = 'eager'; return i.decode().catch(() => {}); })));
@@ -109,25 +109,41 @@ for (const [w, h, tactile] of TAILLES) {
             chevauchent, debordent, sceneH: Math.round(boites[1][1].height),
           };
         });
-        verifier(`${nom} : ${ARMES.length} armes et leurs miniatures`, etat.miniatures === ARMES.length && etat.imagesMini === ARMES.length, JSON.stringify(etat));
+        const nbVisibles = ARMES.filter((a) => !a.prochainement).length;
+        verifier(`${nom} : ${ARMES.length} armes et leurs miniatures (${nbVisibles} images)`, etat.miniatures === ARMES.length && etat.imagesMini === nbVisibles, JSON.stringify(etat));
         verifier(`${nom} : stats sans aucun chiffre, « ${etat.tampon} »`, etat.chiffresStats === 0 && etat.tampon === (lang === 'fr' ? 'Prochainement' : 'Coming soon'));
         verifier(`${nom} : textes traduits`, etat.categorie === (lang === 'fr' ? 'Pistolet' : 'Pistol') && etat.nom === 'Colt M1911', `${etat.categorie} / ${etat.nom}`);
         // Retours du propriétaire : armes « prochainement », chapitres, noms jamais coupés au milieu d'un mot ni tronqués.
         const retours = await page.evaluate(() => {
           const s = document.getElementById('weapons');
           const mini = [...s.querySelectorAll('.arsenal-miniature')];
-          const silhouette = (img) => getComputedStyle(img).filter.includes('brightness(0)');
+          const seulPoint = (b) => !b.querySelector('img') && !b.querySelector('.arsenal-miniature-nom') && b.textContent.trim() === '?';
           const motsCoupes = [...s.querySelectorAll('.arsenal-nom .arsenal-mot, .arsenal-miniature-nom .arsenal-mot')].filter((m) => m.getClientRects().length > 1).length;
-          const tronques = mini.filter((b) => { const n = b.querySelector('.arsenal-miniature-nom'); const r = n.getBoundingClientRect(); const rb = b.getBoundingClientRect(); return n.scrollWidth > n.clientWidth + 1 || r.bottom > rb.bottom + 1 || r.left < rb.left - 1 || r.right > rb.right + 1; }).map((b) => b.dataset.arme);
+          const tronques = mini.filter((b) => { const n = b.querySelector('.arsenal-miniature-nom'); if (!n) return false; const r = n.getBoundingClientRect(); const rb = b.getBoundingClientRect(); return n.scrollWidth > n.clientWidth + 1 || r.bottom > rb.bottom + 1 || r.left < rb.left - 1 || r.right > rb.right + 1; }).map((b) => b.dataset.arme);
           return {
             mysteres: mini.filter((b) => b.querySelector('.arsenal-miniature-mystere')).map((b) => b.dataset.arme).sort().join(','),
-            silhouettes: mini.filter((b) => silhouette(b.querySelector('img'))).map((b) => b.dataset.arme).sort().join(','),
+            seulPoint: mini.filter(seulPoint).map((b) => b.dataset.arme).sort().join(','),
             chapitres: [...s.querySelectorAll('.section-entete .arsenal-chapitre')].map((b) => `${b.textContent}:${b.getAttribute('aria-pressed')}`).join(','),
             motsCoupes, tronques,
           };
         });
         const attendues = ARMES.filter((a) => a.prochainement).map((a) => a.id).sort().join(',');
-        verifier(`${nom} : « ? » et silhouette seulement sur les armes à venir (${attendues})`, retours.mysteres === attendues && retours.silhouettes === attendues, JSON.stringify(retours));
+        verifier(`${nom} : armes à venir (${attendues}) : miniature réduite à un « ? » (ni image ni nom)`, retours.mysteres === attendues && retours.seulPoint === attendues, JSON.stringify(retours));
+        // Filigrane : pour chaque arme, deux lignes au plus et rien hors du cadre.
+        const filigranes = await page.evaluate(() => [...document.querySelectorAll('.arsenal-miniature')].map((b) => {
+          b.click();
+          document.querySelector('.arsenal').getAnimations({ subtree: true }).forEach((an) => { try { an.finish(); } catch { /* animation sans fin */ } }); // mesure à l'arrivée
+          const f = document.querySelector('.arsenal-filigrane');
+          const x = f.firstElementChild;
+          const rf = f.getBoundingClientRect();
+          const mots = [...x.children].map((m) => m.getBoundingClientRect());
+          const lignes = new Set(mots.map((r) => Math.round(r.top))).size;
+          // Largeur : chaque mot dans le cadre ; hauteur : le bloc de texte (les coulures de la police dépassent un peu de chaque ligne).
+          const dehors = mots.some((r) => r.left < rf.left - 1 || r.right > rf.right + 1) || x.getBoundingClientRect().height > rf.height + 1;
+          return lignes <= 2 && !dehors ? null : `${b.dataset.arme} (${lignes} lignes${dehors ? ', dépasse' : ''})`;
+        }).filter(Boolean));
+        await page.evaluate(() => document.querySelector('.arsenal-miniature').click());
+        verifier(`${nom} : nom en filigrane sur deux lignes au plus, dans le cadre`, filigranes.length === 0, filigranes.join(' '));
         verifier(`${nom} : sélecteur « ${lang === 'fr' ? 'Chapitre' : 'Chapter'} 1 »`, retours.chapitres === `${lang === 'fr' ? 'Chapitre' : 'Chapter'} 1:true`, retours.chapitres);
         verifier(`${nom} : noms ni coupés au milieu d'un mot ni tronqués`, retours.motsCoupes === 0 && !retours.tronques.length, JSON.stringify(retours));
         verifier(`${nom} : aucun chevauchement, rien ne dépasse`, !etat.chevauchent.length && !etat.debordent.length && !etat.descriptionTronquee && etat.sceneH >= 60, JSON.stringify(etat));
@@ -166,11 +182,20 @@ for (const [w, h, tactile] of TAILLES) {
           // Clic par le DOM : un clic Playwright ferait d'abord défiler la page jusqu'à la miniature (le vrai clic est testé plus haut).
           await page.evaluate((id) => document.querySelector(`.arsenal-miniature[data-arme="${id}"]`).click(), prochaine.id);
           const vue = await page.evaluate(() => ({
-            silhouette: getComputedStyle(document.querySelector('.arsenal-visuel')).filter.includes('brightness(0)'),
+            visuelCache: document.querySelector('.arsenal-visuel').hidden && !document.querySelector('.arsenal-visuel').getAttribute('src'),
             tampon: getComputedStyle(document.querySelector('.arsenal-scene-tampon')).display !== 'none' && document.querySelector('.arsenal-scene-tampon').textContent,
-            autres: [...document.querySelectorAll('.arsenal-miniature:not(.est-prochainement) img')].filter((i) => getComputedStyle(i).filter.includes('brightness(0)')).length,
+            nom: document.querySelector('.arsenal-nom').textContent,
+            categorie: document.querySelector('.arsenal-categorie').textContent,
+            filigrane: document.querySelector('.arsenal-filigrane').textContent,
+            texte: document.querySelector('.arsenal-infos').textContent,
           }));
-          verifier(`${nom} : ${prochaine.id} choisie = silhouette + « Prochainement », les autres miniatures intactes`, vue.silhouette && vue.tampon === (lang === 'fr' ? 'Prochainement' : 'Coming soon') && vue.autres === 0, JSON.stringify(vue));
+          const reconnu = ARMES.filter((a) => a.prochainement).some((a) => [a.nom, a.nomEn, a.description?.fr, a.description?.en].filter(Boolean).some((x) => vue.texte.includes(x)));
+          verifier(`${nom} : ${prochaine.id} choisie = ni forme ni nom, « ? ? ? » et grand « Prochainement »`, vue.visuelCache && vue.tampon === (lang === 'fr' ? 'Prochainement' : 'Coming soon') && vue.nom === '? ? ?' && vue.filigrane === '?' && vue.categorie === (lang === 'fr' ? 'Arme à venir' : 'Upcoming weapon') && !reconnu, JSON.stringify(vue));
+        }
+        {
+          const secretes = ARMES.filter((a) => a.prochainement).map((a) => a.id);
+          const vues = requetes.filter((u) => secretes.some((id) => u.includes(`img/armes/${id}`)));
+          verifier(`${nom} : images des armes à venir jamais téléchargées`, vues.length === 0, vues.join(' '));
         }
         verifier(`${nom} : console propre`, erreurs.length === 0, erreurs.join(' | '));
         await ctx.close();

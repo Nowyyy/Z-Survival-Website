@@ -126,6 +126,12 @@ export const TEXTES = {
       },
       chapitre: 'Chapitre {n}',
       chapitres: 'Chapitres du jeu',
+      // Arme « prochainement » (contenus/armes.json) : rien qui permette de la reconnaître.
+      mystere: {
+        nom: '? ? ?',
+        categorie: 'Arme à venir',
+        description: 'Une nouvelle arme rejoindra bientôt l’arsenal. Restez à l’écoute…',
+      },
       liste2: 'Armes du jeu',
       precedente: 'Arme précédente',
       suivante: 'Arme suivante',
@@ -272,6 +278,11 @@ export const TEXTES = {
       },
       chapitre: 'Chapter {n}',
       chapitres: 'Game chapters',
+      mystere: {
+        nom: '? ? ?',
+        categorie: 'Upcoming weapon',
+        description: 'A new weapon will join the arsenal soon. Stay tuned…',
+      },
       liste2: 'Game weapons',
       precedente: 'Previous weapon',
       suivante: 'Next weapon',
