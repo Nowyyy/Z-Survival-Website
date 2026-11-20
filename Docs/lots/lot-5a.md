@@ -217,6 +217,14 @@ recule puis revient) ; boucle parfaite (paysage 0,50 pour une moyenne de 0,56 ; 
 - Vérifications : `node scene-v2/outils/verifier.mjs` 53/53 ; boucle parfaite (paysage 0,56 pour une moyenne de 0,63 ; portrait 0,45 pour 0,59) ;
   planche refaite. Limite : sur téléphone, le parachute et une partie du feu sont derrière le personnage 2.
 
+## Tôle et parachute (20/11/2026, branche `accueil-v2-anim-2`)
+- « Le clapet qui vole traverse légèrement l'intérieur de l'aile » : il était accroché au milieu de l'aile et tournait à travers elle. Il est
+  maintenant accroché par une charnière au **bord de fuite** et pend au-delà : il bat sans jamais rentrer dans l'aile.
+- « Comment tient le parachute ? » : dans le jeu, sa voilure est accrochée à un **arbre mort** ; le tronc était caché derrière le personnage 2.
+  Parachute décalé à droite : l'arbre se voit, la voilure posée sur ses branches. Hors du cadre sur téléphone.
+- Vérifications : `node scene-v2/outils/verifier.mjs` 53/53 ; boucle parfaite (paysage 0,54 pour une moyenne de 0,62 ; portrait 0,44 pour 0,59) ;
+  planche refaite.
+
 ## État git
 - Commits `accueil-v2 A` à `accueil-v2 E` sur la branche `accueil-v2` (poussée), PR vers `main` fusionnée par l'agent (règle de
   `CLAUDE.md`) : rien n'est visible des visiteurs.
