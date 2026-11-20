@@ -45,6 +45,7 @@ export const ENTREES = [
 // Données lues par la scène.
 export const DONNEES = [
   'data/game/characters-v2.json', 'data/game/poses-v2.json', 'data/game/persos-choix.json', 'data/game/zombie-variants.json',
+  'data/game/persos-epoque.json', 'data/game/persos-epoque-choix.json', // tenues d'époque (lot 9g du jeu) : recettes et variantes retenues
   'data/game/render.json', 'data/game/textures.json', 'data/game/camera.json', 'data/game/windows.json', 'data/game/lumieres.json',
   'data/game/maps/rez-de-chaussee/world.json', 'data/game/maps/rez-de-chaussee/decor.json', 'data/game/maps/rez-de-chaussee/zones.json',
   'data/game/maps/rez-de-chaussee/etage.world.json', 'data/game/maps/rez-de-chaussee/decor-interieur.world.json',

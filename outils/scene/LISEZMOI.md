@@ -45,7 +45,7 @@ node outils/scene/copier-jeu.mjs --verifier
 - **Modules de départ** (`ENTREES` en tête du script), suivis par leurs imports relatifs : monde (`js/game/world.js`), personnages et
   zombies (`js/game/character-v2.js`), lampes, feu, brume, textures, palette, couches de la carte, fenêtres, hélicoptère
   (`js/core/epaves.js`), textures des personnages, **armes** (`js/core/armes/armes.js`, `atlas.js`, `partie.js`).
-- **Données** (`DONNEES`) : personnages et squelettes, zombies, rendu, textures, fenêtres, lumières, carte `rez-de-chaussee`,
+- **Données** (`DONNEES`) : personnages et squelettes, **tenues d'époque** (`data/game/persos-epoque.json`, `persos-epoque-choix.json`), zombies, rendu, textures, fenêtres, lumières, carte `rez-de-chaussee`,
   **armes** (`data/armes/armes.json`, `armes-choix.json`, `poses.json`, `data/game/armes-partie.json`), jetons de couleur
   (`css/tokens.css`, `css/armes.css`), Three.js.
 - Si le jeu ajoute un fichier dont la scène a besoin (une nouvelle carte, par exemple), l'ajouter à l'une de ces deux listes.

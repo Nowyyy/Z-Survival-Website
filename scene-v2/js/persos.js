@@ -5,9 +5,10 @@ import * as THREE from 'three';
 import { createV2Kit } from '../jeu/js/game/character-v2.js';
 
 // d : données du jeu (chargerDonnees) ; lookup : jetons de couleur ; characters : données des personnages (éventuellement enrichies).
-export function creerKit(d, lookup, characters, poses = d.poses) {
+export function creerKit(d, lookup, characters, poses = d.poses, variantes = {}) {
   const slots = { joueur: 'riche', marcheur: 'riche', petit: 'riche', voute: 'riche', grand: 'riche' };
-  for (const [id, c] of Object.entries(d.choix?.persos ?? {})) if (c?.variante) slots[id] = c.variante;
+  for (const [id, c] of Object.entries(d.choix?.persos ?? {})) if (c?.variante && c.variante !== 'epoque') slots[id] = c.variante;
+  Object.assign(slots, variantes); // v2 : variantes d'époque choisies par la scène (la table du jeu dit « epoque », résolue par js/scene.js)
   // Réglages de la table des choix (persos-choix.json), comme choiceOptions de js/game/persos-runtime.js du jeu ; la tenue est choisie par la scène.
   const table = d.choix?.persos ?? {};
   const of = (key) => Object.fromEntries(Object.entries(table).filter(([, c]) => c?.[key] !== undefined).map(([slot, c]) => [slot, c[key]]));

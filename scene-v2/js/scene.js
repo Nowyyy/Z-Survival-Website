@@ -16,6 +16,7 @@ import { GLISSIERE, TIR, TIR_P2, creerTir, ejectionKar, finManoeuvre, glissiereA
 import { chargerArmes, creerFabriqueArmes } from './armes.js';
 import { chargerDonnees, construireMonde } from './monde.js';
 import { creerKit, posable } from './persos.js';
+import { slotsWithEpoch } from '../jeu/js/core/persos-variants.js';
 import { ATELIER, DETAILS, ECHELLE_SCENE, FUSIL, PLACEMENT, PRISES, REGARD, TIREUR, regardP1, appuiAt, poseP1, poseP2, poseZombie } from './poses.js';
 
 const q = new URLSearchParams(location.search);
@@ -70,12 +71,25 @@ try {
   scene.add(feuHelico.group);
 
   // Personnages : ceux du jeu, enrichis pour le plan rapproché (js/enrichissements.js).
-  const kit = creerKit(d, m.lookup, enrichirPersonnages(d.characters), enrichirPoses(d.poses));
-  texturesFines(kit, [['joueur', 'riche'], ['joueur', MILITAIRE], ['marcheur', 'riche']]);
-  const p1 = posable(kit.create('player', 0, { outfit: 0 }), ECHELLE_SCENE);
-  // Personnage 2 : militaire, au style différent du personnage 1 (js/enrichissements.js, variante « militaire » : casque, gilet
-  // pare-balles sombre, treillis kaki). ?p2=civil : l'ancienne tenue (variante B du jeu, capuche et lampe frontale), pour comparer.
-  const p2 = posable(kit.create('player', 0, q.get('p2') === 'civil' ? { choice: 'B', outfit: 0 } : { choice: MILITAIRE, outfit: 0 }), ECHELLE_SCENE);
+  // v2 : tenues d'époque du jeu (lot 9g du jeu : data/game/persos-epoque.json, choix dans persos-epoque-choix.json), construites par le code du jeu
+  // (slotsWithEpoch, niveau complet) : personnage 1 = Survivant (fantassin américain de 1942), personnage 2 = personnage 2 du jeu (parachutiste
+  // radio), chacun dans la tenue retenue dans le jeu ; zombie = zombie soldat du marcheur (le jeu mélange les variantes A et B : la scène en montre
+  // une, ?zbtenue=variante:tenue pour en essayer une autre). ?tenues=avant : les tenues de la première v2 (survivant tactique, militaire, blouse).
+  const avant = q.get('tenues') === 'avant';
+  const choixEpoque = d.epoqueChoix?.choix ?? {};
+  const premier = (v) => (Array.isArray(v) ? v[0] : v);
+  const [zbVariante, zbTenue] = (q.get('zbtenue') ?? `${premier(choixEpoque.marcheur) ?? 'epoque-A'}:soldat`).split(':');
+  const EPOQUE = { p1: choixEpoque.survivant ?? 'epoque-A', p2: choixEpoque['personnage-2'] ?? 'para-B', zombie: zbVariante };
+  const characters = avant ? d.characters : { ...d.characters, slots: slotsWithEpoch(d.characters.slots, d.epoque) };
+  const kit = creerKit(d, m.lookup, enrichirPersonnages(characters, { p1: avant ? 'riche' : EPOQUE.p1 }), enrichirPoses(d.poses), avant ? { joueur: 'riche', marcheur: 'riche' } : { joueur: EPOQUE.p1, marcheur: EPOQUE.zombie });
+  const tenue = (slot, variante, id) => Math.max(0, characters.slots.find((x) => x.id === slot)?.variants.find((v) => v.id === variante)?.outfits?.findIndex((o) => o.id === id) ?? 0);
+  const tenues = d.epoqueChoix?.tenues ?? {};
+  if (avant) texturesFines(kit, [['joueur', 'riche'], ['joueur', MILITAIRE], ['marcheur', 'riche']]);
+  else texturesFines(kit, [['joueur', EPOQUE.p1], ['joueur', EPOQUE.p2], ['marcheur', EPOQUE.zombie]]);
+  const p1 = posable(kit.create('player', 0, avant ? { choice: 'riche', outfit: 0 } : { choice: EPOQUE.p1, outfit: tenue('joueur', EPOQUE.p1, tenues.survivant) }), ECHELLE_SCENE);
+  // Personnage 2. Première v2 (?tenues=avant) : militaire construit dans la scène (?p2=civil : variante B du jeu).
+  const p2opts = avant ? (q.get('p2') === 'civil' ? { choice: 'B', outfit: 0 } : { choice: MILITAIRE, outfit: 0 }) : { choice: EPOQUE.p2, outfit: tenue('joueur', EPOQUE.p2, tenues['personnage-2']) };
+  const p2 = posable(kit.create('player', 0, p2opts), ECHELLE_SCENE);
   PLACEMENT.p1Tete = p1.bones.get('head'); // le personnage 2 lève la tête vers lui (détails)
   // Barbe du personnage 1 (peinte, aucune pièce 3D) : brun très sombre, mélange de --perso-sombre et --perso-cuir.
   if (details) {
@@ -85,8 +99,9 @@ try {
     // Gilets : texture de tissu à part (toile matelassée pour le personnage 1, nylon à sangles pour le personnage 2), plus celle des vêtements.
     // Personnage 1 : gilet d'une couleur à lui (il avait celle de la chemise sable) : noir (assombri de --perso-sombre) ; ?gilet=olive pour comparer.
     const couleurGilet = q.get('gilet') === 'olive' ? lin('--perso-tissu-olive').lerp(lin('--perso-sombre'), 0.45) : lin('--perso-sombre').multiplyScalar(0.6);
-    texturerGilet(p1.char, kit.slotKit('joueur', 'riche').shared.get(0), ['vestA'], { style: 'toile', couleur: [couleurGilet.r, couleurGilet.g, couleurGilet.b] });
-    if (q.get('p2') !== 'civil') texturerGilet(p2.char, kit.slotKit('joueur', MILITAIRE).shared.get(0), ['gilet'], { style: 'cordura', teinte: 1 });
+    // (Gilets : tenues de la première v2 seulement ; les tenues d'époque gardent les textures du jeu.)
+    if (avant) texturerGilet(p1.char, kit.slotKit('joueur', 'riche').shared.get(0), ['vestA'], { style: 'toile', couleur: [couleurGilet.r, couleurGilet.g, couleurGilet.b] });
+    if (avant && q.get('p2') !== 'civil') texturerGilet(p2.char, kit.slotKit('joueur', MILITAIRE).shared.get(0), ['gilet'], { style: 'cordura', teinte: 1 });
   }
   // Armes du jeu (lot 9c du jeu), accrochées à l'os « prop » de chaque personnage : le Kar98k (personnage 1), le Colt M1911 (personnage 2).
   const fabrique = creerFabriqueArmes(await chargerArmes(), renderer);
@@ -95,7 +110,7 @@ try {
   p1.bones.get('prop').add(kar.group);
   REGARD.debutP1 = TIR + finManoeuvre(kar) + REGARD.apresVerrou; // coup d'œil du personnage 1 après le réarmement
   p2.bones.get('prop').add(colt.group);
-  const zb = posable(kit.create('zombie', 0, { outfit: 3, wear: 2 }), ECHELLE_SCENE);
+  const zb = posable(kit.create('zombie', 0, avant ? { outfit: 3, wear: 2 } : { outfit: tenue('marcheur', EPOQUE.zombie, zbTenue), wear: 2 }), ECHELLE_SCENE);
   zb.char.setWound(1);
   for (const p of [p1, p2, zb]) scene.add(p.root);
   // Outil de retouche (?isoler=p1|p2|zb) : un seul personnage visible.
@@ -114,6 +129,8 @@ try {
   // Lampe frontale du personnage 2 (variante B du jeu) : un faisceau faible vers la tête du zombie.
   const frontale = new THREE.SpotLight(new THREE.Color().setRGB(...m.lookup('--perso-lampe').map((c) => c / 255), THREE.SRGBColorSpace), 900, 420, 0.38, 0.6, 1.2);
   scene.add(frontale, frontale.target);
+  // v2, tenues d'époque : le personnage 2 (parachutiste radio) n'a plus de lampe ; ?frontale=1 la garde (éclairage du zombie).
+  if (!avant && q.get('frontale') !== '1') frontale.intensity = 0;
 
   const ambiance = creerAmbiance({ world, palette, textures, stage, heli, lampes: [{ x: -96, z: -64, cap: 30 }, { x: 104, z: -118, cap: -35 }], fenetres: d.world.windows ?? [], render: m.render, details });
   const brume = brumeEnBoucle(world, { vitesse: 3, force: 1.3 });
