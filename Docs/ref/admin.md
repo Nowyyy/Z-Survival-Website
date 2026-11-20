@@ -5,6 +5,10 @@ Adresse : **https://zsurvival-game.com/admin/** (l'ancienne adresse https://nowy
 
 Ce que vous écrivez ici apparaît dans la section **Actualités** du site, en français et, si vous le voulez, en anglais.
 
+Sur chaque écran (article, page « À propos », bandeau, aperçu de partage, armes), le bouton **← Articles** et le statut restent **collés en
+haut de l'écran**, sous la barre « Administration », même quand on fait défiler une longue page (vérification :
+`node outils/admin/verifier-retour.mjs`).
+
 ---
 
 ## 1. Se connecter

@@ -261,6 +261,25 @@ body.admin {
 .admin-fichier:focus-visible + .admin-actions-image .admin-bouton { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 .admin-actions-image { display: flex; flex-wrap: wrap; gap: 8px; }
 
+/* ---------- Barre de retour (« ← Articles » et statut), flottante en haut de chaque écran (demande du propriétaire) ----------
+   Collée juste sous la barre « Administration » (elle aussi collée en haut), sur toute la largeur, même fond que l'en-tête. */
+:root {
+  --admin-haut-entete: calc(56px + env(safe-area-inset-top));
+  --admin-haut-retour: 60px; /* bouton de 44 px + 8 px au-dessus et au-dessous */
+}
+html:has(body.admin) { scroll-padding-top: calc(var(--admin-haut-entete) + var(--admin-haut-retour) + 8px); } /* champ qui prend le focus : jamais caché dessous */
+.admin-barre-retour {
+  position: sticky;
+  top: var(--admin-haut-entete);
+  z-index: 9;
+  min-height: var(--admin-haut-retour);
+  margin: -16px calc(-1 * var(--marge)) 0;
+  padding: 8px var(--marge);
+  background: rgb(5 5 5 / 94%);
+  border-bottom: 1px solid var(--color-surface-raised);
+  backdrop-filter: blur(8px);
+}
+
 /* ---------- Actions (collées en bas de l'écran sur téléphone) ---------- */
 .admin-actions {
   position: sticky;
@@ -467,7 +486,7 @@ body.admin {
 @media (min-width: 900px) {
   .admin-principal:has(#ecran-armes:not([hidden])) { max-width: 64rem; }
   .admin-armes-mise-en-page { display: grid; grid-template-columns: 13rem minmax(0, 1fr); align-items: start; gap: 24px; }
-  .admin-armes-chapitres { position: sticky; top: 76px; } /* sous la barre « Administration » */
+  .admin-armes-chapitres { position: sticky; top: calc(var(--admin-haut-entete) + var(--admin-haut-retour) + 12px); } /* sous les deux barres collées */
   .admin-armes-chapitres-liste { flex-direction: column; overflow: visible; }
   .admin-armes-chapitre { width: 100%; white-space: normal; }
 }
