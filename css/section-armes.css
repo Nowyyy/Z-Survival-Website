@@ -1,0 +1,293 @@
+/* Lot 6a — Nouvelle section Armes (js/section-armes.js) : chargée seulement si SECTION_ARMES_ACTIVE (js/donnees.js) ou ?apercu=armes.
+   Téléphone d'abord : grand visuel (prend la place qui reste), carte d'infos, statistiques « Prochainement », miniatures qui défilent au
+   doigt. Ordinateur : visuel à gauche, carte à droite, miniatures dessous. Couleurs : jetons de css/base.css. */
+
+.section-arsenal .section-interieur { gap: 10px; }
+
+.arsenal {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+  --sens: 1;
+}
+.arsenal-erreur { margin: auto 0; color: var(--color-text-muted); text-align: center; }
+
+/* ---------- Scène : grand visuel ---------- */
+.arsenal-scene {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 96px;
+  isolation: isolate;
+}
+/* Halo rouge et ombre au sol derrière l'arme. */
+.arsenal-scene::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 4% 6%;
+  background:
+    radial-gradient(50% 12% at 50% 88%, rgb(0 0 0 / 70%), transparent 70%),
+    radial-gradient(48% 46% at 50% 52%, rgb(216 20 20 / 26%), rgb(122 10 10 / 10%) 55%, transparent 75%);
+  pointer-events: none;
+}
+.arsenal-filigrane {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 17vw, 10rem);
+  line-height: 1;
+  white-space: nowrap;
+  color: rgb(216 20 20 / 9%);
+  pointer-events: none;
+  user-select: none;
+}
+.arsenal-cadre { position: absolute; inset: 0; touch-action: pan-y; }
+.arsenal-visuel {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgb(0 0 0 / 55%));
+  transition: opacity 200ms ease;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+.arsenal-visuel-attente { opacity: 0; }
+.arsenal-fleche {
+  position: absolute;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  transform: translateY(-50%);
+  background: rgb(19 19 19 / 78%);
+}
+.arsenal-fleche-precedente { left: 0; }
+.arsenal-fleche-suivante { right: 0; }
+.arsenal-fleche:focus-visible, .arsenal-miniature:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+/* ---------- Carte d'infos ---------- */
+.arsenal-fiche { display: flex; flex-direction: column; gap: 10px; flex: none; min-width: 0; }
+.arsenal-infos { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.arsenal-ligne { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0; }
+.arsenal-categorie, .arsenal-compteur, .arsenal-stats-titre, .arsenal-stat-nom, .arsenal-groupe-nom, .arsenal-stats-tampon {
+  font-family: var(--font-label);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.arsenal-categorie { color: var(--color-action-text); font-size: 0.8rem; }
+.arsenal-compteur { color: var(--color-text-muted); font-size: 0.75rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.arsenal-nom {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 2rem;
+  line-height: 1.05;
+  color: var(--color-text);
+  text-shadow: 0 0 16px var(--color-action-glow);
+  overflow-wrap: anywhere;
+}
+.arsenal-description { margin: 0; color: var(--color-text-muted); font-size: 0.95rem; line-height: 1.45; }
+
+/* ---------- Statistiques : barres floutées, sans chiffre, sous un encart « Prochainement » ---------- */
+.arsenal-stats {
+  position: relative;
+  padding: 8px 12px 10px;
+  border: 1px solid var(--color-surface-raised);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+.arsenal-stats-titre { margin: 0 0 6px; font-size: 0.7rem; color: var(--color-text-muted); }
+.arsenal-stats-grille {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+  opacity: 0.45;
+  filter: grayscale(1) blur(2px);
+  user-select: none;
+}
+.arsenal-stat { display: grid; gap: 4px; }
+.arsenal-stat-nom { font-size: 0.66rem; color: var(--color-text-muted); }
+.arsenal-stat-barre { position: relative; height: 6px; border-radius: 3px; background: var(--color-surface-raised); overflow: hidden; }
+.arsenal-stat-remplissage {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--color-action-deep), var(--color-action));
+  transform-origin: left;
+  transform: scaleX(var(--valeur, 0.5));
+}
+.arsenal-stats-tampon {
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  padding: 0.25em 0.9em 0.3em;
+  border-radius: var(--radius-sm);
+  background: var(--color-action);
+  color: var(--color-on-action);
+  font-size: 1rem;
+  line-height: 1.1;
+  white-space: nowrap;
+  box-shadow: inset 0 0 0 2px rgb(0 0 0 / 30%), 0 0 18px var(--color-action-glow), 0 8px 18px rgb(0 0 0 / 60%);
+  transform: translate(-50%, -50%) rotate(-4deg);
+}
+
+/* ---------- Miniatures (défilement horizontal au doigt), rangées par famille ---------- */
+.arsenal-liste {
+  display: flex;
+  gap: 14px;
+  flex: none;
+  margin-inline: calc(-1 * var(--marge));
+  padding: 2px var(--marge) 4px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--marge);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.arsenal-liste::-webkit-scrollbar { display: none; }
+.arsenal-groupe { display: flex; flex-direction: column; gap: 4px; flex: none; }
+.arsenal-groupe-nom { font-size: 0.62rem; color: var(--color-text-muted); padding-left: 8px; border-left: 2px solid var(--color-action); line-height: 1.2; }
+.arsenal-groupe-armes { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.arsenal-miniature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 88px;
+  height: 62px;
+  padding: 3px 4px 4px;
+  border: 1px solid var(--color-surface-raised);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: border-color 200ms, background-color 200ms, box-shadow 200ms;
+}
+.arsenal-miniature-image { display: block; width: 100%; height: 36px; object-fit: contain; pointer-events: none; }
+.arsenal-miniature-nom {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.arsenal-miniature:hover { border-color: var(--color-border); }
+.arsenal-miniature[aria-pressed="true"] {
+  border-color: var(--color-action);
+  background: #1d0b0b;
+  box-shadow: 0 0 12px var(--color-action-glow), inset 0 -3px 0 var(--color-action);
+}
+.arsenal-miniature[aria-pressed="true"] .arsenal-miniature-nom { color: var(--color-text); }
+
+/* ---------- Changement d'arme : entrée sobre (coupée en mouvement réduit) ---------- */
+.arsenal-change .arsenal-visuel { animation: arsenal-entree-visuel 420ms var(--courbe); }
+.arsenal-change .arsenal-filigrane { animation: arsenal-entree-filigrane 520ms var(--courbe); }
+.arsenal-change .arsenal-infos > * { animation: arsenal-entree-texte 360ms var(--courbe) both; }
+.arsenal-change .arsenal-nom { animation-delay: 40ms; }
+.arsenal-change .arsenal-description { animation-delay: 80ms; }
+@keyframes arsenal-entree-visuel {
+  from { opacity: 0; transform: translateX(calc(var(--sens) * 48px)) scale(0.97); }
+}
+@keyframes arsenal-entree-filigrane {
+  from { opacity: 0; transform: translateX(calc(var(--sens) * -40px)); }
+}
+@keyframes arsenal-entree-texte {
+  from { opacity: 0; transform: translateY(10px); }
+}
+
+/* ---------- Petits téléphones (hauteur réduite) ---------- */
+@media (max-width: 899px) and (max-height: 620px) and (min-height: 521px) {
+  .arsenal, .arsenal-fiche { gap: 8px; }
+  .arsenal-nom { font-size: 1.65rem; }
+  .arsenal-description { font-size: 0.86rem; line-height: 1.4; }
+  .arsenal-stats { padding: 6px 10px 8px; }
+  .arsenal-stats-titre { margin-bottom: 4px; }
+  .arsenal-miniature { width: 78px; height: 54px; }
+  .arsenal-miniature-image { height: 30px; }
+}
+@media (max-width: 360px) {
+  .arsenal-nom { font-size: 1.55rem; }
+  .arsenal-description { font-size: 0.84rem; }
+  .arsenal-stats-tampon { font-size: 0.9rem; }
+}
+
+/* ---------- Téléphone en paysage (écran bas) : visuel à gauche, carte à droite, miniatures dessous ---------- */
+@media (max-height: 520px) and (max-width: 899px) {
+  .section-arsenal .section-interieur { gap: 6px; }
+  .arsenal {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas: "scene fiche" "liste liste";
+    gap: 6px 16px;
+  }
+  .arsenal-scene { grid-area: scene; min-height: 0; }
+  .arsenal-fiche { grid-area: fiche; gap: 6px; justify-content: center; min-height: 0; }
+  .arsenal-liste { grid-area: liste; gap: 10px; padding-block: 0 2px; }
+  .arsenal-nom { font-size: 1.35rem; }
+  .arsenal-categorie { font-size: 0.7rem; }
+  .arsenal-description { font-size: 0.8rem; line-height: 1.35; }
+  .arsenal-stats { padding: 4px 10px 6px; }
+  .arsenal-stats-titre { display: none; }
+  .arsenal-stats-grille { grid-template-columns: repeat(4, 1fr); gap: 4px 10px; }
+  .arsenal-stats-tampon { font-size: 0.8rem; top: 50%; }
+  .arsenal-fleche { width: 36px; height: 36px; }
+  .arsenal-groupe-nom { display: none; }
+  .arsenal-miniature { width: 70px; height: 42px; padding: 2px 3px; }
+  .arsenal-miniature-image { height: 22px; }
+  .arsenal-miniature-nom { font-size: 0.58rem; }
+}
+
+/* ---------- Ordinateur : visuel à gauche, carte d'infos à droite, miniatures dessous ---------- */
+@media (min-width: 900px) {
+  .section-arsenal .section-interieur { gap: 20px; }
+  .arsenal {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas: "scene fiche" "liste liste";
+    gap: 20px 40px;
+  }
+  .arsenal-scene { grid-area: scene; min-height: 200px; }
+  .arsenal-fiche { grid-area: fiche; justify-content: center; gap: 18px; max-width: 30rem; }
+  .arsenal-infos { gap: 8px; }
+  .arsenal-categorie { font-size: 0.95rem; }
+  .arsenal-compteur { font-size: 0.9rem; }
+  .arsenal-nom { font-size: clamp(2.6rem, 3.8vw, 4rem); }
+  .arsenal-description { font-size: 1.08rem; line-height: 1.55; }
+  .arsenal-stats { padding: 14px 18px 16px; }
+  .arsenal-stats-titre { font-size: 0.8rem; margin-bottom: 10px; }
+  .arsenal-stats-grille { grid-template-columns: 1fr; gap: 10px; }
+  .arsenal-stat { grid-template-columns: 6.5rem 1fr; align-items: center; gap: 12px; }
+  .arsenal-stat-nom { font-size: 0.78rem; }
+  .arsenal-stats-tampon { font-size: 1.35rem; }
+  .arsenal-fleche { width: var(--touch-target); height: var(--touch-target); }
+  .arsenal-liste { grid-area: liste; margin-inline: 0; padding-inline: 0; gap: 18px; scroll-padding-inline: 0; }
+  .arsenal-groupe-nom { font-size: 0.72rem; }
+  .arsenal-miniature { width: 104px; height: 76px; padding: 4px 6px 6px; } /* les dix tiennent sur une ligne à 1440 px */
+  .arsenal-miniature-image { height: 46px; }
+  .arsenal-miniature-nom { font-size: 0.75rem; }
+}
+@media (min-width: 900px) and (max-height: 760px) {
+  .arsenal-fiche { gap: 12px; }
+  .arsenal-description { font-size: 1rem; line-height: 1.45; }
+  .arsenal-stats { padding: 10px 14px 12px; }
+  .arsenal-stats-grille { gap: 6px; }
+  .arsenal-miniature { height: 68px; }
+  .arsenal-miniature-image { height: 40px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arsenal-change .arsenal-visuel, .arsenal-change .arsenal-filigrane, .arsenal-change .arsenal-infos > * { animation: none; }
+  .arsenal-visuel, .arsenal-miniature { transition: none; }
+}

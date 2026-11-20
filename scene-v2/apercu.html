@@ -14,11 +14,12 @@
 <body>
   <!-- Aperçu de la scène v2 (lot 5a, en coulisses : nouvelles armes du jeu) : la scène v2 (cadrage B) en fond, plein écran, et par-dessus la
        vraie page d'accueil du site, chargée telle quelle (?video=0 : sans sa vidéo) ; son fond est rendu transparent dans l'aperçu seulement.
-       Le site n'est pas modifié et ne charge rien de scene-v2/. -->
+       Le site n'est pas modifié et ne charge rien de scene-v2/. Lot 6a : le site s'ouvre avec ?apercu=armes (nouvelle section Armes,
+       en coulisses ; ?armes=0 pour la section actuelle) et se fait défiler en entier ; scene-v2/apercu.html#weapons ouvre la section Armes. -->
   <iframe id="scene" class="couche" title="Scène 3D de l'accueil (cadrage B)" tabindex="-1"></iframe>
   <!-- Le cadre du site (#site) est créé par js/apercu.js une fois la scène prête. Pendant que la scène se construit, la même neige que
        l'entrée en scène du site couvre l'écran ; elle s'efface quand la neige du site prend le relais. -->
   <div id="neige" class="neige-attente" aria-hidden="true"></div>
-  <p id="note" class="note">Aperçu provisoire de la scène v2 (Kar98k et Colt), en direct derrière l'accueil du site : la vidéo publique ne change pas</p>
+  <p id="note" class="note">Aperçu provisoire : scène v2 (Kar98k et Colt) derrière l'accueil, et nouvelle section Armes plus bas ; rien ne change pour les visiteurs</p>
 </body>
 </html>

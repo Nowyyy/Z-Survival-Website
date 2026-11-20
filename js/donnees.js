@@ -1,3 +1,10 @@
+// Lot 6a — INTERRUPTEUR de la nouvelle section Armes (js/section-armes.js, Docs/ref/armes.md), seul endroit où il se règle.
+// false : la section Armes reste l'encart « Prochainement » (contenu provisoire ci-dessous) et aucun fichier de la nouvelle section n'est
+// téléchargé (ni js/section-armes.js, ni css/section-armes.css, ni contenus/armes.json, ni img/armes/).
+// true : la nouvelle section est publiée pour tous les visiteurs.
+// Aperçu pour le propriétaire, interrupteur éteint : ajouter ?apercu=armes à l'adresse (https://zsurvival-game.com/?apercu=armes#weapons).
+export const SECTION_ARMES_ACTIVE = false;
+
 // Données provisoires (sans texte) : valeurs de 0 à 100 pour les barres de statistiques.
 // Les noms des armes sont dans js/textes.js (weapons.armes.<id>).
 export const ARMES = [

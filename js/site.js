@@ -3,7 +3,7 @@
 // descend vers News (on peut remonter vers l'accueil), navigation qui suit la section affichée,
 // apparition du contenu à l'entrée de chaque section, menus de langue (Français / English) sur l'accueil et dans l'en-tête.
 import { appliquerTextes, changerLangue, langue, langueInitiale, mouvementReduit, t } from './i18n.js';
-import { ARMES } from './donnees.js';
+import { ARMES, SECTION_ARMES_ACTIVE } from './donnees.js';
 import { poserLogo } from './logo.js';
 import { installerTir, suivreVideo } from './accueil-tir.js';
 import { installerVideo } from './accueil-video.js';
@@ -57,7 +57,23 @@ function construirePersonnages() {
   choisir(choix.perso);
 }
 
+// Lot 6a : nouvelle section Armes, seulement si l'interrupteur est allumé ou avec ?apercu=armes (import dynamique : rien n'est téléchargé
+// sinon). Tant qu'elle n'est pas demandée, la section garde son contenu provisoire et l'encart « Prochainement » (construireArmes).
+const ARMES_V2 = SECTION_ARMES_ACTIVE || new URLSearchParams(window.location.search).get('apercu') === 'armes';
+let sectionArmes = null;
+if (ARMES_V2) {
+  // Retire tout de suite le contenu provisoire (pas d'encart « Prochainement » le temps du chargement).
+  const weapons = document.getElementById('weapons');
+  weapons.classList.remove('est-a-venir');
+  weapons.querySelectorAll('.section-interieur > :not(.section-entete)').forEach((n) => n.remove());
+  import('./section-armes.js')
+    .then((m) => m.installerSectionArmes(document.getElementById('weapons')))
+    .then((s) => { sectionArmes = s; })
+    .catch(() => {});
+}
+
 function construireArmes() {
+  if (ARMES_V2) { sectionArmes?.majLangue(); return; }
   const groupe = document.getElementById('arme-choix');
   const stats = document.getElementById('arme-stats');
   const etiquette = document.getElementById('arme-etiquette');
