@@ -70,7 +70,11 @@ try {
       const m = s.atelier.manoeuvreAt;
       const kar = s.atelier.kar;
       return {
-        armes: s.armes, decor: s.decor, fin, jonction, voisins, eclairs,
+        armes: s.armes, decor: s.decor, fin,
+        // Volet de tôle de l'aile : jamais dans le sol (point le plus bas sur toute la boucle) ; parachute retiré.
+        toleBas: (() => { const T = s.atelier.THREE; let pan = null; s.atelier.p1.root.parent.traverse((o) => { if (o.name === 'tole-au-vent') pan = o.children[0]; }); if (!pan) return null;
+          const v = new T.Vector3(); let m = Infinity; for (let i = 0; i < 96; i += 1) { s.rendre((i * duree) / 96); pan.updateMatrixWorld(true); const P = pan.geometry.attributes.position; for (let j = 0; j < P.count; j += 1) m = Math.min(m, v.fromBufferAttribute(P, j).applyMatrix4(pan.matrixWorld).y); } return m; })(),
+        parachute: Boolean(s.atelier.p1.root.parent.getObjectByName('parachute-scene')), jonction, voisins, eclairs,
         // Coup d'œil du personnage 1 : jamais pendant la manœuvre du verrou (main droite sur le levier).
         regardPendantVerrou: Array.from({ length: 160 }, (_, i) => i * duree / 160).some((t) => m(t, kar).main > 0 && s.atelier.regardP1(t) > 0),
         regardApres: s.atelier.regardP1(7.6),
@@ -86,6 +90,7 @@ try {
     verifier(`${n} : noindex`, r.noindex === 'noindex, nofollow');
     verifier(`${n} : armes Kar98k (personnage 1) et Colt (personnage 2)`, r.armes?.p1?.id === 'kar98k' && r.armes?.p2?.id === 'm1911', JSON.stringify(r.armes));
     verifier(`${n} : décor d'époque du jeu, avion écrasé à la place de l'hélicoptère`, r.decor?.avion === true, JSON.stringify(r.decor));
+    verifier(`${n} : volet de tôle de l'aile jamais dans le sol, parachute retiré`, r.toleBas !== null && r.toleBas > 0 && !r.parachute, JSON.stringify({ toleBas: r.toleBas, parachute: r.parachute }));
     verifier(`${n} : image à ${DUREE_BOUCLE} s identique à l'image à 0 s`, r.fin === 0, `écart ${r.fin}`);
     const maxV = Math.max(...r.voisins);
     verifier(`${n} : boucle sans saut (jonction comme une image voisine)`, r.jonction <= Math.max(1.5 * maxV, 0.5), `jonction ${r.jonction.toFixed(3)}, voisines ${r.voisins.map((x) => x.toFixed(3)).join(' ')}`);
