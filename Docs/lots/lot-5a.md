@@ -168,6 +168,15 @@ recule puis revient) ; boucle parfaite (paysage 0,50 pour une moyenne de 0,56 ; 
   casqué, ou une autre des douze (au calot, en capote, sous-officier, officier, tête nue) ? (3) couleurs du jeu très claires sous les lampes
   de la scène : les garder telles quelles ?
 
+## Corps des survivants (20/11/2026, branche `accueil-v2-corps`)
+- Retour : « les corps sont bizarres, on dirait des sacs à patates ». Cause : torse du jeu en grosse capsule arrondie, d'une seule couleur,
+  trame de tissu diagonale agrandie (toile de jute) ; sous les lampes chaudes, veste et pantalon d'un même beige.
+- Retouches de gros plan, sans toucher au jeu : **veste à la coupe nette** sur la poitrine (comme le gilet de la première v2), **trame des tissus
+  adoucie** (40 % de son relief ; aussi sur le zombie), **contraste veste / pantalon** (pantalon olive du Survivant et veste verte du
+  parachutiste assombris par le réglage « ombre » des couleurs du jeu). `?trame=jeu` : trame d'origine.
+- Vérifications : `node scene-v2/outils/verifier.mjs` 51/51 ; boucle parfaite (paysage 0,47 pour une moyenne de 0,55 ; portrait 0,44 pour 0,58) ;
+  planche refaite.
+
 ## État git
 - Commits `accueil-v2 A` à `accueil-v2 E` sur la branche `accueil-v2` (poussée), PR vers `main` fusionnée par l'agent (règle de
   `CLAUDE.md`) : rien n'est visible des visiteurs.

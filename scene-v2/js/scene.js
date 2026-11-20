@@ -85,7 +85,7 @@ try {
   const tenue = (slot, variante, id) => Math.max(0, characters.slots.find((x) => x.id === slot)?.variants.find((v) => v.id === variante)?.outfits?.findIndex((o) => o.id === id) ?? 0);
   const tenues = d.epoqueChoix?.tenues ?? {};
   if (avant) texturesFines(kit, [['joueur', 'riche'], ['joueur', MILITAIRE], ['marcheur', 'riche']]);
-  else texturesFines(kit, [['joueur', EPOQUE.p1], ['joueur', EPOQUE.p2], ['marcheur', EPOQUE.zombie]]);
+  else texturesFines(kit, [['joueur', EPOQUE.p1], ['joueur', EPOQUE.p2], ['marcheur', EPOQUE.zombie]], { adoucir: q.get('trame') !== 'jeu' }); // ?trame=jeu : trame du jeu
   const p1 = posable(kit.create('player', 0, avant ? { choice: 'riche', outfit: 0 } : { choice: EPOQUE.p1, outfit: tenue('joueur', EPOQUE.p1, tenues.survivant) }), ECHELLE_SCENE);
   // Personnage 2. Première v2 (?tenues=avant) : militaire construit dans la scène (?p2=civil : variante B du jeu).
   const p2opts = avant ? (q.get('p2') === 'civil' ? { choice: 'B', outfit: 0 } : { choice: MILITAIRE, outfit: 0 }) : { choice: EPOQUE.p2, outfit: tenue('joueur', EPOQUE.p2, tenues['personnage-2']) };

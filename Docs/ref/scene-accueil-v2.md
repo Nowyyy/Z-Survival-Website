@@ -110,6 +110,14 @@ personnage 1, tenues, visages, barbe, gilets.
   colère, paupières du clin d'œil), pouces, bras allongés, sphères plus fines, textures en 512 px ; zombies : visage, bouche, yeux, épaules.
   **Casques remontés** (`casquesRemontes`) : faits pour la vue de dessus, ils descendaient jusque sur les yeux ; dôme remonté de 1,9 et un peu
   aplati, bord au-dessus des sourcils, jugulaires allongées. Plus de gilets texturés (tenues de la première v2 seulement) ; barbe gardée.
+- **Corps des survivants** (retour du propriétaire : « on dirait des sacs à patates ») : dans le jeu, le torse est une grosse capsule arrondie
+  sur un tronc de cône, d'une seule couleur, avec une trame de tissu diagonale faite pour se lire de loin. Retouches de gros plan :
+  - **veste à la coupe nette** (`vesteScene` : boîte de la couleur de la tenue sur la poitrine, capsule rentrée dedans, ventre resserré ; bretelles
+    et harnais du jeu restent visibles devant) ;
+  - **trame des tissus adoucie** à 40 % de son relief (`adoucirTissus`, textures en 512 px : tissu, toile, laine, chevrons ; peau, cuir, métal,
+    filet, camouflage et sang intacts) ; `?trame=jeu` : la trame du jeu ;
+  - **contraste veste / pantalon** (`CONTRASTE`, réglage « ombre » des couleurs dérivées du jeu, aucun jeton nouveau) : pantalon olive du
+    Survivant assombri, veste verte du parachutiste assombrie ; sous les lampes chaudes, tout se confondait en un seul beige.
 - La lampe du personnage 2 (casque du militaire) est éteinte : le parachutiste n'en a pas (`?frontale=1` la rallume).
 - `?tenues=avant` : les tenues de la première v2 (survivant tactique, militaire, zombie en blouse), pour comparer.
 - Couleurs : celles du jeu, très claires (règle de contraste du jeu pour la vue de dessus sur un sol sombre) ; sous les lampes chaudes de la
