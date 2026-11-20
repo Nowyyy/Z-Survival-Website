@@ -127,6 +127,14 @@ La question 1 (« direction du tir ») est tranchée : à droite de l'écran.
 Vérifications : `node scene-v2/outils/verifier.mjs` 47/47 ; boucle portrait parfaite (jonction 0,52 pour une moyenne de 0,66) ; planche
 refaite.
 
+## Troisième retour (20/11/2026, branche `accueil-v2-retours-3`)
+- « Le personnage 1 est trop décalé, une partie passe derrière la bordure rouge du site » : il revient presque à sa place (x = −31 au lieu de
+  −38 ; −30 à l'origine) et ce sont **le zombie et le personnage 2 qui se décalent de 10 vers la droite** sur téléphone : l'espace entre les
+  deux personnages reste, le personnage 1 est entièrement dans la bordure (vérifié sur l'aperçu à 390 × 844). Les pieds du zombie touchent le
+  bord droit de l'image. Ordinateur inchangé.
+- Vérifications : `node scene-v2/outils/verifier.mjs` 47/47 ; boucle portrait parfaite (jonction 0,48, moyenne 0,61) ; douille du Colt
+  toujours vers le bord droit (sortie en 0,1 s environ) ; planche refaite.
+
 ## État git
 - Commits `accueil-v2 A` à `accueil-v2 E` sur la branche `accueil-v2` (poussée), PR vers `main` fusionnée par l'agent (règle de
   `CLAUDE.md`) : rien n'est visible des visiteurs.
