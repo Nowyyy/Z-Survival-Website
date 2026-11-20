@@ -54,8 +54,9 @@ personnage 1, tenues, visages, barbe, gilets.
   fin de la boucle.
 - Point visé et orientation du personnage 1 réglés par tireur et par format (`placement.p1Cap`, `placement.p1Vise` dans
   `scene-v2/js/cadrages.js`) pour que la bouche du fusil et l'éclair restent dans l'image.
-- **Téléphone** : le personnage 1 est décalé de 8 unités vers la gauche (`placement.p1` du cadrage B portrait, `scene-v2/js/cadrages.js`) pour
-  laisser un peu d'espace entre lui et le personnage 2 ; au-delà, son dos sortait du cadre à gauche.
+- **Téléphone** : un peu d'espace entre les deux personnages (`placement` du cadrage B portrait, `scene-v2/js/cadrages.js`) : personnage 1 à
+  peine décalé vers la gauche (x = −31 au lieu de −30 : plus loin, son bras passait derrière la bordure rouge du site), zombie et personnage 2
+  décalés de 10 vers la droite (x = 32 au lieu de 22 ; leurs pieds touchent le bord droit de l'image).
 - **Personnage 2 au Colt** : même pose que la v1 (pied sur le dos du zombie, canon pointé sur sa tête), mains aux prises du Colt
   (`PRISES.m1911` : poing droit autour de la poignée, main gauche qui l'enveloppe), arme un peu plus près du corps (le Colt est plus petit
   que l'ancien pistolet).
