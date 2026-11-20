@@ -1,0 +1,77 @@
+{
+  "_aide": "Armes de la section Armes du site (lot 6a, Docs/ref/armes.md). Fichier mis à jour par node outils/armes/copier-armes.mjs : l'outil réécrit seulement id, nom (nom du jeu), categorie et famille ; il ne touche jamais à ordre, nomEn, description, aRelire ni stats. ordre : rang d'affichage (1 = première). nomEn : nom en anglais s'il diffère du nom du jeu (null : le nom du jeu). description : fr et en, texte brut, une ou deux phrases. aRelire : true tant que la description n'est pas relue (mettre false une fois relue). stats : null pour l'instant (aucune statistique affichée, panneau « Prochainement ») ; format prévu dans Docs/ref/armes.md. categorie et famille : clés des libellés weapons.categories et weapons.familles de js/textes.js. retirees : armes disparues du jeu, gardées pour leurs textes, jamais affichées.",
+  "version": 1,
+  "armes": [
+    {
+      "id": "m1911", "nom": "Colt M1911", "nomEn": null, "categorie": "pistolet", "famille": "poing", "ordre": 1, "aRelire": true, "stats": null,
+      "description": {
+        "fr": "L’arme de départ, celle qu’on ne lâche jamais. Robuste et précise, elle suffit pour passer la première nuit… pas beaucoup plus.",
+        "en": "The starting sidearm, the one you never let go of. Sturdy and accurate, it will get you through the first night… not much further."
+      }
+    },
+    {
+      "id": "kar98k", "nom": "Kar98k", "nomEn": null, "categorie": "fusil-a-verrou", "famille": "epaule", "ordre": 2, "aRelire": true, "stats": null,
+      "description": {
+        "fr": "Un fusil à verrou d’une précision redoutable. Chaque balle compte : visez la tête, réarmez, recommencez.",
+        "en": "A deadly accurate bolt-action rifle. Every round counts: aim for the head, work the bolt, repeat."
+      }
+    },
+    {
+      "id": "winchester1897", "nom": "Winchester M1897", "nomEn": null, "categorie": "fusil-a-pompe", "famille": "epaule", "ordre": 3, "aRelire": true, "stats": null,
+      "description": {
+        "fr": "Le fusil des tranchées. À bout portant, il vide un couloir entier ; plus loin, mieux vaut courir.",
+        "en": "The trench gun. Point-blank, it clears a whole corridor; any farther, you’d better run."
+      }
+    },
+    {
+      "id": "thompson", "nom": "Thompson M1928", "nomEn": null, "categorie": "pistolet-mitrailleur", "famille": "epaule", "ordre": 4, "aRelire": true, "stats": null,
+      "description": {
+        "fr": "La « Tommy gun » crache un déluge de plomb. Exactement ce qu’il faut quand la horde passe la fenêtre.",
+        "en": "The Tommy gun spits out a storm of lead. Exactly what you need when the horde comes through the window."
+      }
+    },
+    {
+      "id": "garand", "nom": "M1 Garand", "nomEn": null, "categorie": "fusil-semi-automatique", "famille": "epaule", "ordre": 5, "aRelire": true, "stats": null,
+      "description": {
+        "fr": "Semi-automatique et fiable : il tire aussi vite que vous pressez la détente. Le « ping » du clip éjecté annonce qu’il faut recharger.",
+        "en": "Semi-automatic and reliable: it fires as fast as you pull the trigger. The “ping” of the ejected clip tells you it’s time to reload."
+      }
+    },
+    {
+      "id": "stg44", "nom": "StG 44", "nomEn": null, "categorie": "fusil-d-assaut", "famille": "epaule", "ordre": 6, "aRelire": true, "stats": null,
+      "description": {
+        "fr": "Le tout premier fusil d’assaut. Assez rapide pour tenir une porte, assez précis pour garder les morts à distance.",
+        "en": "The very first assault rifle. Fast enough to hold a doorway, accurate enough to keep the dead at bay."
+      }
+    },
+    {
+      "id": "bar", "nom": "BAR M1918", "nomEn": null, "categorie": "fusil-mitrailleur", "famille": "epaule", "ordre": 7, "aRelire": true, "stats": null,
+      "description": {
+        "fr": "Un fusil-mitrailleur lourd, tiré à la hanche. Lent à manier, mais rien ne lui résiste longtemps.",
+        "en": "A heavy automatic rifle, fired from the hip. Slow to handle, but nothing stands in its way for long."
+      }
+    },
+    {
+      "id": "mg42", "nom": "MG42", "nomEn": null, "categorie": "mitrailleuse", "famille": "lourde", "ordre": 8, "aRelire": true, "stats": null,
+      "description": {
+        "fr": "Une mitrailleuse au débit infernal. Quand elle se met à chanter, la horde ne passe plus.",
+        "en": "A machine gun with a hellish rate of fire. Once it starts singing, the horde stops coming."
+      }
+    },
+    {
+      "id": "panzerschreck", "nom": "Panzerschreck", "nomEn": null, "categorie": "lance-roquettes", "famille": "speciale", "ordre": 9, "aRelire": true, "stats": null,
+      "description": {
+        "fr": "Un lance-roquettes antichar, détourné de sa cible. Une roquette, et le groupe de zombies n’est plus qu’un souvenir.",
+        "en": "An anti-tank rocket launcher, put to a new use. One rocket, and that pack of zombies is just a memory."
+      }
+    },
+    {
+      "id": "m2lanceflammes", "nom": "Lance-flammes M2", "nomEn": "M2 Flamethrower", "categorie": "lance-flammes", "famille": "speciale", "ordre": 10, "aRelire": true, "stats": null,
+      "description": {
+        "fr": "Réservoirs sur le dos, lance au poing : un mur de feu entre vous et les morts.",
+        "en": "Tanks on your back, nozzle in hand: a wall of fire between you and the dead."
+      }
+    }
+  ],
+  "retirees": []
+}

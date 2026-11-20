@@ -8,6 +8,8 @@ sur demande du propriétaire.
 ## Adresses (pages cachées : `noindex`, interdites dans `robots.txt`, reliées à rien sur le site)
 - Planche v1 / v2 : https://zsurvival-game.com/scene-v2/planche.html
 - La v2 sous l'accueil du site : https://zsurvival-game.com/scene-v2/apercu.html
+  (lot 6a : le site s'y ouvre aussi avec la nouvelle section Armes, `?apercu=armes`, et se fait défiler ; `#weapons` y va directement,
+  `?armes=0` montre la section actuelle ; `Docs/ref/armes.md`)
 - La scène seule : https://zsurvival-game.com/scene-v2/index.html (`?cadrage=B&format=paysage|portrait|plein`, `?t=` image fixe,
   `?details=0`, `?p2=civil`, `?zombie=face`, `?isoler=p1|p2|zb`, comme la v1 ; en plus `?tireur=droitier` : première version, épaule droite
   et visée à gauche, et `?p1vise=x,y,z` : point visé par le personnage 1)

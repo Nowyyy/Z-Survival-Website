@@ -2,6 +2,9 @@
 // dessus. Le site est de la même origine : une feuille de style est ajoutée dans l'aperçu seulement pour rendre son fond transparent,
 // masquer l'image animée du site (affiche ; la vidéo n'est pas chargée : ?video=0, lot 2b) et rester sur l'accueil.
 // Paramètres transmis : ?t= (image fixe de la scène), ?lang=fr|en (langue du site), ?capture=1 (sans la note).
+// Lot 6a (demande du propriétaire : tout consulter au même endroit) : le site s'ouvre avec ?apercu=armes (nouvelle section Armes, en
+// coulisses ; ?armes=0 pour la section actuelle), on peut faire défiler toute la page (les autres sections ont leur propre fond, la scène
+// ne se voit que derrière l'accueil), et #news, #characters, #weapons, #about ouvrent directement la section.
 const q = new URLSearchParams(location.search);
 const sceneParams = new URLSearchParams({ cadrage: q.get('cadrage') ?? 'B', format: 'plein' });
 if (q.get('t') !== null) sceneParams.set('t', q.get('t'));
@@ -12,7 +15,6 @@ const CSS = `
 html, body, .section-accueil { background: transparent !important; }
 .accueil-scene { background: none !important; }
 .accueil-affiche, .accueil-video { display: none !important; }
-.sections { overflow: hidden !important; }
 `;
 const neige = document.getElementById('neige');
 let site = null; // cadre du site, créé une fois la scène prête
@@ -58,11 +60,13 @@ function relaisNeige() {
     const siteParams = new URLSearchParams({ video: '0' }); // la scène 3D tient lieu de vidéo
     if (q.get('lang')) siteParams.set('lang', q.get('lang'));
     if (q.get('bandeau')) siteParams.set('bandeau', q.get('bandeau'));
+    if (q.get('armes') !== '0') siteParams.set('apercu', 'armes'); // lot 6a : nouvelle section Armes
+    const ancre = /^#(news|characters|weapons|about)$/.test(location.hash) ? location.hash : '#accueil';
     site = document.createElement('iframe');
     site.id = 'site';
     site.className = 'couche';
     site.title = 'Accueil du site Z-Survival';
-    site.src = `../index.html${siteParams.size ? `?${siteParams}` : ''}#accueil`;
+    site.src = `../index.html${siteParams.size ? `?${siteParams}` : ''}${ancre}`;
     site.addEventListener('load', rendreTransparent); // filet de sécurité
     neige.before(site);
     return;

@@ -45,3 +45,9 @@ serveur pour afficher le bandeau.
 - Connexion : celle de l'admin. Ordre : celui de la liste. Si quelqu'un a modifié le fichier entre-temps, l'enregistrement est refusé
   (aucune écriture à l'aveugle).
 - Pas encore de dates de début et de fin par message (un message se cache ou se montre à la main).
+
+## Armes de la section Armes — `contenus/armes.json` (lot 6a)
+
+Noms, catégories, ordre et descriptions FR / EN des armes du jeu (section Armes, en coulisses derrière l'interrupteur
+`SECTION_ARMES_ACTIVE`). Mis à jour par `node outils/armes/copier-armes.mjs`, qui ne touche jamais aux descriptions. Format et marche à
+suivre : `Docs/ref/armes.md`.

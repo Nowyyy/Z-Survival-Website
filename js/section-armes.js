@@ -1,0 +1,292 @@
+// Lot 6a — Nouvelle section Armes : toutes les armes du jeu, une à la fois (grand visuel, nom, catégorie, description), statistiques
+// en « Prochainement » (aucun chiffre), liste de miniatures pour passer de l'une à l'autre.
+// Chargé SEULEMENT si l'interrupteur SECTION_ARMES_ACTIVE (js/donnees.js) est allumé, ou avec ?apercu=armes dans l'adresse
+// (js/site.js, import dynamique) : interrupteur éteint, ni ce module, ni sa feuille de style (css/section-armes.css), ni les données
+// (contenus/armes.json), ni les images (img/armes/) ne sont téléchargés, et la section reste l'encart « Prochainement ».
+// Données : contenus/armes.json (noms, catégories, ordre, descriptions FR / EN : Docs/ref/armes.md) ; libellés fixes : weapons.* de js/textes.js.
+// Visuels : img/armes/<id>.webp (1200 × 600) et <id>-mini.webp (320 × 160), fabriqués depuis les modèles 3D du jeu (outils/armes/).
+// Aucun Three.js ici : seulement des images.
+import { langue, mouvementReduit, t } from './i18n.js';
+
+export const SOURCE_ARMES = 'contenus/armes.json';
+const FEUILLE = 'css/section-armes.css';
+export const FAMILLES = ['poing', 'epaule', 'lourde', 'speciale'];
+// Barres du panneau « Prochainement » : purement décoratives, identiques pour toutes les armes (elles ne disent rien de l'arme).
+const STATS = ['degats', 'cadence', 'portee', 'chargeur'];
+const BARRES_DECOR = [0.72, 0.48, 0.62, 0.38];
+
+const image = (id, mini = false) => `img/armes/${id}${mini ? '-mini' : ''}.webp`;
+const deuxChiffres = (n) => String(n).padStart(2, '0');
+const remplacer = (texte, valeurs) => texte.replace(/\{(\w+)\}/g, (_, k) => String(valeurs[k] ?? ''));
+
+function el(balise, classe, texte) {
+  const e = document.createElement(balise);
+  if (classe) e.className = classe;
+  if (texte != null) e.textContent = texte;
+  return e;
+}
+
+function chargerFeuille() {
+  if (document.querySelector(`link[href="${FEUILLE}"]`)) return Promise.resolve();
+  return new Promise((ok) => {
+    const lien = document.createElement('link');
+    lien.rel = 'stylesheet';
+    lien.href = FEUILLE;
+    lien.onload = ok;
+    lien.onerror = ok;
+    document.head.append(lien);
+  });
+}
+
+// Armes lisibles, rangées : par famille (dans l'ordre où chaque famille apparaît), puis par « ordre ».
+export function lireArmes(json) {
+  const liste = (Array.isArray(json?.armes) ? json.armes : [])
+    .filter((a) => a && typeof a.id === 'string' && /^[a-z0-9-]+$/.test(a.id) && typeof a.nom === 'string')
+    .map((a, i) => ({ ...a, ordre: Number.isFinite(a.ordre) ? a.ordre : 1000 + i, famille: FAMILLES.includes(a.famille) ? a.famille : 'epaule' }))
+    .sort((a, b) => a.ordre - b.ordre);
+  const familles = [...new Set(liste.map((a) => a.famille))];
+  return liste.sort((a, b) => familles.indexOf(a.famille) - familles.indexOf(b.famille) || a.ordre - b.ordre);
+}
+
+const nomDe = (a) => (langue() === 'en' && a.nomEn ? a.nomEn : a.nom);
+const descriptionDe = (a) => (langue() === 'en' ? a.description?.en || a.description?.fr : a.description?.fr || a.description?.en) || '';
+function categorieDe(a) {
+  const cle = `weapons.categories.${a.categorie}`;
+  const v = t(cle);
+  return v === cle ? String(a.categorie ?? '').replace(/-/g, ' ') : v;
+}
+
+// Installe la section dans <section id="weapons"> ; renvoie { majLangue() } (textes à refaire au changement de langue).
+export async function installerSectionArmes(section) {
+  const interieur = section.querySelector('.section-interieur');
+  section.classList.remove('est-a-venir');
+  section.classList.add('section-arsenal');
+  interieur.querySelectorAll(':scope > :not(.section-entete)').forEach((n) => n.remove());
+
+  const corps = el('div', 'arsenal');
+  corps.dataset.etat = 'chargement';
+  interieur.append(corps);
+  let armes = [];
+  try {
+    const [r] = await Promise.all([fetch(SOURCE_ARMES, { cache: 'no-cache' }), chargerFeuille()]);
+    if (!r.ok) throw new Error(String(r.status));
+    armes = lireArmes(await r.json());
+    if (!armes.length) throw new Error('aucune arme');
+  } catch {
+    await chargerFeuille();
+    corps.dataset.etat = 'erreur';
+    const p = el('p', 'arsenal-erreur revele', t('weapons.erreur'));
+    p.dataset.t = 'weapons.erreur';
+    corps.append(p);
+    return { majLangue() { p.textContent = t('weapons.erreur'); } };
+  }
+  corps.dataset.etat = 'pret';
+
+  // --- Scène : grand visuel (nom en filigrane derrière, halo rouge), flèches posées sur ses bords ---
+  const scene = el('div', 'arsenal-scene revele');
+  scene.style.setProperty('--i', '1');
+  const filigrane = el('span', 'arsenal-filigrane');
+  filigrane.setAttribute('aria-hidden', 'true');
+  const cadre = el('div', 'arsenal-cadre');
+  const visuel = el('img', 'arsenal-visuel');
+  visuel.width = 1200;
+  visuel.height = 600;
+  visuel.decoding = 'async';
+  visuel.loading = 'lazy';
+  cadre.append(visuel);
+  const fleches = [-1, 1].map((sens) => {
+    const b = el('button', `news-fleche arsenal-fleche arsenal-fleche-${sens < 0 ? 'precedente' : 'suivante'}`);
+    b.type = 'button';
+    b.dataset.sens = String(sens);
+    b.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${sens < 0 ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'}"/></svg>`;
+    b.addEventListener('click', () => choisir(courant + sens, { focus: false }));
+    return b;
+  });
+  scene.append(filigrane, cadre, ...fleches);
+
+  // --- Carte d'infos : catégorie, nom, compteur, description ---
+  const infos = el('div', 'arsenal-infos revele');
+  infos.style.setProperty('--i', '2');
+  const ligne = el('p', 'arsenal-ligne');
+  const categorie = el('span', 'arsenal-categorie');
+  const compteur = el('span', 'arsenal-compteur');
+  compteur.setAttribute('aria-hidden', 'true');
+  ligne.append(categorie, compteur);
+  const nom = el('h3', 'arsenal-nom');
+  const description = el('p', 'arsenal-description');
+  const annonce = el('p', 'actu-cache');
+  annonce.setAttribute('aria-live', 'polite');
+  infos.append(ligne, nom, description, annonce);
+
+  // --- Statistiques : barres floutées, sans aucun chiffre, sous l'encart « Prochainement » ---
+  const stats = el('div', 'arsenal-stats revele');
+  stats.style.setProperty('--i', '3');
+  const statsTitre = el('p', 'arsenal-stats-titre');
+  const grille = el('div', 'arsenal-stats-grille');
+  grille.setAttribute('aria-hidden', 'true');
+  const libelles = STATS.map((cle, i) => {
+    const l = el('span', 'arsenal-stat-nom');
+    const barre = el('span', 'arsenal-stat-barre');
+    const remplissage = el('span', 'arsenal-stat-remplissage');
+    remplissage.style.setProperty('--valeur', String(BARRES_DECOR[i]));
+    barre.append(remplissage);
+    const ligneStat = el('span', 'arsenal-stat');
+    ligneStat.append(l, barre);
+    grille.append(ligneStat);
+    return { cle, l };
+  });
+  const tampon = el('span', 'arsenal-stats-tampon');
+  const statsCachees = el('span', 'actu-cache');
+  stats.append(statsTitre, grille, tampon, statsCachees);
+
+  const fiche = el('div', 'arsenal-fiche');
+  fiche.append(infos, stats);
+
+  // --- Miniatures, rangées par famille ---
+  const liste = el('div', 'arsenal-liste revele');
+  liste.style.setProperty('--i', '4');
+  const familles = [...new Set(armes.map((a) => a.famille))];
+  const titresFamilles = [];
+  const boutons = [];
+  familles.forEach((f) => {
+    const groupe = el('div', 'arsenal-groupe');
+    const titre = el('span', 'arsenal-groupe-nom');
+    titre.id = `arsenal-famille-${f}`;
+    titresFamilles.push({ f, titre });
+    const ul = el('ul', 'arsenal-groupe-armes');
+    ul.setAttribute('aria-labelledby', titre.id);
+    armes.forEach((a, i) => {
+      if (a.famille !== f) return;
+      const li = el('li');
+      const b = el('button', 'arsenal-miniature');
+      b.type = 'button';
+      b.dataset.arme = a.id;
+      const img = el('img', 'arsenal-miniature-image');
+      img.src = image(a.id, true);
+      img.alt = '';
+      img.width = 320;
+      img.height = 160;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      const n = el('span', 'arsenal-miniature-nom');
+      b.append(img, n);
+      b.addEventListener('click', () => choisir(i, { focus: false }));
+      li.append(b);
+      ul.append(li);
+      boutons[i] = b;
+    });
+    groupe.append(titre, ul);
+    liste.append(groupe);
+  });
+  corps.append(scene, fiche, liste);
+
+  // Glisser du doigt sur le grand visuel : arme précédente / suivante (le défilement vertical des sections reste au navigateur).
+  let depart = null;
+  cadre.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') depart = { x: e.clientX, y: e.clientY }; });
+  cadre.addEventListener('pointerup', (e) => {
+    if (!depart) return;
+    const dx = e.clientX - depart.x;
+    const dy = e.clientY - depart.y;
+    depart = null;
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5) choisir(courant + (dx < 0 ? 1 : -1), { focus: false });
+  });
+  cadre.addEventListener('pointercancel', () => { depart = null; });
+
+  // Clavier : ← → changent d'arme quand la section Armes est affichée (les flèches ↑ ↓ restent au défilement des sections, js/site.js).
+  document.addEventListener('keydown', (e) => {
+    if (e.altKey || e.ctrlKey || e.metaKey || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+    if (document.body.dataset.section !== 'weapons' || document.getElementById('actu-vue')?.open) return;
+    if (e.target instanceof HTMLElement && e.target.closest('input, textarea, select, [contenteditable="true"], .langue-menu')) return;
+    e.preventDefault();
+    const dansListe = liste.contains(document.activeElement);
+    choisir(courant + (e.key === 'ArrowRight' ? 1 : -1), { focus: dansListe });
+  });
+
+  let courant = -1;
+  let jeton = 0;
+  // Fait défiler la liste (horizontalement seulement : jamais la page) pour montrer la miniature choisie.
+  function montrerMiniature(b) {
+    const lb = liste.getBoundingClientRect();
+    const bb = b.getBoundingClientRect();
+    const marge = 24;
+    let dx = 0;
+    if (bb.left < lb.left + marge) dx = bb.left - lb.left - marge;
+    else if (bb.right > lb.right - marge) dx = bb.right - lb.right + marge;
+    if (dx) liste.scrollBy({ left: dx, behavior: mouvementReduit() ? 'auto' : 'smooth' });
+  }
+
+  function textes() {
+    const a = armes[courant];
+    const n = nomDe(a);
+    categorie.textContent = categorieDe(a);
+    compteur.textContent = `${deuxChiffres(courant + 1)} / ${deuxChiffres(armes.length)}`;
+    nom.textContent = n;
+    filigrane.textContent = n;
+    description.textContent = descriptionDe(a);
+    visuel.alt = remplacer(t('weapons.visuelAlt'), { nom: n });
+    annonce.textContent = `${remplacer(t('weapons.position'), { n: courant + 1, total: armes.length })} : ${n}, ${categorieDe(a)}`;
+  }
+
+  function choisir(i, { focus = false, premiere = false } = {}) {
+    const j = (i + armes.length) % armes.length;
+    if (j === courant && !premiere) return;
+    const sens = courant < 0 ? 0 : Math.sign(i - courant) || 1;
+    courant = j;
+    const a = armes[j];
+    boutons.forEach((b, k) => {
+      b.setAttribute('aria-pressed', String(k === j));
+      b.tabIndex = k === j ? 0 : -1;
+    });
+    textes();
+    if (premiere) annonce.textContent = '';
+    // Entrée animée sobre : l'image arrive du côté du changement, le texte remonte (rien en mouvement réduit).
+    const n = ++jeton;
+    corps.dataset.arme = a.id;
+    corps.style.setProperty('--sens', String(sens));
+    if (!premiere && !mouvementReduit()) {
+      corps.classList.remove('arsenal-change');
+      void corps.offsetWidth;
+      corps.classList.add('arsenal-change');
+    }
+    visuel.classList.add('arsenal-visuel-attente');
+    visuel.onload = () => { if (n === jeton) visuel.classList.remove('arsenal-visuel-attente'); };
+    visuel.src = image(a.id);
+    if (visuel.complete) visuel.classList.remove('arsenal-visuel-attente');
+    montrerMiniature(boutons[j]);
+    if (focus) boutons[j].focus({ preventScroll: true });
+    // Les voisines se chargent en avance, une fois l'image affichée.
+    if (!premiere) [j + 1, j - 1].forEach((k) => { new Image().src = image(armes[(k + armes.length) % armes.length].id); });
+  }
+  corps.addEventListener('animationend', (e) => { if (e.animationName === 'arsenal-entree-visuel') corps.classList.remove('arsenal-change'); });
+
+  // Liste au clavier : flèches entre les miniatures (une seule miniature dans l'ordre de tabulation, celle de l'arme choisie).
+  liste.addEventListener('keydown', (e) => {
+    if (e.key === 'Home' || e.key === 'End') {
+      e.preventDefault();
+      e.stopPropagation();
+      choisir(e.key === 'Home' ? 0 : armes.length - 1, { focus: true });
+    }
+  });
+
+  function majLangue() {
+    statsTitre.textContent = t('weapons.statsTitre');
+    tampon.textContent = t('commun.comingSoon');
+    statsCachees.textContent = t('weapons.statsCachees');
+    libelles.forEach(({ cle, l }) => { l.textContent = t(`weapons.stats.${cle}`); });
+    titresFamilles.forEach(({ f, titre }) => { titre.textContent = t(`weapons.familles.${f}`); });
+    liste.setAttribute('aria-label', t('weapons.liste2'));
+    fleches[0].setAttribute('aria-label', t('weapons.precedente'));
+    fleches[1].setAttribute('aria-label', t('weapons.suivante'));
+    boutons.forEach((b, i) => {
+      const a = armes[i];
+      b.querySelector('.arsenal-miniature-nom').textContent = nomDe(a);
+      b.setAttribute('aria-label', `${nomDe(a)} — ${categorieDe(a)}`);
+    });
+    textes();
+    annonce.textContent = '';
+  }
+
+  choisir(0, { premiere: true });
+  majLangue();
+  return { majLangue };
+}
