@@ -619,7 +619,7 @@ export function creerApp({ config, db, journal, maintenant = () => Date.now(), f
     const { armes, sha } = validerArmes(await lireJson(c));
     const r = await ecrireArmes({ config, fetchGithub, armes, sha });
     journal.info('Armes modifiées', { envoyees: armes.length, affichees: r.armes.filter((a) => !a.prochainement).length });
-    return c.json({ armes: r.armes, sha: r.sha });
+    return c.json({ armes: r.armes, chapitres: r.chapitres, sha: r.sha });
   });
 
   app.notFound((c) => c.json({ erreur: 'Introuvable.' }, 404));
