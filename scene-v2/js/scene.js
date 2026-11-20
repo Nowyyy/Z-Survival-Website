@@ -12,11 +12,11 @@ import { CADRAGES, FORMATS } from './cadrages.js';
 import { MILITAIRE, enrichirPersonnages, enrichirPoses, peindreBarbe, texturerGilet, texturesFines } from './enrichissements.js';
 import { creerFeu } from './feu.js';
 import { creerHelico } from './helico.js';
-import { TIR, TIR_P2, creerTir, ejectionKar, manoeuvreAt } from './tir.js';
+import { GLISSIERE, TIR, TIR_P2, creerTir, ejectionKar, finManoeuvre, glissiereAt, manoeuvreAt } from './tir.js';
 import { chargerArmes, creerFabriqueArmes } from './armes.js';
 import { chargerDonnees, construireMonde } from './monde.js';
 import { creerKit, posable } from './persos.js';
-import { ATELIER, DETAILS, ECHELLE_SCENE, FUSIL, PLACEMENT, PRISES, TIREUR, appuiAt, poseP1, poseP2, poseZombie } from './poses.js';
+import { ATELIER, DETAILS, ECHELLE_SCENE, FUSIL, PLACEMENT, PRISES, REGARD, TIREUR, regardP1, appuiAt, poseP1, poseP2, poseZombie } from './poses.js';
 
 const q = new URLSearchParams(location.search);
 const etat = document.getElementById('etat');
@@ -93,6 +93,7 @@ try {
   const kar = fabrique.creer('kar98k');
   const colt = fabrique.creer('m1911');
   p1.bones.get('prop').add(kar.group);
+  REGARD.debutP1 = TIR + finManoeuvre(kar) + REGARD.apresVerrou; // coup d'œil du personnage 1 après le réarmement
   p2.bones.get('prop').add(colt.group);
   const zb = posable(kit.create('zombie', 0, { outfit: 3, wear: 2 }), ECHELLE_SCENE);
   zb.char.setWound(1);
@@ -107,7 +108,7 @@ try {
   const tir = creerTir({ palette, laiton, echelle: ECHELLE_SCENE, arme: kar, ejection: ejectionKar(kar), fenetre: new THREE.Vector3(-0.7, 1.1, -2.2), force: 1.15, camera: () => window.__plan ?? camera, vol: { cote: 180, haut: 70 } });
   scene.add(tir.group);
   // Détails : coup de feu du personnage 2 sur le zombie (TIR_P2).
-  const tir2 = details ? creerTir({ palette, laiton, echelle: ECHELLE_SCENE, instant: TIR_P2, lumiereMax: 1100, arme: colt, fenetre: new THREE.Vector3(-0.6, 1.9, 0.6), force: 0.8, camera: () => window.__plan ?? camera, vol: { cote: 250, haut: 120, ecran: 1 } }) : null; // canon vers le bas, tout près de lui : éclat plus faible
+  const tir2 = details ? creerTir({ palette, laiton, echelle: ECHELLE_SCENE, instant: TIR_P2, lumiereMax: 1100, arme: colt, ejection: GLISSIERE.recul, fenetre: new THREE.Vector3(-0.6, 1.9, 0.6), force: 0.8, camera: () => window.__plan ?? camera, vol: { cote: 250, haut: 120, ecran: 1 } }) : null; // canon vers le bas, tout près de lui : éclat plus faible
   if (tir2) scene.add(tir2.group);
 
   // Lampe frontale du personnage 2 (variante B du jeu) : un faisceau faible vers la tête du zombie.
@@ -195,6 +196,7 @@ try {
     feuHelico.update(u);
     tir.update(u, p1.bones.get('prop'), ECHELLE_SCENE);
     tir2?.update(u, p2.bones.get('prop'), ECHELLE_SCENE);
+    colt.glissiere?.poser(details ? glissiereAt(u, TIR_P2) : 0); // glissière du Colt qui recule au tir
     // Rotor de queue : un tour par boucle (au ralenti), boucle parfaite.
     if (heli.userData.rotor) heli.userData.rotor.pivot.quaternion.setFromAxisAngle(heli.userData.rotor.axe, (2 * Math.PI * u) / DUREE);
     p2.bones.get('head').localToWorld(q.get('p2') === 'civil' ? frontale.position.set(0, 7, 5) : frontale.position.set(-5.2, 7.3, 2.4)); // lampe frontale ou lampe du casque
@@ -276,7 +278,7 @@ try {
     fps: () => fps.value,
     // v2 (contrôle, scene-v2/outils/verifier.mjs) : éclair visible au canon de chaque tireur [personnage 1, personnage 2] à l'image affichée.
     eclairs: () => [tir, tir2].map((x) => Boolean(x?.group.children[0].visible)),
-    atelier: { p1, p2, zb, stage, THREE, kar, colt, ATELIER, FUSIL, PRISES, manoeuvreAt, tir, tir2, camera },
+    atelier: { p1, p2, zb, stage, THREE, kar, colt, ATELIER, FUSIL, PRISES, manoeuvreAt, tir, tir2, camera, regardP1 },
     armes: { p1: { id: kar.id, nom: kar.nom, variante: kar.variante, triangles: kar.triangles }, p2: { id: colt.id, nom: colt.nom, variante: colt.variante, triangles: colt.triangles } },
     info: () => ({ cadrage, format, duree: DUREE, taille: [toile.width, toile.height], triangles: renderer.info.render.triangles, appels: renderer.info.render.calls }),
   };

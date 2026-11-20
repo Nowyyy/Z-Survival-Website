@@ -135,6 +135,18 @@ refaite.
 - Vérifications : `node scene-v2/outils/verifier.mjs` 47/47 ; boucle portrait parfaite (jonction 0,48, moyenne 0,61) ; douille du Colt
   toujours vers le bord droit (sortie en 0,1 s environ) ; planche refaite.
 
+## Quatrième retour (20/11/2026, branche `accueil-v2-retours-4`)
+1. **Coup d'œil du personnage 1 après le réarmement** : il tourne la tête 0,25 s après avoir fini de manœuvrer le verrou (main revenue vers
+   6,6 s) : de 6,9 s environ jusqu'au début de la boucle suivante (vers 0,7 s), même mouvement que la v1. Jamais pendant la manœuvre (vérifié
+   sur toute la boucle). Cela tranche la question 3.
+2. **Arme du personnage 2** : le Colt M1911 est un pistolet semi-automatique : au tir, ce n'est pas la crosse mais la **glissière** (le dessus
+   de l'arme) qui bouge : elle recule, éjecte la douille, puis revient en avant en chargeant la cartouche suivante. Animée ainsi : recul en
+   0,05 s, la douille sort, retour en 0,08 s (un peu plus lent qu'en vrai pour se voir à 30 images par seconde). Vue de la caméra du cadrage B,
+   elle est en partie cachée par les mains du personnage 2.
+
+Vérifications : `node scene-v2/outils/verifier.mjs` **51/51** (deux contrôles ajoutés : coup d'œil jamais pendant la manœuvre, glissière qui
+recule puis revient) ; boucle parfaite (paysage 0,50 pour une moyenne de 0,56 ; portrait 0,48 pour 0,61) ; planche refaite.
+
 ## État git
 - Commits `accueil-v2 A` à `accueil-v2 E` sur la branche `accueil-v2` (poussée), PR vers `main` fusionnée par l'agent (règle de
   `CLAUDE.md`) : rien n'est visible des visiteurs.

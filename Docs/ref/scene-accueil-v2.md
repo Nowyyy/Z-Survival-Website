@@ -52,6 +52,10 @@ personnage 1, tenues, visages, barbe, gilets.
   de 5,6 à 6,6 s environ, **réarmement** : le levier du Kar98k est à droite, c'est la main droite qui quitte le garde-main, relève le levier,
   tire la culasse (**la douille sort à ce moment**, comme dans le jeu), la repousse, rabat le levier et revient. Tout est fini bien avant la
   fin de la boucle.
+- **Coup d'œil du personnage 1 après le réarmement** (retour du propriétaire) : il tourne la tête hors champ 0,25 s après avoir fini de manœuvrer
+  le verrou (main revenue à sa place, vers 6,6 s ; `REGARD` dans `scene-v2/js/poses.js`, début calculé depuis les clés de la manœuvre du jeu) :
+  début vers 6,9 s, même mouvement que la v1 (aller 0,6 s, tenue 0,55 s, retour 0,7 s). Il finit au début de la boucle suivante (vers 0,7 s),
+  bien avant l'affiche de 1,9 s ; la fonction est périodique, la boucle reste parfaite. Jamais pendant la manœuvre (vérifié).
 - Point visé et orientation du personnage 1 réglés par tireur et par format (`placement.p1Cap`, `placement.p1Vise` dans
   `scene-v2/js/cadrages.js`) pour que la bouche du fusil et l'éclair restent dans l'image.
 - **Téléphone** : un peu d'espace entre les deux personnages (`placement` du cadrage B portrait, `scene-v2/js/cadrages.js`) : personnage 1 à
@@ -60,6 +64,12 @@ personnage 1, tenues, visages, barbe, gilets.
 - **Personnage 2 au Colt** : même pose que la v1 (pied sur le dos du zombie, canon pointé sur sa tête), mains aux prises du Colt
   (`PRISES.m1911` : poing droit autour de la poignée, main gauche qui l'enveloppe), arme un peu plus près du corps (le Colt est plus petit
   que l'ancien pistolet).
+- **Glissière du Colt** (retour du propriétaire) : le M1911 est un pistolet semi-automatique ; au coup de feu, sa glissière (le dessus de
+  l'arme) recule, éjecte la douille, puis revient en avant en chargeant la cartouche suivante. Dans la scène : recul de 24 mm en 0,05 s, 0,03 s
+  en arrière (la douille sort à ce moment), retour en 0,08 s (`GLISSIERE` et `glissiereAt` dans `scene-v2/js/tir.js`), un peu plus lent qu'en
+  vrai pour se voir à 30 images par seconde. Le modèle du jeu n'a qu'un maillage : les pièces de la glissière (glissière, bague, guidon,
+  hausse, fenêtre d'éjection) sont reconnues par leur place dans le modèle (`estGlissiere`, `scene-v2/js/armes.js`) ; si le jeu change ce
+  modèle, l'arme reste entière, sans animation.
 - **Douilles** (`scene-v2/js/tir.js`, `DOUILLE`) : éjectées du côté droit de l'arme, vers le bord de l'image de ce côté et vers le haut, puis
   pesanteur ; elles volent **jusqu'à sortir de l'image** (elles sont cachées seulement une fois hors du champ de la caméra, jamais en l'air)
   et restent au-dessus du sol. Kar98k : quand la culasse est tirée (vers 6,0 s), sortie par le bord gauche en 0,3 s environ ; Colt : au coup
