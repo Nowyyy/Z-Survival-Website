@@ -1,0 +1,56 @@
+{
+  "_note": "Écrit par outils/video/fabriquer.mjs (lot 2b). Une nouvelle exécution doit redonner les mêmes empreintes.",
+  "scene": "v2 (scene-v2/, lot 5a) : pas encore en place sur le site",
+  "boucle": {
+    "duree": 8,
+    "imagesParSeconde": 30,
+    "images": 240,
+    "tempsTir": 5.2,
+    "tempsTirs": [
+      2.6,
+      5.2
+    ],
+    "tempsAffiche": 1.9
+  },
+  "encodage": {
+    "codec": "H.264 High 4.0, yuv420p, deux passes",
+    "debit": "2600k",
+    "debitMax": "4200k",
+    "imageCle": "2 s",
+    "son": "aucun",
+    "faststart": true,
+    "afficheWebp": 78
+  },
+  "formats": {
+    "ordinateur": {
+      "scene": "paysage",
+      "largeur": 1920,
+      "hauteur": 1080,
+      "fichier": "accueil-16x9"
+    },
+    "telephone": {
+      "scene": "portrait",
+      "largeur": 1080,
+      "hauteur": 1920,
+      "fichier": "accueil-9x16"
+    }
+  },
+  "fichiers": {
+    "accueil-16x9.mp4": {
+      "octets": 2572807,
+      "sha256": "dab68e2587bf1481d83df9ea6164cc2105c59aaf5e7b8f487ec73bd461dac721"
+    },
+    "accueil-16x9.webp": {
+      "octets": 38838,
+      "sha256": "a599c2e9b29e791158776c7115c9cd991304ecad1ef65c4f647ea8ad36cf2698"
+    },
+    "accueil-9x16.mp4": {
+      "octets": 2578411,
+      "sha256": "6ee8a83079ae2b49187b53c7105a89839de2979248df12c39ee9034498e165ca"
+    },
+    "accueil-9x16.webp": {
+      "octets": 29836,
+      "sha256": "24324c5ba48c935de7a0ab7d7bcdcf7825b279a6adf8dde0f498a1a03e4146d8"
+    }
+  }
+}
