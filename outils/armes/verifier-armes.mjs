@@ -1,10 +1,14 @@
 // Lot 6a — Vérification légère de la section Armes, sur une copie exacte de ce que publie le workflow (servie à la racine) :
 //   node outils/armes/verifier-armes.mjs
 // Tailles : téléphone 375 × 667 et 320 × 568, paysage 667 × 375, ordinateur 1440 × 900 ; avec et sans mouvement réduit ; français et anglais.
+// L'interrupteur (js/donnees.js) est simulé à la volée dans chaque cas (le fichier n'est pas modifié). Les cas 2 et 3 lisent un jeu de
+// données de test (contenus/armes.json avec 8 armes affichées et 2 secrètes, statistiques masquées) pour ne pas dépendre des réglages du
+// propriétaire (page « Armes » de l'admin) ; le cas 4 lit le vrai fichier.
 // 1. Interrupteur éteint, sans paramètre : section « Prochainement » d'avant, aucune requête vers les fichiers de la nouvelle section.
-// 2. ?apercu=armes : toutes les armes, changement d'arme au toucher / au clic / au clavier, stats sans aucun chiffre, aucun chevauchement,
-//    textes traduits.
-// 3. Interrupteur allumé (simulé : js/donnees.js réécrit à la volée, le fichier n'est pas modifié) : même rendu que l'aperçu.
+// 2. Éteint avec ?apercu=armes : toutes les armes, changement d'arme au toucher / au clic / au clavier, stats sans aucun chiffre, aucun
+//    chevauchement, textes traduits.
+// 3. Interrupteur allumé, sans paramètre : même rendu que l'aperçu.
+// 4. Tel que publié (vrai interrupteur, vrai fichier) : section chargée, armes secrètes en « ? » sans que leurs images soient demandées.
 // Partout : aucune erreur console, aucun fichier manquant. Actualités simulées (aucun article) : leurs contrôles sont dans outils/admin/.
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -13,7 +17,10 @@ import { servirCopiePubliee, simulerActualites } from '../copie-publiee.mjs';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
-const ARMES = JSON.parse(readFileSync(new URL('../../contenus/armes.json', import.meta.url), 'utf8')).armes;
+const REEL = JSON.parse(readFileSync(new URL('../../contenus/armes.json', import.meta.url), 'utf8'));
+const SECRETES_TEST = ['panzerschreck', 'm2lanceflammes'];
+const FIXTURE = { ...REEL, armes: REEL.armes.map((a) => ({ ...a, prochainement: SECRETES_TEST.includes(a.id), statsVisibles: false })) };
+const ARMES = FIXTURE.armes;
 const NOUVEAUX = /img\/armes\/|contenus\/armes\.json|section-armes\.(js|css)/;
 const TAILLES = [[375, 667, true], [320, 568, true], [667, 375, true], [1440, 900, false]];
 
@@ -33,7 +40,7 @@ const navigateur = await chromium.launch();
 const resultats = [];
 const verifier = (nom, ok, detail = '') => { resultats.push({ nom, ok, detail }); if (!ok) console.log(`ÉCHEC  ${nom} ${detail}`); };
 
-async function ouvrir({ w, h, tactile, reduit, lang, requete = '', allume = false }) {
+async function ouvrir({ w, h, tactile, reduit, lang, requete = '', allume = false, reel = false }) {
   const ctx = await navigateur.newContext({ viewport: { width: w, height: h }, hasTouch: tactile, isMobile: tactile, reducedMotion: reduit ? 'reduce' : 'no-preference' });
   const page = await ctx.newPage();
   const erreurs = [];
@@ -43,11 +50,12 @@ async function ouvrir({ w, h, tactile, reduit, lang, requete = '', allume = fals
   page.on('request', (r) => requetes.push(r.url()));
   page.on('response', (r) => { if (r.status() >= 400) erreurs.push(`${r.status()} ${r.url()}`); });
   await simulerActualites(page);
-  if (allume) {
+  if (!reel) {
     await page.route('**/js/donnees.js', async (route) => {
       const r = await route.fetch();
-      await route.fulfill({ response: r, body: (await r.text()).replace('SECTION_ARMES_ACTIVE = false', 'SECTION_ARMES_ACTIVE = true') });
+      await route.fulfill({ response: r, body: (await r.text()).replace(/SECTION_ARMES_ACTIVE = (true|false)/, `SECTION_ARMES_ACTIVE = ${allume}`) });
     });
+    await page.route('**/contenus/armes.json', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(FIXTURE) }));
   }
   const params = new URLSearchParams(requete);
   params.set('lang', lang);
@@ -76,6 +84,26 @@ for (const [w, h, tactile] of TAILLES) {
         const vus = requetes.filter((u) => NOUVEAUX.test(u));
         verifier(`${cas} éteint : aucun fichier de la nouvelle section`, vus.length === 0, vus.join(' '));
         verifier(`${cas} éteint : console propre`, erreurs.length === 0, erreurs.join(' | '));
+        await ctx.close();
+      }
+      // 4. Tel que publié : vrai interrupteur, vrai fichier (une fois par taille, en français).
+      if (!reduit && lang === 'fr') {
+        const { ctx, page, erreurs, requetes } = await ouvrir({ w, h, tactile, reduit, lang, reel: true });
+        const { SECTION_ARMES_ACTIVE } = await import(new URL('../../js/donnees.js', import.meta.url).href);
+        if (SECTION_ARMES_ACTIVE) {
+          await page.waitForSelector('.arsenal[data-etat="pret"]');
+          const etat = await page.evaluate(() => ({
+            miniatures: document.querySelectorAll('.arsenal-miniature').length,
+            mysteres: [...document.querySelectorAll('.arsenal-miniature')].filter((b) => b.textContent.trim() === '?').map((b) => b.dataset.arme).sort().join(','),
+          }));
+          const secretes = REEL.armes.filter((a) => a.prochainement).map((a) => a.id);
+          verifier(`${cas} publié : ${REEL.armes.length} armes, ${secretes.length} en « ? »`, etat.miniatures === REEL.armes.length && etat.mysteres === [...secretes].sort().join(','), JSON.stringify(etat));
+          const vues = requetes.filter((u) => secretes.some((id) => u.includes(`img/armes/${id}`)));
+          verifier(`${cas} publié : images des armes secrètes jamais demandées`, vues.length === 0, vues.join(' '));
+        } else {
+          verifier(`${cas} publié (interrupteur éteint) : encart d'avant`, await page.evaluate(() => document.getElementById('weapons').classList.contains('est-a-venir')));
+        }
+        verifier(`${cas} publié : console propre`, erreurs.length === 0, erreurs.join(' | '));
         await ctx.close();
       }
       // 2. Aperçu (et 3. interrupteur allumé, à une taille par appareil, avec capture comparée).

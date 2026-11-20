@@ -53,7 +53,7 @@ console.log('\n# Ouverture');
 const { page, contexte, erreurs } = await nouvellePage();
 await connecter(page);
 const ordre = await page.$$eval('.admin-pages button', (bs) => bs.map((b) => b.id));
-verifier(ordre.join() === 'ouvrir-page-a-propos,ouvrir-bandeau,ouvrir-partage', `« Pages du site » : « À propos », « Bandeau d’alerte », puis « Aperçu de partage » (lot 3f) (${ordre.join(', ')})`);
+verifier(ordre.slice(0, 3).join() === 'ouvrir-page-a-propos,ouvrir-bandeau,ouvrir-partage', `« Pages du site » : « À propos », « Bandeau d’alerte », puis « Aperçu de partage » (lot 3f) (${ordre.join(', ')})`);
 await page.click('#ouvrir-bandeau');
 await page.waitForSelector('#ecran-bandeau:not([hidden])');
 let liste = await textesListe(page);

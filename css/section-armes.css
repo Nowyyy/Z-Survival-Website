@@ -179,6 +179,10 @@
   transform-origin: left;
   transform: scaleX(var(--valeur, 0.5));
 }
+/* Statistiques affichées (réglées depuis l'admin) : vraies barres, nettes, sans encart ; elles glissent d'une arme à l'autre. */
+.arsenal.stats-visibles .arsenal-stats-grille { opacity: 1; filter: none; }
+.arsenal.stats-visibles .arsenal-stats-tampon { display: none; }
+.arsenal.stats-visibles .arsenal-stat-remplissage { transition: transform 400ms var(--courbe); }
 .arsenal-stats-tampon {
   position: absolute;
   left: 50%;
@@ -371,5 +375,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .arsenal-change .arsenal-visuel, .arsenal-change .arsenal-filigrane, .arsenal-change .arsenal-infos > * { animation: none; }
-  .arsenal-visuel, .arsenal-miniature { transition: none; }
+  .arsenal-visuel, .arsenal-miniature, .arsenal.stats-visibles .arsenal-stat-remplissage { transition: none; }
 }

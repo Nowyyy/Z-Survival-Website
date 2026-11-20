@@ -113,9 +113,35 @@ Aucun chiffre, ton « survie » ; vouvoiement comme le reste du site.
   sans forme ni nom ni texte qui la trahisse, images des armes à venir jamais demandées, filigrane de chaque arme sur deux lignes au plus et
   dans le cadre, aux quatre tailles).
 
+## Publication et page « Armes » de l'admin (branche `armes-publiees`, demande du propriétaire)
+« Je veux que ce lot puisse apparaître sur le site dès maintenant. Par défaut, toutes les armes en « ? ». Une page dans l'admin pour les
+activer comme je veux, rédiger les descriptions en français et en anglais, mettre à jour les statistiques ou les masquer. »
+- **Site** : `SECTION_ARMES_ACTIVE = true` (section publiée) ; les dix armes `"prochainement": true` (des « ? ») et statistiques masquées
+  par défaut. Une arme affichée avec `"statsVisibles": true` montre ses **vraies barres** (0 à 100, sans chiffre ; lecteurs d'écran :
+  « Dégâts : 35 sur 100 ») ; sinon les barres décoratives sous « Prochainement ».
+- **Serveur** (`serveur/src/armes.js`, commit à part) : `GET/PUT /api/admin/armes`, même principe et même jeton que le bandeau : réécrit
+  dans `contenus/armes.json` les quatre réglages (affichée, descriptions, stats, stats affichées) des armes envoyées, garde tout le reste,
+  même mise en forme que `copier-armes.mjs` (test qui le compare au vrai fichier) ; 409 si le fichier a changé ; description changée →
+  `aRelire: false`. Tests : **94/94** (`npm test` dans `serveur/`, dont 9 nouveaux).
+- **Admin** : « Pages du site → Modifier les armes (affichage, descriptions, statistiques) » : une fiche par arme (miniature, nom,
+  catégorie, « Afficher sur le site », descriptions FR / EN avec compteur, quatre statistiques 0 à 100 avec leur barre, « Afficher les
+  statistiques »), « Tout afficher » / « Tout cacher », « Voir la section sur le site », « Annuler les changements », « Enregistrer et
+  publier » ; texte gardé si la session expire ; mode d'emploi `Docs/ref/admin.md` (section 11).
+- `copier-armes.mjs` garde aussi `statsVisibles` (nouvelles armes : `false`).
+- Vérifications : `outils/admin/verifier-armes-admin.mjs` **25/25** (banc local : lecture, affichage, descriptions, stats, refus des
+  stats affichées sans valeur, commit « Z-Survival admin », reste du fichier intact, la section du site montre l'arme et ses vraies barres,
+  conflit refusé, annuler, 320 / 375 / 1440 px, zones de toucher de 44 px, aucun secret dans le journal) ; `outils/armes/verifier-armes.mjs`
+  **324/324** (interrupteur simulé dans chaque cas, données de test fixes pour ne pas dépendre des réglages de l'admin, plus un cas « tel que
+  publié » : dix « ? », aucune image d'arme secrète demandée) ; reste du site : accueil **174/174**, musique **158/158** (son contrôle « encart Prochainement » suit maintenant l'interrupteur :
+  seule Personnages le garde), actualités **248/248**, bandeau **29/29** (« Pages du site » : les trois premiers boutons inchangés, « Armes »
+  ajouté après), lot 3f **32/32**, lot 4a **87/87**, lot 4b **26/26**.
+- Ordre de mise en ligne : le serveur se déploie tout seul (`serveur.yml`, le commit touche `serveur/`) en même temps que le site ; tant
+  qu'il n'est pas redéployé, la page « Armes » de l'admin affiche une erreur (« Introuvable »), le site, lui, fonctionne (il lit le fichier).
+
 ## Limites
-- Les images de `img/armes/` et `contenus/armes.json` sont publiés avec le site : **accessibles à qui connaît leur adresse**, même si rien
-  n'y mène tant que l'interrupteur est éteint (comme `scene-v2/`).
+- Les images de `img/armes/` et `contenus/armes.json` sont publiés avec le site : une arme cachée n'est jamais montrée par la page (ni ses
+  images téléchargées), mais **quelqu'un qui ouvre ces fichiers à la main peut lire son nom et sa description** (et voir son image).
+  Pour un vrai secret, il faudrait garder les brouillons sur le serveur et n'écrire dans le fichier que les armes affichées (à décider).
 - Visuels dans le style « low poly » des modèles du jeu (pièces épaissies ×1,8 par le jeu pour la vue de dessus) : fidèles au jeu, pas des
   rendus détaillés. Le lance-flammes est montré avec ses réservoirs placés comme portés sur le dos.
 - Les noms des armes viennent du jeu, en français seulement : seul le lance-flammes a un nom anglais (`nomEn`, à relire).

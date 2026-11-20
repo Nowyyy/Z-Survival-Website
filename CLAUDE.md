@@ -63,6 +63,9 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
 - Aperçu de partage (lot 3f, `serveur/src/partage.js`) : l'admin modifie le titre et la description des balises Open Graph / Twitter
   d'`index.html` (seule source de ces textes) ; le serveur ne réécrit que ces quatre valeurs `content`, par l'API GitHub (même jeton, 409 si
   la page a changé entre-temps).
+- Armes (lot 6a, `serveur/src/armes.js`) : l'admin règle dans `contenus/armes.json` l'affichage (« ? »), les descriptions FR / EN, les
+  statistiques (0 à 100) et leur affichage ; même jeton et même principe que le bandeau (commit « Z-Survival admin », 409 si le fichier a
+  changé) ; le reste du fichier (venu du jeu par `outils/armes/copier-armes.mjs`) est gardé, même mise en forme que l'outil.
 - Connexion admin sans cookie (domaines différents) : jeton signé dans `Authorization: Bearer`. Migrations versionnées
   dans `serveur/migrations/` (nouveau fichier `NNN_…sql`, jamais modifier une migration déployée).
 
@@ -70,10 +73,10 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
 - `index.html` : **page unique**. Accueil plein écran (vidéo en boucle de la scène sur son affiche, encart « Disponible sur navigateur » en bas à gauche, logo du studio, globe
   Français / English, « En savoir plus » + flèche qui descend vers News), puis les sections plein écran
   News / Characters / Weapons / About us. Navigation : 01 Accueil à 05 About us. Actualités : articles publiés lus sur le serveur (lot 3b), cartes, article complet dans une fenêtre à l'adresse `#actu/<slug>`.
-  Personnages et Armes :
-  contenu provisoire atténué et inerte sous un encart « Prochainement » (« Coming soon » en anglais). **Nouvelle section Armes en coulisses**
-  (lot 6a, `Docs/ref/armes.md`) : interrupteur `SECTION_ARMES_ACTIVE` de `js/donnees.js` (false ; true = publiée), aperçu `?apercu=armes` ;
-  éteint, aucun de ses fichiers n'est téléchargé. Globe de langue aussi
+  Personnages :
+  contenu provisoire atténué et inerte sous un encart « Prochainement » (« Coming soon » en anglais). **Armes** (lot 6a, `Docs/ref/armes.md`) :
+  les armes du jeu, **publiées** (interrupteur `SECTION_ARMES_ACTIVE` de `js/donnees.js` à true ; false = ancien encart, aucun fichier de la
+  section téléchargé, `?apercu=armes` la montre quand même) ; chaque arme cachée (« ? ») tant que le propriétaire ne l'affiche pas depuis l'admin. Globe de langue aussi
   dans l'en-tête ; « Bientôt disponible », lien Discord (https://discord.gg/4bBRJNzwwB, logo en SVG, nouvel onglet), bouton de son et globe en haut à droite de l'accueil comme dans l'en-tête (About us : ligne sous le logo du studio et texte modifiables depuis l'admin, `js/a-propos.js` ; grand titre fixe ; logo animé du studio rejoué à chaque arrivée,
   puis pied de page). À propos a **deux blocs de même forme** (image, titre, texte) : le jeu (clip du vrai jeu en boucle, lot 4b) au-dessus du studio (sur téléphone et sur un écran d'ordinateur de 860 px de haut ou moins : carrousel horizontal, le studio à droite, pour que la section tienne dans l'écran) ;
   titres et textes des deux blocs modifiables depuis l'admin (lot 3e : pages `a-propos-jeu` et `a-propos` du serveur ; par défaut
@@ -83,7 +86,8 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   Pied de page : © No Way Studio, licences des polices, contact `contact@zsurvival-game.com` (lien mailto).
 - `main.html` : ancienne page principale, simple redirection vers `./#news` (garde l'ancre).
 - `admin/` (lot 3b) : page d'administration des actualités (noindex, non reliée au site, français seulement, CSP stricte),
-  mode d'emploi `Docs/ref/admin.md` ; « Pages du site » : page « À propos », bandeau d'alerte (lot 3d), aperçu de partage (lot 3f).
+  mode d'emploi `Docs/ref/admin.md` ; « Pages du site » : page « À propos », bandeau d'alerte (lot 3d), aperçu de partage (lot 3f),
+  armes (lot 6a : affichée ou « ? », descriptions FR / EN, statistiques et leur affichage).
 - `css/`, `js/` : styles et scripts ; `js/site.js` : script de la page (molette prise en main sur ordinateur : une section par geste, dans le sens de la molette) ; `js/textes.js` : tous les textes
   (blocs `fr` et `en`, mêmes clés) ; `js/i18n.js` : langue (priorité : `?lang=`, puis choix gardé du globe, puis langue du navigateur :
   français pour les visiteurs francophones, anglais pour les autres ; aucune géolocalisation) ;
@@ -140,7 +144,7 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   `copier-armes.mjs` (relevé, `contenus/armes.json` sans écraser les descriptions), `fabriquer-visuels.mjs` (`img/armes/`),
   `verifier-armes.mjs` (vérification) ; mode d'emploi `outils/armes/LISEZMOI.md`.
 - `outils/admin/` (lot 3b) : banc local des actualités (`banc.mjs` : serveur sur SQLite, API GitHub simulée) et vérification
-  de bout en bout `verifier-actus.mjs` (site et admin) et `verifier-bandeau.mjs` (bandeau d'alerte, lot 3d) ; `outils/copie-publiee.mjs` : copie publiée + `simulerActualites()`.
+  de bout en bout `verifier-actus.mjs` (site et admin) et `verifier-bandeau.mjs` (bandeau d'alerte, lot 3d), `verifier-armes-admin.mjs` (page « Armes », lot 6a) ; `outils/copie-publiee.mjs` : copie publiée + `simulerActualites()`.
 - `Docs/ref/` : documents de référence ; `Docs/lots/` : bilans de lot.
 - `.github/workflows/pages.yml` : déploiement GitHub Pages à chaque push sur `main`.
 - `serveur/` (lot 3a) : serveur des actualités (Node.js, Hono, `@libsql/client`, Dockerfile ; mode d'emploi `serveur/LISEZMOI.md`) ;

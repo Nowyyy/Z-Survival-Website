@@ -436,3 +436,40 @@ body.admin {
 .admin-partage-titre { font-weight: 700; color: var(--color-focus); overflow-wrap: anywhere; }
 .admin-partage-description { font-size: 0.875rem; overflow-wrap: anywhere; }
 .admin-partage-image { display: block; width: 100%; height: auto; margin-top: 6px; border-radius: var(--radius-sm); }
+
+/* ---------- Armes de la section Armes (lot 6a) ---------- */
+.admin-armes-tout { display: flex; flex-wrap: wrap; gap: 8px; }
+.admin-armes-liste { display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.admin-arme { display: flex; flex-direction: column; gap: 12px; }
+.admin-arme[data-cache="true"] { border-style: dashed; }
+.admin-arme-tete { display: flex; align-items: center; gap: 12px; }
+.admin-arme-image { flex: none; width: 112px; height: 56px; object-fit: contain; border-radius: var(--radius-sm); background: var(--color-bg); }
+.admin-arme[data-cache="true"] .admin-arme-image { opacity: 0.45; }
+.admin-arme-ident { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.admin-arme-nom { font-family: var(--font-display); font-size: 1.35rem; line-height: 1.1; color: var(--color-text); overflow-wrap: anywhere; }
+.admin-arme-etat { font-family: var(--font-label); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-action-text); }
+.admin-arme[data-cache="false"] .admin-arme-etat { color: var(--color-focus); }
+.admin textarea.admin-arme-description { min-height: 7rem; font-family: inherit; font-size: 16px; }
+.admin-arme-stats { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 10px 12px 6px; border: 1px solid var(--color-surface-raised); border-radius: var(--radius-md); }
+.admin-arme-stats legend { padding: 0 4px; }
+.admin-arme-grille { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+.admin-arme-stat { display: grid; grid-template-columns: 1fr 5rem; align-items: center; gap: 4px 8px; font-size: 0.9rem; color: var(--color-text-muted); }
+.admin input.admin-arme-stat-champ, .admin-arme-stat input[type="number"] {
+  width: 100%;
+  min-height: var(--touch-target);
+  padding: 6px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 16px;
+  color-scheme: dark;
+}
+.admin-arme-stat input[type="number"]:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 1px; }
+.admin-arme-barre { grid-column: 1 / -1; position: relative; height: 6px; border-radius: 3px; background: var(--color-surface-raised); overflow: hidden; }
+.admin-arme-barre span { position: absolute; inset: 0; background: linear-gradient(90deg, var(--color-action-deep), var(--color-action)); transform-origin: left; transform: scaleX(var(--valeur, 0)); }
+@media (max-width: 420px) {
+  .admin-arme-grille { grid-template-columns: 1fr; }
+  .admin-arme-image { width: 88px; height: 44px; }
+}

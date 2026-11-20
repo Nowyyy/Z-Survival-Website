@@ -174,6 +174,29 @@ l'accueil (fixe, `img/partage.jpg`). **Pages du site → Modifier l'aperçu de p
 - Message « La page a été modifiée entre-temps » : le site a été mis à jour pendant que l'écran était ouvert ; revenir aux articles et
   rouvrir l'aperçu, puis refaire le changement.
 
+## 11. Armes de la section Armes (lot 6a)
+La section **Armes** du site présente les armes du jeu ; chacune est **cachée** (un « ? » : ni image, ni nom, ni description) tant que vous
+ne l'affichez pas. **Pages du site → Modifier les armes (affichage, descriptions, statistiques)** :
+1. L'écran montre toutes les armes, dans l'ordre de la section, avec leur image, leur nom et leur catégorie (venus du jeu, non modifiables
+   ici) et un repère « Cachée » ou « Affichée ».
+2. **Afficher sur le site** : cochez pour dévoiler l'arme (son image, son nom, sa description) ; décochez pour la remettre en « ? ».
+   **Tout afficher** / **Tout cacher (« ? »)** changent toutes les armes d'un coup.
+3. **Descriptions** en français et en anglais : texte simple, une ou deux phrases, 400 caractères au plus. Sans anglais, le site anglais
+   affiche le français.
+4. **Statistiques** : dégâts, cadence, portée, chargeur, chacune de **0 à 100** (la longueur de la barre ; aucun chiffre n'est affiché sur
+   le site). **Afficher les statistiques** : cochez pour montrer les barres ; décochée, le site montre « Prochainement ». Une arme cachée
+   garde toujours ses statistiques masquées. Pour afficher les statistiques, remplissez-en au moins une.
+5. **Enregistrer et publier** : le serveur réécrit `contenus/armes.json` dans le dépôt (commit « Z-Survival admin ») ; en ligne **environ une
+   minute** plus tard. **Annuler les changements** revient aux réglages enregistrés. **Voir la section sur le site ↗** l'ouvre dans un
+   nouvel onglet.
+
+- Message « Les armes ont été modifiées ailleurs entre-temps » : le fichier a changé pendant que l'écran était ouvert (autre onglet,
+  modification sur GitHub, relevé du jeu) ; revenir aux articles, rouvrir les armes et refaire le changement.
+- Les noms, catégories, familles, ordre et images viennent du jeu (`node outils/armes/copier-armes.mjs`, `Docs/ref/armes.md`) ; ce relevé
+  ne touche jamais à ce que vous réglez ici.
+- Limite : `contenus/armes.json` et `img/armes/` sont publiés avec le site ; une arme cachée ne s'affiche pas, mais quelqu'un qui ouvre ces
+  fichiers à la main peut lire son nom et sa description.
+
 ## Annonce Discord (lot 3c)
 Chaque article publié pour la première fois est annoncé dans un salon de votre serveur Discord, par un **webhook** (une adresse
 secrète qui permet d'écrire dans ce salon, et seulement dans lui). Comme le jeton GitHub, elle est rangée dans Google Secret Manager,

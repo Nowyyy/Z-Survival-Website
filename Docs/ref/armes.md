@@ -1,25 +1,28 @@
 # Section Armes — référence (lot 6a)
 
-La vraie section Armes du site présente **toutes les armes du jeu**, une à la fois : grand visuel, nom, catégorie, courte description,
-et une liste de miniatures pour passer de l'une à l'autre. Les **statistiques restent en « Prochainement »** : aucun chiffre n'est affiché.
-Elle est **en coulisses** tant que la mise à jour du jeu n'est pas sortie : les visiteurs voient toujours l'ancien encart « Prochainement ».
+La section Armes du site présente **toutes les armes du jeu**, une à la fois : grand visuel, nom, catégorie, courte description, statistiques,
+et une liste de miniatures pour passer de l'une à l'autre. **Publiée** (demande du propriétaire, lot 6a) : chaque arme est **cachée** (un
+« ? ») tant que le propriétaire ne l'affiche pas depuis la page d'administration.
+
+## Régler les armes : page « Armes » de l'admin (le plus simple)
+**https://zsurvival-game.com/admin/** → **Pages du site → Modifier les armes (affichage, descriptions, statistiques)** (mode d'emploi :
+`Docs/ref/admin.md`, section 11). Pour chaque arme : **afficher** ou cacher (« ? »), **descriptions** FR et EN, **statistiques** de 0 à 100 et
+**afficher** ou masquer les statistiques. Le serveur réécrit `contenus/armes.json` (`serveur/src/armes.js`, `GET/PUT /api/admin/armes`,
+même jeton GitHub que le bandeau) ; en ligne environ une minute après l'enregistrement. Par défaut (lot 6a) : les dix armes cachées,
+statistiques masquées.
 
 ## L'interrupteur
-- **Un seul endroit** : `js/donnees.js`, constante `SECTION_ARMES_ACTIVE` (aujourd'hui `false`).
-- **Éteint** : la section Armes est strictement celle d'avant (contenu provisoire atténué sous l'encart « Prochainement ») et **aucun
-  fichier de la nouvelle section n'est téléchargé** : ni `js/section-armes.js`, ni `css/section-armes.css`, ni `contenus/armes.json`, ni
-  les images de `img/armes/` (le module est chargé par un `import()` dynamique dans `js/site.js`, seulement quand il est demandé).
-- **Aperçu pour le propriétaire**, interrupteur éteint : ajouter `?apercu=armes` à l'adresse, sur téléphone comme sur ordinateur :
-  **https://zsurvival-game.com/?apercu=armes#weapons**. Rien d'autre ne change (le paramètre reste dans l'adresse quand on navigue).
-  Il se combine avec les autres : `?apercu=armes&lang=en#weapons`.
+- **Un seul endroit** : `js/donnees.js`, constante `SECTION_ARMES_ACTIVE` (aujourd'hui **`true`** : section publiée).
+- **Éteint** (`false`) : la section Armes redevient l'ancien encart « Prochainement » (contenu provisoire atténué) et **aucun fichier de la
+  nouvelle section n'est téléchargé** : ni `js/section-armes.js`, ni `css/section-armes.css`, ni `contenus/armes.json`, ni les images de
+  `img/armes/` (le module est chargé par un `import()` dynamique dans `js/site.js`, seulement quand il est demandé). Éteint, `?apercu=armes`
+  montre la nouvelle section quand même (https://zsurvival-game.com/?apercu=armes#weapons).
 - **Tout au même endroit** : **https://zsurvival-game.com/scene-v2/apercu.html** (scène v2 de l'accueil, en coulisses) ouvre le site avec
   `?apercu=armes` et se fait défiler jusqu'à la section Armes ; `scene-v2/apercu.html#weapons` y va directement, `?armes=0` montre la
   section actuelle.
-- **Publier la section** : passer la constante à `true`, puis fusionner sur `main` (le site est republié en une minute environ). Rien
-  d'autre à faire.
 
-> Limite : les images de `img/armes/` et `contenus/armes.json` sont publiés avec le site. Rien n'y mène tant que l'interrupteur est éteint,
-> mais quelqu'un qui connaît leur adresse peut les ouvrir (comme `scene-v2/`).
+> Limite : les images de `img/armes/` et `contenus/armes.json` sont publiés avec le site. Une arme cachée n'est jamais montrée (ni ses
+> images téléchargées) par la page, mais quelqu'un qui ouvre ces fichiers à la main peut lire son nom et sa description.
 
 ## D'où viennent les armes
 - Jeu `Nowyyy/Z-Survival`, branche **`dev`** (jamais `main`), lu en lecture seule dans un clone temporaire hors du dépôt.
@@ -88,11 +91,13 @@ node outils/armes/fabriquer-visuels.mjs
 3. `fabriquer-visuels.mjs` refait les images (`--armes=id1,id2` pour quelques armes seulement).
 4. Vérifier : `?apercu=armes#weapons`, puis `node outils/armes/verifier-armes.mjs`.
 
-## Modifier une description (ou l'ordre, le nom anglais) — `contenus/armes.json`
+## Modifier le fichier à la main (ordre, nom anglais, famille, chapitres…) — `contenus/armes.json`
+
+Descriptions, affichage et statistiques se règlent plus simplement depuis l'admin (plus haut) ; le reste se modifie ici.
 
 ```json
 {
-  "id": "kar98k", "nom": "Kar98k", "nomEn": null, "categorie": "fusil-a-verrou", "famille": "carabine", "ordre": 2, "aRelire": true, "stats": null, "chapitres": [1], "prochainement": false,
+  "id": "kar98k", "nom": "Kar98k", "nomEn": null, "categorie": "fusil-a-verrou", "famille": "carabine", "ordre": 2, "chapitres": [1], "prochainement": true, "aRelire": true, "stats": null, "statsVisibles": false,
   "description": {
     "fr": "Un fusil à verrou d’une précision redoutable. Chaque balle compte : visez la tête, réarmez, recommencez.",
     "en": "A deadly accurate bolt-action rifle. Every round counts: aim for the head, work the bolt, repeat."
@@ -106,21 +111,19 @@ node outils/armes/fabriquer-visuels.mjs
 3. Une fois la description relue, mettre `"aRelire": false` (simple repère pour s'y retrouver ; rien ne change à l'écran).
 4. « Commit changes » sur `main` : le site est republié en une minute environ.
 
-Champs que l'on peut régler : `description` (fr, en), `aRelire`, `famille`, `ordre` (rang d'affichage, 1 = premier ; à l'intérieur de
+Champs que l'on peut régler : `description` (fr, en), `aRelire`, `stats`, `statsVisibles`, `famille`, `ordre` (rang d'affichage, 1 = premier ; à l'intérieur de
 chaque famille), `chapitres`, `prochainement`, `nomEn` (nom en anglais s'il diffère du nom du jeu ; `null` sinon), et la liste `chapitres` en
-tête du fichier. Champs réécrits par l'outil à chaque relevé : `id`, `nom`, `categorie`. `retirees` : armes disparues du jeu, gardées pour leurs textes, jamais affichées. Fichier illisible : la section affiche
+tête du fichier (`prochainement`, `description`, `stats`, `statsVisibles` : aussi depuis l'admin, qui met `aRelire` à `false` quand une
+description change). Champs réécrits par l'outil à chaque relevé : `id`, `nom`, `categorie`. `retirees` : armes disparues du jeu, gardées pour leurs textes, jamais affichées. Fichier illisible : la section affiche
 « Les armes n’ont pas pu être chargées. » (seulement si elle est allumée ou en aperçu).
 
-## Ajouter les statistiques plus tard
-Aujourd'hui `"stats": null` partout et le panneau montre quatre barres **décoratives** (mêmes longueurs pour toutes les armes, floutées et
-grisées, aucun chiffre) sous l'encart « Prochainement » (`weapons.statsTitre`, `commun.comingSoon`, libellés `weapons.stats.*`).
-Le jour venu (un lot le décidera) :
-1. Format prévu, une valeur de **0 à 100** par barre (déjà le format des barres provisoires de `js/donnees.js`) :
-   `"stats": { "degats": 65, "cadence": 45, "portee": 90, "chargeur": 30 }`. Les valeurs se calculent depuis la table du jeu
-   (`data/game/armes-partie.json`) par un ajout à `copier-armes.mjs`, ou s'écrivent à la main ; une nouvelle barre = une nouvelle clé et son
-   libellé dans `weapons.stats` (français et anglais).
-2. Dans `js/section-armes.js` : remplacer `BARRES_DECOR` par les valeurs de l'arme choisie (`armes[courant].stats`), retirer le flou
-   (`.arsenal-stats-grille` dans `css/section-armes.css`) et l'encart `.arsenal-stats-tampon`, afficher les valeurs si on le souhaite.
+## Statistiques
+`"stats"` : `null`, ou `{ "degats": 65, "cadence": 45, "portee": 90, "chargeur": 30 }`, entiers de **0 à 100** (longueur de la barre ;
+`null` pour une barre vide) ; `"statsVisibles"` : `true` = vraies barres, nettes, sans chiffre (lecteurs d'écran : « Dégâts : 65 sur 100 ») ;
+`false`, ou arme cachée = quatre barres **décoratives** (mêmes longueurs pour toutes les armes, floutées et grisées) sous l'encart
+« Prochainement ». Réglées depuis l'admin. Une nouvelle barre = une nouvelle clé dans `STATS` (`js/section-armes.js`), `STATS_ARMES`
+(`serveur/src/armes.js`) et l'admin (`STATS_ARMES` d'`admin/admin.js`), avec son libellé dans `weapons.stats` (français et anglais). Les
+valeurs pourraient aussi se calculer depuis la table du jeu (`data/game/armes-partie.json`) par un ajout à `copier-armes.mjs`.
 
 ## La section à l'écran
 - Fichiers : `js/section-armes.js` (module), `css/section-armes.css` (styles), libellés `weapons.*` de `js/textes.js`.

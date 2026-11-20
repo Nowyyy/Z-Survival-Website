@@ -10,7 +10,8 @@
 // - armes/jeu/ : fichiers du jeu recopiés TELS QUELS, à la même place que dans le jeu (modèles 3D des armes en code, atlas, rendu Three.js,
 //   données des armes, couleurs, Three.js). Servent à fabriquer les visuels (outils/armes/fabriquer-visuels.mjs) ; jamais publiés.
 // - contenus/armes.json : une entrée par arme. L'outil met à jour ce qui vient du jeu (nom, catégorie) et ne touche JAMAIS à ce que le
-//   propriétaire règle (famille, ordre, chapitres, « prochainement », nom anglais, descriptions, « aRelire », stats). Arme nouvelle : ajoutée
+//   propriétaire règle (famille, ordre, chapitres, « prochainement », nom anglais, descriptions, « aRelire », stats, statsVisibles ; les quatre
+//   derniers se règlent aussi depuis la page d'administration, page « Armes »). Arme nouvelle : ajoutée
 //   à la fin, famille proposée d'après sa catégorie, « prochainement » si le jeu ne la rend pas encore utilisable, dernier chapitre,
 //   description vide, « aRelire » vrai. Arme disparue du jeu : sortie de la liste et rangée dans « retirees » (descriptions gardées).
 // - Aucune statistique de jeu n'est relevée : data/game/armes-partie.json (qui en contient) est lu pour la catégorie et l'ordre seulement,
@@ -117,13 +118,14 @@ export async function releverArmes(source) {
 }
 
 const AIDE = 'Armes de la section Armes du site (lot 6a, Docs/ref/armes.md). Fichier mis à jour par node outils/armes/copier-armes.mjs : '
-  + 'l\'outil réécrit seulement id, nom (nom du jeu) et categorie ; il ne touche jamais à famille, ordre, chapitres, prochainement, nomEn, description, aRelire ni stats. '
+  + 'l\'outil réécrit seulement id, nom (nom du jeu) et categorie ; il ne touche jamais à famille, ordre, chapitres, prochainement, nomEn, description, aRelire, stats ni statsVisibles. '
+  + 'Réglables aussi depuis la page d\'administration (Pages du site → Armes) : prochainement, description, stats, statsVisibles. '
   + 'famille : groupe de la liste des miniatures (poing, carabine, pompe, mitraillette, assaut, lourde, speciale). ordre : rang d\'affichage (1 = première, à l\'intérieur de sa famille). '
   + 'chapitres : chapitres du jeu où l\'arme apparaît (liste de numéros ; sélecteur de chapitre de la section) ; la liste « chapitres » en tête du fichier peut donner un nom à chaque chapitre ({ "id": 2, "nom": { "fr": "…", "en": "…" } }). '
-  + 'prochainement : true = arme montrée en silhouette, marquée « Prochainement », « ? » sur sa miniature. '
+  + 'prochainement : true = arme secrète (« ? » à la place de sa forme, de son nom et de sa description). '
   + 'nomEn : nom en anglais s\'il diffère du nom du jeu (null : le nom du jeu). '
   + 'description : fr et en, texte brut, une ou deux phrases. aRelire : true tant que la description n\'est pas relue (mettre false une fois relue). '
-  + 'stats : null pour l\'instant (aucune statistique affichée, panneau « Prochainement ») ; format prévu dans Docs/ref/armes.md. '
+  + 'stats : null ou { degats, cadence, portee, chargeur } de 0 à 100 ; statsVisibles : true = barres affichées, false = panneau « Prochainement ». '
   + 'categorie et famille : clés des libellés weapons.categories et weapons.familles de js/textes.js. retirees : armes disparues du jeu, gardées pour leurs textes, jamais affichées.';
 const CHAPITRES_DEFAUT = [{ id: 1, nom: null }];
 
@@ -142,7 +144,7 @@ export function fusionner(releve, existant, origineAvant) {
     if (!a) {
       ajoutees.push(r.id);
       ordreMax += 1;
-      return { id: r.id, nom: r.nom, nomEn: null, categorie: r.categorie, famille: r.famille, ordre: existant ? ordreMax : r.ordreJeu + 1, chapitres: [dernierChapitre], prochainement: !r.active, description: { fr: '', en: '' }, aRelire: true, stats: null };
+      return { id: r.id, nom: r.nom, nomEn: null, categorie: r.categorie, famille: r.famille, ordre: existant ? ordreMax : r.ordreJeu + 1, chapitres: [dernierChapitre], prochainement: !r.active, description: { fr: '', en: '' }, aRelire: true, stats: null, statsVisibles: false };
     }
     const changes = [];
     const e = empreintesAvant[r.id];
@@ -159,7 +161,7 @@ export function fusionner(releve, existant, origineAvant) {
       chapitres: Array.isArray(a.chapitres) && a.chapitres.length ? a.chapitres : [dernierChapitre],
       prochainement: typeof a.prochainement === 'boolean' ? a.prochainement : !r.active,
       description: { fr: a.description?.fr ?? '', en: a.description?.en ?? '' },
-      aRelire: a.aRelire !== false, stats: a.stats ?? null,
+      aRelire: a.aRelire !== false, stats: a.stats ?? null, statsVisibles: a.statsVisibles === true,
     };
   });
   const ids = new Set(releve.map((r) => r.id));
