@@ -2,12 +2,33 @@
  "_note": "Copie figée du jeu pour la scène v2 de l’accueil (lot 5a). Fichiers repris TELS QUELS, jamais retouchés. Refaire : node outils/scene/copier-jeu.mjs (outils/scene/LISEZMOI.md) ; vérifier : node outils/scene/copier-jeu.mjs --verifier.",
  "depot": "Nowyyy/Z-Survival",
  "branche": "dev",
- "commit": "622df2c9ec4f3e045233f6c1406acfd1cbf97d95",
- "date": "2026-11-19T21:42:40+00:00",
- "titre": "Merge branch 'lot-9e' into dev",
- "copieLe": "2026-11-19",
- "precedent": null,
- "changements": null,
+ "commit": "2f7716a313a589c3d266c9c6ce4ae1c3dff622ad",
+ "date": "2026-11-20T13:34:52+01:00",
+ "titre": "Merge pull request #179 from Nowyyy/lot-9h",
+ "copieLe": "2026-11-20",
+ "precedent": {
+  "commit": "622df2c9ec4f3e045233f6c1406acfd1cbf97d95",
+  "date": "2026-11-19T21:42:40+00:00"
+ },
+ "changements": {
+  "ajoutes": [
+   "js/core/decor-epoque.js",
+   "js/core/nav.js",
+   "data/game/persos-epoque.json",
+   "data/game/persos-epoque-choix.json"
+  ],
+  "modifies": [
+   "js/core/decor-vivant.js",
+   "js/core/decor.js",
+   "js/core/persos-variants.js",
+   "js/core/texgen-persos.js",
+   "js/game/character-v2.js",
+   "js/game/world.js",
+   "data/game/persos-choix.json",
+   "data/game/maps/rez-de-chaussee/decor.json"
+  ],
+  "retires": []
+ },
  "absentsDuJeu": [],
  "fichiers": [
   {
@@ -56,19 +77,24 @@
    "octets": 2792
   },
   {
+   "chemin": "js/core/decor-epoque.js",
+   "sha256": "b86715109f500ea7b719bde4b0cf1bdd26f8ac6ed723b5c6fa58ceb5f0f57d75",
+   "octets": 71838
+  },
+  {
    "chemin": "js/core/decor-interieur.js",
    "sha256": "631d08a1c7d23a74991dbbb2466efff8d1ceed8d5053e375b172301b83358968",
    "octets": 22155
   },
   {
    "chemin": "js/core/decor-vivant.js",
-   "sha256": "736feea3753de678838b0653820f88be77ce30300f6cfe856dbfa183528bb345",
-   "octets": 8768
+   "sha256": "68e74c025ba18fa2f4f68a38e54c346ae640bd79e919d79db912b6db488fe16b",
+   "octets": 8847
   },
   {
    "chemin": "js/core/decor.js",
-   "sha256": "1fa4f5695a6e468f59b6794e816c61c4fc7f21d84bc97cf650484f4b95af11a7",
-   "octets": 12741
+   "sha256": "71536ccd7ca88630040fd3fc41c969971239f648f5ccc983c00c041cd4cd04a0",
+   "octets": 15412
   },
   {
    "chemin": "js/core/epaves.js",
@@ -121,9 +147,14 @@
    "octets": 1497
   },
   {
+   "chemin": "js/core/nav.js",
+   "sha256": "85124b8b525db1e79a05ed7e23224b7fa62f46c15c357d91c86a428d17477e69",
+   "octets": 13176
+  },
+  {
    "chemin": "js/core/persos-variants.js",
-   "sha256": "c42c595a9d6feeaf04e78c09a4dbfe81ad5b7bda56bb244fc635b94fd6244424",
-   "octets": 6665
+   "sha256": "b16f1e90b94fc4c91cb4b70d1476130aec71969dcf42c85c1e7d8de2017fac87",
+   "octets": 21703
   },
   {
    "chemin": "js/core/plank-layout.js",
@@ -157,8 +188,8 @@
   },
   {
    "chemin": "js/core/texgen-persos.js",
-   "sha256": "a2fe640458546afdc5134fc36bc5d075c07efdb796f8058ea286eeca3e18c2f2",
-   "octets": 6389
+   "sha256": "5190d90187dddff48bd387c0150f9dbe7faef6da40fbe9b2c43828619b101b05",
+   "octets": 8350
   },
   {
    "chemin": "js/core/texgen.js",
@@ -187,8 +218,8 @@
   },
   {
    "chemin": "js/game/character-v2.js",
-   "sha256": "7492405ddee1d3b1fcfae1e66e8eddb052debdc209ac081b829a585d17c64f0e",
-   "octets": 44242
+   "sha256": "01dfc44b9523b87a1ac35c8c689e508eddbe334d4ad74e1b546ec355b4364eb0",
+   "octets": 44522
   },
   {
    "chemin": "js/game/fire.js",
@@ -232,8 +263,8 @@
   },
   {
    "chemin": "js/game/world.js",
-   "sha256": "73004e92155af95823a526005b6fe7f350d57cfb06cfc9d95d7a56e10ef4c257",
-   "octets": 92216
+   "sha256": "76f0683025ad7a4f1625eff2948cde76ee40d6da14ba738471f45ba9de304d75",
+   "octets": 96899
   },
   {
    "chemin": "data/game/characters-v2.json",
@@ -247,13 +278,23 @@
   },
   {
    "chemin": "data/game/persos-choix.json",
-   "sha256": "ebfff83d7818fc920094d55cc906bda1d876ceccfddf626953a0da2ac746fecb",
-   "octets": 2121
+   "sha256": "277f628d35990a89836cd7669b8e13825dbff6ca83a882428456151393662877",
+   "octets": 2505
   },
   {
    "chemin": "data/game/zombie-variants.json",
    "sha256": "db4e7ff51e3a36dbac6931804af4b7f6d7bc0e582996bee75353cb145e247c34",
    "octets": 1339
+  },
+  {
+   "chemin": "data/game/persos-epoque.json",
+   "sha256": "47c9db749f5abec44fad2cfc33942282d6f14f9119f0eaa061faedeba7c6ab01",
+   "octets": 78077
+  },
+  {
+   "chemin": "data/game/persos-epoque-choix.json",
+   "sha256": "d2784c69985fe471c8031acbd7560e40c4cbfbece0c8b8f2627e029a497047f6",
+   "octets": 1181
   },
   {
    "chemin": "data/game/render.json",
@@ -287,8 +328,8 @@
   },
   {
    "chemin": "data/game/maps/rez-de-chaussee/decor.json",
-   "sha256": "34a548c3014168d5d49d9bf43f07b3e661aaa23bb0c93cf3d4c9e0af178bab8f",
-   "octets": 3532
+   "sha256": "667df92c7218f9fed950846217781b3cb38fdc29c34d9b0957decda8b4c63c5d",
+   "octets": 20058
   },
   {
    "chemin": "data/game/maps/rez-de-chaussee/zones.json",

@@ -14,8 +14,9 @@
   <header class="tete">
     <p class="marque">Atelier · lot 5a · accueil v2, en coulisses</p>
     <h1 class="titre">Scène v1 / v2</h1>
-    <p class="intro">La <strong>v2</strong> de la scène de l'accueil suit le jeu : copie fraîche de sa branche <code>dev</code> et
-      <strong>nouvelles armes</strong>. Personnage 1, à genou : le <strong>Kar98k</strong>, épaulé <strong>en gaucher</strong>, joue sur la crosse,
+    <p class="intro">La <strong>v2</strong> de la scène de l'accueil suit le jeu : copie fraîche de sa branche <code>dev</code>,
+      <strong>nouvelles armes</strong> et <strong>nouvelles tenues</strong> (soldats de 1942 : Survivant, parachutiste radio, zombie soldat
+      casqué). Personnage 1, à genou : le <strong>Kar98k</strong>, épaulé <strong>en gaucher</strong>, joue sur la crosse,
       il vise à droite de l'écran ; au tir (5,2 s), il ferme l'œil droit, recul, éclair, puis il manœuvre le verrou (la douille sort quand la
       culasse est tirée et s'envole hors de l'image). Personnage 2, le pied sur le zombie : le
       <strong>Colt M1911</strong>, pointé sur lui (sa douille s'envole aussi hors de l'image). Même cadrage B, même boucle de 8 s, mêmes instants de tir (2,6 et 5,2 s).</p>
@@ -32,6 +33,7 @@
         <li><a href="apercu.html">Aperçu : la v2 sous l'accueil du site</a></li>
         <li><a href="index.html?cadrage=B&amp;format=paysage">La scène v2 seule, paysage (ordinateur)</a></li>
         <li><a href="index.html?cadrage=B&amp;format=portrait">La scène v2 seule, portrait (téléphone)</a></li>
+        <li><a href="apercu.html?tenues=avant">Essai : les tenues de la première v2 (survivant tactique, militaire, zombie en blouse)</a></li>
         <li><a href="apercu.html?tireur=droitier">Essai : la première version (tireur droitier, visée à gauche de l'écran)</a></li>
       </ul>
       <div class="paire">
@@ -81,6 +83,15 @@
       <p class="cadrage-note">Une ligne par mise à jour de la copie du jeu (<code>node outils/scene/copier-jeu.mjs</code>), la plus récente
         en haut. Détail des fichiers : <code>scene-v2/jeu/ORIGINE.json</code>.</p>
       <ol class="historique" reversed>
+        <li>
+          <p class="quand"><strong>20/11/2026</strong> · <code>dev</code> @ <code>2f7716a</code> (« Merge pull request #179 from Nowyyy/lot-9h ») · nouvelles tenues</p>
+          <ul>
+            <li>Copie du jeu refaite : 4 fichiers ajoutés (recettes des tenues d'époque, décor d'époque), 8 modifiés (personnages, décor).</li>
+            <li>Tenues d'époque du jeu : Survivant (fantassin américain de 1942) pour le personnage 1, parachutiste radio pour le personnage 2,
+              zombie soldat casqué. Casques un peu remontés pour qu'on voie les yeux de près.</li>
+            <li>Décor d'époque du jeu (avion écrasé, jeeps) pas encore pris : la scène garde l'hélicoptère.</li>
+          </ul>
+        </li>
         <li>
           <p class="quand"><strong>20/11/2026</strong> · <code>dev</code> @ <code>622df2c</code> (copie inchangée) · retours du propriétaire</p>
           <ul>

@@ -18,14 +18,18 @@ export async function json(path) {
 
 // Données du jeu dont la scène a besoin (mêmes fichiers que le jeu).
 export async function chargerDonnees() {
-  const [world, decor, zones, etage, decorInterieur, mobilier, feux, render, texturesCfg, camera, windows, characters, poses, choix, variants, lampes] = await Promise.all([
+  const [world, decor, zones, etage, decorInterieur, mobilier, feux, render, texturesCfg, camera, windows, characters, poses, choix, variants, lampes, epoque, epoqueChoix] = await Promise.all([
     json(`${CARTE}/world.json`), json(`${CARTE}/decor.json`), json(`${CARTE}/zones.json`), json(`${CARTE}/etage.world.json`),
     json(`${CARTE}/decor-interieur.world.json`), json(`${CARTE}/mobilier.world.json`), json(`${CARTE}/feux.json`),
     json('jeu/data/game/render.json'), json('jeu/data/game/textures.json'), json('jeu/data/game/camera.json'), json('jeu/data/game/windows.json'),
     json('jeu/data/game/characters-v2.json'), json('jeu/data/game/poses-v2.json'), json('jeu/data/game/persos-choix.json'),
     json('jeu/data/game/zombie-variants.json'), json(`${CARTE}/lampes.world.json`),
+    json('jeu/data/game/persos-epoque.json'), json('jeu/data/game/persos-epoque-choix.json'), // v2 : tenues d'époque du jeu (lot 9g du jeu)
   ]);
-  return { world, decor, zones, etage, decorInterieur, mobilier, feux, render, texturesCfg, camera, windows, characters, poses, choix, variants, lampes };
+  // v2 : le décor extérieur d'époque du jeu (lot 9h du jeu : avion P-51 à la place de l'hélicoptère, jeeps à la place des voitures) n'est pas
+  // encore pris par la scène : clé « epoque » retirée, comme le réglage ?test=1&decor=avant du jeu (js/game/main.js) : décor d'avant.
+  delete decor.epoque;
+  return { world, decor, zones, etage, decorInterieur, mobilier, feux, render, texturesCfg, camera, windows, characters, poses, choix, variants, lampes, epoque, epoqueChoix };
 }
 
 // Construit le monde du jeu. reduced : mouvement réduit (le jeu fige alors feux et brume).

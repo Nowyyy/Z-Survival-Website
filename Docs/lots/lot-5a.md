@@ -147,6 +147,27 @@ refaite.
 Vérifications : `node scene-v2/outils/verifier.mjs` **51/51** (deux contrôles ajoutés : coup d'œil jamais pendant la manœuvre, glissière qui
 recule puis revient) ; boucle parfaite (paysage 0,50 pour une moyenne de 0,56 ; portrait 0,48 pour 0,61) ; planche refaite.
 
+## Nouvelles tenues du jeu (20/11/2026, branche `accueil-v2-tenues`)
+- Demande : « remplacer les tenues des personnages 1 et 2 et du zombie par les nouvelles tenues du jeu ».
+- **Copie du jeu refaite** : `dev` @ `2f7716a` (« Merge pull request #179 from Nowyyy/lot-9h »), 77 fichiers. Ajoutés : les recettes des tenues
+  d'époque (`data/game/persos-epoque.json`, `persos-epoque-choix.json`, ajoutés à la liste de `outils/scene/copier-jeu.mjs`), `decor-epoque.js`,
+  `nav.js` ; modifiés : personnages (`character-v2.js`, `persos-variants.js`, `texgen-persos.js`, `persos-choix.json`) et décor (`world.js`,
+  `decor.js`, `decor-vivant.js`, `decor.json`).
+- **Tenues d'époque** (lot 9g du jeu), avec les choix du jeu : personnage 1 = Survivant (fantassin américain de 1942 : casque M1 gris, veste
+  sable, guêtres, ceinturon, bretelles, gourde) ; personnage 2 = parachutiste radio (casque à filet, poste radio dorsal à antenne, harnais,
+  poches de cuisse) ; zombie = zombie soldat casqué (modèle 1935, bretelles en Y, cartouchières). Construites par le code du jeu, puis les
+  retouches de gros plan de la scène (visage, clin d'œil, pouces, bras).
+- **Casques remontés** dans la scène : ceux du jeu descendaient jusque sur les yeux (vue de dessus) ; de près, on ne voyait ni les sourcils
+  froncés ni le clin d'œil du personnage 1. Lampe du personnage 2 éteinte (le parachutiste n'en a pas).
+- **Décor d'époque du jeu pas pris** (avion P-51 à la place de l'hélicoptère, jeeps) : la scène garde son décor (réglage « décor d'avant » du
+  jeu). Question ci-dessous.
+- Comparer : `?tenues=avant` (tenues de la première v2) ; autre tenue du zombie : `?zbtenue=epoque-B:capote` (par exemple).
+- Vérifications : `node scene-v2/outils/verifier.mjs` 51/51 ; boucle parfaite (paysage 0,48 pour une moyenne de 0,55 ; portrait 0,46 pour 0,59) ;
+  `copier-jeu.mjs --verifier` conforme ; planche refaite.
+- Questions : (1) prendre aussi le **décor d'époque** du jeu (avion écrasé au lieu de l'hélicoptère, jeeps) ? (2) **tenue du zombie** : soldat
+  casqué, ou une autre des douze (au calot, en capote, sous-officier, officier, tête nue) ? (3) couleurs du jeu très claires sous les lampes
+  de la scène : les garder telles quelles ?
+
 ## État git
 - Commits `accueil-v2 A` à `accueil-v2 E` sur la branche `accueil-v2` (poussée), PR vers `main` fusionnée par l'agent (règle de
   `CLAUDE.md`) : rien n'est visible des visiteurs.

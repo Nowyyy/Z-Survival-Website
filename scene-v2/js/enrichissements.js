@@ -137,13 +137,31 @@ function militaire(riche) {
 }
 
 // Copie des données des personnages, enrichie (variantes « riche » du joueur et des zombies).
-export function enrichirPersonnages(characters) {
+// v2 : casques des tenues d'époque du jeu (casque M1 des survivants, modèle 1935 des zombies) : faits pour la vue de dessus, de loin, ils
+// descendent jusque sur les yeux (dôme plein et bord à hauteur des sourcils) ; de près, on ne voyait plus ni les yeux, ni les sourcils froncés,
+// ni le clin d'œil du personnage 1. Ils sont remontés et le dôme un peu aplati : bord au-dessus des sourcils, jugulaires allongées d'autant.
+function casquesRemontes(v) {
+  for (const p of v.parts) {
+    if (p.joint !== 'head' || !Array.isArray(p.offset)) continue;
+    const o = [...p.offset];
+    if (/^(m1|m35)Dome$/.test(p.id)) { o[1] += 1.9; p.dims = { ...p.dims, ry: p.dims.ry * 0.82 }; }
+    else if (p.id === 'm1Bord') o[1] += 1.5;
+    else if (p.id === 'm35Jupe') { o[1] += 1.6; p.dims = { ...p.dims, r0: p.dims.r0 * 0.93 }; }
+    else if (/^m1Jugulaire/.test(p.id)) { o[1] += 1; p.dims = { ...p.dims, h: p.dims.h + 2 }; }
+    else continue;
+    p.offset = o;
+  }
+}
+
+// v2 (lot 5a) : p1 : variante du personnage 1 (visage en colère, paupières du clin d'œil) ; les variantes d'époque du jeu (lot 9g du jeu, niveau
+// complet, construites par persos-variants.js du jeu) sont enrichies comme les autres (visage, pouces, bras allongés ; zombies : visage, épaules).
+export function enrichirPersonnages(characters, { p1 = 'riche' } = {}) {
   const c = structuredClone(characters);
   const joueur = c.slots.find((x) => x.id === 'joueur');
   const riche = joueur?.variants.find((x) => x.id === 'riche');
   if (riche && !joueur.variants.some((x) => x.id === MILITAIRE)) joueur.variants.push(militaire(riche));
   // Joueur : toutes ses variantes (dont « militaire », le personnage 2) ; zombies : la variante « riche ».
-  const cibles = c.slots.flatMap((slot) => slot.variants.filter((x) => x.id === 'riche' || (x.kind === 'player' && ['A', 'B', 'C', MILITAIRE].includes(x.id))));
+  const cibles = c.slots.flatMap((slot) => slot.variants.filter((x) => x.id === 'riche' || (x.kind === 'player' && ['A', 'B', 'C', MILITAIRE].includes(x.id)) || (x.epoque === true && x.niveau === 'complet')));
   for (const v of cibles) {
     const ids = new Set(v.parts.map((p) => p.id));
     const add = (list) => v.parts.push(...list.filter((p) => !ids.has(p.id)));
@@ -151,12 +169,13 @@ export function enrichirPersonnages(characters) {
     // dessus mais qui flottent comme des carrés vus de près (retour du propriétaire : « le carré qui dépasse du coude ») : retirés.
     v.parts = v.parts.filter((p) => p.kind !== 'quad');
     lisser(v.parts);
+    if (v.epoque === true) casquesRemontes(v);
     if (v.kind === 'player') {
       allongerBras(v);
       if (v.id === 'riche') torseSousGilet(v, 17.5 / 2); // gilet du jeu (vestA, 17,5 de large)
       if (v.id === MILITAIRE) torseSousGilet(v, 16 / 2); // gilet pare-balles (16 de large)
-      add(visageSurvivant({ colere: v.id === 'riche' })); // personnage 1 (variante « riche ») en colère
-      if (v.id === 'riche') add(paupiere());
+      add(visageSurvivant({ colere: v.id === p1 })); // personnage 1 en colère
+      if (v.id === p1) add(paupiere());
       add(pouce());
       if (v.id === MILITAIRE) for (const p of v.parts) if (p.id === 'pouceL') Object.assign(p, { palette: 'sombre', skin: false }); // gants
       // (v2 : pas d'enrichissement du pistolet : les armes sont celles du jeu, js/armes.js.)

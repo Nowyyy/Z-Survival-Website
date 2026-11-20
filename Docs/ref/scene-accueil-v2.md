@@ -15,7 +15,8 @@ sur demande du propriétaire.
 ## Ce qui change par rapport à la v1
 | | v1 (vidéo publique) | v2 |
 |---|---|---|
-| Copie du jeu | `scene/jeu/`, `dev` @ `3c25e3a` (14/11/2026) | `scene-v2/jeu/`, `dev` @ `622df2c` (19/11/2026), voir `scene-v2/jeu/ORIGINE.json` |
+| Copie du jeu | `scene/jeu/`, `dev` @ `3c25e3a` (14/11/2026) | `scene-v2/jeu/`, `dev` @ `2f7716a` (20/11/2026 ; première copie `622df2c`), voir `scene-v2/jeu/ORIGINE.json` |
+| Tenues | survivant tactique (casquette, gilet), militaire construit dans la scène, zombie en blouse | **tenues d'époque du jeu** : Survivant (fantassin américain de 1942), parachutiste radio, zombie soldat casqué |
 | Personnage 1 (à genou) | ancien pistolet du jeu (enrichi), tenu bras tendus | **Kar98k** du jeu, épaulé **en gaucher** |
 | Personnage 2 (pied sur le zombie) | ancien pistolet | **Colt M1911** du jeu |
 | Visée du personnage 1 | au loin, à droite de la caméra | au loin, à droite de la caméra (comme la v1) |
@@ -95,11 +96,30 @@ personnage 1, tenues, visages, barbe, gilets.
 - Mise en place (lot ultérieur) : copier ces fichiers dans `img/accueil/`, relancer `outils/video/verifier-accueil.mjs`. Les instants de
   tir étant les mêmes (`TEMPS_TIRS`), le site n'a rien d'autre à changer. L'affiche (`TEMPS_AFFICHE` = 1,9 s) convient aussi à la v2.
 
+## Tenues d'époque (copie `dev` @ `2f7716a`, lot 9g du jeu)
+- Construites par le code du jeu copié (`slotsWithEpoch` de `js/core/persos-variants.js`, niveau complet) à partir des recettes
+  `data/game/persos-epoque.json`, avec les choix du jeu (`data/game/persos-epoque-choix.json`) :
+  - **personnage 1** = Survivant `epoque-A`, tenue `standard` : casque M1 gris à jugulaire, veste M41 sable, pantalon olive, guêtres, ceinturon,
+    bretelles, gourde ;
+  - **personnage 2** = personnage 2 du jeu `para-B` (parachutiste radio), tenue `standard` : casque à filet, poste radio dorsal à antenne,
+    harnais, poches de cuisse, bottes de saut ;
+  - **zombie** = zombie soldat du marcheur `epoque-A`, tenue `soldat` (casque modèle 1935, veste, bretelles en Y, cartouchières). Le jeu mélange
+    les variantes A et B et tire une tenue parmi douze ; la scène en montre une : `?zbtenue=variante:tenue` pour en essayer une autre (par
+    exemple `?zbtenue=epoque-B:capote`).
+- Enrichissements de la scène appliqués aux variantes d'époque comme aux autres (`scene-v2/js/enrichissements.js`) : visage (personnage 1 en
+  colère, paupières du clin d'œil), pouces, bras allongés, sphères plus fines, textures en 512 px ; zombies : visage, bouche, yeux, épaules.
+  **Casques remontés** (`casquesRemontes`) : faits pour la vue de dessus, ils descendaient jusque sur les yeux ; dôme remonté de 1,9 et un peu
+  aplati, bord au-dessus des sourcils, jugulaires allongées. Plus de gilets texturés (tenues de la première v2 seulement) ; barbe gardée.
+- La lampe du personnage 2 (casque du militaire) est éteinte : le parachutiste n'en a pas (`?frontale=1` la rallume).
+- `?tenues=avant` : les tenues de la première v2 (survivant tactique, militaire, zombie en blouse), pour comparer.
+- Couleurs : celles du jeu, très claires (règle de contraste du jeu pour la vue de dessus sur un sol sombre) ; sous les lampes chaudes de la
+  scène, les tenues paraissent sable et le gris-vert des zombies très pâle.
+- **Décor d'époque du jeu pas encore pris** (lot 9h du jeu : avion P-51 écrasé à la place de l'hélicoptère, jeeps et camion à la place des
+  voitures) : la scène retire la clé `epoque` de `decor.json` (`scene-v2/js/monde.js`), comme le réglage `?test=1&decor=avant` du jeu.
+
 ## À venir côté jeu
-- **Skins des personnages** : nouvelles pièces et proportions des survivants. À reprendre : enrichissements (visage, paupière, barbe, gilets,
-  tenue « militaire » construite dans la scène, `scene-v2/js/enrichissements.js`), prises des armes et poses ; décider s'il faut passer au
-  corps long.
-- **Skins des zombies** : visage, bouche, yeux et épaules ajoutés par la scène ; pose à plat ventre et bras tendu.
+- **Décor d'époque** (déjà dans la copie, lot 9h du jeu) : remplacer l'hélicoptère de la scène par l'avion écrasé, les voitures par les
+  véhicules d'époque ; à faire sur demande.
 - **Carte** : la scène est posée dans la cour du bâtiment (`stage` dans `scene-v2/js/scene.js`), décor dégagé devant les caméras ;
   hélicoptère agrandi et déplacé (`scene-v2/js/helico.js`). Une nouvelle carte demandera sans doute de reposer la scène, d'ajouter ses fichiers
   à la liste de `outils/scene/copier-jeu.mjs` (`DONNEES`) et de revoir les cadrages.
