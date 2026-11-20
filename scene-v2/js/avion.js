@@ -9,13 +9,19 @@ import { environnementNuit } from './helico.js';
 
 // Échelle (le jeu : 1 ; l'avion du jeu est à 28 unités par mètre, les personnages de la scène sont grandis de 1,6) et décalage de son centre
 // (unités du jeu, même décalage que l'hélicoptère de la scène : il ne traverse pas les murs de l'angle du L).
-export const AVION = { k: 2.2, decalage: [150, -125], tangage: 11, roulis: 0, lacet: 0 };
+export const AVION = { k: 2.2, decalage: [150, -125], tangage: 7, enfoncement: 10, roulis: 0, lacet: 0 };
+// Aile arrachée (retour du propriétaire : « une partie de l'avion sur la partie gauche, vide ») : l'aile gauche du modèle (aile-g), projetée
+// loin de l'épave, plantée dans le sol de biais à gauche de l'image (position donnée par js/scene.js, repère de la scène) : inclinaison autour de
+// sa corde (degrés), cap (degrés), part enfoncée sous le sol (0 à 1, de sa hauteur une fois inclinée).
+export const AILE = { inclinaison: 55, cap: 20, enfouie: 0.28 };
+const nombre = (cle, def) => { const v = Number(new URLSearchParams(location.search).get(cle)); return Number.isFinite(v) && new URLSearchParams(location.search).has(cle) ? v : def; };
 // Pose d'avion écrasé (enrichissement de la scène ; dans le jeu, vu de dessus, l'avion est posé à plat) : nez planté dans le sol (tangage, en
-// degrés, autour du nez ; roulis possible, 0 : aile relevée, elle se lisait comme une planche qui flotte) ; l’aile arrachée (aile-g) reste au sol. Sinon, vu de
-// face et au ras du sol, l'avion n'était qu'un long bloc bas derrière les personnages.
+// degrés, autour du nez ; roulis possible, 0 : aile relevée, elle se lisait comme une planche qui flotte), puis tout l'avion enfoncé dans la terre
+// (enfoncement, unités du modèle ; retour du propriétaire : « on dirait qu'il flotte »). Sinon, vu de face et au ras du sol, l'avion n'était qu'un
+// long bloc bas derrière les personnages. L'aile arrachée (aile-g) est posée à part (AILE).
 const DEG = Math.PI / 180;
 function poseEcrase(p, part) {
-  if (part === 'aile-g') return p;
+  if (part === 'aile-g') return [p[0], p[1] - 2, p[2]]; // (aile laissée près de l'épave, si aucune place n'est donnée)
   const t = AVION.tangage * DEG;
   const r = AVION.roulis * DEG;
   // Roulis autour de l'axe du fuselage (x), aile droite (z > 0) vers le haut.
@@ -28,7 +34,7 @@ function poseEcrase(p, part) {
   const l = AVION.lacet * DEG;
   const ex = x - 100;
   [x, z] = [100 + ex * Math.cos(l) - z * Math.sin(l), ex * Math.sin(l) + z * Math.cos(l)];
-  return [x, Math.max(y, p[1] < 0.5 ? 0 : y), z];
+  return [x, y - AVION.enfoncement, z];
 }
 
 const camel = (token) => token.replace(/-(\w)/g, (_, ch) => ch.toUpperCase());
@@ -63,7 +69,8 @@ function geometrie(tris) {
 
 // epoque : section « epoque » du décor du jeu (decor.json) ; avion : son objet « avion » ; lookup : jetons de couleur ; floor : emprise du bâtiment.
 // Renvoie un groupe, avec userData.foyers (flammes) et userData.centre, comme l'hélicoptère.
-export function creerAvion({ epoque, avion, lookup, floor, palette, textures, renderer = null, k = AVION.k, lacet = null }) {
+// aile : position (monde) de l'aile arrachée, ou null (elle reste près de l'épave, comme dans le jeu).
+export function creerAvion({ epoque, avion, lookup, floor, palette, textures, renderer = null, k = AVION.k, lacet = null, aile = null }) {
   if (lacet !== null) AVION.lacet = lacet; // atelier : ?avionlacet=degrés
   const spec = avion.spec;
   const x0 = spec.x + AVION.decalage[0];
@@ -94,10 +101,28 @@ export function creerAvion({ epoque, avion, lookup, floor, palette, textures, re
   };
   const tourneN = (n) => [n[0] * Math.cos(theta) - n[2] * Math.sin(theta), n[1], n[0] * Math.sin(theta) + n[2] * Math.cos(theta)];
   // Modèle sans cap, posé en avion écrasé, puis cap, échelle et place ; normales recalculées.
+  // Aile arrachée : recentrée sur son milieu, inclinée autour de sa corde (x), tournée (cap), agrandie, posée à `aile` et enfoncée en partie.
+  const aileTris = sansCap.triangles.filter((t) => t.part === 'aile-g');
+  const c = [0, 1, 2].map((i) => aileTris.reduce((sum, t) => sum + t.p.reduce((a, q) => a + q[i], 0), 0) / (aileTris.length * 3));
+  const ai = nombre('aileinc', AILE.inclinaison) * DEG; // atelier : ?aileinc=, ?ailecap=
+  const ac = nombre('ailecap', AILE.cap) * DEG;
+  const poseAile = (q) => {
+    let [x, y, z] = [q[0] - c[0], q[1] - c[1], q[2] - c[2]];
+    [y, z] = [y * Math.cos(ai) - z * Math.sin(ai), y * Math.sin(ai) + z * Math.cos(ai)];
+    [x, z] = [x * Math.cos(ac) - z * Math.sin(ac), x * Math.sin(ac) + z * Math.cos(ac)];
+    return [x * k, y * k, z * k];
+  };
+  let basAile = Infinity;
+  let hautAile = -Infinity;
+  for (const t of aileTris) for (const q of t.p) { const y = poseAile(q)[1]; basAile = Math.min(basAile, y); hautAile = Math.max(hautAile, y); }
+  const placeAile = (q) => {
+    const r = poseAile(q);
+    return [aile.x + r[0], r[1] - basAile - AILE.enfouie * (hautAile - basAile), aile.z + r[2]];
+  };
   const tris = sansCap.triangles.map((t) => {
-    const p = t.p.map((q) => place(poseEcrase(q, t.part)));
+    const p = t.p.map((q) => (aile && t.part === 'aile-g' ? placeAile(q) : place(poseEcrase(q, t.part))));
     const n = new THREE.Vector3(...p[1]).sub(new THREE.Vector3(...p[0])).cross(new THREE.Vector3(...p[2]).sub(new THREE.Vector3(...p[0]))).normalize();
-    const n0 = tourneN(t.n);
+    const n0 = aile && t.part === 'aile-g' ? poseAile([t.n[0] + c[0], t.n[1] + c[1], t.n[2] + c[2]]).map((v) => v / k) : tourneN(t.n);
     if (n.dot(new THREE.Vector3(...n0)) < 0) n.negate();
     return { ...t, p, n: [n.x, n.y, n.z], rgb: teinte(t.mat) };
   });
@@ -132,6 +157,7 @@ export function creerAvion({ epoque, avion, lookup, floor, palette, textures, re
   // Foyers des flammes (moteur à l'avant, emplanture de l'aile arrachée, poste de pilotage) et centre, en coordonnées de scène.
   const at = (x, y, z) => new THREE.Vector3(...place(poseEcrase([x, y, z], 'fuselage')));
   group.userData.foyers = [at(82, 32, 0), at(10, 9, -36), at(-5, 38, 0)];
+  if (aile) group.userData.aile = new THREE.Vector3(aile.x, 0, aile.z);
   group.userData.centre = at(0, 25, 0);
   return group;
 }

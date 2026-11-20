@@ -67,7 +67,7 @@ try {
 
   // Hélicoptère agrandi, à la place de celui du jeu, et son incendie.
   // v2 : décor d'époque du jeu : l'avion écrasé (agrandi, en flammes) à la place de l'hélicoptère ; ?decor=avant : l'hélicoptère.
-  const heli = m.avion ? creerAvion({ epoque: m.epoque, avion: m.avion, lookup: m.lookup, floor: m.layout.floor, palette, textures, renderer, lacet: q.get('avionlacet') !== null ? Number(q.get('avionlacet')) : null }) : creerHelico({ heli: m.helico, floor: m.layout.floor, palette, textures, details, renderer });
+  const heli = m.avion ? creerAvion({ epoque: m.epoque, avion: m.avion, lookup: m.lookup, floor: m.layout.floor, palette, textures, renderer, lacet: q.get('avionlacet') !== null ? Number(q.get('avionlacet')) : null, aile: stage.localToWorld(new THREE.Vector3(...nums(q.get('aile'), [-70, 0, -130]))) }) : creerHelico({ heli: m.helico, floor: m.layout.floor, palette, textures, details, renderer });
   scene.add(heli);
   const feuHelico = creerFeu({ foyers: heli.userData.foyers, spread: 16, scale: 1.1, palette, flames: 140, smoke: 90, seed: 3, wind: new THREE.Vector3(34, 0, 0), smokeColor: palette.smokeLight, smokeAlpha: 0.26 });
   scene.add(feuHelico.group);
