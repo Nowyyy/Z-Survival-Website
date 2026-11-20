@@ -203,7 +203,7 @@ function texturePeinteMetal() {
 
 // heli : décor du jeu (layout.decor.helicopter) ; floor : emprise du bâtiment (le cratère n'y entre pas). Renvoie un groupe.
 // Reflets du métal (détails) : petite image d'environnement de nuit (ciel bleu-noir, lune, lueur orange du feu), préfiltrée par Three.js.
-function environnementNuit(renderer, palette) {
+export function environnementNuit(renderer, palette) {
   const env = new THREE.Scene();
   const ciel = new THREE.Mesh(new THREE.SphereGeometry(100, 32, 16), new THREE.ShaderMaterial({
     side: THREE.BackSide,

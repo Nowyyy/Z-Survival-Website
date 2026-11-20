@@ -26,9 +26,10 @@ export async function chargerDonnees() {
     json('jeu/data/game/zombie-variants.json'), json(`${CARTE}/lampes.world.json`),
     json('jeu/data/game/persos-epoque.json'), json('jeu/data/game/persos-epoque-choix.json'), // v2 : tenues d'époque du jeu (lot 9g du jeu)
   ]);
-  // v2 : le décor extérieur d'époque du jeu (lot 9h du jeu : avion P-51 à la place de l'hélicoptère, jeeps à la place des voitures) n'est pas
-  // encore pris par la scène : clé « epoque » retirée, comme le réglage ?test=1&decor=avant du jeu (js/game/main.js) : décor d'avant.
-  delete decor.epoque;
+  // v2 : décor extérieur d'époque du jeu (lot 9h du jeu : avion P-51 à la place de l'hélicoptère, jeeps et camion à la place des voitures,
+  // parachute, barbelés, hérissons, poteaux télégraphiques, trous d'obus). ?decor=avant : décor d'avant (hélicoptère, voitures), comme le réglage
+  // ?test=1&decor=avant du jeu (js/game/main.js).
+  if (new URLSearchParams(location.search).get('decor') === 'avant') delete decor.epoque;
   return { world, decor, zones, etage, decorInterieur, mobilier, feux, render, texturesCfg, camera, windows, characters, poses, choix, variants, lampes, epoque, epoqueChoix };
 }
 
@@ -61,6 +62,16 @@ export async function construireMonde(d, renderer, { reduced = false, sansHelico
   // Décor « vivant » du jeu (flaques, gravats, arbres morts…, js/core/decor-vivant.js) : rien dans les zones libres (rectangles { x, y, w, h }),
   // par la liste keepOut que le jeu utilise déjà pour les épaves.
   if (zonesLibres.length && layout.decor) layout.decor = { ...layout.decor, keepOut: [...(layout.decor.keepOut ?? []), ...zonesLibres] };
+  // v2, décor d'époque : la scène dessine son propre avion (agrandi, en flammes : js/avion.js) ; celui du jeu est retiré (avec son cratère et sa
+  // fumée), ainsi que les objets d'époque entre les caméras et la scène (comme les voitures et les arbres).
+  const avion = layout.decor?.epoque?.objets?.find((o) => o.type === 'avion') ?? null;
+  const retiresEpoque = [];
+  if (layout.decor?.epoque) {
+    const centreE = (o) => [o.emprise.x + o.emprise.w / 2, o.emprise.y + o.emprise.h / 2];
+    const objets = layout.decor.epoque.objets.filter((o) => o.type !== 'avion' && !(degage && o.emprise && degage(...centreE(o))));
+    retiresEpoque.push(...layout.decor.epoque.objets.filter((o) => !objets.includes(o)).map((o) => o.id));
+    layout.decor = { ...layout.decor, epoque: { ...layout.decor.epoque, objets } };
+  }
   const geoms = layouts.floors.flatMap((f) => windowGeometries(windowsWithGaps(layouts[f]), d.windows).map((g) => ({ ...g, floor: f })));
   const world = buildWorld({ palette, layout, layouts, render, textures, windowGeoms: geoms, windowsCfg: d.windows, seed: 1, closedDoors: (layouts.doors ?? []).map((x) => x.id), stairs: layouts.multi ? layouts.stairs : [] });
   // Planches clouées sur toutes les fenêtres (état de départ d'une partie).
@@ -69,5 +80,5 @@ export async function construireMonde(d, renderer, { reduced = false, sansHelico
   // Feux du jeu (caisses, bidons, voiture) : leurs particules avancent avec le temps de jeu, sans boucle. La scène les cache et
   // dessine ses propres feux en boucle (js/feu.js).
   world.scene.traverse((o) => { if (o.isGroup && /^feu-|^fumee-/.test(o.name)) o.visible = false; });
-  return { world, palette, lookup, render, layout, layouts, textures, helico };
+  return { world, palette, lookup, render, layout, layouts, textures, helico, avion, epoque: layout.decor?.epoque ?? null, retiresEpoque };
 }
