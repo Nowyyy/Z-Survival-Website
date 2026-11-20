@@ -12,6 +12,7 @@ import { CADRAGES, FORMATS } from './cadrages.js';
 import { MILITAIRE, enrichirPersonnages, enrichirPoses, peindreBarbe, texturerGilet, texturesFines } from './enrichissements.js';
 import { creerFeu } from './feu.js';
 import { creerHelico } from './helico.js';
+import { creerAvion } from './avion.js';
 import { GLISSIERE, TIR, TIR_P2, creerTir, ejectionKar, finManoeuvre, glissiereAt, manoeuvreAt } from './tir.js';
 import { chargerArmes, creerFabriqueArmes } from './armes.js';
 import { chargerDonnees, construireMonde } from './monde.js';
@@ -65,7 +66,8 @@ try {
   scene.add(stage);
 
   // Hélicoptère agrandi, à la place de celui du jeu, et son incendie.
-  const heli = creerHelico({ heli: m.helico, floor: m.layout.floor, palette, textures, details, renderer });
+  // v2 : décor d'époque du jeu : l'avion écrasé (agrandi, en flammes) à la place de l'hélicoptère ; ?decor=avant : l'hélicoptère.
+  const heli = m.avion ? creerAvion({ epoque: m.epoque, avion: m.avion, lookup: m.lookup, floor: m.layout.floor, palette, textures, renderer, lacet: q.get('avionlacet') !== null ? Number(q.get('avionlacet')) : null }) : creerHelico({ heli: m.helico, floor: m.layout.floor, palette, textures, details, renderer });
   scene.add(heli);
   const feuHelico = creerFeu({ foyers: heli.userData.foyers, spread: 16, scale: 1.1, palette, flames: 140, smoke: 90, seed: 3, wind: new THREE.Vector3(34, 0, 0), smokeColor: palette.smokeLight, smokeAlpha: 0.26 });
   scene.add(feuHelico.group);
@@ -297,6 +299,7 @@ try {
     eclairs: () => [tir, tir2].map((x) => Boolean(x?.group.children[0].visible)),
     atelier: { p1, p2, zb, stage, THREE, kar, colt, ATELIER, FUSIL, PRISES, manoeuvreAt, tir, tir2, camera, regardP1 },
     armes: { p1: { id: kar.id, nom: kar.nom, variante: kar.variante, triangles: kar.triangles }, p2: { id: colt.id, nom: colt.nom, variante: colt.variante, triangles: colt.triangles } },
+    decor: { avion: Boolean(m.avion), retiresEpoque: m.retiresEpoque ?? [] },
     info: () => ({ cadrage, format, duree: DUREE, taille: [toile.width, toile.height], triangles: renderer.info.render.triangles, appels: renderer.info.render.calls }),
   };
 } catch (e) {

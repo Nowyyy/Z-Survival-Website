@@ -70,7 +70,7 @@ try {
       const m = s.atelier.manoeuvreAt;
       const kar = s.atelier.kar;
       return {
-        armes: s.armes, fin, jonction, voisins, eclairs,
+        armes: s.armes, decor: s.decor, fin, jonction, voisins, eclairs,
         // Coup d'œil du personnage 1 : jamais pendant la manœuvre du verrou (main droite sur le levier).
         regardPendantVerrou: Array.from({ length: 160 }, (_, i) => i * duree / 160).some((t) => m(t, kar).main > 0 && s.atelier.regardP1(t) > 0),
         regardApres: s.atelier.regardP1(7.6),
@@ -85,6 +85,7 @@ try {
     verifier(`${n} : aucune requête hors du site`, dehors(requetes).length === 0, dehors(requetes).join(' '));
     verifier(`${n} : noindex`, r.noindex === 'noindex, nofollow');
     verifier(`${n} : armes Kar98k (personnage 1) et Colt (personnage 2)`, r.armes?.p1?.id === 'kar98k' && r.armes?.p2?.id === 'm1911', JSON.stringify(r.armes));
+    verifier(`${n} : décor d'époque du jeu, avion écrasé à la place de l'hélicoptère`, r.decor?.avion === true, JSON.stringify(r.decor));
     verifier(`${n} : image à ${DUREE_BOUCLE} s identique à l'image à 0 s`, r.fin === 0, `écart ${r.fin}`);
     const maxV = Math.max(...r.voisins);
     verifier(`${n} : boucle sans saut (jonction comme une image voisine)`, r.jonction <= Math.max(1.5 * maxV, 0.5), `jonction ${r.jonction.toFixed(3)}, voisines ${r.voisins.map((x) => x.toFixed(3)).join(' ')}`);

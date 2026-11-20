@@ -190,6 +190,17 @@ recule puis revient) ; boucle parfaite (paysage 0,50 pour une moyenne de 0,56 ; 
 - « C'est bon pour le perso » : personnages de la v2 validés par le propriétaire (tenues d'époque, casques remontés, veste d'un seul bloc,
   trame adoucie, contraste veste / pantalon). Restent ouverts : décor d'époque du jeu (avion écrasé au lieu de l'hélicoptère) et tenue du zombie.
 
+## Décor d'époque (20/11/2026, branche `accueil-v2-decor`)
+- Demande : « laisse le zombie comme ça ; modifie le décor extérieur pour coller à la nouvelle mise à jour du jeu ».
+- Décor extérieur de 1942 du jeu (lot 9h du jeu) pris tel quel : jeeps à la place des voitures, camion, barbelés, hérissons, poteaux
+  télégraphiques, trous d'obus, caisses, projecteur. Seul le parachute, juste devant une caméra, est retiré (comme les arbres et voitures).
+- **Avion P-51 écrasé à la place de l'hélicoptère** : modèle du jeu agrandi (× 2,2) et décalé comme l'hélicoptère, nez planté dans le sol et
+  queue relevée, en flammes (le feu reste entre les deux personnages), cratère et traînée du jeu. Posé à plat, il n'était qu'un long bloc bas
+  derrière les personnages ; une aile relevée se lisait comme une planche qui flotte (retirée) ; pivoté, il passait derrière le personnage 2.
+- Comparer : `?decor=avant` (hélicoptère). Zombie inchangé (soldat casqué).
+- Vérifications : `node scene-v2/outils/verifier.mjs` 53/53 (contrôle ajouté : avion à la place de l'hélicoptère) ; boucle parfaite (paysage 0,44
+  pour une moyenne de 0,54 ; portrait 0,43 pour 0,59) ; planche refaite.
+
 ## État git
 - Commits `accueil-v2 A` à `accueil-v2 E` sur la branche `accueil-v2` (poussée), PR vers `main` fusionnée par l'agent (règle de
   `CLAUDE.md`) : rien n'est visible des visiteurs.

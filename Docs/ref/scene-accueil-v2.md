@@ -126,12 +126,21 @@ personnage 1, tenues, visages, barbe, gilets.
 - `?tenues=avant` : les tenues de la première v2 (survivant tactique, militaire, zombie en blouse), pour comparer.
 - Couleurs : celles du jeu, très claires (règle de contraste du jeu pour la vue de dessus sur un sol sombre) ; sous les lampes chaudes de la
   scène, les tenues paraissent sable et le gris-vert des zombies très pâle.
-- **Décor d'époque du jeu pas encore pris** (lot 9h du jeu : avion P-51 écrasé à la place de l'hélicoptère, jeeps et camion à la place des
-  voitures) : la scène retire la clé `epoque` de `decor.json` (`scene-v2/js/monde.js`), comme le réglage `?test=1&decor=avant` du jeu.
+
+## Décor d'époque (lot 9h du jeu, demande du propriétaire du 20/11/2026)
+- Le décor extérieur du jeu de 1942 est pris tel quel (`decor.json` → `epoque`, construit par `js/game/world.js` et `js/core/decor-epoque.js` du
+  jeu) : jeeps et Kübelwagen à la place des voitures, camion, barbelés, hérissons, panneau, jerrycans, caisses, projecteur, trous d'obus,
+  poteaux télégraphiques et leurs fils. Comme les voitures et les arbres, les objets entre les caméras et la scène sont retirés : seul le
+  **parachute** (sur un arbre mort, tout près de la scène) l'est (`__scene.decor.retiresEpoque`).
+- **Avion écrasé** (P-51) à la place de l'hélicoptère (`scene-v2/js/avion.js`) : le modèle du jeu (même atlas d'époque, mêmes teintes, cratère et
+  traînée du jeu), **agrandi** (× 2,2 : dans le jeu, l'avion est à 28 unités par mètre et les personnages de la scène sont grandis de 1,6),
+  **décalé** comme l'était l'hélicoptère, posé **nez planté dans le sol, queue relevée** (11°, autour du nez ; l'aile arrachée reste au sol) et
+  **en flammes** (feu en boucle de la scène sur le moteur et l'emplanture de l'aile ; dans la partie, il fume sans brûler). Tôle un peu
+  métallique (reflets de la petite image d'environnement de nuit de l'hélicoptère).
+- `?decor=avant` : l'ancien décor (hélicoptère agrandi, voitures), comme le réglage `?test=1&decor=avant` du jeu. Atelier : `?avionlacet=degrés`
+  fait pivoter l'épave autour du nez (essais à 140, 180, 220° : l'avion passait derrière le personnage 2 et le mur ; orientation du jeu gardée).
 
 ## À venir côté jeu
-- **Décor d'époque** (déjà dans la copie, lot 9h du jeu) : remplacer l'hélicoptère de la scène par l'avion écrasé, les voitures par les
-  véhicules d'époque ; à faire sur demande.
 - **Carte** : la scène est posée dans la cour du bâtiment (`stage` dans `scene-v2/js/scene.js`), décor dégagé devant les caméras ;
   hélicoptère agrandi et déplacé (`scene-v2/js/helico.js`). Une nouvelle carte demandera sans doute de reposer la scène, d'ajouter ses fichiers
   à la liste de `outils/scene/copier-jeu.mjs` (`DONNEES`) et de revoir les cadrages.
