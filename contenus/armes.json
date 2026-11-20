@@ -6,24 +6,24 @@
   ],
   "armes": [
     {
-      "id": "m1911", "nom": "Colt M1911", "nomEn": null, "categorie": "pistolet", "famille": "poing", "ordre": 1, "chapitres": [1], "prochainement": true, "aRelire": true, "stats": null, "statsVisibles": false,
+      "id": "m1911", "nom": "Colt M1911", "nomEn": null, "categorie": "pistolet", "famille": "poing", "ordre": 1, "chapitres": [1], "prochainement": true, "aRelire": false, "stats": null, "statsVisibles": false,
       "description": {
-        "fr": "L’arme de départ, celle qu’on ne lâche jamais. Robuste et précise, elle suffit pour passer la première nuit… pas beaucoup plus.",
-        "en": "The starting sidearm, the one you never let go of. Sturdy and accurate, it will get you through the first night… not much further."
+        "fr": "L’arme de départ, celle qui ne vous lâche jamais. Robuste et précise, elle suffit pour passer la première nuit… pas beaucoup plus.",
+        "en": "The starting weapon, the one that never lets you down. Sturdy and accurate, it’s enough to make it through the first night… not much longer."
       }
     },
     {
-      "id": "kar98k", "nom": "Kar98k", "nomEn": null, "categorie": "fusil-a-verrou", "famille": "carabine", "ordre": 2, "chapitres": [1], "prochainement": true, "aRelire": true, "stats": null, "statsVisibles": false,
+      "id": "kar98k", "nom": "Kar98k", "nomEn": null, "categorie": "fusil-a-verrou", "famille": "carabine", "ordre": 2, "chapitres": [1], "prochainement": true, "aRelire": false, "stats": null, "statsVisibles": false,
       "description": {
         "fr": "Un fusil à verrou d’une précision redoutable. Chaque balle compte : visez la tête, réarmez, recommencez.",
-        "en": "A deadly accurate bolt-action rifle. Every round counts: aim for the head, work the bolt, repeat."
+        "en": "A bolt-action rifle with deadly accuracy. Every bullet counts: aim for the head, work the bolt, repeat."
       }
     },
     {
-      "id": "winchester1897", "nom": "Winchester M1897", "nomEn": null, "categorie": "fusil-a-pompe", "famille": "pompe", "ordre": 3, "chapitres": [1], "prochainement": true, "aRelire": true, "stats": null, "statsVisibles": false,
+      "id": "winchester1897", "nom": "Winchester M1897", "nomEn": null, "categorie": "fusil-a-pompe", "famille": "pompe", "ordre": 3, "chapitres": [1], "prochainement": true, "aRelire": false, "stats": null, "statsVisibles": false,
       "description": {
         "fr": "Le fusil des tranchées. À bout portant, il vide un couloir entier ; plus loin, mieux vaut courir.",
-        "en": "The trench gun. Point-blank, it clears a whole corridor; any farther, you’d better run."
+        "en": "The trench gun. Point-blank, it clears out an entire hallway; any farther, you’d better run."
       }
     },
     {
@@ -34,17 +34,17 @@
       }
     },
     {
-      "id": "garand", "nom": "M1 Garand", "nomEn": null, "categorie": "fusil-semi-automatique", "famille": "carabine", "ordre": 5, "chapitres": [1], "prochainement": true, "aRelire": true, "stats": null, "statsVisibles": false,
+      "id": "garand", "nom": "M1 Garand", "nomEn": null, "categorie": "fusil-semi-automatique", "famille": "carabine", "ordre": 5, "chapitres": [1], "prochainement": true, "aRelire": false, "stats": null, "statsVisibles": false,
       "description": {
-        "fr": "Semi-automatique et fiable : il tire aussi vite que vous pressez la détente. Le « ping » du clip éjecté annonce qu’il faut recharger.",
-        "en": "Semi-automatic and reliable: it fires as fast as you pull the trigger. The “ping” of the ejected clip tells you it’s time to reload."
+        "fr": "Semi-automatique et fiable : il tire aussi vite que vous pressez la détente. Son chargeur éjecté annonce qu’il faut recharger.",
+        "en": "Semi-automatic and reliable: it fires as fast as you pull the trigger. It's ejected clip tells you it’s time to reload."
       }
     },
     {
-      "id": "stg44", "nom": "StG 44", "nomEn": null, "categorie": "fusil-d-assaut", "famille": "assaut", "ordre": 6, "chapitres": [1], "prochainement": true, "aRelire": true, "stats": null, "statsVisibles": false,
+      "id": "stg44", "nom": "StG 44", "nomEn": null, "categorie": "fusil-d-assaut", "famille": "assaut", "ordre": 6, "chapitres": [1], "prochainement": true, "aRelire": false, "stats": null, "statsVisibles": false,
       "description": {
-        "fr": "Le tout premier fusil d’assaut. Assez rapide pour tenir une porte, assez précis pour garder les morts à distance.",
-        "en": "The very first assault rifle. Fast enough to hold a doorway, accurate enough to keep the dead at bay."
+        "fr": "Le tout premier fusil d’assaut moderne. Assez rapide pour tenir une porte, assez précis pour garder les morts à distance.",
+        "en": "The very first modern assault rifle. Fast enough to hold a door, accurate enough to keep the dead at bay."
       }
     },
     {
@@ -55,17 +55,17 @@
       }
     },
     {
-      "id": "mg42", "nom": "MG42", "nomEn": null, "categorie": "mitrailleuse", "famille": "lourde", "ordre": 8, "chapitres": [1], "prochainement": true, "aRelire": true, "stats": null, "statsVisibles": false,
+      "id": "mg42", "nom": "MG42", "nomEn": null, "categorie": "mitrailleuse", "famille": "lourde", "ordre": 8, "chapitres": [1], "prochainement": true, "aRelire": false, "stats": null, "statsVisibles": false,
       "description": {
         "fr": "Une mitrailleuse au débit infernal. Quand elle se met à chanter, la horde ne passe plus.",
-        "en": "A machine gun with a hellish rate of fire. Once it starts singing, the horde stops coming."
+        "en": "A machine gun with a hellish rate of fire. Once it starts singing, the horde doesn’t get through."
       }
     },
     {
-      "id": "panzerschreck", "nom": "Panzerschreck", "nomEn": null, "categorie": "lance-roquettes", "famille": "speciale", "ordre": 9, "chapitres": [1], "prochainement": true, "aRelire": true, "stats": null, "statsVisibles": false,
+      "id": "panzerschreck", "nom": "Panzerschreck", "nomEn": null, "categorie": "lance-roquettes", "famille": "speciale", "ordre": 9, "chapitres": [1], "prochainement": true, "aRelire": false, "stats": null, "statsVisibles": false,
       "description": {
-        "fr": "Un lance-roquettes antichar, détourné de sa cible. Une roquette, et le groupe de zombies n’est plus qu’un souvenir.",
-        "en": "An anti-tank rocket launcher, put to a new use. One rocket, and that pack of zombies is just a memory."
+        "fr": "Un lance-roquettes antichar, détourné de sa fonction première. Une roquette, et le groupe de zombies n’est plus qu’un souvenir.",
+        "en": "An anti-tank rocket launcher, put to a different use. One rocket, and that pack of zombies is nothing but a memory."
       }
     },
     {
