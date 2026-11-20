@@ -210,14 +210,24 @@ const OEIL_D = V(-1.65, 5.15, 4.35); // œil droit dans le repère de la tête (
 
 // Le buste tourne autour de l'axe vertical pour que son avant soit à `cap` (radians, angle du monde) : rotation appliquée à l'os chest.
 function tournerBuste(p, cap) {
+  // La rotation est répartie entre le bassin (30 %), la colonne (35 %) et la poitrine (le reste) : tournée d'un bloc par la poitrine seule, la
+  // veste se décalait du ventre (retour du propriétaire : « le torse se traverse »). Les pieds restent en place (jambes recalculées ensuite).
+  const tourner = (os, part) => {
+    os.updateMatrixWorld(true);
+    const qw = os.getWorldQuaternion(new THREE.Quaternion());
+    const qp = os.parent.getWorldQuaternion(new THREE.Quaternion());
+    os.quaternion.copy(qp.invert().multiply(new THREE.Quaternion().setFromAxisAngle(UP, part).multiply(qw)));
+    os.updateMatrixWorld(true);
+  };
   const chest = p.bones.get('chest');
   chest.updateMatrixWorld(true);
   const f = V(0, 0, 1).transformDirection(chest.matrixWorld);
-  const d = cap - Math.atan2(f.x, f.z);
-  const qw = chest.getWorldQuaternion(new THREE.Quaternion());
-  const qp = chest.parent.getWorldQuaternion(new THREE.Quaternion());
-  chest.quaternion.copy(qp.invert().multiply(new THREE.Quaternion().setFromAxisAngle(UP, d).multiply(qw)));
+  const d = Math.atan2(Math.sin(cap - Math.atan2(f.x, f.z)), Math.cos(cap - Math.atan2(f.x, f.z)));
+  tourner(p.bones.get('pelvis'), 0.3 * d);
+  tourner(p.bones.get('spine'), 0.35 * d);
   chest.updateMatrixWorld(true);
+  const f2 = V(0, 0, 1).transformDirection(chest.matrixWorld);
+  tourner(chest, cap - Math.atan2(f2.x, f2.z));
 }
 
 export function poseP1(p, stage, t, arme = null) {
@@ -237,19 +247,23 @@ export function poseP1(p, stage, t, arme = null) {
   euler(p.bones.get('spine'), 0.1 + 0.012 * souffle, 0.08, 0);
   euler(p.bones.get('chest'), 0.1 + 0.018 * souffle, 0.12, -0.04);
   p.root.updateMatrixWorld(true);
+  const vise = toWorld(stage, PLACEMENT.p1Vise).add(V(derive * 6 * K, bruit(t, 2, 1) * 4 * K, 0));
+  // Buste de biais : son avant à 17° de la visée, du côté de l'épaule de tir ; au tir, il part un peu en arrière (le recul passe par l'épaule).
+  // (Avant les jambes : la rotation est en partie portée par le bassin, les pieds restent à leur place.)
+  const chest = p.bones.get('chest');
+  if (arme) {
+    const v0 = vise.clone().sub(worldPos(chest));
+    tournerBuste(p, Math.atan2(v0.x, v0.z) - g * FUSIL.lacet);
+    chest.rotateX(-0.06 * r);
+    chest.updateMatrixWorld(true);
+  }
   // Jambe gauche : pied à plat devant, genou levé vers l'avant.
   leg(p, 'L', local(p, GENOU.piedG[0], ANKLE, GENOU.piedG[1]), local(p, 8, 40, 26), dirWorld(p.root, V(0.15, 0, 1)));
   // Jambe droite : genou posé au sol, tibia couché vers l'arrière, orteils repliés (pointe du pied au sol, talon en l'air).
   const [kx, kz] = GENOU.genouD;
   leg(p, 'R', local(p, ...GENOU.chevilleD), local(p, kx, -8, kz + 6), dirWorld(p.root, V(0, -1, -0.35)), dirWorld(p.root, V(0, 0.25, 1)));
-  const vise = toWorld(stage, PLACEMENT.p1Vise).add(V(derive * 6 * K, bruit(t, 2, 1) * 4 * K, 0));
-  if (!arme) return;
-  // Buste de biais : son avant à 17° de la visée, du côté de l'épaule de tir ; au tir, il part un peu en arrière (le recul passe par l'épaule).
-  const chest = p.bones.get('chest');
-  const v0 = vise.clone().sub(worldPos(chest));
-  tournerBuste(p, Math.atan2(v0.x, v0.z) - g * FUSIL.lacet);
-  chest.rotateX(-0.06 * r);
   chest.updateMatrixWorld(true);
+  if (!arme) return;
   // Tête : cou penché vers l'avant, tête dans l'axe de la visée, penchée vers la crosse (joue sur la crosse).
   const neck = p.bones.get('neck');
   const head = p.bones.get('head');
