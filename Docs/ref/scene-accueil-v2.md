@@ -54,13 +54,16 @@ personnage 1, tenues, visages, barbe, gilets.
   fin de la boucle.
 - Point visé et orientation du personnage 1 réglés par tireur et par format (`placement.p1Cap`, `placement.p1Vise` dans
   `scene-v2/js/cadrages.js`) pour que la bouche du fusil et l'éclair restent dans l'image.
+- **Téléphone** : le personnage 1 est décalé de 8 unités vers la gauche (`placement.p1` du cadrage B portrait, `scene-v2/js/cadrages.js`) pour
+  laisser un peu d'espace entre lui et le personnage 2 ; au-delà, son dos sortait du cadre à gauche.
 - **Personnage 2 au Colt** : même pose que la v1 (pied sur le dos du zombie, canon pointé sur sa tête), mains aux prises du Colt
   (`PRISES.m1911` : poing droit autour de la poignée, main gauche qui l'enveloppe), arme un peu plus près du corps (le Colt est plus petit
   que l'ancien pistolet).
 - **Douilles** (`scene-v2/js/tir.js`, `DOUILLE`) : éjectées du côté droit de l'arme, vers le bord de l'image de ce côté et vers le haut, puis
   pesanteur ; elles volent **jusqu'à sortir de l'image** (elles sont cachées seulement une fois hors du champ de la caméra, jamais en l'air)
   et restent au-dessus du sol. Kar98k : quand la culasse est tirée (vers 6,0 s), sortie par le bord gauche en 0,3 s environ ; Colt : au coup
-  de feu (2,6 s), elle traverse l'image vers la gauche (0,8 s environ). Taille lisible (au moins 2,1 de long), laiton qui accroche la
+  de feu (2,6 s), elle part vers le **bord droit** de l'image, tout proche (option `ecran: 1`, choix du propriétaire : elle traversait
+  toute l'image vers la gauche), sortie en 0,2 s (paysage) à 0,6 s (portrait). Taille lisible (au moins 2,1 de long), laiton qui accroche la
   lumière. Toujours cachées avant la fin de la boucle.
 - **Corps** : le jeu a maintenant un « corps long » (épaules à 9 au lieu de 11,5, bras × 1,2). La v2 ne le prend pas encore (`corps: null`
   dans `scene-v2/js/persos.js`) : elle garde les épaules d'avant et ses propres bras allongés (22, presque la longueur du corps long : 22,8),

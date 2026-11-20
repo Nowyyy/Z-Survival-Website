@@ -199,7 +199,10 @@ export function creerTir({ palette, laiton, echelle = 1, instant = TIR, lumiereM
         vitesse.copy(side);
         if (cam) {
           droiteCam.set(1, 0, 0).applyQuaternion(cam.quaternion);
-          vitesse.addScaledVector(droiteCam, side.dot(droiteCam) >= 0 ? 1.1 : -1.1).setY(0).normalize();
+          // J.ecran (facultatif) : bord de l'image imposé (1 : droite, −1 : gauche) ; sinon celui du côté de la fenêtre d'éjection.
+          const bord = J.ecran ?? (side.dot(droiteCam) >= 0 ? 1 : -1);
+          if (J.ecran) vitesse.multiplyScalar(0.25);
+          vitesse.addScaledVector(droiteCam, 1.1 * bord).setY(0).normalize();
         }
         douille.position.copy(depart).addScaledVector(vitesse, J.cote * vol * k).addScaledVector(fwd, -J.arriere * vol * k);
         douille.position.y += (J.haut * vol - 0.5 * J.pesanteur * vol * vol) * k;
