@@ -153,6 +153,35 @@ function casquesRemontes(v) {
   }
 }
 
+// v2 : buste des tenues d'époque des survivants (retour du propriétaire : « les corps ressemblent à des sacs à patates ») : dans le jeu, le
+// torse est une grosse capsule arrondie (poitrine) sur un tronc de cône (ventre), d'une seule couleur ; vu de près, tout s'arrondit. Comme le
+// gilet de la première v2, une veste à la coupe nette (boîte, couleur de la tenue) habille la poitrine ; la capsule rentre dedans et le ventre
+// est un peu resserré. Profondeur choisie pour que bretelles et harnais du jeu (devant la poitrine) restent visibles.
+// Contraste veste / pantalon (même retour) : sous les lampes chaudes de la scène, les couleurs claires du jeu (choisies pour la vue de dessus sur
+// un sol sombre) se confondent en un seul beige. Une teinte de la tenue est assombrie par le réglage « ombre » des couleurs dérivées du jeu
+// (paletteColor de persos-variants.js : aucun jeton nouveau, aucune couleur en dur) : pantalon olive du Survivant, veste verte du parachutiste.
+const CONTRASTE = { 'epoque-A': { pantalon: -0.28 }, 'para-B': { tenue: -0.18 } };
+function contrasteTenue(v) {
+  const c = CONTRASTE[v.id];
+  if (!c) return;
+  const ombrer = (pal) => {
+    for (const [cle, d] of Object.entries(c)) {
+      const e = pal?.[cle];
+      if (typeof e === 'string') pal[cle] = { jeton: e, ombre: d };
+      else if (e && typeof e === 'object') pal[cle] = { ...e, ombre: Math.max(-1, (e.ombre ?? 0) + d) };
+    }
+  };
+  ombrer(v.palette);
+  for (const o of v.outfits ?? []) ombrer(o.palette);
+}
+
+function vesteScene(v) {
+  contrasteTenue(v);
+  torseSousGilet(v, 17.4 / 2);
+  for (const p of v.parts) if (p.id === 'belly' && p.dims) p.dims = { ...p.dims, sx: Math.min(p.dims.sx ?? 1, 1.42) };
+  v.parts.push(box('vesteScene', 'chest', 'tenue', [17.4, 10.6, 10.8], [0, 4.0, 0], [0, 0, 0], { cloth: true }));
+}
+
 // v2 (lot 5a) : p1 : variante du personnage 1 (visage en colère, paupières du clin d'œil) ; les variantes d'époque du jeu (lot 9g du jeu, niveau
 // complet, construites par persos-variants.js du jeu) sont enrichies comme les autres (visage, pouces, bras allongés ; zombies : visage, épaules).
 export function enrichirPersonnages(characters, { p1 = 'riche' } = {}) {
@@ -170,6 +199,7 @@ export function enrichirPersonnages(characters, { p1 = 'riche' } = {}) {
     v.parts = v.parts.filter((p) => p.kind !== 'quad');
     lisser(v.parts);
     if (v.epoque === true) casquesRemontes(v);
+    if (v.epoque === true && v.kind === 'player') vesteScene(v);
     if (v.kind === 'player') {
       allongerBras(v);
       if (v.id === 'riche') torseSousGilet(v, 17.5 / 2); // gilet du jeu (vestA, 17,5 de large)
@@ -191,11 +221,45 @@ export function enrichirPersonnages(characters, { p1 = 'riche' } = {}) {
 
 // Textures des personnages en 512 px (le jeu : 128 px pour le joueur, 256 px pour les zombies) : même motif, même disposition,
 // plus net de près. Appelé avant la création des personnages (les tuiles de blessure clonent cette texture).
-export function texturesFines(kit, slots) {
+// adoucir (v2, tenues d'époque ; retour du propriétaire : « les corps ressemblent à des sacs à patates ») : la trame des tissus du jeu (rayures
+// diagonales et grain, faites pour se lire de loin) est réduite à 40 % de son relief : agrandie sur un torse vu de près, elle faisait toile de
+// jute. Régions de tissu seulement (tissu, toile de pantalon, toile, laine, chevrons) ; peau, cuir, métal, filet, camouflage et sang intacts.
+const GRILLE = 4;
+const REGIONS_TISSU = [0, 1, 5, 9, 10]; // indices des régions de l'atlas du jeu (texgen-persos.js : REGION_KINDS puis EPOQUE_KINDS)
+function adoucirTissus(tex, spec, garde = 0.4) {
+  const n = tex.width;
+  const tuile = n / spec.tiles;
+  const cell = tuile / GRILLE;
+  const d = tex.data;
+  for (const ri of REGIONS_TISSU) {
+    const cx = (ri % GRILLE) * cell;
+    const cy = Math.floor(ri / GRILLE) * cell;
+    // Moyenne de la case dans la tuile 0 (corps propre), par canal.
+    const moy = [0, 0, 0];
+    for (let y = cy; y < cy + cell; y += 1) for (let x = cx; x < cx + cell; x += 1) for (let c = 0; c < 3; c += 1) moy[c] += d[(y * n + x) * 4 + c];
+    for (let c = 0; c < 3; c += 1) moy[c] /= cell * cell;
+    // Le relief de la tuile 0 est retiré à (1 − garde) de chaque tuile (les tuiles de blessure gardent leurs taches de sang).
+    const ecart = new Float32Array(cell * cell * 3);
+    for (let y = 0; y < cell; y += 1) for (let x = 0; x < cell; x += 1) for (let c = 0; c < 3; c += 1) ecart[(y * cell + x) * 3 + c] = d[((cy + y) * n + cx + x) * 4 + c] - moy[c];
+    for (let ty = 0; ty < spec.tiles; ty += 1) {
+      for (let tx = 0; tx < spec.tiles; tx += 1) {
+        for (let y = 0; y < cell; y += 1) {
+          for (let x = 0; x < cell; x += 1) {
+            const i = ((ty * tuile + cy + y) * n + tx * tuile + cx + x) * 4;
+            for (let c = 0; c < 3; c += 1) d[i + c] = Math.max(0, Math.min(255, Math.round(d[i + c] - (1 - garde) * ecart[(y * cell + x) * 3 + c])));
+          }
+        }
+      }
+    }
+  }
+}
+
+export function texturesFines(kit, slots, { adoucir = false } = {}) {
   for (const [slotId, choice] of slots) {
     const k = kit.slotKit(slotId, choice);
     const base = k.woundAt(0).map;
     const tex = createPersoTexture(persoSpec({ ...k.spec, size: 512 }));
+    if (adoucir) adoucirTissus(tex, persoSpec({ ...k.spec, size: 512 }));
     base.image = { data: new Uint8Array(tex.data.buffer), width: tex.width, height: tex.height };
     base.anisotropy = 8;
     base.needsUpdate = true;
