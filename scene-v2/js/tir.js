@@ -62,6 +62,24 @@ export function manoeuvreAt(t, arme) {
   const verrou = def.verrou ?? [];
   return { main: entreCles(mains, s, 1), lift: entreCles(verrou, s, 1), back: entreCles(verrou, s, 2) };
 }
+// Fin de la manœuvre du verrou (secondes depuis le tir) : la main droite est revenue à sa place (dernière clé du jeu).
+export function finManoeuvre(arme) {
+  const c = arme?.manoeuvre?.cles ?? [];
+  return c.length ? MANOEUVRE.depart + c[c.length - 1][0] * MANOEUVRE.lent : 0;
+}
+// Glissière du Colt (pistolet semi-automatique) : au coup de feu elle recule d'un coup (0,05 s), reste un instant en arrière (la douille sort),
+// puis revient en avant (0,08 s) en chargeant la cartouche suivante. Un peu plus lent qu'en vrai (quelques centièmes de seconde) pour se voir
+// à 30 images par seconde. 0 : en place, 1 : tout en arrière.
+export const GLISSIERE = { recul: 0.05, tenue: 0.03, retour: 0.08 };
+export function glissiereAt(t, instant = TIR) {
+  const d = depuis(t, instant);
+  const { recul: a, tenue: b, retour: c } = GLISSIERE;
+  if (d < a) return lisseK(d / a);
+  if (d < a + b) return 1;
+  if (d < a + b + c) return 1 - lisseK((d - a - b) / c);
+  return 0;
+}
+
 // Instant (secondes depuis le tir) où la culasse arrive en arrière : la douille sort.
 export function ejectionKar(arme) {
   const v = arme?.manoeuvre?.verrou ?? [];

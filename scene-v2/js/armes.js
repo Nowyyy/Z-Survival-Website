@@ -5,8 +5,9 @@
 // près ; tout le reste (tailles, épaisseurs, pièces, verrou animé, bretelle déviée de la pose de tenue) vient du jeu.
 // Repère d'une arme (unités du jeu, celles du personnage) : +z vers la bouche, +y vers le haut, +x la gauche du tireur.
 import * as THREE from 'three';
-import { armeParId, avecEchelle, echelleJeu, lireArmes, lireChoix, maillageArme, varianteDe } from '../jeu/js/core/armes/armes.js';
-import { genererAtlas } from '../jeu/js/core/armes/atlas.js';
+import { MATIERES_DEFAUT, TEINTE_NOIR, armeParId, avecEchelle, echelleJeu, lireArmes, lireChoix, maillageArme, piecesArme, varianteDe } from '../jeu/js/core/armes/armes.js';
+import { genererAtlas, rectTuile } from '../jeu/js/core/armes/atlas.js';
+import { maillage } from '../jeu/js/core/armes/geometrie.js';
 import { paletteArmes } from '../jeu/js/core/armes/partie.js';
 import { json } from './monde.js';
 
@@ -47,6 +48,27 @@ function geometrie(m) {
   return g;
 }
 
+// Glissière du Colt M1911 (retour du propriétaire : arme animée au tir). Pistolet semi-automatique : au coup de feu, la glissière (le dessus
+// de l'arme : culasse, canon et sa bague, guidon, hausse, fenêtre d'éjection) recule, éjecte la douille, puis revient en avant en chargeant la
+// cartouche suivante. Le modèle du jeu n'a qu'un maillage : les pièces de la glissière y sont reconnues par leur place (mm, repère du modèle :
+// au-dessus de la carcasse, entre les flancs, devant le chien) ; si le jeu change le modèle, l'arme reste entière, sans animation.
+const estGlissiere = (p) => (p.pos?.[1] ?? 0) >= 36 && Math.abs(p.pos?.[0] ?? 0) < 12 && (p.pos?.[2] ?? 0) >= -54 && !p.chargeur;
+const COURSE_GLISSIERE = 24; // mm de recul de la glissière (course visible du M1911)
+
+// Maillage d'une liste de pièces, avec les réglages de maillageArme du jeu (sans l'élargissement « vue de dessus »).
+function maillagePieces(donnees, arme, v, pieces) {
+  const mat = v?.matieres ?? MATIERES_DEFAUT;
+  return maillage(pieces, {
+    echelle: echelleJeu(donnees, arme),
+    tuile: (role) => rectTuile(mat[role] ?? MATIERES_DEFAUT[role] ?? 'bruni'),
+    teinte: (role) => {
+      const t = v?.teintes?.[role];
+      if (Array.isArray(t) && t.length >= 3) return t.map((x) => (Number.isFinite(x) ? x : 1));
+      return role === 'noir' ? TEINTE_NOIR : [1, 1, 1];
+    },
+  });
+}
+
 // Fabrique des armes : creer(id) → { id, group (à accrocher à l'os « prop »), pointe (bout du canon), prises { droite, gauche, crosse }
 // (points du jeu, mm → unités), verrou (Kar98k : { mesh, axe, angle, course, levier }, sinon null), manoeuvre (clés du jeu, ou null) }.
 export function creerFabriqueArmes(armes, renderer) {
@@ -74,10 +96,23 @@ export function creerFabriqueArmes(armes, renderer) {
       const avecVerrou = mv.positions.length > 0;
       const group = new THREE.Group();
       group.name = `arme-${id}`;
-      const corps = new THREE.Mesh(geometrie(avecVerrou ? maillageArme(donnees, arme, v, { ...opts, verrou: 'sans' }) : entiere), materiau);
+      // Colt : glissière à part (maillage enfant animé au tir), le reste de l'arme fixe.
+      let glissiere = null;
+      let base = avecVerrou ? maillageArme(donnees, arme, v, { ...opts, verrou: 'sans' }) : entiere;
+      if (id === 'm1911') {
+        const pieces = piecesArme(arme, v, 'main', { epaisseur: donnees.echelle.epaisseur ?? 1, seuil: donnees.echelle.seuilEpaisseur ?? 60 });
+        const haut = pieces.filter(estGlissiere);
+        if (haut.length && haut.length < pieces.length) {
+          base = maillagePieces(donnees, arme, v, pieces.filter((p) => !estGlissiere(p)));
+          glissiere = new THREE.Mesh(geometrie(maillagePieces(donnees, arme, v, haut)), materiau);
+          glissiere.castShadow = true;
+        }
+      }
+      const corps = new THREE.Mesh(geometrie(base), materiau);
       corps.castShadow = true;
       corps.receiveShadow = true;
       group.add(corps);
+      if (glissiere) group.add(glissiere);
       const k = echelleJeu(donnees, arme); // unités du jeu par millimètre
       const mm = (p) => (Array.isArray(p) ? new THREE.Vector3(p[0] * k, p[1] * k, p[2] * k) : null);
       const table = partie?.armes?.[id] ?? {};
@@ -123,6 +158,8 @@ export function creerFabriqueArmes(armes, renderer) {
         bornes: entiere.bornes,
         prises: { droite: mm(arme.prises.droite), gauche: mm(arme.prises.gauche), crosse: mm(arme.prises.crosse) },
         verrou,
+        // Glissière (Colt) : poser(k) la recule de k × sa course (0 : en place, 1 : tout en arrière) ; null pour les autres armes.
+        glissiere: glissiere ? { mesh: glissiere, course: COURSE_GLISSIERE * k, poser(x) { glissiere.position.z = -this.course * x; } } : null,
         manoeuvre: table.manoeuvre ?? null,
         douille: table.douille ?? [1, 1, 2.4],
         triangles: entiere.triangles,

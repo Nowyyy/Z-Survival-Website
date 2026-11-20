@@ -71,6 +71,11 @@ try {
       const kar = s.atelier.kar;
       return {
         armes: s.armes, fin, jonction, voisins, eclairs,
+        // Coup d'œil du personnage 1 : jamais pendant la manœuvre du verrou (main droite sur le levier).
+        regardPendantVerrou: Array.from({ length: 160 }, (_, i) => i * duree / 160).some((t) => m(t, kar).main > 0 && s.atelier.regardP1(t) > 0),
+        regardApres: s.atelier.regardP1(7.6),
+        // Glissière du Colt : en place avant le tir du personnage 2, en arrière juste après, revenue ensuite.
+        glissiere: [-0.05, 0.06, 0.4].map((d) => { s.rendre(tirs[0] + d); const g = s.atelier.colt.glissiere; return g ? -g.mesh.position.z / g.course : null; }),
         verrou: { avant: m(tirP1 - 0.2, kar), ouvert: Math.max(...[0.7, 0.8, 0.9].map((d) => m(tirP1 + d, kar).back)), apres: m(7.0, kar), main: Math.max(...[0.5, 0.7, 0.9].map((d) => m(tirP1 + d, kar).main)) },
         noindex: document.querySelector('meta[name=robots]')?.content,
       };
@@ -90,6 +95,8 @@ try {
       const apres = r.eclairs[(t + 0.09).toFixed(2)];
       verifier(`${n} : tir ${i + 1} à ${t} s (éclair du personnage ${qui + 1} juste après, pas avant, fini en 2 images)`, juste?.[qui] && !avant?.[qui] && !apres?.[qui], JSON.stringify({ avant, juste, apres }));
     }
+    verifier(`${n} : coup d'œil du personnage 1 après la manœuvre du verrou, jamais pendant`, !r.regardPendantVerrou && r.regardApres > 0.5, JSON.stringify({ pendant: r.regardPendantVerrou, a7_6: r.regardApres }));
+    verifier(`${n} : glissière du Colt qui recule au tir puis revient`, r.glissiere[0] === 0 && r.glissiere[1] > 0.9 && r.glissiere[2] === 0, JSON.stringify(r.glissiere));
     verifier(`${n} : verrou du Kar98k manœuvré après le tir, revenu avant la fin de la boucle`, r.verrou.ouvert > 0.99 && r.verrou.main > 0.99 && r.verrou.avant.back === 0 && r.verrou.apres.main === 0 && r.verrou.apres.lift === 0 && r.verrou.apres.back === 0, JSON.stringify(r.verrou));
     await ctx.close();
   }

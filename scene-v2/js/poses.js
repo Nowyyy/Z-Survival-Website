@@ -89,7 +89,12 @@ function coupDoeil(t, debut, aller, fin, retour) {
 }
 // Détails : le personnage 1 regarde hors champ après son tir (5,8 à 7,65 s : son retour à la normale relance la boucle) ; le personnage 2
 // tourne la tête vers lui pendant un moment calme (4,35 à 6,6 s : zombie inerte ; il regarde encore le personnage 1 quand celui-ci tire).
-export const regardP1 = (t, retard = 0) => (DETAILS.actif ? coupDoeil(t - retard, 5.8, 0.6, 6.95, 0.7) : 0);
+// v2 (retour du propriétaire) : le personnage 1 tourne la tête APRÈS avoir fini de manœuvrer le verrou, un court instant après
+// (REGARD.apresVerrou) ; même coup d’œil que la v1 (aller 0,6 s, tenue 0,55 s, retour 0,7 s). Il déborde sur le début de la boucle suivante
+// (fin vers 0,7 s) : la fonction est périodique, la boucle reste parfaite. debutP1 est calculé par js/scene.js (fin de la manœuvre du jeu).
+export const REGARD = { apresVerrou: 0.25, debutP1: 5.8 };
+const coupDoeilBoucle = (t, debut, aller, tenue, retour) => coupDoeil(debut + ((((t - debut) % DUREE) + DUREE) % DUREE), debut, aller, debut + aller + tenue, retour);
+export const regardP1 = (t, retard = 0) => (DETAILS.actif ? coupDoeilBoucle(t - retard, REGARD.debutP1, 0.6, 0.55, 0.7) : 0);
 export const regardP2 = (t, retard = 0) => (DETAILS.actif ? coupDoeil(t - retard, 4.35, 0.5, 6.0, 0.6) : 0);
 // Zombie touché par la balle du personnage 2 (TIR_P2) : « vie » de 1 à 0 en 0,1 s (la tête tape le sol, les yeux se ferment), inerte,
 // puis il se ranime (yeux qui se rouvrent d'un coup à 6,5 s, tête qui se relève jusqu'à 7,5 s) avant la fin de la boucle.
