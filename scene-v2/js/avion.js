@@ -158,24 +158,27 @@ export function creerAvion({ epoque, avion, lookup, floor, palette, textures, re
   const at = (x, y, z) => new THREE.Vector3(...place(poseEcrase([x, y, z], 'fuselage')));
   group.userData.foyers = [at(82, 32, 0), at(10, 9, -36), at(-5, 38, 0)];
   if (aile) group.userData.aile = new THREE.Vector3(aile.x, 0, aile.z);
-  // Tôle arrachée qui bat au vent au bout de l'aile plantée (retour du propriétaire : du mouvement dans la partie gauche) : un pan de tôle de la
-  // couleur de l'avion, accroché au point le plus haut de l'aile par une charnière (la corde de l'aile), qui claque : 4 battements par boucle, plus
-  // un frémissement (9 par boucle). userData.tole.update(t).
+  // Tôle arrachée qui bat au vent sur l'aile plantée (retour du propriétaire : du mouvement dans la partie gauche) : un volet (aileron) de la
+  // couleur de l'avion, accroché par une charnière au BORD de fuite de l'aile et qui pend au-delà : il claque (4 battements par boucle, plus un
+  // frémissement, 9 par boucle) sans jamais rentrer dans l'aile (retour : « le clapet traverse l'intérieur de l'aile ») : il tourne autour du bord,
+  // l'aile est toute entière de l'autre côté de la charnière, et son angle reste loin du repli (moins de 75°). userData.tole.update(t).
   if (aile && aileTris.length) {
     let haut = null;
     for (const t of aileTris) for (const q of t.p) { const w = placeAile(q); if (!haut || w[1] > haut[1]) haut = w; }
     const centre = new THREE.Vector3(...placeAile(c));
-    // Accrochée au milieu de l'aile, en vue (le bout relevé sort du cadre, en haut à gauche) ; ?tolepos= (0 à 1 vers le bout) pour la déplacer.
     const envergure = new THREE.Vector3(...haut).sub(centre).normalize();
-    const bout = centre.clone().lerp(new THREE.Vector3(...haut), nombre('tolepos', 0));
     const corde = new THREE.Vector3(...placeAile([c[0] + 1, c[1], c[2]])).sub(centre).normalize();
     corde.sub(envergure.clone().multiplyScalar(corde.dot(envergure))).normalize();
+    // Bord de fuite : le point de l'aile le plus loin le long de la corde ; la charnière court le long de ce bord.
+    let bord = -Infinity;
+    for (const t of aileTris) for (const q of t.p) bord = Math.max(bord, new THREE.Vector3(...placeAile(q)).sub(centre).dot(corde));
     const normale = new THREE.Vector3().crossVectors(envergure, corde).normalize();
+    const charniere = centre.clone().addScaledVector(corde, bord + 0.3 * k).addScaledVector(envergure, nombre('tolepos', 0.1) * 40 * k);
     const pivot = new THREE.Group();
     pivot.name = 'tole-au-vent';
-    pivot.position.copy(bout);
+    pivot.position.copy(charniere);
     pivot.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(corde, normale, envergure));
-    const pan = new THREE.Mesh(new THREE.BoxGeometry(26 * k, 0.6 * k, 20 * k).translate(0, 0, 10 * k), metal);
+    const pan = new THREE.Mesh(new THREE.BoxGeometry(15 * k, 0.6 * k, 24 * k).translate(7.5 * k, 0, 0), metal);
     const rgb = teinte('avion');
     const nb = pan.geometry.attributes.position.count;
     pan.geometry.setAttribute('color', new THREE.Float32BufferAttribute(Array.from({ length: nb }, () => rgb).flat(), 3));
@@ -191,8 +194,9 @@ export function creerAvion({ epoque, avion, lookup, floor, palette, textures, re
       pivot,
       update(t) {
         const u = t / 8;
-        const a = 0.9 + 0.75 * Math.sin(TAU * 4 * u) ** 3 + 0.15 * Math.sin(TAU * 9 * u + 0.7); // grands battements (lisibles de loin)
-        pan.rotation.x = -a;
+        // Angle autour de la charnière (0 : dans le plan de l'aile, prolongé) : de −1,3 à +0,35 rad, jamais replié vers l'aile.
+        const a = -0.5 + 0.7 * Math.sin(TAU * 4 * u) ** 3 + 0.12 * Math.sin(TAU * 9 * u + 0.7);
+        pan.rotation.z = a;
       },
     };
   }
