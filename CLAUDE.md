@@ -71,7 +71,9 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   Français / English, « En savoir plus » + flèche qui descend vers News), puis les sections plein écran
   News / Characters / Weapons / About us. Navigation : 01 Accueil à 05 About us. Actualités : articles publiés lus sur le serveur (lot 3b), cartes, article complet dans une fenêtre à l'adresse `#actu/<slug>`.
   Personnages et Armes :
-  contenu provisoire atténué et inerte sous un encart « Prochainement » (« Coming soon » en anglais). Globe de langue aussi
+  contenu provisoire atténué et inerte sous un encart « Prochainement » (« Coming soon » en anglais). **Nouvelle section Armes en coulisses**
+  (lot 6a, `Docs/ref/armes.md`) : interrupteur `SECTION_ARMES_ACTIVE` de `js/donnees.js` (false ; true = publiée), aperçu `?apercu=armes` ;
+  éteint, aucun de ses fichiers n'est téléchargé. Globe de langue aussi
   dans l'en-tête ; « Bientôt disponible », lien Discord (https://discord.gg/4bBRJNzwwB, logo en SVG, nouvel onglet), bouton de son et globe en haut à droite de l'accueil comme dans l'en-tête (About us : ligne sous le logo du studio et texte modifiables depuis l'admin, `js/a-propos.js` ; grand titre fixe ; logo animé du studio rejoué à chaque arrivée,
   puis pied de page). À propos a **deux blocs de même forme** (image, titre, texte) : le jeu (clip du vrai jeu en boucle, lot 4b) au-dessus du studio (sur téléphone et sur un écran d'ordinateur de 860 px de haut ou moins : carrousel horizontal, le studio à droite, pour que la section tienne dans l'écran) ;
   titres et textes des deux blocs modifiables depuis l'admin (lot 3e : pages `a-propos-jeu` et `a-propos` du serveur ; par défaut
@@ -101,6 +103,8 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   première visite de la session, `?intro=1` la force) ;
   `js/accueil-accroche.js` : accroche « radio de survie » (écriture lettre par lettre pendant l'entrée ; grésillement en CSS) ;
   `js/accueil-bandeau.js` : bandeau d'alerte qui défile en bas de l'accueil (en service ; `?bandeau=0` le cache) ;
+  `js/section-armes.js`, `css/section-armes.css` (lot 6a) : nouvelle section Armes (chargés par `import()` seulement si l'interrupteur est
+  allumé ou en aperçu) ; données `contenus/armes.json`, visuels `img/armes/` ;
   `js/accueil-tir.js` : suit le temps de la vidéo et, à chaque instant de `TEMPS_TIRS` (tir du personnage 2 puis du personnage 1), flash du cadre rouge et coup de feu du jeu si le son est activé (idées « catchy » suivies dans `Docs/ref/idees-accroche.md`).
 - `musique/` : propositions de musique (MP3 en boucle, points de boucle dans `boucles.json` ; **M2 retenue**, règles
   d'intégration dans `Docs/ref/musique.md`) et planche d'écoute
@@ -132,6 +136,9 @@ Adresse du site : **https://zsurvival-game.com/** (sans `www`, qui y redirige ; 
   `node outils/scene/copier-jeu.mjs` (lecture seule de `dev`, `ORIGINE.json` avec empreintes) ; `planche.html` (v1 / v2, historique),
   `apercu.html` ; vérification `node scene-v2/outils/verifier.mjs`. Sa vidéo (`outils/video/fabriquer.mjs --scene=v2`) ne va dans
   `img/accueil/` que sur demande du propriétaire.
+- `armes/jeu/` (lot 6a) : copie figée des armes du jeu (lecture seule de `dev`, `ORIGINE.json`), **jamais publiée** ; `outils/armes/` :
+  `copier-armes.mjs` (relevé, `contenus/armes.json` sans écraser les descriptions), `fabriquer-visuels.mjs` (`img/armes/`),
+  `verifier-armes.mjs` (vérification) ; mode d'emploi `outils/armes/LISEZMOI.md`.
 - `outils/admin/` (lot 3b) : banc local des actualités (`banc.mjs` : serveur sur SQLite, API GitHub simulée) et vérification
   de bout en bout `verifier-actus.mjs` (site et admin) et `verifier-bandeau.mjs` (bandeau d'alerte, lot 3d) ; `outils/copie-publiee.mjs` : copie publiée + `simulerActualites()`.
 - `Docs/ref/` : documents de référence ; `Docs/lots/` : bilans de lot.
