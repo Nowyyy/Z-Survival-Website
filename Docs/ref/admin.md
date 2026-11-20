@@ -177,10 +177,12 @@ l'accueil (fixe, `img/partage.jpg`). **Pages du site → Modifier l'aperçu de p
 ## 11. Armes de la section Armes (lot 6a)
 La section **Armes** du site présente les armes du jeu ; chacune est **cachée** (un « ? » : ni image, ni nom, ni description) tant que vous
 ne l'affichez pas. **Pages du site → Modifier les armes (affichage, descriptions, statistiques)** :
-1. L'écran montre toutes les armes, dans l'ordre de la section, avec leur image, leur nom et leur catégorie (venus du jeu, non modifiables
-   ici) et un repère « Cachée » ou « Affichée ».
+1. **Chapitres** : menu à gauche (sur téléphone : rangée de boutons au-dessus des armes), avec pour chaque chapitre le nombre d'armes et
+   d'armes affichées. Seules les armes du chapitre choisi sont montrées ; le dernier chapitre est choisi à l'ouverture. Les chapitres et
+   les armes de chaque chapitre se règlent dans `contenus/armes.json` (`Docs/ref/armes.md`, « Chapitres »).
+   Pour chaque arme : son image, son nom et sa catégorie (venus du jeu, non modifiables ici) et un repère « Cachée » ou « Affichée ».
 2. **Afficher sur le site** : cochez pour dévoiler l'arme (son image, son nom, sa description) ; décochez pour la remettre en « ? ».
-   **Tout afficher** / **Tout cacher (« ? »)** changent toutes les armes d'un coup.
+   **Tout afficher** / **Tout cacher (« ? »)** changent d'un coup toutes les armes **du chapitre affiché**.
 3. **Descriptions** en français et en anglais : texte simple, une ou deux phrases, 400 caractères au plus. Sans anglais, le site anglais
    affiche le français.
 4. **Statistiques** : dégâts, cadence, portée, chargeur, chacune de **0 à 100** (la longueur de la barre ; aucun chiffre n'est affiché sur

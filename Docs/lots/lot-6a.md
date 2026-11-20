@@ -138,6 +138,17 @@ activer comme je veux, rédiger les descriptions en français et en anglais, met
 - Ordre de mise en ligne : le serveur se déploie tout seul (`serveur.yml`, le commit touche `serveur/`) en même temps que le site ; tant
   qu'il n'est pas redéployé, la page « Armes » de l'admin affiche une erreur (« Introuvable »), le site, lui, fonctionne (il lit le fichier).
 
+## Admin : menu des chapitres (branche `armes-admin-chapitres`, demande du propriétaire)
+« Ajoute un menu à gauche permettant de choisir son chapitre, pour ne pas afficher toutes les armes de tous les chapitres à la fois. »
+- Page « Armes » de l'admin : menu des chapitres à gauche sur ordinateur (fixé pendant le défilement ; page élargie à 64 rem), rangée de
+  boutons au-dessus des armes sur téléphone ; nom du chapitre (ou « Chapitre N »), nombre d'armes et d'armes affichées (suivi en direct) ;
+  seules les armes du chapitre choisi sont montrées ; « Tout afficher » / « Tout cacher » ne touchent que ce chapitre. Aujourd'hui un seul
+  chapitre (le 1, avec les dix armes).
+- Serveur : `GET/PUT /api/admin/armes` renvoient aussi `chapitres` (liste du fichier et chapitres cités par les armes, nom, nombre
+  d'armes) et les chapitres de chaque arme ; l'admin se débrouille aussi avec l'ancien serveur (chapitres déduits des armes).
+- Vérifications : serveur **95/95** ; `outils/admin/verifier-armes-admin.mjs` **36/36** (cas à deux chapitres : le dernier choisi
+  d'abord, filtrage, « Tout afficher » limité au chapitre, compteur, menu à gauche à 1440 px et au-dessus à 375 px).
+
 ## Limites
 - Les images de `img/armes/` et `contenus/armes.json` sont publiés avec le site : une arme cachée n'est jamais montrée par la page (ni ses
   images téléchargées), mais **quelqu'un qui ouvre ces fichiers à la main peut lire son nom et sa description** (et voir son image).

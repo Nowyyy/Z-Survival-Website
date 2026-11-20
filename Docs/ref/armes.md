@@ -63,7 +63,8 @@ on les dévoile avec `"prochainement": false`.
 **Chapitres** (prévu pour plus tard : choisir un chapitre pour n'afficher que ses armes ; aujourd'hui le chapitre 1) : chaque arme a
 `"chapitres": [1]` ; la liste `"chapitres"` en tête du fichier donne les chapitres connus, avec un nom facultatif. Un sélecteur dans
 l'en-tête de la section (« Chapitre 1 » / « Chapter 1 ») montre les armes du chapitre choisi ; le dernier chapitre de la liste est affiché
-d'abord. Ajouter un chapitre : `{ "id": 2, "nom": { "fr": "…", "en": "…" } }` dans `"chapitres"` (sans nom : « Chapitre 2 »), puis `2` dans
+d'abord. Dans l'admin (page « Armes »), un menu des chapitres (à gauche sur ordinateur, au-dessus sur téléphone) ne montre que les armes du
+chapitre choisi. Ajouter un chapitre : `{ "id": 2, "nom": { "fr": "…", "en": "…" } }` dans `"chapitres"` (sans nom : « Chapitre 2 »), puis `2` dans
 les `"chapitres"` des armes concernées (une arme peut être dans plusieurs chapitres : `[1, 2]`). Un chapitre sans arme n'est pas proposé.
 
 **Noms** : un nom ne se coupe qu'entre deux mots (« Lance-flammes / M2 », « Winchester / M1897 » sur les miniatures, deux lignes au plus),
