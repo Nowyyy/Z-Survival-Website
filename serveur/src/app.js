@@ -15,6 +15,7 @@ import { hacherIp, reserverTentative, effacerTentatives, nettoyerTentatives } fr
 import { annoncerArticle } from './discord.js';
 import { ecrireBandeau, lireBandeau, validerBandeau } from './bandeau.js';
 import { ecrirePartage, lirePartage, validerPartage } from './partage.js';
+import { ecrireArmes, lireArmes, validerArmes } from './armes.js';
 import { ErreurValidation, LANGUES, PAGES, entierPositif, slugValide, validerArticle, validerConnexion, validerPage } from './validation.js';
 import {
   ErreurImage, TAILLE_MAX_IMAGE, COTE_MAX, cheminImage, enregistrerSurGithub, listerSurGithub, nomDansDossier, nomImageValide, preparerImage,
@@ -600,6 +601,25 @@ export function creerApp({ config, db, journal, maintenant = () => Date.now(), f
     const r = await ecrirePartage({ config, fetchGithub, titre, description, sha });
     journal.info('Aperçu de partage modifié', { titre: titre.length, description: description.length });
     return c.json(r);
+  });
+
+  // --- Armes de la section Armes (lot 6a) : affichée ou « ? », descriptions FR / EN, statistiques et leur affichage, dans
+  // contenus/armes.json, lu et réécrit dans le dépôt par l'API GitHub (même jeton que les images). Sans jeton : 503 clair.
+  const armesConfigure = () => {
+    if (!config.jetonGithubImages) {
+      throw new ErreurHttp(503, 'Modification des armes pas encore configurée (jeton GitHub absent : voir Docs/ref/admin.md, « Jeton GitHub »).');
+    }
+  };
+  app.get('/api/admin/armes', async (c) => {
+    armesConfigure();
+    return c.json(await lireArmes({ config, fetchGithub }), 200, { 'Cache-Control': 'no-store' });
+  });
+  app.put('/api/admin/armes', limiteCorps(96 * 1024), async (c) => {
+    armesConfigure();
+    const { armes, sha } = validerArmes(await lireJson(c));
+    const r = await ecrireArmes({ config, fetchGithub, armes, sha });
+    journal.info('Armes modifiées', { envoyees: armes.length, affichees: r.armes.filter((a) => !a.prochainement).length });
+    return c.json({ armes: r.armes, sha: r.sha });
   });
 
   app.notFound((c) => c.json({ erreur: 'Introuvable.' }, 404));
