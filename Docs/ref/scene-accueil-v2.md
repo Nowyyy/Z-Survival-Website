@@ -134,9 +134,14 @@ personnage 1, tenues, visages, barbe, gilets.
   **parachute** (sur un arbre mort, tout près de la scène) l'est (`__scene.decor.retiresEpoque`).
 - **Avion écrasé** (P-51) à la place de l'hélicoptère (`scene-v2/js/avion.js`) : le modèle du jeu (même atlas d'époque, mêmes teintes, cratère et
   traînée du jeu), **agrandi** (× 2,2 : dans le jeu, l'avion est à 28 unités par mètre et les personnages de la scène sont grandis de 1,6),
-  **décalé** comme l'était l'hélicoptère, posé **nez planté dans le sol, queue relevée** (11°, autour du nez ; l'aile arrachée reste au sol) et
+  **décalé** comme l'était l'hélicoptère, posé **nez planté dans le sol, queue relevée** (7°, autour du nez), **enfoncé dans la terre** (10 unités
+  du modèle : retour « on dirait qu'il flotte ») et
   **en flammes** (feu en boucle de la scène sur le moteur et l'emplanture de l'aile ; dans la partie, il fume sans brûler). Tôle un peu
   métallique (reflets de la petite image d'environnement de nuit de l'hélicoptère).
+- **Aile arrachée** (retour « une partie de l'avion sur la partie gauche, vide ») : l'aile gauche du modèle (`aile-g`), projetée loin de l'épave,
+  **plantée de biais dans le sol à gauche de l'image**, derrière la lampe (repère de la scène (−70 ; −130), inclinée de 55° autour de sa corde,
+  cap 20°, enfouie au quart ; `AILE` dans `scene-v2/js/avion.js`) ; l'avion garde le moignon de l'aile. Atelier : `?aile=x,0,z`, `?aileinc=`,
+  `?ailecap=`.
 - `?decor=avant` : l'ancien décor (hélicoptère agrandi, voitures), comme le réglage `?test=1&decor=avant` du jeu. Atelier : `?avionlacet=degrés`
   fait pivoter l'épave autour du nez (essais à 140, 180, 220° : l'avion passait derrière le personnage 2 et le mur ; orientation du jeu gardée).
 

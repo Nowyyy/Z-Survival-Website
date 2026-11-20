@@ -201,6 +201,14 @@ recule puis revient) ; boucle parfaite (paysage 0,50 pour une moyenne de 0,56 ; 
 - Vérifications : `node scene-v2/outils/verifier.mjs` 53/53 (contrôle ajouté : avion à la place de l'hélicoptère) ; boucle parfaite (paysage 0,44
   pour une moyenne de 0,54 ; portrait 0,43 pour 0,59) ; planche refaite.
 
+## Avion enfoncé, aile à gauche (20/11/2026, branche `accueil-v2-avion`)
+- « Enfoncer plus l'avion dans la terre, on dirait qu'il flotte » : avion enfoncé de 10 unités du modèle, nez moins relevé (7° au lieu de 11°).
+- « Retirer une partie de l'avion pour la mettre sur la partie gauche, vide » : l'**aile gauche arrachée** est plantée de biais dans le sol à
+  gauche de l'image, derrière la lampe (55° autour de sa corde, enfouie au quart) ; l'avion garde le moignon. Essais : à plat (une pente),
+  debout (une plaque), trop près (elle couvrait le bord gauche).
+- Vérifications : `node scene-v2/outils/verifier.mjs` 53/53 ; boucle parfaite (paysage 0,44 pour une moyenne de 0,54 ; portrait 0,37 pour 0,53) ;
+  planche refaite.
+
 ## État git
 - Commits `accueil-v2 A` à `accueil-v2 E` sur la branche `accueil-v2` (poussée), PR vers `main` fusionnée par l'agent (règle de
   `CLAUDE.md`) : rien n'est visible des visiteurs.
