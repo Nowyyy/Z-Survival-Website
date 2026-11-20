@@ -83,6 +83,24 @@ Aucun chiffre, ton « survie » ; vouvoiement comme le reste du site.
   `scene-v2/apercu.html` passe (390 × 844 et 1440 × 900, sans erreur ni fichier manquant).
 - Interrupteur : `SECTION_ARMES_ACTIVE = false` vérifié avant la PR.
 
+## Retours du propriétaire (après la PR #96, branche `armes-v1-retours`)
+1. **Noms coupés** (« Lance- / flammes M2 », « Winchester M1… ») : un nom ne se coupe plus qu'entre deux mots ; en grand « Lance-flammes / M2 »,
+   et sur les miniatures deux lignes au plus (« Winchester / M1897 », « Thompson / M1928 »), jamais tronqué.
+2. **Lance-flammes et Panzerschreck en « Prochainement » jusqu'au bout** : champ `"prochainement": true` dans `contenus/armes.json`
+   (réglage du propriétaire, jamais réécrit par l'outil ; proposé pour une arme que le jeu ne rend pas encore utilisable). Grand visuel en
+   silhouette à liseré rouge avec l'encart « Prochainement » ; gros **?** rouge sur leur miniature (silhouette aussi).
+3. **« Épaule » remplacée** par des familles plus fines : Poing, **Carabine** (Kar98k, M1 Garand), **Pompe** (Winchester),
+   **Mitraillette** (Thompson), **Fusil d'assaut** (StG 44, BAR M1918), Lourde (MG42), Spéciale. La famille devient un réglage du
+   propriétaire (`"famille"`), proposée d'après la catégorie pour une arme nouvelle. Le BAR (fusil-mitrailleur) est rangé avec les fusils
+   d'assaut : `"famille": "lourde"` le mettrait avec la MG42.
+4. **Chapitres** : chaque arme a `"chapitres": [1]`, liste `"chapitres"` en tête du fichier (nom facultatif) ; sélecteur « Chapitre 1 » dans
+   l'en-tête de la section, qui n'affichera que les armes du chapitre choisi quand il y en aura plusieurs (`Docs/ref/armes.md`).
+- En route : l'outil s'arrête désormais si `contenus/armes.json` est illisible (avant, il l'aurait recréé sans les descriptions : vu lors
+  d'un essai, rien de perdu) ; une règle CSS mettait toutes les miniatures en silhouette quand une arme à venir était choisie (corrigé).
+- Vérifications : `node outils/armes/verifier-armes.mjs` **272/272** (deux passages ; contrôles ajoutés : « ? » et silhouette seulement sur
+  les deux armes à venir, arme à venir choisie sans toucher aux autres miniatures, sélecteur de chapitre, noms ni coupés ni tronqués) ;
+  interrupteur éteint toujours identique (aucun fichier de la section téléchargé) ; `copier-armes.mjs --verifier` conforme.
+
 ## Limites
 - Les images de `img/armes/` et `contenus/armes.json` sont publiés avec le site : **accessibles à qui connaît leur adresse**, même si rien
   n'y mène tant que l'interrupteur est éteint (comme `scene-v2/`).

@@ -20,7 +20,8 @@
   "m1911": {
    "nom": "Colt M1911",
    "categorieJeu": "pistolet",
-   "famille": "poing",
+   "classeJeu": "poing",
+   "active": true,
    "variante": "a",
    "empreinteDefinition": "1d0cfd03513eb503a427a1344e57315b89589bc9853558139cacffd288cb5f06",
    "empreinteModele": "f140684a4159a4fdd539949226e325ea3917b0bd31c73b764b7cb00b320f6c09"
@@ -28,7 +29,8 @@
   "kar98k": {
    "nom": "Kar98k",
    "categorieJeu": "fusil à verrou",
-   "famille": "epaule",
+   "classeJeu": "epaule",
+   "active": true,
    "variante": "a",
    "empreinteDefinition": "38e911a8b80bff9252ffe2fe3321a92d3c17e87769d994a0dda8f98e57dc7ed4",
    "empreinteModele": "b310f94e3f1fdac55264ac6dec943db8a1c36eb0e7a267c98ca39db1d1c66a70"
@@ -36,7 +38,8 @@
   "winchester1897": {
    "nom": "Winchester M1897",
    "categorieJeu": "fusil à pompe",
-   "famille": "epaule",
+   "classeJeu": "epaule",
+   "active": true,
    "variante": "a",
    "empreinteDefinition": "684e24e2811e07c5a4121764ff4cb85c05f766b3d4ff3440dbf420dabf0aca92",
    "empreinteModele": "ea47843d2d9e2501d1f9ae5d8a7e458bbc2c11e73e608d8fe20cb768d2db3f89"
@@ -44,7 +47,8 @@
   "thompson": {
    "nom": "Thompson M1928",
    "categorieJeu": "pistolet-mitrailleur",
-   "famille": "epaule",
+   "classeJeu": "epaule",
+   "active": true,
    "variante": "a",
    "empreinteDefinition": "6444249728978d3a4aab7b05dda13eb6f492eaf7fed5c0d012544ef6727373ce",
    "empreinteModele": "68d6dda9499d1f4dfe8c06024456f7d14aaa8b0f6a725f5515edd571f7edb9f6"
@@ -52,7 +56,8 @@
   "garand": {
    "nom": "M1 Garand",
    "categorieJeu": "fusil semi-automatique",
-   "famille": "epaule",
+   "classeJeu": "epaule",
+   "active": true,
    "variante": "a",
    "empreinteDefinition": "088b456ea929a7b3ab7a53a7aaf64a3eb91330506f5e7f48323f88b89066350e",
    "empreinteModele": "e50816304dd2d9a30f8eab00900f435d25615dbff1cfe26b58896ec71711b858"
@@ -60,7 +65,8 @@
   "stg44": {
    "nom": "StG 44",
    "categorieJeu": "fusil d'assaut",
-   "famille": "epaule",
+   "classeJeu": "epaule",
+   "active": true,
    "variante": "a",
    "empreinteDefinition": "608e75e4439ff99eacd984993853867d33aa20f8de961ceb9fad6a1f8ee58265",
    "empreinteModele": "e0092a7df81e1dd1e894e4b271ac5f2f5124906aa390aafdff04dd420381bc73"
@@ -68,7 +74,8 @@
   "bar": {
    "nom": "BAR M1918",
    "categorieJeu": "fusil-mitrailleur",
-   "famille": "epaule",
+   "classeJeu": "epaule",
+   "active": true,
    "variante": "a",
    "empreinteDefinition": "5e3613ecf2b2b61fc0875a4af8a9d4a04452770f36af6804204af9c8ed91aa2c",
    "empreinteModele": "6c2365200968e728fe7300ec9985603fcb36c23e65d75006c75ce57c8230152b"
@@ -76,7 +83,8 @@
   "mg42": {
    "nom": "MG42",
    "categorieJeu": "mitrailleuse",
-   "famille": "lourde",
+   "classeJeu": "lourde",
+   "active": true,
    "variante": "a",
    "empreinteDefinition": "a5ad6b26ca11923ab4c9b87989d43f68265e4cfc0422e86a48c394bc6c23e353",
    "empreinteModele": "5778158600a422a00e16298cdf5600818c8ce5b24416600a04c2dd98daf1b060"
@@ -84,7 +92,8 @@
   "panzerschreck": {
    "nom": "Panzerschreck",
    "categorieJeu": "lance-roquettes",
-   "famille": "speciale",
+   "classeJeu": "speciale",
+   "active": false,
    "variante": "a",
    "empreinteDefinition": "ba75cbe7d4fce1a3d23d9c3b3d475d7cbdf242e8656a3f29abe3ff0bd8ff027a",
    "empreinteModele": "13f7a7ad12669cfdc3e4ba3fd4d780eae10af4af87f9e14444d76683a0928ba3"
@@ -92,7 +101,8 @@
   "m2lanceflammes": {
    "nom": "Lance-flammes M2",
    "categorieJeu": "lance-flammes",
-   "famille": "speciale",
+   "classeJeu": "speciale",
+   "active": false,
    "variante": "a",
    "empreinteDefinition": "5841dd839a7e5e5613ea0551dd467c8a037505ae35bfdf78decf280603a72f66",
    "empreinteModele": "5ffdc2c642e78fecf8ff3f49c7ac0c954ba3365923d24ae11c0245c3b7e13b95"

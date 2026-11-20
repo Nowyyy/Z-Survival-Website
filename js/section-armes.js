@@ -3,14 +3,19 @@
 // Chargé SEULEMENT si l'interrupteur SECTION_ARMES_ACTIVE (js/donnees.js) est allumé, ou avec ?apercu=armes dans l'adresse
 // (js/site.js, import dynamique) : interrupteur éteint, ni ce module, ni sa feuille de style (css/section-armes.css), ni les données
 // (contenus/armes.json), ni les images (img/armes/) ne sont téléchargés, et la section reste l'encart « Prochainement ».
-// Données : contenus/armes.json (noms, catégories, ordre, descriptions FR / EN : Docs/ref/armes.md) ; libellés fixes : weapons.* de js/textes.js.
+// Données : contenus/armes.json (noms, catégories, familles, ordre, chapitres, « prochainement », descriptions FR / EN : Docs/ref/armes.md) ;
+// libellés fixes : weapons.* de js/textes.js.
+// Retours du propriétaire (lot 6a) : familles plus fines qu'« Épaule » ; armes « prochainement » (lance-flammes, Panzerschreck) marquées
+// jusqu'au bout (silhouette, encart, « ? » sur la miniature) ; noms qui passent à la ligne entre deux mots, jamais au milieu d'un mot ;
+// chapitres (le chapitre 1 aujourd'hui) : un sélecteur dans l'en-tête de la section n'affiche que les armes du chapitre choisi.
 // Visuels : img/armes/<id>.webp (1200 × 600) et <id>-mini.webp (320 × 160), fabriqués depuis les modèles 3D du jeu (outils/armes/).
 // Aucun Three.js ici : seulement des images.
 import { langue, mouvementReduit, t } from './i18n.js';
 
 export const SOURCE_ARMES = 'contenus/armes.json';
 const FEUILLE = 'css/section-armes.css';
-export const FAMILLES = ['poing', 'epaule', 'lourde', 'speciale'];
+// Ordre de référence des familles (la liste suit l'ordre où chaque famille apparaît dans les armes, rangées par « ordre »).
+export const FAMILLES = ['poing', 'carabine', 'pompe', 'mitraillette', 'assaut', 'lourde', 'speciale'];
 // Barres du panneau « Prochainement » : purement décoratives, identiques pour toutes les armes (elles ne disent rien de l'arme).
 const STATS = ['degats', 'cadence', 'portee', 'chargeur'];
 const BARRES_DECOR = [0.72, 0.48, 0.62, 0.38];
@@ -18,6 +23,13 @@ const BARRES_DECOR = [0.72, 0.48, 0.62, 0.38];
 const image = (id, mini = false) => `img/armes/${id}${mini ? '-mini' : ''}.webp`;
 const deuxChiffres = (n) => String(n).padStart(2, '0');
 const remplacer = (texte, valeurs) => texte.replace(/\{(\w+)\}/g, (_, k) => String(valeurs[k] ?? ''));
+// Nom posé mot par mot : la ligne ne se coupe qu'entre deux mots (« Lance-flammes » reste entier, « M2 » passe dessous).
+function poserNom(element, texte) {
+  element.replaceChildren(...String(texte).split(/\s+/).filter(Boolean).flatMap((m, i) => {
+    const mot = el('span', 'arsenal-mot', m);
+    return i ? [document.createTextNode(' '), mot] : [mot];
+  }));
+}
 
 function el(balise, classe, texte) {
   const e = document.createElement(balise);
@@ -38,23 +50,38 @@ function chargerFeuille() {
   });
 }
 
-// Armes lisibles, rangées : par famille (dans l'ordre où chaque famille apparaît), puis par « ordre ».
+// Armes lisibles, rangées : par famille (dans l'ordre où chaque famille apparaît), puis par « ordre ». Sans chapitre : chapitre 1.
 export function lireArmes(json) {
   const liste = (Array.isArray(json?.armes) ? json.armes : [])
     .filter((a) => a && typeof a.id === 'string' && /^[a-z0-9-]+$/.test(a.id) && typeof a.nom === 'string')
-    .map((a, i) => ({ ...a, ordre: Number.isFinite(a.ordre) ? a.ordre : 1000 + i, famille: FAMILLES.includes(a.famille) ? a.famille : 'epaule' }))
+    .map((a, i) => ({
+      ...a,
+      ordre: Number.isFinite(a.ordre) ? a.ordre : 1000 + i,
+      famille: typeof a.famille === 'string' && /^[a-z0-9-]+$/.test(a.famille) ? a.famille : 'speciale',
+      chapitres: Array.isArray(a.chapitres) && a.chapitres.some(Number.isInteger) ? a.chapitres.filter(Number.isInteger) : [1],
+      prochainement: a.prochainement === true,
+    }))
     .sort((a, b) => a.ordre - b.ordre);
   const familles = [...new Set(liste.map((a) => a.famille))];
   return liste.sort((a, b) => familles.indexOf(a.famille) - familles.indexOf(b.famille) || a.ordre - b.ordre);
 }
 
+// Chapitres : ceux de la liste « chapitres » du fichier (ordre du fichier, nom facultatif { fr, en }), plus ceux cités par les armes.
+export function lireChapitres(json, armes) {
+  const declares = (Array.isArray(json?.chapitres) ? json.chapitres : []).filter((c) => Number.isInteger(c?.id));
+  const ids = [...new Set([...declares.map((c) => c.id), ...armes.flatMap((a) => a.chapitres)])];
+  return ids.filter((id) => armes.some((a) => a.chapitres.includes(id))).map((id) => ({ id, nom: declares.find((c) => c.id === id)?.nom ?? null }));
+}
+const nomChapitre = (c) => (c.nom && (langue() === 'en' ? c.nom.en || c.nom.fr : c.nom.fr || c.nom.en)) || remplacer(t('weapons.chapitre'), { n: c.id });
+
 const nomDe = (a) => (langue() === 'en' && a.nomEn ? a.nomEn : a.nom);
 const descriptionDe = (a) => (langue() === 'en' ? a.description?.en || a.description?.fr : a.description?.fr || a.description?.en) || '';
-function categorieDe(a) {
-  const cle = `weapons.categories.${a.categorie}`;
-  const v = t(cle);
-  return v === cle ? String(a.categorie ?? '').replace(/-/g, ' ') : v;
+function libelle(groupe, cle) {
+  const c = `weapons.${groupe}.${cle}`;
+  const v = t(c);
+  return v === c ? String(cle ?? '').replace(/-/g, ' ') : v;
 }
+const categorieDe = (a) => libelle('categories', a.categorie);
 
 // Installe la section dans <section id="weapons"> ; renvoie { majLangue() } (textes à refaire au changement de langue).
 export async function installerSectionArmes(section) {
@@ -66,12 +93,15 @@ export async function installerSectionArmes(section) {
   const corps = el('div', 'arsenal');
   corps.dataset.etat = 'chargement';
   interieur.append(corps);
-  let armes = [];
+  let toutes = [];
+  let chapitres = [];
   try {
     const [r] = await Promise.all([fetch(SOURCE_ARMES, { cache: 'no-cache' }), chargerFeuille()]);
     if (!r.ok) throw new Error(String(r.status));
-    armes = lireArmes(await r.json());
-    if (!armes.length) throw new Error('aucune arme');
+    const json = await r.json();
+    toutes = lireArmes(json);
+    chapitres = lireChapitres(json, toutes);
+    if (!toutes.length) throw new Error('aucune arme');
   } catch {
     await chargerFeuille();
     corps.dataset.etat = 'erreur';
@@ -81,6 +111,23 @@ export async function installerSectionArmes(section) {
     return { majLangue() { p.textContent = t('weapons.erreur'); } };
   }
   corps.dataset.etat = 'pret';
+  // Chapitre affiché : le dernier de la liste (le chapitre 1 aujourd'hui) ; armes = celles de ce chapitre.
+  let chapitre = chapitres[chapitres.length - 1];
+  let armes = toutes.filter((a) => a.chapitres.includes(chapitre.id));
+
+  // --- Chapitres : sélecteur dans l'en-tête de la section (un seul chapitre aujourd'hui, prêt pour les suivants) ---
+  const entete = interieur.querySelector('.section-entete');
+  const choixChapitres = el('div', 'arsenal-chapitres');
+  choixChapitres.setAttribute('role', 'group');
+  const boutonsChapitres = chapitres.map((c) => {
+    const b = el('button', 'arsenal-chapitre');
+    b.type = 'button';
+    b.dataset.chapitre = String(c.id);
+    b.addEventListener('click', () => changerChapitre(c));
+    choixChapitres.append(b);
+    return b;
+  });
+  entete.append(choixChapitres);
 
   // --- Scène : grand visuel (nom en filigrane derrière, halo rouge), flèches posées sur ses bords ---
   const scene = el('div', 'arsenal-scene revele');
@@ -93,7 +140,9 @@ export async function installerSectionArmes(section) {
   visuel.height = 600;
   visuel.decoding = 'async';
   visuel.loading = 'lazy';
-  cadre.append(visuel);
+  const tamponScene = el('span', 'arsenal-scene-tampon'); // armes « prochainement » : encart posé sur la silhouette
+  tamponScene.setAttribute('aria-hidden', 'true');
+  cadre.append(visuel, tamponScene);
   const fleches = [-1, 1].map((sens) => {
     const b = el('button', `news-fleche arsenal-fleche arsenal-fleche-${sens < 0 ? 'precedente' : 'suivante'}`);
     b.type = 'button';
@@ -142,43 +191,65 @@ export async function installerSectionArmes(section) {
   const fiche = el('div', 'arsenal-fiche');
   fiche.append(infos, stats);
 
-  // --- Miniatures, rangées par famille ---
+  // --- Miniatures, rangées par famille (refaites au changement de chapitre) ---
   const liste = el('div', 'arsenal-liste revele');
   liste.style.setProperty('--i', '4');
-  const familles = [...new Set(armes.map((a) => a.famille))];
-  const titresFamilles = [];
-  const boutons = [];
-  familles.forEach((f) => {
-    const groupe = el('div', 'arsenal-groupe');
-    const titre = el('span', 'arsenal-groupe-nom');
-    titre.id = `arsenal-famille-${f}`;
-    titresFamilles.push({ f, titre });
-    const ul = el('ul', 'arsenal-groupe-armes');
-    ul.setAttribute('aria-labelledby', titre.id);
-    armes.forEach((a, i) => {
-      if (a.famille !== f) return;
-      const li = el('li');
-      const b = el('button', 'arsenal-miniature');
-      b.type = 'button';
-      b.dataset.arme = a.id;
-      const img = el('img', 'arsenal-miniature-image');
-      img.src = image(a.id, true);
-      img.alt = '';
-      img.width = 320;
-      img.height = 160;
-      img.loading = 'lazy';
-      img.decoding = 'async';
-      const n = el('span', 'arsenal-miniature-nom');
-      b.append(img, n);
-      b.addEventListener('click', () => choisir(i, { focus: false }));
-      li.append(b);
-      ul.append(li);
-      boutons[i] = b;
+  let titresFamilles = [];
+  let boutons = [];
+  function construireListe() {
+    liste.replaceChildren();
+    titresFamilles = [];
+    boutons = [];
+    const familles = [...new Set(armes.map((a) => a.famille))];
+    familles.forEach((f) => {
+      const groupe = el('div', 'arsenal-groupe');
+      const titre = el('span', 'arsenal-groupe-nom');
+      titre.id = `arsenal-famille-${f}`;
+      titresFamilles.push({ f, titre });
+      const ul = el('ul', 'arsenal-groupe-armes');
+      ul.setAttribute('aria-labelledby', titre.id);
+      armes.forEach((a, i) => {
+        if (a.famille !== f) return;
+        const li = el('li');
+        const b = el('button', 'arsenal-miniature');
+        b.type = 'button';
+        b.dataset.arme = a.id;
+        const img = el('img', 'arsenal-miniature-image');
+        img.src = image(a.id, true);
+        img.alt = '';
+        img.width = 320;
+        img.height = 160;
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        const n = el('span', 'arsenal-miniature-nom');
+        b.append(img, n);
+        if (a.prochainement) {
+          b.classList.add('est-prochainement');
+          const mystere = el('span', 'arsenal-miniature-mystere', '?');
+          mystere.setAttribute('aria-hidden', 'true');
+          b.append(mystere);
+        }
+        b.addEventListener('click', () => choisir(i, { focus: false }));
+        li.append(b);
+        ul.append(li);
+        boutons[i] = b;
+      });
+      groupe.append(titre, ul);
+      liste.append(groupe);
     });
-    groupe.append(titre, ul);
-    liste.append(groupe);
-  });
+  }
+  construireListe();
   corps.append(scene, fiche, liste);
+
+  function changerChapitre(c) {
+    if (c.id === chapitre.id) return;
+    chapitre = c;
+    armes = toutes.filter((a) => a.chapitres.includes(c.id));
+    construireListe();
+    courant = -1;
+    choisir(0, { premiere: true });
+    majLangue();
+  }
 
   // Glisser du doigt sur le grand visuel : arme précédente / suivante (le défilement vertical des sections reste au navigateur).
   let depart = null;
@@ -220,11 +291,12 @@ export async function installerSectionArmes(section) {
     const n = nomDe(a);
     categorie.textContent = categorieDe(a);
     compteur.textContent = `${deuxChiffres(courant + 1)} / ${deuxChiffres(armes.length)}`;
-    nom.textContent = n;
+    poserNom(nom, n);
     filigrane.textContent = n;
     description.textContent = descriptionDe(a);
-    visuel.alt = remplacer(t('weapons.visuelAlt'), { nom: n });
-    annonce.textContent = `${remplacer(t('weapons.position'), { n: courant + 1, total: armes.length })} : ${n}, ${categorieDe(a)}`;
+    tamponScene.textContent = t('commun.comingSoon');
+    visuel.alt = a.prochainement ? `${n} — ${t('commun.comingSoon')}` : remplacer(t('weapons.visuelAlt'), { nom: n });
+    annonce.textContent = `${remplacer(t('weapons.position'), { n: courant + 1, total: armes.length })} : ${n}, ${categorieDe(a)}${a.prochainement ? `, ${t('commun.comingSoon')}` : ''}`;
   }
 
   function choisir(i, { focus = false, premiere = false } = {}) {
@@ -242,6 +314,7 @@ export async function installerSectionArmes(section) {
     // Entrée animée sobre : l'image arrive du côté du changement, le texte remonte (rien en mouvement réduit).
     const n = ++jeton;
     corps.dataset.arme = a.id;
+    corps.classList.toggle('est-prochainement', a.prochainement);
     corps.style.setProperty('--sens', String(sens));
     if (!premiere && !mouvementReduit()) {
       corps.classList.remove('arsenal-change');
@@ -273,14 +346,19 @@ export async function installerSectionArmes(section) {
     tampon.textContent = t('commun.comingSoon');
     statsCachees.textContent = t('weapons.statsCachees');
     libelles.forEach(({ cle, l }) => { l.textContent = t(`weapons.stats.${cle}`); });
-    titresFamilles.forEach(({ f, titre }) => { titre.textContent = t(`weapons.familles.${f}`); });
+    titresFamilles.forEach(({ f, titre }) => { titre.textContent = libelle('familles', f); });
+    choixChapitres.setAttribute('aria-label', t('weapons.chapitres'));
+    boutonsChapitres.forEach((b, i) => {
+      b.textContent = nomChapitre(chapitres[i]);
+      b.setAttribute('aria-pressed', String(chapitres[i].id === chapitre.id));
+    });
     liste.setAttribute('aria-label', t('weapons.liste2'));
     fleches[0].setAttribute('aria-label', t('weapons.precedente'));
     fleches[1].setAttribute('aria-label', t('weapons.suivante'));
     boutons.forEach((b, i) => {
       const a = armes[i];
-      b.querySelector('.arsenal-miniature-nom').textContent = nomDe(a);
-      b.setAttribute('aria-label', `${nomDe(a)} — ${categorieDe(a)}`);
+      poserNom(b.querySelector('.arsenal-miniature-nom'), nomDe(a));
+      b.setAttribute('aria-label', `${nomDe(a)} — ${categorieDe(a)}${a.prochainement ? ` (${t('commun.comingSoon')})` : ''}`);
     });
     textes();
     annonce.textContent = '';

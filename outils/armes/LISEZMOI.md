@@ -20,13 +20,16 @@ node outils/armes/copier-armes.mjs
 Clone `dev` dans un dossier temporaire du système, recopie les fichiers utiles dans `armes/jeu/`, met à jour `contenus/armes.json`, puis
 efface le clone. Il affiche la liste des armes du jeu et :
 - les **armes ajoutées** (ajoutées à la fin de `contenus/armes.json`, description vide, `"aRelire": true`) ;
-- les **armes modifiées** (nom, catégorie, famille, modèle 3D : dans ce cas, refaire les visuels) ;
+- les **armes modifiées** (nom, catégorie, modèle 3D : dans ce cas, refaire les visuels ; arme devenue utilisable dans le jeu) ;
 - les **armes disparues** (sorties de la liste et rangées dans `"retirees"`, descriptions gardées ; elles reviennent telles quelles si
   l'arme revient dans le jeu) ;
 - les libellés de catégorie ou de famille à ajouter dans `js/textes.js` (français et anglais).
 
 Ce que l'outil réécrit dans `contenus/armes.json` : `id`, `nom` (nom affiché par le jeu, `game.armes.<id>` de son `data/i18n/fr.json`),
-`categorie`, `famille`. Ce qu'il ne touche **jamais** : `ordre`, `nomEn`, `description`, `aRelire`, `stats`.
+`categorie`. Ce qu'il ne touche **jamais** : `famille`, `ordre`, `chapitres`, `prochainement`, `nomEn`, `description`, `aRelire`, `stats`,
+ni la liste `chapitres` en tête du fichier. Arme nouvelle : famille proposée d'après sa catégorie (`FAMILLE_DE_CATEGORIE`), dernier
+chapitre, `prochainement` si le jeu ne la rend pas encore utilisable (`active: false` dans sa table). Fichier illisible : arrêt sans rien
+écrire (les descriptions ne sont jamais perdues).
 
 Autres usages :
 
