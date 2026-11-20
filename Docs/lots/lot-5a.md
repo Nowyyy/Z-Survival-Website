@@ -186,6 +186,10 @@ recule puis revient) ; boucle parfaite (paysage 0,50 pour une moyenne de 0,56 ; 
 - Vérifications : `node scene-v2/outils/verifier.mjs` 51/51 ; boucle parfaite (paysage 0,47 pour une moyenne de 0,55 ; portrait 0,44 pour 0,58) ;
   planche refaite.
 
+## Validation (20/11/2026)
+- « C'est bon pour le perso » : personnages de la v2 validés par le propriétaire (tenues d'époque, casques remontés, veste d'un seul bloc,
+  trame adoucie, contraste veste / pantalon). Restent ouverts : décor d'époque du jeu (avion écrasé au lieu de l'hélicoptère) et tenue du zombie.
+
 ## État git
 - Commits `accueil-v2 A` à `accueil-v2 E` sur la branche `accueil-v2` (poussée), PR vers `main` fusionnée par l'agent (règle de
   `CLAUDE.md`) : rien n'est visible des visiteurs.
