@@ -61,6 +61,8 @@ describe('armes (admin)', () => {
     assert.equal(r.json.sha, shaDe(INITIAL));
     assert.deepEqual(r.json.armes.map((a) => [a.id, a.nom, a.prochainement, a.statsVisibles]), [['m1911', 'Colt M1911', true, false], ['kar98k', 'Kar98k', true, false]]);
     assert.equal(r.json.armes[0].description.fr, 'L’arme de départ.');
+    assert.deepEqual(r.json.armes[0].chapitres, [1]);
+    assert.deepEqual(r.json.chapitres, [{ id: 1, nom: null, armes: 2 }], 'chapitres du menu, avec le nombre d’armes');
   });
 
   test('écriture : affichée, descriptions, stats ; le reste du fichier est gardé', async () => {
@@ -115,6 +117,21 @@ describe('armes (admin)', () => {
     assert.equal(armes[0].description.fr, '<b>gras</b>');
     assert.deepEqual(armes[0].stats, { degats: 0, cadence: null, portee: null, chargeur: null });
   });
+});
+
+test('chapitres : liste du fichier (avec nom) et chapitres cités par les armes', async () => {
+  const doc = structuredClone(DOC);
+  doc.chapitres = [{ id: 1, nom: null }, { id: 2, nom: { fr: 'La ville', en: 'The city' } }];
+  doc.armes[1].chapitres = [1, 3];
+  const gh = githubSimule(fichierArmes(doc));
+  const s = await fabriquer({ env: { GITHUB_JETON_IMAGES: JETON_GITHUB }, fetchGithub: gh.fetch });
+  try {
+    const r = await s.requete('GET', '/api/admin/armes', { jeton: await s.connecter() });
+    assert.deepEqual(r.json.chapitres, [{ id: 1, nom: null, armes: 2 }, { id: 2, nom: { fr: 'La ville', en: 'The city' }, armes: 0 }, { id: 3, nom: null, armes: 1 }]);
+    assert.deepEqual(r.json.armes[1].chapitres, [1, 3]);
+  } finally {
+    await s.fermer();
+  }
 });
 
 test('mise en forme identique à outils/armes/copier-armes.mjs (contenus/armes.json du dépôt)', { skip: !existsSync(new URL('../../contenus/armes.json', import.meta.url)) }, () => {

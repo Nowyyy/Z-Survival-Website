@@ -62,6 +62,8 @@ const cachees = await page.$$eval('#armes-liste li[data-cache="true"]', (lis) =>
 verifier(cachees === initial.armes.filter((a) => a.prochainement).length, `armes cachées par défaut : ${cachees}`);
 verifier(await page.textContent('#armes-statut') === `${initial.armes.filter((a) => !a.prochainement).length} affichée${initial.armes.filter((a) => !a.prochainement).length > 1 ? 's' : ''} sur ${n}`, `statut : « ${await page.textContent('#armes-statut')} »`);
 verifier((await page.inputValue(`${carte('kar98k')} textarea[data-cle="description-fr"]`)) === initial.armes.find((a) => a.id === 'kar98k').description.fr, 'descriptions existantes lues');
+const menu = await page.$$eval('#armes-chapitres button', (bs) => bs.map((b) => `${b.querySelector('.admin-armes-chapitre-nom').textContent}|${b.querySelector('.admin-armes-chapitre-detail').textContent}|${b.getAttribute('aria-current')}`));
+verifier(menu.length === 1 && menu[0].startsWith(`Chapitre 1|${n} armes · `) && menu[0].endsWith('|true'), `menu des chapitres : « Chapitre 1 » choisi (${menu.join(', ')})`);
 
 console.log('\n# Modifications');
 await page.click(`${carte('m1911')} input[data-cle="afficher"]`);
@@ -122,6 +124,48 @@ await page.click('#armes-enregistrer');
 await page.waitForSelector('#erreur-armes:not([hidden])');
 verifier(/modifiées ailleurs/.test(await page.textContent('#erreur-armes')) && readFileSync(fichier, 'utf8') === avantConflit, 'fichier modifié ailleurs : refus clair, rien d’écrasé');
 await page.click('#armes-annuler');
+
+console.log('\n# Chapitres');
+{
+  // Un deuxième chapitre (« La ville ») avec le Kar98k seul, écrit dans le fichier du banc.
+  const doc2 = JSON.parse(readFileSync(fichier, 'utf8'));
+  doc2.chapitres = [{ id: 1, nom: null }, { id: 2, nom: { fr: 'La ville', en: 'The city' } }];
+  doc2.armes.find((a) => a.id === 'kar98k').chapitres = [2];
+  writeFileSync(fichier, JSON.stringify(doc2, null, 2));
+  for (const [l, h] of [[1440, 900], [375, 667]]) {
+    const { page: p, contexte: c, erreurs: e } = await nouvellePage(l, h);
+    await connecter(p);
+    await ouvrirArmes(p);
+    const etat = async () => p.evaluate(() => ({
+      menu: [...document.querySelectorAll('#armes-chapitres button')].map((b) => [b.querySelector('.admin-armes-chapitre-nom').textContent, b.getAttribute('aria-current')]),
+      titre: document.querySelector('#armes-chapitre-titre').textContent,
+      cartes: [...document.querySelectorAll('#armes-liste li img')].map((i) => i.src.split('/').pop().replace('-mini.webp', '')),
+    }));
+    let v = await etat();
+    verifier(JSON.stringify(v.menu) === JSON.stringify([['Chapitre 1', null], ['La ville', 'true']]) && v.titre === 'La ville' && JSON.stringify(v.cartes) === '["kar98k"]',
+      `${l} px : deux chapitres ; le dernier (« La ville ») choisi d'abord, avec ses seules armes (${v.cartes.join(', ')})`);
+    await p.click('#armes-chapitres button[data-chapitre="1"]');
+    v = await etat();
+    verifier(v.titre === 'Chapitre 1' && v.cartes.length === n - 1 && !v.cartes.includes('kar98k'), `${l} px : « Chapitre 1 » : ses ${v.cartes.length} armes, sans le Kar98k`);
+    if (l === 1440) {
+      await p.click('#armes-tout-afficher');
+      const docVu = await p.evaluate(() => [...document.querySelectorAll('#armes-liste li')].every((li) => li.dataset.cache === 'false'));
+      await p.click('#armes-chapitres button[data-chapitre="2"]');
+      const kar = await p.getAttribute('#armes-liste li', 'data-cache');
+      verifier(docVu && kar === 'true', '« Tout afficher » ne touche que le chapitre affiché');
+      const detail = await p.textContent('#armes-chapitres button[data-chapitre="1"] .admin-armes-chapitre-detail');
+      verifier(detail === `${n - 1} armes · ${n - 1} affichées`, `compteur du chapitre suivi en direct (« ${detail} »)`);
+    }
+    const place = await p.evaluate(() => {
+      const nav = document.querySelector('.admin-armes-chapitres').getBoundingClientRect();
+      const liste = document.querySelector('#armes-liste').getBoundingClientRect();
+      return { gauche: nav.right <= liste.left, dessus: nav.bottom <= liste.top, deborde: document.documentElement.scrollWidth > innerWidth };
+    });
+    verifier(l === 1440 ? place.gauche : place.dessus && !place.deborde, `${l} px : menu des chapitres ${l === 1440 ? 'à gauche des armes' : 'au-dessus des armes, rien ne dépasse'}`);
+    verifier(e.length === 0, `${l} px : aucune erreur console${e.length ? ` (${e.join(' | ')})` : ''}`);
+    await c.close();
+  }
+}
 
 console.log('\n# Mise en page');
 for (const [l, h] of [[320, 568], [375, 667], [1440, 900]]) {

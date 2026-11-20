@@ -211,13 +211,23 @@
       </div>
       <h1 class="admin-titre" id="titre-armes">Armes</h1>
       <p class="admin-aide">Les armes du jeu, dans l’ordre de la section Armes du site. Une arme <strong>cachée</strong> apparaît sous la forme d’un « ? » (ni image, ni nom, ni description) ; cochez « Afficher sur le site » pour la dévoiler. Statistiques : de 0 à 100 (la longueur de la barre), affichées seulement si vous cochez « Afficher les statistiques » ; sinon le site montre « Prochainement ». Texte simple. Les changements sont en ligne <strong>environ une minute</strong> après l’enregistrement. Les noms, catégories et images viennent du jeu (<code>outils/armes/copier-armes.mjs</code>).</p>
-      <div class="admin-actions admin-armes-tout">
-        <button class="admin-bouton" id="armes-tout-afficher" type="button">Tout afficher</button>
-        <button class="admin-bouton" id="armes-tout-cacher" type="button">Tout cacher (« ? »)</button>
-        <a class="admin-bouton admin-bouton-discret" href="../#weapons" target="_blank" rel="noopener">Voir la section sur le site ↗</a>
+      <!-- Chapitres (demande du propriétaire) : menu à gauche sur ordinateur, rangée de boutons au-dessus des armes sur téléphone ; seules
+           les armes du chapitre choisi sont affichées. -->
+      <div class="admin-armes-mise-en-page">
+        <nav class="admin-armes-chapitres" aria-labelledby="armes-chapitres-titre">
+          <h2 class="admin-sous-titre" id="armes-chapitres-titre">Chapitres</h2>
+          <ul class="admin-armes-chapitres-liste" id="armes-chapitres"></ul>
+        </nav>
+        <div class="admin-armes-contenu">
+          <h2 class="admin-sous-titre" id="armes-chapitre-titre"></h2>
+          <div class="admin-actions admin-armes-tout">
+            <button class="admin-bouton" id="armes-tout-afficher" type="button">Tout afficher</button>
+            <button class="admin-bouton" id="armes-tout-cacher" type="button">Tout cacher (« ? »)</button>
+            <a class="admin-bouton admin-bouton-discret" href="../#weapons" target="_blank" rel="noopener">Voir la section sur le site ↗</a>
+          </div>
+          <ol class="admin-armes-liste" id="armes-liste"></ol>
+        </div>
       </div>
-
-      <ol class="admin-armes-liste" id="armes-liste"></ol>
       <p class="admin-erreur" id="erreur-armes" role="alert" hidden></p>
 
       <div class="admin-actions admin-actions-page">

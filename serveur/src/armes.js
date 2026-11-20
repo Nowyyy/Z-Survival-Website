@@ -109,6 +109,7 @@ function vueAdmin(doc) {
     categorie: typeof a.categorie === 'string' ? a.categorie : '',
     famille: typeof a.famille === 'string' ? a.famille : '',
     ordre: Number.isFinite(a.ordre) ? a.ordre : null,
+    chapitres: Array.isArray(a.chapitres) && a.chapitres.some(Number.isInteger) ? a.chapitres.filter(Number.isInteger) : [1],
     prochainement: a.prochainement === true,
     description: { fr: typeof a.description?.fr === 'string' ? a.description.fr : '', en: typeof a.description?.en === 'string' ? a.description.en : '' },
     stats: (() => { try { return statsPropres(a.stats, a.id); } catch { return null; } })(),
@@ -116,14 +117,29 @@ function vueAdmin(doc) {
   }));
 }
 
-/** Armes du fichier pour l'admin. Retour : { armes, sha }. */
+/**
+ * Chapitres pour le menu de l'admin : ceux de la liste « chapitres » du fichier (ordre du fichier, nom facultatif { fr, en }), plus ceux
+ * cités par les armes ; chacun avec le nombre d'armes qu'il contient. → [{ id, nom, armes }]
+ */
+function chapitresAdmin(doc, armes) {
+  const declares = (Array.isArray(doc.chapitres) ? doc.chapitres : []).filter((c) => Number.isInteger(c?.id));
+  const ids = [...new Set([...declares.map((c) => c.id), ...armes.flatMap((a) => a.chapitres)])];
+  return ids.map((id) => {
+    const nom = declares.find((c) => c.id === id)?.nom;
+    const propre = nom && typeof nom === 'object' ? { fr: typeof nom.fr === 'string' ? nom.fr : '', en: typeof nom.en === 'string' ? nom.en : '' } : null;
+    return { id, nom: propre, armes: armes.filter((a) => a.chapitres.includes(id)).length };
+  });
+}
+
+/** Armes du fichier pour l'admin. Retour : { armes, chapitres, sha }. */
 export async function lireArmes({ config, fetchGithub }) {
   const gh = clientGithub({ config, fetchGithub });
   const { doc, sha } = await lireFichier(gh);
-  return { armes: vueAdmin(doc), sha };
+  const armes = vueAdmin(doc);
+  return { armes, chapitres: chapitresAdmin(doc, armes), sha };
 }
 
-/** Applique les réglages au fichier (relu sur GitHub) et l'écrit : un commit « Z-Survival admin ». Retour : { armes, sha, commit }. */
+/** Applique les réglages au fichier (relu sur GitHub) et l'écrit : un commit « Z-Survival admin ». Retour : { armes, chapitres, sha, commit }. */
 export async function ecrireArmes({ config, fetchGithub, armes, sha }) {
   const gh = clientGithub({ config, fetchGithub });
   const { doc, sha: actuel } = await lireFichier(gh);
@@ -156,5 +172,6 @@ export async function ecrireArmes({ config, fetchGithub, armes, sha }) {
   if (rep.status !== 200 && rep.status !== 201) throw gh.refuse(rep.status);
   let json = null;
   try { json = await rep.json(); } catch { /* sans corps lisible : sans gravité */ }
-  return { armes: vueAdmin(doc), sha: json?.content?.sha ?? null, commit: json?.commit?.sha ?? null };
+  const vue = vueAdmin(doc);
+  return { armes: vue, chapitres: chapitresAdmin(doc, vue), sha: json?.content?.sha ?? null, commit: json?.commit?.sha ?? null };
 }

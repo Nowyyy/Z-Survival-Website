@@ -1388,7 +1388,17 @@ $('partage-enregistrer').addEventListener('click', async () => {
 
 const STATS_ARMES = ['degats', 'cadence', 'portee', 'chargeur'];
 const MAX_DESCRIPTION = 400;
-let armesEtat = { armes: [], sha: null };
+let armesEtat = { armes: [], chapitres: [], sha: null };
+let chapitreArmes = null; // chapitre affiché (id) ; seules ses armes sont montrées
+const chapitresDe = (a) => (Array.isArray(a.chapitres) && a.chapitres.some(Number.isInteger) ? a.chapitres.filter(Number.isInteger) : [1]);
+const nomChapitre = (c) => c.nom?.fr || `Chapitre ${c.id}`;
+// Chapitres du menu : ceux renvoyés par le serveur, sinon ceux cités par les armes (serveur pas encore à jour).
+function chapitresConnus(lu, armes) {
+  const liste = Array.isArray(lu?.chapitres) ? lu.chapitres.filter((c) => Number.isInteger(c?.id)) : [];
+  const ids = [...new Set([...liste.map((c) => c.id), ...armes.flatMap(chapitresDe)])];
+  return ids.map((id) => ({ id, nom: liste.find((c) => c.id === id)?.nom ?? null }));
+}
+const armesDuChapitre = () => armesEtat.armes.filter((a) => chapitresDe(a).includes(chapitreArmes));
 let referenceArmes = '[]';
 function armesModifiees() { return !ecrans.armes.hidden && JSON.stringify(armesEtat.armes) !== referenceArmes; }
 // Réglages seuls (ce que le serveur accepte), dans un ordre stable pour comparer.
@@ -1411,9 +1421,43 @@ function majStatutArmes() {
   s.textContent = armesModifiees() ? 'Non enregistré' : `${affichees} affichée${affichees > 1 ? 's' : ''} sur ${n}`;
 }
 
+// Menu des chapitres : nom, nombre d'armes et d'armes affichées ; le chapitre choisi est signalé (aria-current).
+function rendreChapitresArmes() {
+  const ul = $('armes-chapitres');
+  ul.replaceChildren(...armesEtat.chapitres.map((c) => {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'admin-armes-chapitre';
+    b.dataset.chapitre = String(c.id);
+    if (c.id === chapitreArmes) b.setAttribute('aria-current', 'true');
+    const armes = armesEtat.armes.filter((a) => chapitresDe(a).includes(c.id));
+    const affichees = armes.filter((a) => !a.prochainement).length;
+    const nom = document.createElement('span');
+    nom.className = 'admin-armes-chapitre-nom';
+    nom.textContent = nomChapitre(c);
+    const detail = document.createElement('span');
+    detail.className = 'admin-armes-chapitre-detail';
+    detail.textContent = `${armes.length} arme${armes.length > 1 ? 's' : ''} · ${affichees} affichée${affichees > 1 ? 's' : ''}`;
+    b.append(nom, detail);
+    li.append(b);
+    return li;
+  }));
+  const courant = armesEtat.chapitres.find((c) => c.id === chapitreArmes);
+  $('armes-chapitre-titre').textContent = courant ? nomChapitre(courant) : '';
+}
+$('armes-chapitres').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-chapitre]');
+  if (!b) return;
+  chapitreArmes = Number(b.dataset.chapitre);
+  rendreArmes();
+  $('armes-chapitres').querySelector(`button[data-chapitre="${chapitreArmes}"]`)?.focus();
+});
+
 function rendreArmes() {
+  rendreChapitresArmes();
   const ol = $('armes-liste');
-  ol.replaceChildren(...armesEtat.armes.map((a, i) => {
+  ol.replaceChildren(...armesEtat.armes.map((a, i) => [a, i]).filter(([a]) => chapitresDe(a).includes(chapitreArmes)).map(([a, i]) => {
     const li = document.createElement('li');
     li.className = 'admin-carte admin-arme';
     li.dataset.index = String(i);
@@ -1531,6 +1575,7 @@ $('armes-liste').addEventListener('input', (e) => {
     a.prochainement = !champ.checked;
     li.dataset.cache = String(a.prochainement);
     li.querySelector('.admin-arme-etat').textContent = a.prochainement ? 'Cachée : « ? » sur le site' : 'Affichée sur le site';
+    rendreChapitresArmes(); // nombre d'armes affichées du chapitre
   } else if (cle === 'statsVisibles') a.statsVisibles = champ.checked;
   else if (cle.startsWith('description-')) {
     const l = cle.slice('description-'.length);
@@ -1555,8 +1600,11 @@ async function ouvrirArmes({ garde = null } = {}) {
     if (!(err instanceof ErreurSession)) annoncer(messageErreur(err), { type: 'erreur', duree: 0 });
     throw err;
   }
-  const propres = (liste) => liste.map((a) => ({ id: a.id, nom: a.nom ?? a.id, nomEn: a.nomEn ?? null, categorie: a.categorie ?? '', famille: a.famille ?? '', ...reglagesArme(a) }));
-  armesEtat = { armes: propres(lu.armes ?? []), sha: lu.sha ?? null };
+  const propres = (liste) => liste.map((a) => ({ id: a.id, nom: a.nom ?? a.id, nomEn: a.nomEn ?? null, categorie: a.categorie ?? '', famille: a.famille ?? '', chapitres: chapitresDe(a), ...reglagesArme(a) }));
+  const armes = propres(lu.armes ?? []);
+  armesEtat = { armes, chapitres: chapitresConnus(lu, armes), sha: lu.sha ?? null };
+  // Chapitre affiché : celui déjà choisi s'il existe encore, sinon le dernier (le plus récent).
+  if (!armesEtat.chapitres.some((c) => c.id === chapitreArmes)) chapitreArmes = armesEtat.chapitres.at(-1)?.id ?? 1;
   referenceArmes = JSON.stringify(armesEtat.armes);
   if (garde) { // réglages gardés pendant une expiration de session (empreinte : celle relue)
     const parId = new Map(garde.map((a) => [a.id, a]));
@@ -1582,7 +1630,7 @@ $('armes-annuler').addEventListener('click', () => {
 });
 for (const [id, cacher] of [['armes-tout-afficher', false], ['armes-tout-cacher', true]]) {
   $(id).addEventListener('click', () => {
-    armesEtat.armes.forEach((a) => { a.prochainement = cacher; });
+    armesDuChapitre().forEach((a) => { a.prochainement = cacher; }); // seulement le chapitre affiché
     rendreArmes();
   });
 }
@@ -1590,6 +1638,7 @@ $('armes-enregistrer').addEventListener('click', async () => {
   if (!armesModifiees()) { annoncer('Rien n’a changé : rien à enregistrer.'); return; }
   const sansStats = armesEtat.armes.findIndex((a) => a.statsVisibles && !a.stats);
   if (sansStats >= 0) {
+    if (!chapitresDe(armesEtat.armes[sansStats]).includes(chapitreArmes)) { chapitreArmes = chapitresDe(armesEtat.armes[sansStats])[0]; rendreArmes(); }
     erreurDans('erreur-armes', `${armesEtat.armes[sansStats].nom} : pour afficher les statistiques, remplissez-en au moins une (ou décochez « Afficher les statistiques »).`);
     $('armes-liste').querySelector(`li[data-index="${sansStats}"] input[data-cle^="stat-"]`)?.focus();
     return;
@@ -1601,7 +1650,8 @@ $('armes-enregistrer').addEventListener('click', async () => {
     const avant = new Map(JSON.parse(referenceArmes).map((a) => [a.id, JSON.stringify(reglagesArme(a))]));
     const changees = armesEtat.armes.map(reglagesArme).filter((r) => avant.get(r.id) !== JSON.stringify(r));
     const r = await appel('PUT', '/api/admin/armes', { corps: { armes: changees, sha: armesEtat.sha } });
-    armesEtat = { armes: (r.armes ?? []).map((a) => ({ id: a.id, nom: a.nom ?? a.id, nomEn: a.nomEn ?? null, categorie: a.categorie ?? '', famille: a.famille ?? '', ...reglagesArme(a) })), sha: r.sha ?? null };
+    const armes = (r.armes ?? []).map((a) => ({ id: a.id, nom: a.nom ?? a.id, nomEn: a.nomEn ?? null, categorie: a.categorie ?? '', famille: a.famille ?? '', chapitres: chapitresDe(a), ...reglagesArme(a) }));
+    armesEtat = { armes, chapitres: chapitresConnus(r, armes), sha: r.sha ?? null };
     referenceArmes = JSON.stringify(armesEtat.armes);
     rendreArmes();
     annoncer('Armes enregistrées : en ligne dans une minute environ (le temps que le site soit republié).', { duree: 9000 });
