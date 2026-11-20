@@ -114,8 +114,10 @@ personnage 1, tenues, visages, barbe, gilets.
   aplati, bord au-dessus des sourcils, jugulaires allongées. Plus de gilets texturés (tenues de la première v2 seulement) ; barbe gardée.
 - **Corps des survivants** (retour du propriétaire : « on dirait des sacs à patates ») : dans le jeu, le torse est une grosse capsule arrondie
   sur un tronc de cône, d'une seule couleur, avec une trame de tissu diagonale faite pour se lire de loin. Retouches de gros plan :
-  - **veste à la coupe nette** (`vesteScene` : boîte de la couleur de la tenue sur la poitrine, capsule rentrée dedans, ventre resserré ; bretelles
-    et harnais du jeu restent visibles devant) ;
+  - **veste à la coupe nette, d'un seul bloc** (`vesteScene` : boîte de la couleur de la tenue portée par la poitrine, du col au ceinturon qui
+    cache son bas ; capsule de la poitrine et ventre du jeu rentrés dedans ; bretelles et harnais du jeu visibles devant). Retour « le torse se
+    traverse » : une veste en deux morceaux (poitrine, ventre) se décalait quand le buste du tireur tourne ; la rotation du buste est aussi
+    répartie entre bassin (30 %), colonne (35 %) et poitrine (`tournerBuste`, `scene-v2/js/poses.js` ; pieds inchangés) ;
   - **trame des tissus adoucie** à 40 % de son relief (`adoucirTissus`, textures en 512 px : tissu, toile, laine, chevrons ; peau, cuir, métal,
     filet, camouflage et sang intacts) ; `?trame=jeu` : la trame du jeu ;
   - **contraste veste / pantalon** (`CONTRASTE`, réglage « ombre » des couleurs dérivées du jeu, aucun jeton nouveau) : pantalon olive du

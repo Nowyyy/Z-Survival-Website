@@ -177,6 +177,15 @@ recule puis revient) ; boucle parfaite (paysage 0,50 pour une moyenne de 0,56 ; 
 - Vérifications : `node scene-v2/outils/verifier.mjs` 51/51 ; boucle parfaite (paysage 0,47 pour une moyenne de 0,55 ; portrait 0,44 pour 0,58) ;
   planche refaite.
 
+## Torse qui se traversait (20/11/2026, branche `accueil-v2-torse`)
+- Retour : « le torse se traverse ? ». Cause : la veste ajoutée (boîte portée par la poitrine) tournait avec le buste de biais du tireur, mais
+  le ventre du jeu (porté par la colonne) restait en place : il dépassait sous la veste, et les bretelles rentraient dedans.
+- Correction : **veste d'un seul bloc**, du col au ceinturon (qui cache son bas), ventre du jeu resserré pour rester dedans, veste un peu moins
+  profonde (bretelles devant) ; rotation du buste répartie entre bassin, colonne et poitrine (pieds inchangés). Vérifié de face, de côté, de
+  dos et au recul du tir ; même veste pour le personnage 2.
+- Vérifications : `node scene-v2/outils/verifier.mjs` 51/51 ; boucle parfaite (paysage 0,47 pour une moyenne de 0,55 ; portrait 0,44 pour 0,58) ;
+  planche refaite.
+
 ## État git
 - Commits `accueil-v2 A` à `accueil-v2 E` sur la branche `accueil-v2` (poussée), PR vers `main` fusionnée par l'agent (règle de
   `CLAUDE.md`) : rien n'est visible des visiteurs.

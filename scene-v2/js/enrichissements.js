@@ -178,8 +178,11 @@ function contrasteTenue(v) {
 function vesteScene(v) {
   contrasteTenue(v);
   torseSousGilet(v, 17.4 / 2);
-  for (const p of v.parts) if (p.id === 'belly' && p.dims) p.dims = { ...p.dims, sx: Math.min(p.dims.sx ?? 1, 1.42) };
-  v.parts.push(box('vesteScene', 'chest', 'tenue', [17.4, 10.6, 10.8], [0, 4.0, 0], [0, 0, 0], { cloth: true }));
+  // Retour du propriétaire (« le torse se traverse ») : une veste en deux morceaux (poitrine, ventre) se décalait quand le buste tourne (tireur
+  // de biais). La veste est d'un seul bloc, portée par la poitrine, du col au ceinturon (qui cache son bas) ; le ventre du jeu, porté par la
+  // colonne, est resserré pour rester dedans. Profondeur choisie pour que les bretelles du jeu (devant la poitrine, à 5,2 – 5,8) passent devant.
+  for (const p of v.parts) if (p.id === 'belly' && p.dims) p.dims = { ...p.dims, sx: Math.min(p.dims.sx ?? 1, 1.1), sz: Math.min(p.dims.sz ?? 1, 0.7) };
+  v.parts.push(box('vesteScene', 'chest', 'tenue', [17.4, 17.2, 10.2], [0, 0.7, 0], [0, 0, 0], { cloth: true }));
 }
 
 // v2 (lot 5a) : p1 : variante du personnage 1 (visage en colère, paupières du clin d'œil) ; les variantes d'époque du jeu (lot 9g du jeu, niveau
