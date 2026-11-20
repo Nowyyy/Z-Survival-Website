@@ -57,6 +57,7 @@
         <button class="admin-bouton" id="ouvrir-page-a-propos" type="button">Modifier la page « À propos »</button>
         <button class="admin-bouton" id="ouvrir-bandeau" type="button">Modifier le bandeau d’alerte</button>
         <button class="admin-bouton" id="ouvrir-partage" type="button">Modifier l’aperçu de partage (Discord, WhatsApp…)</button>
+        <button class="admin-bouton" id="ouvrir-armes" type="button">Modifier les armes (affichage, descriptions, statistiques)</button>
       </div>
 
       <div class="admin-barre">
@@ -198,6 +199,30 @@
       <div class="admin-actions admin-actions-page">
         <button class="admin-bouton" id="bandeau-annuler" type="button">Annuler les changements</button>
         <button class="bouton bouton-principal" id="bandeau-enregistrer" type="button">Enregistrer et publier</button>
+      </div>
+    </section>
+
+    <!-- Écran 7 : armes de la section Armes (lot 6a) : affichée ou « ? », descriptions FR / EN, statistiques et leur affichage, dans
+         contenus/armes.json, réécrit dans le dépôt par le serveur (GET/PUT /api/admin/armes). -->
+    <section class="admin-ecran" id="ecran-armes" aria-labelledby="titre-armes" hidden>
+      <div class="admin-barre">
+        <button class="admin-bouton admin-bouton-discret" id="armes-retour" type="button">← Articles</button>
+        <span class="admin-statut" id="armes-statut" data-statut="publie"></span>
+      </div>
+      <h1 class="admin-titre" id="titre-armes">Armes</h1>
+      <p class="admin-aide">Les armes du jeu, dans l’ordre de la section Armes du site. Une arme <strong>cachée</strong> apparaît sous la forme d’un « ? » (ni image, ni nom, ni description) ; cochez « Afficher sur le site » pour la dévoiler. Statistiques : de 0 à 100 (la longueur de la barre), affichées seulement si vous cochez « Afficher les statistiques » ; sinon le site montre « Prochainement ». Texte simple. Les changements sont en ligne <strong>environ une minute</strong> après l’enregistrement. Les noms, catégories et images viennent du jeu (<code>outils/armes/copier-armes.mjs</code>).</p>
+      <div class="admin-actions admin-armes-tout">
+        <button class="admin-bouton" id="armes-tout-afficher" type="button">Tout afficher</button>
+        <button class="admin-bouton" id="armes-tout-cacher" type="button">Tout cacher (« ? »)</button>
+        <a class="admin-bouton admin-bouton-discret" href="../#weapons" target="_blank" rel="noopener">Voir la section sur le site ↗</a>
+      </div>
+
+      <ol class="admin-armes-liste" id="armes-liste"></ol>
+      <p class="admin-erreur" id="erreur-armes" role="alert" hidden></p>
+
+      <div class="admin-actions admin-actions-page">
+        <button class="admin-bouton" id="armes-annuler" type="button">Annuler les changements</button>
+        <button class="bouton bouton-principal" id="armes-enregistrer" type="button">Enregistrer et publier</button>
       </div>
     </section>
 

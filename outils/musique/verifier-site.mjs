@@ -225,7 +225,10 @@ for (const [k, cas] of CAS.entries()) {
   verifier(await page.evaluate(() => document.body.dataset.section) === 'weapons', 'clavier : flèche haut → Armes');
   verifier(await page.textContent('#titre-news') === 'Actualités', 'titres de section en français');
   const encarts = await page.$$eval('.a-venir-encart', (els) => els.map((e) => e.textContent));
-  verifier(encarts.length === 2 && encarts.every((x) => x === 'Prochainement'), `Personnages et Armes : encart « Prochainement » en français (${encarts.join(', ')})`);
+  // Lot 6a : la section Armes publiée (SECTION_ARMES_ACTIVE de js/donnees.js) n'a plus l'encart ; Personnages le garde.
+  const { SECTION_ARMES_ACTIVE } = await import(new URL('../../js/donnees.js', import.meta.url).href);
+  const attendus = SECTION_ARMES_ACTIVE ? 1 : 2;
+  verifier(encarts.length === attendus && encarts.every((x) => x === 'Prochainement'), `${SECTION_ARMES_ACTIVE ? 'Personnages' : 'Personnages et Armes'} : encart « Prochainement » en français (${encarts.join(', ')})`);
   verifier((await etat(page)).etat === 'lecture', 'la musique continue pendant la navigation');
 
   // En-tête sans chevauchement.

@@ -18,9 +18,12 @@ export const SOURCE_ARMES = 'contenus/armes.json';
 const FEUILLE = 'css/section-armes.css';
 // Ordre de référence des familles (la liste suit l'ordre où chaque famille apparaît dans les armes, rangées par « ordre »).
 export const FAMILLES = ['poing', 'carabine', 'pompe', 'mitraillette', 'assaut', 'lourde', 'speciale'];
-// Barres du panneau « Prochainement » : purement décoratives, identiques pour toutes les armes (elles ne disent rien de l'arme).
+// Statistiques (0 à 100, réglées depuis la page d'administration). Masquées (statsVisibles faux, ou arme secrète) : barres décoratives,
+// identiques pour toutes les armes (elles ne disent rien de l'arme), floutées sous l'encart « Prochainement ».
 const STATS = ['degats', 'cadence', 'portee', 'chargeur'];
 const BARRES_DECOR = [0.72, 0.48, 0.62, 0.38];
+const statsAffichees = (a) => !a.prochainement && a.statsVisibles === true && a.stats && typeof a.stats === 'object'
+  && STATS.some((c) => Number.isFinite(a.stats[c]));
 
 const image = (id, mini = false) => `img/armes/${id}${mini ? '-mini' : ''}.webp`;
 const deuxChiffres = (n) => String(n).padStart(2, '0');
@@ -197,7 +200,7 @@ export async function installerSectionArmes(section) {
     const ligneStat = el('span', 'arsenal-stat');
     ligneStat.append(l, barre);
     grille.append(ligneStat);
-    return { cle, l };
+    return { cle, l, remplissage, decor: BARRES_DECOR[i] };
   });
   const tampon = el('span', 'arsenal-stats-tampon');
   const statsCachees = el('span', 'actu-cache');
@@ -315,6 +318,16 @@ export async function installerSectionArmes(section) {
     filigraneTexte.style.setProperty('--largeur-em', String(Math.max(...motsFiligrane.map(largeurEm)).toFixed(3)));
     description.textContent = descriptionDe(a);
     tamponScene.textContent = t('commun.comingSoon');
+    // Statistiques : vraies barres si elles sont affichées, sinon barres décoratives sous « Prochainement ».
+    const vraies = statsAffichees(a);
+    corps.classList.toggle('stats-visibles', vraies);
+    libelles.forEach(({ cle, remplissage, decor }) => {
+      const v = vraies ? a.stats[cle] : null;
+      remplissage.style.setProperty('--valeur', String(vraies ? (Number.isFinite(v) ? v / 100 : 0) : decor));
+    });
+    statsCachees.textContent = vraies
+      ? STATS.filter((c) => Number.isFinite(a.stats[c])).map((c) => remplacer(t('weapons.statSur'), { nom: t(`weapons.stats.${c}`), n: a.stats[c] })).join(', ')
+      : t('weapons.statsCachees');
     visuel.alt = a.prochainement ? '' : remplacer(t('weapons.visuelAlt'), { nom: n });
     annonce.textContent = `${remplacer(t('weapons.position'), { n: courant + 1, total: armes.length })} : ${n}, ${categorieDe(a)}${a.prochainement ? `, ${t('commun.comingSoon')}` : ''}`;
   }
@@ -370,7 +383,6 @@ export async function installerSectionArmes(section) {
   function majLangue() {
     statsTitre.textContent = t('weapons.statsTitre');
     tampon.textContent = t('commun.comingSoon');
-    statsCachees.textContent = t('weapons.statsCachees');
     libelles.forEach(({ cle, l }) => { l.textContent = t(`weapons.stats.${cle}`); });
     titresFamilles.forEach(({ f, titre }) => { titre.textContent = libelle('familles', f); });
     choixChapitres.setAttribute('aria-label', t('weapons.chapitres'));

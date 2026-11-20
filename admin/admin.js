@@ -18,7 +18,7 @@ const TYPES_IMAGE = ['image/jpeg', 'image/png', 'image/webp'];
 const MOTIF_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const $ = (id) => document.getElementById(id);
-const ecrans = { connexion: $('ecran-connexion'), liste: $('ecran-liste'), editeur: $('ecran-editeur'), page: $('ecran-page'), bandeau: $('ecran-bandeau'), partage: $('ecran-partage') };
+const ecrans = { connexion: $('ecran-connexion'), liste: $('ecran-liste'), editeur: $('ecran-editeur'), page: $('ecran-page'), bandeau: $('ecran-bandeau'), partage: $('ecran-partage'), armes: $('ecran-armes') };
 
 // ---------- Messages ----------
 
@@ -83,6 +83,7 @@ function deconnecter(raison) {
   else if (pageModifiee()) travailGarde = { page: lireFormulairePage() };
   else if (bandeauModifie()) travailGarde = { bandeau: structuredClone(bandeau) };
   else if (partageModifie()) travailGarde = { partage: lireFormulairePartage() };
+  else if (armesModifiees()) travailGarde = { armes: structuredClone(armesEtat.armes) };
   effacerSession();
   fermerApercu();
   montrerEcran('connexion');
@@ -216,6 +217,7 @@ async function entrer() {
       if (garde.page) await ouvrirPage({ formulaire: garde.page });
       else if (garde.bandeau) await ouvrirBandeau({ garde: garde.bandeau });
       else if (garde.partage) await ouvrirPartage({ garde: garde.partage });
+      else if (garde.armes) await ouvrirArmes({ garde: garde.armes });
       else await ouvrirEditeur(garde.id, { formulaire: garde.formulaire });
       annoncer('Votre texte non enregistré a été rouvert. Pensez à l’enregistrer.', { duree: 8000 });
       return;
@@ -227,12 +229,13 @@ async function entrer() {
 }
 
 $('deconnexion').addEventListener('click', () => {
-  if ((estModifie() || pageModifiee() || bandeauModifie() || partageModifie()) && !window.confirm('Des modifications ne sont pas enregistrées. Se déconnecter quand même ?')) return;
+  if ((estModifie() || pageModifiee() || bandeauModifie() || partageModifie() || armesModifiees()) && !window.confirm('Des modifications ne sont pas enregistrées. Se déconnecter quand même ?')) return;
   travailGarde = null;
   definirReference();
   referencePage = JSON.stringify(lireFormulairePage());
   referenceBandeau = JSON.stringify(bandeau.messages);
   referencePartage = JSON.stringify(lireFormulairePartage());
+  referenceArmes = JSON.stringify(armesEtat.armes);
   deconnecter('Vous êtes déconnecté.');
 });
 
@@ -428,7 +431,7 @@ $('retour-liste').addEventListener('click', () => {
 
 // Alerte du navigateur si on quitte la page avec des modifications non enregistrées.
 window.addEventListener('beforeunload', (e) => {
-  if (!estModifie() && !pageModifiee() && !bandeauModifie() && !partageModifie() && !travailGarde) return;
+  if (!estModifie() && !pageModifiee() && !bandeauModifie() && !partageModifie() && !armesModifiees() && !travailGarde) return;
   e.preventDefault();
   e.returnValue = '';
 });
@@ -1374,6 +1377,238 @@ $('partage-enregistrer').addEventListener('click', async () => {
     if (err instanceof ErreurSession) return;
     if (err instanceof ErreurApi && err.statut === 409) erreurDans('erreur-partage', `${messageErreur(err)} Touchez « ← Articles », puis rouvrez l’aperçu.`);
     else erreurDans('erreur-partage', `Enregistrement impossible : ${messageErreur(err)}`);
+  } finally {
+    b.disabled = false;
+  }
+});
+
+// ---------- Armes de la section Armes (lot 6a) ----------
+// Réglages de contenus/armes.json (lus et réécrits dans le dépôt par le serveur, GET/PUT /api/admin/armes) : affichée ou « ? »,
+// descriptions FR / EN, statistiques de 0 à 100 et leur affichage. Les noms, catégories et images viennent du jeu (lecture seule ici).
+
+const STATS_ARMES = ['degats', 'cadence', 'portee', 'chargeur'];
+const MAX_DESCRIPTION = 400;
+let armesEtat = { armes: [], sha: null };
+let referenceArmes = '[]';
+function armesModifiees() { return !ecrans.armes.hidden && JSON.stringify(armesEtat.armes) !== referenceArmes; }
+// Réglages seuls (ce que le serveur accepte), dans un ordre stable pour comparer.
+const reglagesArme = (a) => ({
+  id: a.id,
+  prochainement: a.prochainement === true,
+  description: { fr: a.description?.fr ?? '', en: a.description?.en ?? '' },
+  stats: STATS_ARMES.some((c) => Number.isInteger(a.stats?.[c])) ? Object.fromEntries(STATS_ARMES.map((c) => [c, Number.isInteger(a.stats?.[c]) ? a.stats[c] : null])) : null,
+  statsVisibles: a.statsVisibles === true,
+});
+const libelleStat = (c) => TEXTES.fr.weapons.stats[c] ?? c;
+const libelleCategorie = (c) => TEXTES.fr.weapons.categories?.[c] ?? c;
+const libelleFamille = (f) => TEXTES.fr.weapons.familles?.[f] ?? f;
+
+function majStatutArmes() {
+  const n = armesEtat.armes.length;
+  const affichees = armesEtat.armes.filter((a) => !a.prochainement).length;
+  const s = $('armes-statut');
+  s.dataset.statut = armesModifiees() ? 'brouillon' : 'publie';
+  s.textContent = armesModifiees() ? 'Non enregistré' : `${affichees} affichée${affichees > 1 ? 's' : ''} sur ${n}`;
+}
+
+function rendreArmes() {
+  const ol = $('armes-liste');
+  ol.replaceChildren(...armesEtat.armes.map((a, i) => {
+    const li = document.createElement('li');
+    li.className = 'admin-carte admin-arme';
+    li.dataset.index = String(i);
+    li.dataset.cache = String(a.prochainement);
+    // Tête : miniature, nom, catégorie, interrupteur « Afficher sur le site ».
+    const tete = document.createElement('div');
+    tete.className = 'admin-arme-tete';
+    const img = document.createElement('img');
+    img.className = 'admin-arme-image';
+    img.src = `../img/armes/${a.id}-mini.webp`;
+    img.alt = '';
+    img.width = 320;
+    img.height = 160;
+    img.loading = 'lazy';
+    const ident = document.createElement('div');
+    ident.className = 'admin-arme-ident';
+    const nom = document.createElement('p');
+    nom.className = 'admin-arme-nom';
+    nom.textContent = a.nomEn && a.nomEn !== a.nom ? `${a.nom} (EN : ${a.nomEn})` : a.nom;
+    const cat = document.createElement('p');
+    cat.className = 'admin-aide';
+    cat.textContent = `${libelleCategorie(a.categorie)} · ${libelleFamille(a.famille)}`;
+    const etat = document.createElement('span');
+    etat.className = 'admin-arme-etat';
+    etat.textContent = a.prochainement ? 'Cachée : « ? » sur le site' : 'Affichée sur le site';
+    ident.append(nom, cat, etat);
+    tete.append(img, ident);
+    const inter = document.createElement('label');
+    inter.className = 'admin-interrupteur';
+    const coche = document.createElement('input');
+    coche.type = 'checkbox';
+    coche.checked = !a.prochainement;
+    coche.dataset.cle = 'afficher';
+    inter.append(coche, ' Afficher sur le site');
+    // Descriptions.
+    const descriptions = ['fr', 'en'].map((l) => {
+      const lab = document.createElement('label');
+      lab.className = 'admin-champ';
+      const e = document.createElement('span');
+      e.className = 'admin-etiquette';
+      const compteur = document.createElement('span');
+      compteur.className = 'admin-compteur';
+      compteur.dataset.compteur = l;
+      compteur.textContent = `${(a.description?.[l] ?? '').length} / ${MAX_DESCRIPTION}`;
+      e.append(l === 'fr' ? 'Description en français ' : 'Description en anglais ', compteur);
+      const zone = document.createElement('textarea');
+      zone.className = 'admin-arme-description';
+      zone.rows = 4;
+      zone.maxLength = MAX_DESCRIPTION;
+      zone.lang = l;
+      zone.spellcheck = true;
+      zone.dataset.cle = `description-${l}`;
+      zone.value = a.description?.[l] ?? '';
+      lab.append(e, zone);
+      return lab;
+    });
+    // Statistiques.
+    const bloc = document.createElement('fieldset');
+    bloc.className = 'admin-arme-stats';
+    const legende = document.createElement('legend');
+    legende.className = 'admin-etiquette';
+    legende.textContent = 'Statistiques (0 à 100)';
+    const grille = document.createElement('div');
+    grille.className = 'admin-arme-grille';
+    for (const c of STATS_ARMES) {
+      const lab = document.createElement('label');
+      lab.className = 'admin-arme-stat';
+      const t = document.createElement('span');
+      t.textContent = libelleStat(c);
+      const champ = document.createElement('input');
+      champ.type = 'number';
+      champ.min = '0';
+      champ.max = '100';
+      champ.step = '1';
+      champ.inputMode = 'numeric';
+      champ.dataset.cle = `stat-${c}`;
+      champ.value = Number.isInteger(a.stats?.[c]) ? String(a.stats[c]) : '';
+      champ.setAttribute('aria-label', `${libelleStat(c)} de ${a.nom}, de 0 à 100`);
+      const barre = document.createElement('span');
+      barre.className = 'admin-arme-barre';
+      barre.setAttribute('aria-hidden', 'true');
+      const plein = document.createElement('span');
+      plein.style.setProperty('--valeur', String((Number.isInteger(a.stats?.[c]) ? a.stats[c] : 0) / 100));
+      barre.append(plein);
+      lab.append(t, champ, barre);
+      grille.append(lab);
+    }
+    const voir = document.createElement('label');
+    voir.className = 'admin-interrupteur';
+    const cocheStats = document.createElement('input');
+    cocheStats.type = 'checkbox';
+    cocheStats.checked = a.statsVisibles;
+    cocheStats.dataset.cle = 'statsVisibles';
+    voir.append(cocheStats, ' Afficher les statistiques (sinon « Prochainement »)');
+    bloc.append(legende, grille, voir);
+    if (a.prochainement && a.statsVisibles) {
+      const note = document.createElement('p');
+      note.className = 'admin-aide';
+      note.textContent = 'Arme cachée : ses statistiques restent masquées tant qu’elle n’est pas affichée.';
+      bloc.append(note);
+    }
+    li.append(tete, inter, ...descriptions, bloc);
+    return li;
+  }));
+  majStatutArmes();
+}
+
+$('armes-liste').addEventListener('input', (e) => {
+  const champ = e.target;
+  const li = champ.closest('li[data-index]');
+  if (!li || !champ.dataset.cle) return;
+  const a = armesEtat.armes[Number(li.dataset.index)];
+  const cle = champ.dataset.cle;
+  if (cle === 'afficher') {
+    a.prochainement = !champ.checked;
+    li.dataset.cache = String(a.prochainement);
+    li.querySelector('.admin-arme-etat').textContent = a.prochainement ? 'Cachée : « ? » sur le site' : 'Affichée sur le site';
+  } else if (cle === 'statsVisibles') a.statsVisibles = champ.checked;
+  else if (cle.startsWith('description-')) {
+    const l = cle.slice('description-'.length);
+    a.description = { ...a.description, [l]: champ.value };
+    li.querySelector(`[data-compteur="${l}"]`).textContent = `${champ.value.length} / ${MAX_DESCRIPTION}`;
+  } else if (cle.startsWith('stat-')) {
+    const c = cle.slice('stat-'.length);
+    const v = champ.value === '' ? null : Math.round(Number(champ.value));
+    const propre = Number.isFinite(v) ? Math.max(0, Math.min(100, v)) : null;
+    const stats = { ...Object.fromEntries(STATS_ARMES.map((k) => [k, a.stats?.[k] ?? null])), [c]: propre };
+    a.stats = STATS_ARMES.some((k) => Number.isInteger(stats[k])) ? stats : null;
+    champ.parentElement.querySelector('.admin-arme-barre span').style.setProperty('--valeur', String((propre ?? 0) / 100));
+  }
+  majStatutArmes();
+});
+
+async function ouvrirArmes({ garde = null } = {}) {
+  let lu;
+  try {
+    lu = await appel('GET', '/api/admin/armes');
+  } catch (err) {
+    if (!(err instanceof ErreurSession)) annoncer(messageErreur(err), { type: 'erreur', duree: 0 });
+    throw err;
+  }
+  const propres = (liste) => liste.map((a) => ({ id: a.id, nom: a.nom ?? a.id, nomEn: a.nomEn ?? null, categorie: a.categorie ?? '', famille: a.famille ?? '', ...reglagesArme(a) }));
+  armesEtat = { armes: propres(lu.armes ?? []), sha: lu.sha ?? null };
+  referenceArmes = JSON.stringify(armesEtat.armes);
+  if (garde) { // réglages gardés pendant une expiration de session (empreinte : celle relue)
+    const parId = new Map(garde.map((a) => [a.id, a]));
+    armesEtat.armes = armesEtat.armes.map((a) => (parId.has(a.id) ? { ...a, ...reglagesArme(parId.get(a.id)) } : a));
+  }
+  erreurDans('erreur-armes', null);
+  montrerEcran('armes');
+  rendreArmes();
+}
+
+$('ouvrir-armes').addEventListener('click', () => ouvrirArmes().catch(() => {}));
+$('armes-retour').addEventListener('click', () => {
+  if (armesModifiees() && !window.confirm('Des modifications ne sont pas enregistrées. Quitter quand même ?')) return;
+  referenceArmes = JSON.stringify(armesEtat.armes);
+  afficherListe();
+});
+$('armes-annuler').addEventListener('click', () => {
+  if (!armesModifiees()) { annoncer('Aucun changement à annuler.'); return; }
+  if (!window.confirm('Revenir aux réglages enregistrés ? Les changements en cours seront perdus.')) return;
+  armesEtat.armes = JSON.parse(referenceArmes);
+  erreurDans('erreur-armes', null);
+  rendreArmes();
+});
+for (const [id, cacher] of [['armes-tout-afficher', false], ['armes-tout-cacher', true]]) {
+  $(id).addEventListener('click', () => {
+    armesEtat.armes.forEach((a) => { a.prochainement = cacher; });
+    rendreArmes();
+  });
+}
+$('armes-enregistrer').addEventListener('click', async () => {
+  if (!armesModifiees()) { annoncer('Rien n’a changé : rien à enregistrer.'); return; }
+  const sansStats = armesEtat.armes.findIndex((a) => a.statsVisibles && !a.stats);
+  if (sansStats >= 0) {
+    erreurDans('erreur-armes', `${armesEtat.armes[sansStats].nom} : pour afficher les statistiques, remplissez-en au moins une (ou décochez « Afficher les statistiques »).`);
+    $('armes-liste').querySelector(`li[data-index="${sansStats}"] input[data-cle^="stat-"]`)?.focus();
+    return;
+  }
+  const b = $('armes-enregistrer');
+  b.disabled = true;
+  erreurDans('erreur-armes', null);
+  try {
+    const avant = new Map(JSON.parse(referenceArmes).map((a) => [a.id, JSON.stringify(reglagesArme(a))]));
+    const changees = armesEtat.armes.map(reglagesArme).filter((r) => avant.get(r.id) !== JSON.stringify(r));
+    const r = await appel('PUT', '/api/admin/armes', { corps: { armes: changees, sha: armesEtat.sha } });
+    armesEtat = { armes: (r.armes ?? []).map((a) => ({ id: a.id, nom: a.nom ?? a.id, nomEn: a.nomEn ?? null, categorie: a.categorie ?? '', famille: a.famille ?? '', ...reglagesArme(a) })), sha: r.sha ?? null };
+    referenceArmes = JSON.stringify(armesEtat.armes);
+    rendreArmes();
+    annoncer('Armes enregistrées : en ligne dans une minute environ (le temps que le site soit republié).', { duree: 9000 });
+  } catch (err) {
+    if (err instanceof ErreurSession) return;
+    if (err instanceof ErreurApi && err.statut === 409) erreurDans('erreur-armes', `${messageErreur(err)} Touchez « ← Articles », puis rouvrez les armes.`);
+    else erreurDans('erreur-armes', `Enregistrement impossible : ${messageErreur(err)}`);
   } finally {
     b.disabled = false;
   }
